@@ -1,0 +1,26 @@
+Driver:
+
+  CameraLeft:
+    Server: 2 # 0 -> Deactivate, 1 -> Ice , 2 -> ROS
+    Proxy: "cam_f1_left:tcp -h localhost -p 8995"
+    Format: RGB8
+    Topic: "/F1ROS/CameraL/image_raw"
+    Name: FollowLineF1CameraLeft
+
+  Motors:
+    Server: 0 # 0 -> Deactivate, 1 -> Ice , 2 -> ROS
+    Proxy: "Motors:tcp -h localhost -p 9999"
+    Topic: "/F1ROS/Motors"
+    Name: FollowLineF1Motors
+
+  robot: F1
+
+  Network:
+    Framework: Keras  # Currently supported: "Keras" or "TensorFlow"
+    Model_Classification_w: models/model_smaller_vgg_7classes_biased_cropped_w.h5
+    Model_Classification_v: models/model_smaller_vgg_5classes_biased_cropped_v.h5
+    Model_Regression_v: models/model_controlnet_v.h5
+    Model_Regression_w: models/model_controlnet_w.h5
+    #Model: ssdlite_mobilenet_v2_coco_2018_05_29.pb
+    Dataset: Net/Dataset
+NodeName: Driver
