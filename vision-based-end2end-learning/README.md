@@ -1,4 +1,4 @@
-# 2017 TFM Vanessa Fernandez
+# Vision-based end-to-end learning
 
 ## Info
 
