@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-09-07T12:41:37+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Robotics Lab Club</title><subtitle>Programming Robot Intelligence</subtitle><author><name>Your Name</name></author><entry><title type="html">My first post</title><link href="http://localhost:4000/your%20category/previous-work/" rel="alternate" type="text/html" title="My first post" /><published>2019-09-05T00:00:00+02:00</published><updated>2019-09-05T00:00:00+02:00</updated><id>http://localhost:4000/your%20category/previous-work</id><content type="html" xml:base="http://localhost:4000/your%20category/previous-work/">&lt;p&gt;Simple text to see the appearance and result of the documentation in a post.&lt;/p&gt;
+
+&lt;h2 id=&quot;title-1&quot;&gt;Title 1&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://getlorem.com/es/&quot;&gt;Lorem ipsum&lt;/a&gt; dolor sit amet consectetur adipiscing elit odio, ullamcorper orci torquent tristique habitasse interdum integer ridiculus, lectus pellentesque mus donec morbi sapien molestie. Libero platea vivamus tortor fringilla vel penatibus ut egestas, etiam aptent himenaeos magnis facilisi iaculis placerat. Congue fusce nisl torquent ridiculus eleifend diam vehicula egestas iaculis, erat purus eget facilisis metus neque ante suscipit scelerisque vel, commodo potenti lacinia etiam lectus nam facilisi ac.&lt;/p&gt;
+
+&lt;h2 id=&quot;title-2&quot;&gt;Title 2&lt;/h2&gt;
+
+&lt;p&gt;Tempor montes aenean dis fusce viverra, parturient eros per torquent tristique pharetra, magnis enim vivamus inceptos. Aliquam malesuada fames parturient mauris congue cubilia fringilla dui, venenatis varius cursus class vitae magna sollicitudin, nulla euismod pretium feugiat nunc aliquet eleifend. Sollicitudin enim mus feugiat sociosqu lobortis ridiculus magnis tempus varius, habitasse cursus neque pulvinar iaculis molestie quam dis rutrum, tortor vel proin vehicula montes id leo turpis.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Lorem ipsum dolor sit amet consectetur adipiscing elit odio, ullamcorper orci torquent tristique habitasse interdum integer ridiculus, lectus pellentesque mus donec morbi sapien molestie.&lt;/li&gt;
+  &lt;li&gt;Libero platea vivamus tortor fringilla vel penatibus ut egestas, etiam aptent himenaeos magnis facilisi iaculis placerat.&lt;/li&gt;
+  &lt;li&gt;Congue fusce nisl torquent ridiculus eleifend diam vehicula egestas iaculis, erat purus eget facilisis metus neque ante suscipit scelerisque vel, commodo potenti lacinia etiam lectus nam facilisi ac.&lt;/li&gt;
+  &lt;li&gt;Tempor montes aenean dis fusce viverra, parturient eros per torquent tristique pharetra, magnis enim vivamus inceptos.&lt;/li&gt;
+  &lt;li&gt;Aliquam malesuada fames parturient mauris congue cubilia fringilla dui, venenatis varius cursus class vitae magna sollicitudin, nulla euismod pretium feugiat nunc aliquet eleifend. Sollicitudin enim mus feugiat sociosqu lobortis ridiculus magnis tempus varius, habitasse cursus neque pulvinar iaculis molestie quam dis rutrum, tortor vel proin vehicula montes id leo turpis.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Tony Stark</name></author><category term="tag 1" /><category term="tag 2" /><category term="tag 3" /><category term="tag 4" /><summary type="html">This is an example of my first post</summary></entry><entry><title type="html">Ecuations</title><link href="http://localhost:4000/your%20category/ecuations/" rel="alternate" type="text/html" title="Ecuations" /><published>2019-09-03T00:00:00+02:00</published><updated>2019-09-03T00:00:00+02:00</updated><id>http://localhost:4000/your%20category/ecuations</id><content type="html" xml:base="http://localhost:4000/your%20category/ecuations/">&lt;h2 id=&quot;how-do-you-use-them&quot;&gt;How do you use them?&lt;/h2&gt;
+
+&lt;p&gt;The equations admitted are those usually used in Latex and Markdown. Thanks to the mathjax library they are rendered.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\frac{-b\pm\sqrt{b^2-4ac}}{2a}&lt;/script&gt;
+
+&lt;p&gt;Thanks to this library and the integration with Minimal Mistakes, the result of your documentation will look spectacular.&lt;/p&gt;</content><author><name>Tony Stark</name></author><category term="tag 1" /><category term="tag 2" /><category term="tag 3" /><category term="tag 4" /><summary type="html">The template has been set up to administer equations</summary></entry></feed>
