@@ -8,7 +8,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from QLed import QLed
-from Net.generator import *
+from net.generator import *
 
 
 class MainWindow(QtWidgets.QWidget):
