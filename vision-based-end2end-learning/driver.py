@@ -33,7 +33,7 @@ from MyAlgorithm import MyAlgorithm
 from PyQt5.QtWidgets import QApplication
 from interfaces.camera import ListenerCamera
 from interfaces.motors import PublisherMotors
-from Net.threadNetwork import ThreadNetwork
+from net.threadNetwork import ThreadNetwork
 
 
 def readConfig():
@@ -47,35 +47,38 @@ def readConfig():
         raise SystemExit('\n\tUsage: python2 driver.py driver.yml\n')
 
 
-def selectNetwork(cfg):
+def create_network(cfg):
     """
     :param cfg: configuration
     :return net_prop, DetectionNetwork: network properties and Network class
     :raise SystemExit in case of invalid network
     """
-    net_prop = cfg['Driver']['Network']
-    framework = net_prop['Framework']
-    if framework == 'Tensorflow' or framework.lower() == 'tensorflow':
-        #from Net.TensorFlow.network import ClassificationNetwork
-        from Net.TensorFlow.network import RegressionNetwork
-    elif framework == 'Keras' or framework.lower() == 'keras':
-        sys.path.append('Net/Keras')
-        #from Net.Keras.classification_network import ClassificationNetwork
-        from Net.Keras.regression_network import RegressionNetwork
-    else:
-        raise SystemExit(('%s not supported! Supported frameworks: Keras, TensorFlow') % (framework))
-    #return net_prop, ClassificationNetwork
-    return net_prop, RegressionNetwork
+    net_cfg = cfg['Driver']['Network']
+    net_framework = net_cfg['Framework']
+    net_type = net_cfg['Use']
+    net = None
+
+    if net_type.lower() == 'classification':
+        if net_framework.lower() == 'tensorflow':
+            from net.tensorflow.classification_network import ClassificationNetwork
+        elif net_framework.lower() == 'keras':
+            from net.keras.classification_network import ClassificationNetwork
+        net = ClassificationNetwork(net_cfg)
+    elif net_type.lower() == 'regression':
+        if net_framework.lower() == 'tensorflow':
+            from net.tensorflow.regression_network import RegressionNetwork
+        elif net_framework.lower() == 'keras':
+            from net.keras.regression_network import RegressionNetwork
+        net = RegressionNetwork(net_cfg)
+
+    return net
+    
 
 
 if __name__ == "__main__":
 
     cfg = readConfig()
-    #net_prop, ClassificationNetwork = selectNetwork(cfg)
-    net_prop, RegressionNetwork = selectNetwork(cfg)
-
-    #network = ClassificationNetwork(net_prop)
-    network = RegressionNetwork(net_prop)
+    network = create_network(cfg)
 
     camera = ListenerCamera("/F1ROS/cameraL/image_raw")
     motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)    

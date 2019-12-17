@@ -12,8 +12,8 @@ from keras.models import load_model
 class RegressionNetwork():
     def __init__(self, net_model):
         # Load models
-        self.model_file_v = 'Net/Keras/' + net_model['Model_Regression_v']
-        self.model_file_w = 'Net/Keras/' + net_model['Model_Regression_w']
+        self.model_file_v = net_model['Models_Path'] + "/" + net_model['Model_Regression_v']
+        self.model_file_w = net_model['Models_Path'] + "/" + net_model['Model_Regression_w']
         self.model_v = load_model(self.model_file_v)
         self.model_w = load_model(self.model_file_w)
 
