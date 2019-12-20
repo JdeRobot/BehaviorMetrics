@@ -7,18 +7,23 @@ import numpy as np
 import tensorflow as tf
 
 from keras.models import load_model
+from keras.backend import set_session
 
 
 class RegressionNetwork():
     def __init__(self, net_model):
+
+        self.sess = tf.Session()
+        # Obtain the graph
+        self.graph = tf.get_default_graph()
+        set_session(self.sess)
+
+
         # Load models
         self.model_file_v = net_model['Models_Path'] + "/" + net_model['Model_Regression_v']
         self.model_file_w = net_model['Models_Path'] + "/" + net_model['Model_Regression_w']
         self.model_v = load_model(self.model_file_v)
         self.model_w = load_model(self.model_file_w)
-
-        # Obtain the graph
-        self.graph = tf.get_default_graph()
 
         # The Keras network works on 160x120
         self.img_height = 120
@@ -129,6 +134,7 @@ class RegressionNetwork():
 
             # While predicting, use the same graph
             with self.graph.as_default():
+                set_session(self.sess)
                 # Make prediction
                 predictions_v = self.model_v.predict(input_img)
                 predictions_w = self.model_w.predict(input_img)
