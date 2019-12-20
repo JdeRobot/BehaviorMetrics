@@ -65,8 +65,7 @@ def create_network(cfg):
         Net = getattr(module_import, net_type + 'Network')
         net = Net(net_cfg)
     except:
-        print('ERROR: Invalid network selected')
-        sys.exit(1)
+        raise SystemExit('ERROR: Invalid network selected')
 
     return net
 
