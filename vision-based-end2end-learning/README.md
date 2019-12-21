@@ -10,6 +10,12 @@
 
 - First of all, we need to install the JdeRobot packages. We need two packages: [JdeRobot-base](https://github.com/JdeRobot/base) and [JdeRobot-assets](https://github.com/JdeRobot/assets). You can follow [this tutorial](https://github.com/JdeRobot/base#getting-environment-ready) for the complete installation.
 
+- Install ROS plugins typing:
+
+    ```bash
+    sudo apt install ros-melodic-gazebo-plugins
+    ```
+
 - Download dataset from [this link]().
 
 - Clone the repository :
