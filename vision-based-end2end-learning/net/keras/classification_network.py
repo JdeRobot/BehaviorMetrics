@@ -8,18 +8,21 @@ import tensorflow as tf
 import sys
 
 from keras.models import load_model
-
+from keras.backend import set_session
 
 class ClassificationNetwork():
     def __init__(self, net_model):
+
+        # Obtain the graph
+        self.sess = tf.Session()
+        self.graph = tf.get_default_graph()
+        set_session(self.sess)
+      
         # Load model
         self.model_file_v = net_model['Models_Path'] + "/" + net_model['Model_Classification_v']
         self.model_file_w = net_model['Models_Path'] + "/" + net_model['Model_Classification_w']
         self.model_v = load_model(self.model_file_v)
         self.model_w = load_model(self.model_file_w)
-
-        # Obtain the graph
-        self.graph = tf.get_default_graph()
 
         # The Keras network works on 160x120
         #self.img_height = 120
@@ -109,6 +112,7 @@ class ClassificationNetwork():
             # While predicting, use the same graph
             with self.graph.as_default():
                 # Make prediction
+                set_session(self.sess)
                 predictions_v = self.model_v.predict(input_img)
                 predictions_w = self.model_w.predict(input_img)
             y_pred_v = [np.argmax(prediction) for prediction in predictions_v][0]

@@ -25,6 +25,7 @@
 # General imports
 import sys
 import yaml
+import importlib
 
 # Practice imports
 from gui.GUI import MainWindow
@@ -50,7 +51,7 @@ def readConfig():
 def create_network(cfg):
     """
     :param cfg: configuration
-    :return net_prop, DetectionNetwork: network properties and Network class
+    :return net: network instance built from configuration options
     :raise SystemExit in case of invalid network
     """
     net_cfg = cfg['Driver']['Network']
@@ -58,22 +59,15 @@ def create_network(cfg):
     net_type = net_cfg['Use']
     net = None
 
-    if net_type.lower() == 'classification':
-        if net_framework.lower() == 'tensorflow':
-            from net.tensorflow.classification_network import ClassificationNetwork
-        elif net_framework.lower() == 'keras':
-            from net.keras.classification_network import ClassificationNetwork
-        net = ClassificationNetwork(net_cfg)
-    elif net_type.lower() == 'regression':
-        if net_framework.lower() == 'tensorflow':
-            from net.tensorflow.regression_network import RegressionNetwork
-        elif net_framework.lower() == 'keras':
-            from net.keras.regression_network import RegressionNetwork
-        net = RegressionNetwork(net_cfg)
+    try:
+        module_name = 'net.' + net_framework.lower() + '.' + net_type.lower() + '_network'
+        module_import = importlib.import_module(module_name)
+        Net = getattr(module_import, net_type + 'Network')
+        net = Net(net_cfg)
+    except:
+        raise SystemExit('ERROR: Invalid network selected')
 
     return net
-    
-
 
 if __name__ == "__main__":
 
@@ -82,7 +76,7 @@ if __name__ == "__main__":
 
     camera = ListenerCamera("/F1ROS/cameraL/image_raw")
     motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)    
-    # Le pasas a 
+
     network.setCamera(camera)
     t_network = ThreadNetwork(network)
     t_network.start()
