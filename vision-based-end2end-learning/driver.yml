@@ -16,7 +16,7 @@ Driver:
   robot: F1
 
   Network:
-    Framework: Keras  # Currently supported: "Keras" or "TensorFlow"
+    Framework: keras  # Currently supported: "Keras" or "TensorFlow"
     Use: Classification # or Regression  -- caps are important! -- 
     Model_Classification_w: model_smaller_vgg_7classes_biased_cropped_w.h5
     Model_Classification_v: model_smaller_vgg_5classes_biased_cropped_v.h5

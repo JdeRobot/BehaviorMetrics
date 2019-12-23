@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-#  Copyright (C) 1997-2018 JDE Developers Team
+#  Copyright (C) 1997-2018 JdeRobot Developers Team
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -63,11 +63,13 @@ def create_network(cfg):
         module_name = 'net.' + net_framework.lower() + '.' + net_type.lower() + '_network'
         module_import = importlib.import_module(module_name)
         Net = getattr(module_import, net_type + 'Network')
+        print("\n\n",Net,"\n\n")
         net = Net(net_cfg)
     except:
         raise SystemExit('ERROR: Invalid network selected')
 
     return net
+
 
 if __name__ == "__main__":
 
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     network = create_network(cfg)
 
     camera = ListenerCamera("/F1ROS/cameraL/image_raw")
-    motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)    
+    motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)
 
     network.setCamera(camera)
     t_network = ThreadNetwork(network)
@@ -90,10 +92,8 @@ if __name__ == "__main__":
     myGUI.setAlgorithm(algorithm)
     myGUI.show()
 
-
     t2 = ThreadGUI(myGUI)
     t2.daemon=True
     t2.start()
-
 
     sys.exit(app.exec_())

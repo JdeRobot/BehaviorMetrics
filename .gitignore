@@ -67,6 +67,8 @@
 *.3dm
 *.max
 
+*.h5
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 *.pyc
