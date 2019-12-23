@@ -9,7 +9,32 @@ import jderobot
 import cv2
 import numpy as np
 
+from interfaces.motors import PublisherMotors
+
+
 time_cycle = 80
+
+
+
+# Show text into an image
+font = cv2.FONT_HERSHEY_SIMPLEX
+
+witdh = 640
+mid = 320
+
+last_center_line = 0
+
+# Constantes de giro - kp más alta corrige más
+kp = 0.02       ## valores para 20 m/s --> 0.019
+kd = 0.012        ## valores para 20 m/s --> 0.011
+last_error = 0
+
+# Constantes de Velocidad
+kpv = 0.01    ## valores para 20 m/s --> 0.09
+kdv = 0.03   ## valores para 20 m/s --> 0.003
+vel_max = 20  ## probado con 20 m/s
+last_vel = 0
+
 
 class MyAlgorithm(threading.Thread):
 
@@ -23,10 +48,8 @@ class MyAlgorithm(threading.Thread):
         self.kill_event = threading.Event()
         self.lock = threading.Lock()
         self.threshold_image_lock = threading.Lock()
-
         self.color_image_lock = threading.Lock()
         threading.Thread.__init__(self, args=self.stop_event)
-
         self.cont = 0
     
     def getImage(self):
@@ -170,7 +193,7 @@ class MyAlgorithm(threading.Thread):
             self.motors.sendW(-1.8)
 
 
-
+    
     def algorithm(self):
         #GETTING THE IMAGES
         image = self.getImage()
@@ -194,6 +217,80 @@ class MyAlgorithm(threading.Thread):
         # self.net_classification_7w_4v(prediction_v, prediction_w)
         self.net_classification_7w_5v(prediction_v, prediction_w)
 
-        
         #SHOW THE FILTERED IMAGE ON THE GUI
         self.set_threshold_image(image)
+    
+
+
+
+
+
+
+
+
+
+
+
+    # def processed_image(self, img):
+        
+    #     img = img[220:]
+    #     img_proc = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    #     mask = cv2.inRange(img_proc, (1, 235, 60), (180, 255, 255))
+    #     wall = img[12][320][0]
+    #     line = mask[30,:]
+    #     base = mask[250,:]
+            
+    #     try:
+    #         line_center = np.divide(np.max(np.nonzero(line)) - np.min(np.nonzero(line)), 2)
+    #         line_center = np.min(np.nonzero(line)) + line_center
+    #     except ValueError:
+    #         line_center = last_center_line
+            
+    #     # Puntos centrales de la línea segmentada
+    #     cv2.line(img, (line_center, 30), (line_center, 30), (255, 255, 255), thickness=5)
+        
+    #     cv2.line(img, (320, 30),  (320, 30),  (0, 255, 0), thickness=5)
+    #     cv2.line(img, (320, 12),  (320, 12),  (255, 255, 0), thickness=5)
+
+    #     cv2.line(img, (320, 30), (line_center, 30),  (255, 0, 0), thickness=2)
+        
+    #     return mask, line_center, wall
+
+
+
+    # # EXECUTE
+    # def algorithm(self):
+        
+    #     img = self.getImage()
+    #     img_proc, line_center, wall = self.processed_image(img)
+    #     error_line = np.subtract(mid, line_center).item()
+
+
+    #     global last_error
+    #     global vel_max
+    #     global last_vel
+        
+    #     giro = kp * error_line + kd * (error_line - last_error)
+    #     self.motors.sendW(giro)
+
+    #     vel_error = kpv * abs(error_line) + abs(kdv * (error_line - last_error))
+        
+    #     if abs(error_line) in range(0, 15) and wall >= 178:
+    #         self.motors.sendV(vel_max)
+    #     elif wall in range(0,179):
+    #         if wall < 50:
+    #             brake = 10
+    #         else:
+    #             brake = 5
+    #         vel_correccion = abs(vel_max - vel_error - brake)
+    #         self.motors.sendV(vel_correccion)
+    #     elif wall == 0:
+    #         vel_correccion = abs(vel_max - vel_error - (2 * brake))
+    #         self.motors.sendV(vel_correccion)
+    #     else:
+    #         pass
+
+    #     last_error = error_line
+    #     last_vel = vel_max
+
+    #     self.set_threshold_image(img_proc)
