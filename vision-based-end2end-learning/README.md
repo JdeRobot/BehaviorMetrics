@@ -63,7 +63,7 @@ python2 driver.py driver.yml
 
 For this solution, the code developed in the robotics course of the official master's degree in artificial vision has been used. The structure of the project allows to combine between the different solutions. As a first approach, the one developed manually by a student or user is used.
 
-An excerpt of the solution can be seen in the following gif.¡:
+An excerpt of the solution can be seen in the following gif:
 
 <img src="./docs/imgs/piloto_esplicito.gif" alt="piloto_esplicito" style="zoom:40%;" />
 
