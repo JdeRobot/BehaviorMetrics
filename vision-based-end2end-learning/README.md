@@ -1,10 +1,20 @@
 # Vision-based end-to-end learning
 
+1. [Usage](#usage)
+
+2. [Solutions](#solutions)
+
+   2.1. [Manual Solution](#21-manual-solution)
+
+   2.2. [Classification Network](#22-classification-network)
+
+   2.3. [Regression Network](#23-regression-network)
+
 ## Info
 
-- More detailed info at my wiki https://jderobot.org/Vmartinezf-tfm
+- More detailed info at my [wiki](https://jderobot.org/Vmartinezf-tfm).
 
-- More detailed info at my Github-pages https://roboticslaburjc.github.io/2017-tfm-vanessa-fernandez/
+- More detailed info at my [Github-pages](https://roboticslaburjc.github.io/2017-tfm-vanessa-fernandez/).
 
 ## Usage
 
@@ -27,7 +37,7 @@
 - Create and activate a virtual environment:
 
     ```bash
-    virtualenv -p python2.7 virtualenv --system-site-packages 
+    virtualenv -p python2.7 --system-site-packages neural_behavior_env
     ```
 
 - Install `requirements`:
@@ -47,9 +57,70 @@ Then you have to execute the application, which will incorporate your code:
 python2 driver.py driver.yml
 ```
 
-## Solutions
+## 2. Solutions
 
-### Train Classification Network
+### 2.1. Manual Solution
+
+For this solution, the code developed in the robotics course of the official master's degree in artificial vision has been used. The structure of the project allows to combine between the different solutions. As a first approach, the one developed manually by a student or user is used.
+
+An excerpt of the solution can be seen in the following gif.¡:
+
+<img src="./docs/imgs/piloto_esplicito.gif" alt="piloto_esplicito" style="zoom:40%;" />
+
+
+
+### 2.2. Classification Network
+
+The solution using classification networks leaves a somewhat slower solution than the manual solution but equally useful. A piece of the solution can be seen in the following gif.
+
+<img src="./docs/imgs/piloto_neuronal.gif" alt="piloto_neuronal" style="zoom:40%;" />
+
+Depending on the type of network you want to run (normal or cropped) you have to change the size of the images entering the network in the `ckassification_network.py` file.
+
+For **cropped images**, the values are:
+
+```python
+. . .
+self.img_height = 60
+self.img_width = 160
+. . . 
+```
+
+You also need to change the predict method to configure it to the image type:
+
+```python
+def predict(self):
+    input_image = self.camera.getImage()
+    # Preprocessing
+    img = cv2.cvtColor(input_image.data[240:480, 0:640], cv2.COLOR_RGB2BGR)
+    . . .
+```
+
+For **normal images**, the default value is:
+
+```python
+. . . 
+self.img_height = 120
+. . .
+```
+
+The `predict` method is the same but without cropping the image:
+
+```python
+def predict(self):
+    input_image = self.camera.getImage()
+    # Preprocessing
+    img = cv2.cvtColor(input_image.data, cv2.COLOR_RGB2BGR)
+    . . .
+```
+
+In the same file you can specify the number of output classes, which refers to the number of possible rotation angles.
+
+```python
+self.num_classes_w = 7
+```
+
+#### Train Classification Network
 
 To train the classification network to run the file:
 
@@ -66,7 +137,7 @@ When the program is running it will ask for data to know the characteristics of 
 
 3. **Choose the type of image you want:** `normal` or `cropped`: *you can choose `normal` or `cropped`. If you want to train with the full image you have to choose `normal` and if you want to train with the cropped image choose `cropped`.*
 
-4. **Choose the type of network you want: normal, biased or balanced:**** *this option refers to the type of dataset or training you want.* 
+4. **Choose the type of network you want: normal, biased or balanced:** *this option refers to the type of dataset or training you want.* 
 
    *The documentation talks about having on the one hand a training with the whole dataset without any type of treatment of the number of images for each class (there were many more straight lines than curves) or using a balanced dataset that we created keeping the same number of images for each class (v and w),* 
 
@@ -81,3 +152,37 @@ When the program is running it will ask for data to know the characteristics of 
    *then with this option you can give more weight to the kinds of curves than straight lines. In that example the class 0 is the class `radically_left` and the 6 would be `radically_right`. The option that worked best was that of 'biased'.*
 
 5. **Choose the model you want to use:** `lenet`, `smaller_vgg` or `other`: *Here you have to choose the model you want to train. The option that offers the best results is `smaller_vgg`. The `lenet` model gave very bad results because it was very basic. The `other` model loaded another model that gives worse results. The files containing the network models as such are in the folder `models/`. For classification you have them in `classification_model.py` for regression in `model_nvidia.py`.*
+
+### 2.3. Regression Network
+
+If you want to train the regression network you have to run the `regression_train.py` file which is in the `/net/keras/` path. To run it, type `python train.py`. When you run it, it will ask you for the parameters for the training.
+
+1. **Choose the type of image you want:** `normal` or `cropped`: *you can choose `normal` or `cropped`. If you want to train with the full image you have to choose `normal` and if you want to train with the cropped image choose `cropped`.*
+
+2. **Choose the type of network you want**: The available options are:
+
+   - `pilotnet`.
+   - `tinypilotnet`.
+   - `lstm_tinypilotnet`. 
+   - `lstm`
+   - `deepestlstm_tinypilotnet`.
+   - `controlnet`
+   - `stacked`
+   - `stacked_dif` or `temporal`. 
+
+   The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
+
+## 2.4 Models
+
+The models used in this repo are the following:
+
+| Model                     | Links                                                        | Image                                                       |
+| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| PilotNet                  | [Paper](https://arxiv.org/pdf/1704.07911.pdf). [Nvidia source.](https://devblogs.nvidia.com/explaining-deep-learning-self-driving-car/) | [Structure](./docs/imgs/model_pilotnet.png)                 |
+| TinyPilotNet              | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. |                                                             |
+| LSTM                      | [Info](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) |                                                             |
+| LSTM TinyPilotNet         |                                                              | [Structure](./docs/imgs/model_lstm_tinypilotnet.png)        |
+| Deepest LSTM TinyPilotNet | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | [Structure](./docs/imgs/model_deepestlstm_tinypilotnet.png) |
+| ControlNet                |                                                              | [Structure](./docs/imgs/model_controlnet.png)               |
+| Stacked                   |                                                              | [Structure](./docs/imgs/model_stacked.png)                  |
+| Stacked Dif or Temporal   |                                                              |                                                             |
