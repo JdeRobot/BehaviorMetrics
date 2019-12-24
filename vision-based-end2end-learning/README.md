@@ -74,6 +74,7 @@ The models used in this repo are the following:
 | Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
 | Stacked Dif or Temporal   | -                                                            | -                                                           |
 
+The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
 
 ## 3. Solutions
 
@@ -188,5 +189,5 @@ If you want to train the regression network you have to run the `regression_trai
    - `stacked`
    - `stacked_dif` or `temporal`. 
 
-   The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
+   
 
