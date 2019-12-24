@@ -1,14 +1,16 @@
 # Vision-based end-to-end learning
 
-1. [Usage](#usage)
+1. [Usage](#1-usage)
 
-2. [Solutions](#solutions)
+2. [Models](#2-models).
 
-   2.1. [Manual Solution](#21-manual-solution)
+3. [Solutions](#3-solutions)
 
-   2.2. [Classification Network](#22-classification-network)
+   3.1. [Manual Solution](#31-manual-solution)
 
-   2.3. [Regression Network](#23-regression-network)
+   3.2. [Classification Network](#32-classification-network)
+
+   3.3. [Regression Network](#33-regression-network)
 
 ## Info
 
@@ -16,7 +18,7 @@
 
 - More detailed info at my [Github-pages](https://roboticslaburjc.github.io/2017-tfm-vanessa-fernandez/).
 
-## Usage
+## 1. Usage
 
 - First of all, we need to install the JdeRobot packages. We need two packages: [JdeRobot-base](https://github.com/JdeRobot/base) and [JdeRobot-assets](https://github.com/JdeRobot/assets). You can follow [this tutorial](https://github.com/JdeRobot/base#getting-environment-ready) for the complete installation.
 
@@ -26,7 +28,7 @@
     sudo apt install ros-melodic-gazebo-plugins
     ```
 
-- Download dataset from [this link]().
+- Download dataset from [this link](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/).
 
 - Clone the repository :
 
@@ -57,11 +59,27 @@ Then you have to execute the application, which will incorporate your code:
 python2 driver.py driver.yml
 ```
 
-## 2. Solutions
+## 2. Models
 
-### 2.1. Manual Solution
+The models used in this repo are the following:
 
-For this solution, the code developed in the robotics course of the official master's degree in artificial vision has been used. The structure of the project allows to combine between the different solutions. As a first approach, the one developed manually by a student or user is used.
+| Model                     | Links                                                        | Image                                                       |
+| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| PilotNet                  | [Paper](https://arxiv.org/pdf/1704.07911.pdf). [Nvidia source.](https://devblogs.nvidia.com/explaining-deep-learning-self-driving-car/) | [Structure](./docs/imgs/model_pilotnet.png)                 |
+| TinyPilotNet              | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | -                                                           |
+| LSTM                      | [Info](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) | -                                                           |
+| LSTM TinyPilotNet         | -                                                            | [Structure](./docs/imgs/model_lstm_tinypilotnet.png)        |
+| Deepest LSTM TinyPilotNet | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | [Structure](./docs/imgs/model_deepestlstm_tinypilotnet.png) |
+| ControlNet                | -                                                            | [Structure](./docs/imgs/model_controlnet.png)               |
+| Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
+| Stacked Dif or Temporal   | -                                                            | -                                                           |
+
+
+## 3. Solutions
+
+### 3.1. Manual Solution
+
+For this solution, the **code developed in the robotics course of the Official Master's Degree** in **Computer Vision** has been used. The structure of the project allows to combine between the different solutions. As a first approach, the one developed manually by a student or user is used.
 
 An excerpt of the solution can be seen in the following gif:
 
@@ -69,9 +87,9 @@ An excerpt of the solution can be seen in the following gif:
 
 
 
-### 2.2. Classification Network
+### 3.2. Classification Network
 
-The solution using classification networks leaves a somewhat slower solution than the manual solution but equally useful. A piece of the solution can be seen in the following gif.
+The solution using **classification networks** leaves a somewhat slower solution than the manual solution but equally useful. A piece of the solution can be seen in the following gif.
 
 <img src="./docs/imgs/piloto_neuronal.gif" alt="piloto_neuronal" style="zoom:40%;" />
 
@@ -153,7 +171,7 @@ When the program is running it will ask for data to know the characteristics of 
 
 5. **Choose the model you want to use:** `lenet`, `smaller_vgg` or `other`: *Here you have to choose the model you want to train. The option that offers the best results is `smaller_vgg`. The `lenet` model gave very bad results because it was very basic. The `other` model loaded another model that gives worse results. The files containing the network models as such are in the folder `models/`. For classification you have them in `classification_model.py` for regression in `model_nvidia.py`.*
 
-### 2.3. Regression Network
+### 3.3. Regression Network
 
 If you want to train the regression network you have to run the `regression_train.py` file which is in the `/net/keras/` path. To run it, type `python train.py`. When you run it, it will ask you for the parameters for the training.
 
@@ -172,17 +190,3 @@ If you want to train the regression network you have to run the `regression_trai
 
    The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
 
-## 2.4 Models
-
-The models used in this repo are the following:
-
-| Model                     | Links                                                        | Image                                                       |
-| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
-| PilotNet                  | [Paper](https://arxiv.org/pdf/1704.07911.pdf). [Nvidia source.](https://devblogs.nvidia.com/explaining-deep-learning-self-driving-car/) | [Structure](./docs/imgs/model_pilotnet.png)                 |
-| TinyPilotNet              | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. |                                                             |
-| LSTM                      | [Info](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) |                                                             |
-| LSTM TinyPilotNet         |                                                              | [Structure](./docs/imgs/model_lstm_tinypilotnet.png)        |
-| Deepest LSTM TinyPilotNet | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | [Structure](./docs/imgs/model_deepestlstm_tinypilotnet.png) |
-| ControlNet                |                                                              | [Structure](./docs/imgs/model_controlnet.png)               |
-| Stacked                   |                                                              | [Structure](./docs/imgs/model_stacked.png)                  |
-| Stacked Dif or Temporal   |                                                              |                                                             |
