@@ -93,8 +93,8 @@ class ConfWidget(QtWidgets.QWidget):
         lh_v = QtWidgets.QHBoxLayout()
         lh_w = QtWidgets.QHBoxLayout()
 
-        self.v_label = QtWidgets.QLabel("No model selected")
-        self.w_label = QtWidgets.QLabel("No model selected")
+        self.v_label = QtWidgets.QLabel("No model selected for v")
+        self.w_label = QtWidgets.QLabel("No model selected for w")
         v_btn = QtWidgets.QPushButton("Browse...")
         v_btn.clicked.connect(lambda: self.getFiles('v'))
         w_btn = QtWidgets.QPushButton("Browse...")
