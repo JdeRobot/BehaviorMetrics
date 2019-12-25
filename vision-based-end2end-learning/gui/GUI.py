@@ -11,7 +11,6 @@ from QLed import QLed
 from net.utils.generator import *
 from gui.conf_widget import ConfWidget
 
-
 class MainWindow(QtWidgets.QWidget):
 
     updGUI = QtCore.pyqtSignal()
@@ -30,6 +29,9 @@ class MainWindow(QtWidgets.QWidget):
 
         # self.updGUI.connect(self.updateGUI)
 
+        self.train_class_params = None
+        self.train_reg_params = None
+
         # Menu Bar
         self.menubar = QtWidgets.QMenuBar(self)
         self.menu_config = self.menubar.addMenu('Config')
@@ -39,8 +41,6 @@ class MainWindow(QtWidgets.QWidget):
         self.confWidget = ConfWidget(self)
         self.action_config.triggered.connect(lambda: self.confWidget.show())
         self.menu_about.triggered.connect(self.aboutWindow)
-        
-
         
         # Original image label.
         self.camera1 = QtWidgets.QLabel(self)
@@ -369,4 +369,37 @@ class MainWindow(QtWidgets.QWidget):
         logoLayout.addWidget(text, 0, QtCore.Qt.AlignTop)
         about.setLayout(logoLayout)
         about.exec_()
+    
+    def setClassTrainParams(self,
+            variable,
+            classes,
+            net_model,
+            dataset_mode,
+            train_cropped
+        ):
+        self.train_reg_params = None
+        self.train_class_params = [variable, classes, net_model, dataset_mode, train_cropped]
+
+    def setRegTrainParams(self, type_image, type_net):
+        self.train_class_params = None
+        self.train_reg_params = [type_image, type_net]
+
+
+    def trainClicked(self):
+        if self.train_class_params:
+            import net.keras.classification.classification_train as classification_train
+            classification_train.train(self.train_class_params)
+        else:
+            import net.keras.regression.regression_train as regression_train
+            regression_train.train(self.train_reg_params)
+
+
+    def testClicked(self):
+        if self.train_class_params:
+            import net.keras.classification.classification_test as classification_test
+            classification_test.test(self.train_class_params)
+        else:
+            import net.keras.regression.regression_test as regression_test
+            regression_test.test(self.train_reg_params)
+
 

@@ -14,6 +14,7 @@ class ConfWidget(QtWidgets.QWidget):
                         border: 1px solid silver;
                         border-radius: 6px;
                         margin-top: 6px;
+                        padding: 10px 5px 5px 5px
                     }
 
                     QGroupBox::title {
@@ -21,12 +22,24 @@ class ConfWidget(QtWidgets.QWidget):
                         left: 7px;
                         padding: 0px 5px 0px 5px;
                     }"""
+        # execution parameters
         self.net_configurator = NetworkConfiurator()
         self.net_framework = 'Keras'
         self.net_type = 'Classification'
         self.net_cropped = False
         self.net_model_v = None
         self.net_model_w = None
+
+        # classification train parameters
+        self.variable = None 
+        self.classes = None      
+        self.net_model = None
+        self.dataset_mode = None
+        self.train_cropped = None
+
+        # regression train parameters
+        self.type_image = None
+        self.type_net = None
 
         self.initUI()
 
@@ -66,9 +79,9 @@ class ConfWidget(QtWidgets.QWidget):
         keras_rb.clicked.connect(lambda: self.rb_toggled(keras_rb, 'framework'))
         tf_rb.clicked.connect(lambda: self.rb_toggled(tf_rb, 'framework'))
         torch_rb.clicked.connect(lambda: self.rb_toggled(torch_rb, 'framework'))
-        l.addWidget(keras_rb)
-        l.addWidget(tf_rb)
-        l.addWidget(torch_rb)
+        l.addWidget(keras_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(tf_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(torch_rb, alignment=QtCore.Qt.AlignCenter)
         framework_groupbox.setLayout(l)
         layout.addWidget(framework_groupbox, 0, 0)
 
@@ -81,8 +94,8 @@ class ConfWidget(QtWidgets.QWidget):
         reg_rb = QtWidgets.QRadioButton("Regression")
         clf_rb.clicked.connect(lambda: self.rb_toggled(clf_rb, 'type'))
         reg_rb.clicked.connect(lambda: self.rb_toggled(reg_rb, 'type'))
-        l.addWidget(clf_rb)
-        l.addWidget(reg_rb)
+        l.addWidget(clf_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(reg_rb, alignment=QtCore.Qt.AlignCenter)
         type_groupbox.setLayout(l)
         layout.addWidget(type_groupbox, 1, 0)
 
@@ -122,10 +135,120 @@ class ConfWidget(QtWidgets.QWidget):
         self.exec_widget.setLayout(layout)
 
     def trainClassTabUI(self):
-        pass
+        layout = QtWidgets.QGridLayout()
+
+        # Variable section
+        variable_groupbox = QtWidgets.QGroupBox()
+        variable_groupbox.setTitle("Select variable")
+        variable_groupbox.setStyleSheet(self.groupboxstyle)
+        l = QtWidgets.QHBoxLayout()
+        
+        linear_rb = QtWidgets.QRadioButton("Linear velocity (v)")
+        angular_rb = QtWidgets.QRadioButton("Angular velocity (w)")
+        linear_rb.clicked.connect(lambda: self.rb_toggled(linear_rb, 'train_v'))
+        angular_rb.clicked.connect(lambda: self.rb_toggled(angular_rb, 'train_w'))
+        l.addWidget(linear_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(angular_rb, alignment=QtCore.Qt.AlignCenter)
+        variable_groupbox.setLayout(l)
+        layout.addWidget(variable_groupbox, 0, 0)
+
+        # classes section
+        classes_groupbox = QtWidgets.QGroupBox()
+        classes_groupbox.setTitle("Number of classes")
+        classes_groupbox.setStyleSheet(self.groupboxstyle)
+        l = QtWidgets.QHBoxLayout()
+
+        self.cb_v = QtWidgets.QComboBox()
+        self.cb_v.setEnabled(False)
+        self.cb_v.addItems(["4", "5"])
+        self.cb_v.currentIndexChanged.connect(lambda: self.selectionchange(self.cb_v))
+        self.cb_w = QtWidgets.QComboBox()
+        self.cb_w.setEnabled(False)
+        self.cb_w.addItems(["2", "7", "9"])
+        self.cb_w.currentIndexChanged.connect(lambda: self.selectionchange(self.cb_w))
+		
+        l.addWidget(self.cb_v, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(self.cb_w, alignment=QtCore.Qt.AlignCenter)
+        classes_groupbox.setLayout(l)
+        layout.addWidget(classes_groupbox, 1, 0)
+
+        # dataset type section
+        dataset_groupbox = QtWidgets.QGroupBox()
+        dataset_groupbox.setTitle("Select dataset mode")
+        dataset_groupbox.setStyleSheet(self.groupboxstyle)
+        l = QtWidgets.QHBoxLayout()
+        normal_rb = QtWidgets.QRadioButton("Normal")
+        balanced_rb = QtWidgets.QRadioButton("Balanced")
+        biased_rb = QtWidgets.QRadioButton("Biased")
+        normal_rb.clicked.connect(lambda: self.rb_toggled(normal_rb, 'dataset'))
+        balanced_rb.clicked.connect(lambda: self.rb_toggled(balanced_rb, 'dataset'))
+        biased_rb.clicked.connect(lambda: self.rb_toggled(biased_rb, 'dataset'))
+        l.addWidget(normal_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(balanced_rb, alignment=QtCore.Qt.AlignCenter)
+        l.addWidget(biased_rb, alignment=QtCore.Qt.AlignCenter)
+        dataset_groupbox.setLayout(l)
+        layout.addWidget(dataset_groupbox, 2, 0)
+
+        # networks section
+        type_groupbox = QtWidgets.QGroupBox()
+        type_groupbox.setTitle("Select network type")
+        type_groupbox.setStyleSheet(self.groupboxstyle)
+        l = QtWidgets.QHBoxLayout()
+        
+        self.listWidget = QtWidgets.QListWidget(self)
+        self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+
+        for elem in ['CNN', 'LeNet5', 'SmallerVGGNet']:
+            item = QtWidgets.QListWidgetItem(self.listWidget)
+            item.setText("{0}".format(elem))
+            self.listWidget.addItem(item)
+
+        self.listWidget.itemSelectionChanged.connect(self.itemchanged)
+        l.addWidget(self.listWidget)
+        type_groupbox.setLayout(l)
+        layout.addWidget(type_groupbox, 3, 0)        
+
+        cropped_check = QtWidgets.QCheckBox("Cropped")
+        layout.addWidget(cropped_check, 4, 0)
+        cropped_check.clicked.connect(lambda: self.cropped_check_train(cropped_check))
+
+        save_button = QtWidgets.QPushButton("Save")
+        layout.addWidget(save_button, 5, 0, alignment=QtCore.Qt.AlignRight)
+        save_button.clicked.connect(self.saveBtnClkTrain)
+      
+        self.train_class_widget.setLayout(layout)
 
     def trainRegTabUI(self):
-        pass
+        layout = QtWidgets.QGridLayout()
+
+        # networks section
+        type_groupbox = QtWidgets.QGroupBox()
+        type_groupbox.setTitle("Select network type")
+        type_groupbox.setStyleSheet(self.groupboxstyle)
+        l = QtWidgets.QHBoxLayout()
+        
+        self.listWidget_reg = QtWidgets.QListWidget(self)
+        self.listWidget_reg.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+
+        for elem in ['PilotNet', 'Stacked PilotNet', 'Tiny PilotNet', 'LSTM Tiny PilotNet', 'DeepLSTM Tiny PilotNet', 'LSTM', 'ControlNet', 'Temporal', 'Stacked Temporal']:
+            item = QtWidgets.QListWidgetItem(self.listWidget_reg)
+            item.setText("{0}".format(elem))
+            self.listWidget_reg.addItem(item)
+
+        self.listWidget_reg.itemSelectionChanged.connect(self.itemchanged_reg)
+        l.addWidget(self.listWidget_reg)
+        type_groupbox.setLayout(l)
+        layout.addWidget(type_groupbox, 0, 0)        
+
+        cropped_check = QtWidgets.QCheckBox("Cropped")
+        layout.addWidget(cropped_check, 1, 0)
+        cropped_check.clicked.connect(lambda: self.cropped_check_train(cropped_check))
+
+        save_button = QtWidgets.QPushButton("Save")
+        layout.addWidget(save_button, 4, 0, alignment=QtCore.Qt.AlignRight)
+        save_button.clicked.connect(self.saveBtnClkTrain2)
+      
+        self.train_reg_widget.setLayout(layout)
 
 
     def closeEvent(self, event):
@@ -159,16 +282,82 @@ class ConfWidget(QtWidgets.QWidget):
         )
         self.winParent.getAlgorithm().setNetwork(network)
     
+    def saveBtnClkTrain(self):
+        self.winParent.setClassTrainParams(
+            self.variable,
+            self.classes,
+            self.net_model,
+            self.dataset_mode,
+            self.train_cropped
+        )
+
+    def saveBtnClkTrain2(self):
+        self.winParent.setRegTrainParams(self.type_image, self.type_net )
+    
     def rb_toggled(self, b, mode):
         if mode == 'framework':
             self.net_framework = b.text()
         elif mode == 'type':
             self.net_type = b.text()
+        elif mode == 'train_v':
+            self.variable = 'v'
+            self.cb_v.setEnabled(True)
+            self.cb_w.setEnabled(False)
+        elif mode == 'train_w':
+            self.variable = 'w'
+            self.cb_v.setEnabled(False)
+            self.cb_w.setEnabled(True)
+        elif mode == 'dataset':
+            self.dataset_mode = b.text().lower()
     
     def cropped_checked(self, b):
         if b.isChecked():
             self.net_cropped = True
         else:
             self.net_cropped = False
+    
+    def cropped_check_train(self, b):
+        if b.isChecked():
+            self.train_cropped = 'cropped'
+            self.type_image = 'cropped'
+        else:
+            self.train_cropped = 'normal'
+            self.type_image = 'normal'
+    
+    def selectionchange(self, cb):
+        self.classes = int(cb.currentText())
 
+    def itemchanged(self):
+        name = self.listWidget.selectedItems()[0].text()
+        if name == 'CNN':
+            net_name = 'other'
+        elif name == 'SmallerVGGNet':
+            net_name = 'smaller_vgg'
+        elif name == 'LeNet5':
+            net_name = 'lenet'
+
+        self.net_model = net_name
+
+    def itemchanged_reg(self):
+        name = self.listWidget_reg.selectedItems()[0].text()
+        if name == 'PilotNet':
+            net_name = 'pilotnet'
+        elif name == 'Stacked PilotNet':
+            net_name = 'stacked'
+        elif name == 'Tiny PilotNet':
+            net_name = 'tinypilotnet'
+        elif name == 'LSTM Tiny PilotNet':
+            net_name = 'lstm_tinypilotnet'
+        elif name == 'DeepLSTM Tiny PilotNet':
+            net_name = 'deepestlstm_tinypilotnet'
+        elif name == 'LSTM':
+            net_name = 'lstm'
+        elif name == 'ControlNet':
+            net_name = 'controlnet'
+        elif name == 'Temporal':
+            net_name = 'temporal'
+        elif name == 'Stacked Temporal':
+            net_name = 'stacked_dif'
+        
+        self.type_net = net_name
               
