@@ -92,13 +92,10 @@ def plot_confusion_matrix(cm, cmap=plt.cm.Blues):
 
     plt.show()
 
+def test(params):
 
-if __name__ == "__main__":
-    # Choose options
-    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
-    type_net = raw_input('Choose the type of network you want: pilotnet, tinypilotnet, lstm_tinypilotnet, lstm, '
-                         'deepestlstm_tinypilotnet or stacked: ')
-    print('Your choice: ' + type_net + ', ' +type_image)
+    type_image = params[0]
+    type_net = params[1]
 
     # Load data
     list_images = glob.glob('../Dataset/Images/' + '*')
@@ -172,3 +169,13 @@ if __name__ == "__main__":
     print('Test accuracy:', score_w[1])
     print('Test mean squared error: ', score_w[2])
     print('Test mean absolute error: ', score_w[3])
+
+
+if __name__ == "__main__":
+    # Choose options
+    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
+    type_net = raw_input('Choose the type of network you want: pilotnet, tinypilotnet, lstm_tinypilotnet, lstm, '
+                         'deepestlstm_tinypilotnet or stacked: ')
+    print('Your choice: ' + type_net + ', ' +type_image)
+
+    test(params=[type_image, type_net])
