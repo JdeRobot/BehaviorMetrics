@@ -33,6 +33,7 @@ class ConfWidget(QtWidgets.QWidget):
 
     def initUI(self):
 
+        self.setWindowTitle("Network_configuration")
         self.setMinimumSize(680, 500)
         self.setMaximumSize(680, 500)
         layout = QtWidgets.QGridLayout()
@@ -166,10 +167,8 @@ class ConfWidget(QtWidgets.QWidget):
     
     def cropped_checked(self, b):
         if b.isChecked():
-            print("True")
             self.net_cropped = True
         else:
-            print("False")
             self.net_cropped = False
 
               
