@@ -21,7 +21,7 @@ class RegressionNetwork():
         # Load models
         self.model_v = load_model(net_options['model_v_path'])
         self.model_w = load_model(net_options['model_w_path'])
-        self.cropped = net_options['Cropped']
+        self.cropped = net_options['cropped']
 
         # The Keras network works on 160x120
         if self.cropped:
