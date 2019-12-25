@@ -8,7 +8,8 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from QLed import QLed
-from net.generator import *
+from net.utils.generator import *
+from gui.conf_widget import ConfWidget
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -27,8 +28,20 @@ class MainWindow(QtWidgets.QWidget):
         self.move(150, 50)
         self.setWindowIcon(QtGui.QIcon('gui/resources/jderobot.png'))
 
-        self.updGUI.connect(self.updateGUI)
+        # self.updGUI.connect(self.updateGUI)
 
+        # Menu Bar
+        self.menubar = QtWidgets.QMenuBar(self)
+        self.menu_config = self.menubar.addMenu('Config')
+        self.menu_about = self.menubar.addAction('About')
+        self.action_config = self.menu_config.addAction('Network')
+
+        self.confWidget = ConfWidget(self)
+        self.action_config.triggered.connect(lambda: self.confWidget.show())
+        self.menu_about.triggered.connect(self.aboutWindow)
+        
+
+        
         # Original image label.
         self.camera1 = QtWidgets.QLabel(self)
         self.camera1.resize(450, 350)
@@ -156,7 +169,7 @@ class MainWindow(QtWidgets.QWidget):
         logo_img.load('gui/resources/jderobot.png')
         self.logo_label.setPixmap(QtGui.QPixmap.fromImage(logo_img))
         self.logo_label.show()
-
+        
     def updateGUI(self):
         ''' Updates the GUI for every time the thread change '''
         # We get the original image and display it.
@@ -340,3 +353,20 @@ class MainWindow(QtWidgets.QWidget):
         self.algorithm.kill()
         self.camera.stop()
         event.accept()
+
+    def aboutWindow(self):
+        about = QtWidgets.QDialog()
+        about.setFixedSize(550,350)
+        about.setWindowTitle("About JdeRobot")
+        logoLayout = QtWidgets.QHBoxLayout()
+        text = QtWidgets.QLabel(about)
+        str = "<span style='font-size:15pt; font-weight:600;'>Jderobot 5.5.2</span> <br><br>Software suite for robotics and computer vision. <br><br>You can find more info <a href='http://jderobot.org'>here</a><br><br>Github <a href='https://github.com/jderobot/jderobot.git'>repository</a>"
+        text.setFixedSize(200, 350)
+        text.setWordWrap(True);
+        text.setTextFormat(QtCore.Qt.RichText)
+        text.setOpenExternalLinks(True)
+        text.setText(str)
+        logoLayout.addWidget(text, 0, QtCore.Qt.AlignTop)
+        about.setLayout(logoLayout)
+        about.exec_()
+
