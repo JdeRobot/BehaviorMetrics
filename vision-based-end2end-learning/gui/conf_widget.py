@@ -26,20 +26,20 @@ class ConfWidget(QtWidgets.QWidget):
         self.net_configurator = NetworkConfiurator()
         self.net_framework = 'Keras'
         self.net_type = 'Classification'
-        self.net_cropped = False
+        self.net_cropped = 'cropped'
         self.net_model_v = None
         self.net_model_w = None
 
         # classification train parameters
-        self.variable = None 
-        self.classes = None      
-        self.net_model = None
-        self.dataset_mode = None
-        self.train_cropped = None
+        self.variable = 'v'
+        self.classes = '4'
+        self.net_model = 'other'
+        self.dataset_mode = 'normal'
+        self.train_cropped = 'cropped'
 
         # regression train parameters
-        self.type_image = None
-        self.type_net = None
+        self.type_image = 'cropped'
+        self.type_net = 'pilotnet'
 
         self.initUI()
 
