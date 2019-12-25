@@ -35,6 +35,7 @@ from PyQt5.QtWidgets import QApplication
 from interfaces.camera import ListenerCamera
 from interfaces.motors import PublisherMotors
 from net.threadNetwork import ThreadNetwork
+from network_configurator import NetworkConfiurator
 
 
 def readConfig():
@@ -48,36 +49,14 @@ def readConfig():
         raise SystemExit('\n\tUsage: python2 driver.py driver.yml\n')
 
 
-def create_network(cfg):
-    """
-    :param cfg: configuration
-    :return net: network instance built from configuration options
-    :raise SystemExit in case of invalid network
-    """
-    net_cfg = cfg['Driver']['Network']
-    net_framework = net_cfg['Framework']
-    net_type = net_cfg['Use']
-    net = None
-
-    try:
-        module_name = 'net.' + net_framework.lower() + '.' + net_type.lower() + '_network'
-        module_import = importlib.import_module(module_name)
-        Net = getattr(module_import, net_type + 'Network')
-        print("\n\n",Net,"\n\n")
-        net = Net(net_cfg)
-    except:
-        raise SystemExit('ERROR: Invalid network selected')
-
-    return net
-
-
 if __name__ == "__main__":
 
     cfg = readConfig()
-    network = create_network(cfg)
+    configurator = NetworkConfiurator(cfg)
+    network = configurator.create_network()
 
     camera = ListenerCamera("/F1ROS/cameraL/image_raw")
-    motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)
+    motors = PublisherMotors("/F1ROS/cmd_vel", 4, 0.3, 0, 0)    
 
     network.setCamera(camera)
     t_network = ThreadNetwork(network)

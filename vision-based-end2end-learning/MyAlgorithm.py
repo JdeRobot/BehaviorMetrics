@@ -52,6 +52,9 @@ class MyAlgorithm(threading.Thread):
         threading.Thread.__init__(self, args=self.stop_event)
         self.cont = 0
     
+    def setNetwork(self, custom_net):
+        self.network = custom_net
+    
     def getImage(self):
         self.lock.acquire()
         img = self.camera.getImage().data
