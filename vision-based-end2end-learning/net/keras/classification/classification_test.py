@@ -202,16 +202,13 @@ def plot_confusion_matrix(cm, cmap=plt.cm.Blues):
 
     plt.show()
 
+def test(params):
 
-if __name__ == "__main__":
-
-    # Choose options
-    num_classes = int(input('Choose the number of classes: '))
-    name_variable = raw_input('Choose the variable you want to train: v or w: ')
-    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
-    type_net = raw_input('Choose the type of network you want: normal, biased or balanced: ')
-    name_model = raw_input('Choose the model you want to use: mobilenet, lenet, smaller_vgg or other: ')
-    print('Your choice: ' + str(num_classes) + ', ' + name_variable + ', ' + type_net + ' and ' + name_model)
+    name_variable = params[0]
+    num_classes = params[1]
+    name_model = params[2]
+    type_net = params[3]
+    type_image = params[4]
 
     # Load data
     list_images = glob.glob('../Dataset/Test/Images/' + '*')
@@ -272,3 +269,16 @@ if __name__ == "__main__":
 
     # Plot confusion matrix
     plot_confusion_matrix(conf_matrix)
+
+if __name__ == "__main__":
+
+    # Choose options
+    num_classes = int(input('Choose the number of classes: '))
+    name_variable = raw_input('Choose the variable you want to train: v or w: ')
+    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
+    type_net = raw_input('Choose the type of network you want: normal, biased or balanced: ')
+    name_model = raw_input('Choose the model you want to use: mobilenet, lenet, smaller_vgg or other: ')
+    print('Your choice: ' + str(num_classes) + ', ' + name_variable + ', ' + type_net + ' and ' + name_model)
+
+    test(params=[num_classes, name_variable, type_image, type_net, name_model])
+    

@@ -10,7 +10,7 @@ from time import time
 from sklearn.model_selection import train_test_split
 from keras.utils import plot_model, np_utils
 from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
-from net.models.classification_model import cnn_model, lenet5, SmallerVGGNet
+from net.keras.classification.classification_model import cnn_model, lenet5, SmallerVGGNet
 
 
 def parse_json_2_classes_w(data):
@@ -274,15 +274,14 @@ def choose_model(name, input_shape, num_classes, name_variable, type_net, type_i
             class_weight = None
     return model, model_file, model_png, batch_size, nb_epochs, class_weight
 
+def train(params):
 
-if __name__ == "__main__":
-
-    # Choose options
-    num_classes = int(input('Choose one of the options for the number of classes: '))
-    name_variable = raw_input('Choose the variable you want to train: v or w: ')
-    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
-    type_net = raw_input('Choose the type of network you want: normal, biased or balanced: ')
-    name_model = raw_input('Choose the model you want to use: lenet, smaller_vgg or other: ')
+    name_variable = params[0]
+    num_classes = params[1]
+    name_model = params[2]
+    type_net = params[3]
+    type_image = params[4]
+    
     print('Your choice: ' + str(num_classes) + ', ' + name_variable + ', ' + type_net + ' and ' + name_model)
 
     # Load data
@@ -420,3 +419,17 @@ if __name__ == "__main__":
     plt.ylabel('Accuracy', fontsize=16)
     plt.title('Accuracy Curves', fontsize=16)
     plt.show()
+
+
+if __name__ == "__main__":
+
+    # Choose options
+    num_classes = int(input('Choose one of the options for the number of classes: '))
+    name_variable = raw_input('Choose the variable you want to train: v or w: ')
+    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
+    type_net = raw_input('Choose the type of network you want: normal, biased or balanced: ')
+    name_model = raw_input('Choose the model you want to use: lenet, smaller_vgg or other: ')
+    print('Your choice: ' + str(num_classes) + ', ' + name_variable + ', ' + type_net + ' and ' + name_model)
+
+    train(params=[num_classes, name_variable, type_image, type_net, name_model])
+    

@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from keras.utils import plot_model
 from keras.callbacks import TensorBoard, ModelCheckpoint, CSVLogger
-from models.model_nvidia import *
+from net.keras.regression.regression_model import *
 
 
 def load_data(folder):
@@ -278,13 +278,10 @@ def choose_model(type_net, img_shape, type_image):
         nb_epoch_w = 200  # 300
     return model_v, model_w, model_file_v, model_file_w, model_png, batch_size_v, nb_epoch_v, batch_size_w, nb_epoch_w
 
-
-if __name__ == "__main__":
-    # Choose options
-    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
-    type_net = raw_input('Choose the type of network you want: pilotnet, tinypilotnet, lstm_tinypilotnet, lstm, '
-                         'deepestlstm_tinypilotnet, controlnet, stacked, stacked_dif or temporal: ')
-    print('Your choice: ' + type_net + ', ' + type_image)
+def train(params):
+    
+    type_image = params[0]
+    type_net = params[1]
 
     # Load data
     images, data = load_data('Dataset')
@@ -459,3 +456,12 @@ if __name__ == "__main__":
     # plt.ylabel('Accuracy', fontsize=16)
     # plt.title('Accuracy Curves', fontsize=16)
     # plt.show()
+
+if __name__ == "__main__":
+    # Choose options
+    type_image = raw_input('Choose the type of image you want: normal or cropped: ')
+    type_net = raw_input('Choose the type of network you want: pilotnet, tinypilotnet, lstm_tinypilotnet, lstm, '
+                         'deepestlstm_tinypilotnet, controlnet, stacked, stacked_dif or temporal: ')
+    print('Your choice: ' + type_net + ', ' + type_image)
+
+    train(params=[type_image, type_net])
