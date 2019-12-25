@@ -28,7 +28,7 @@
     sudo apt install ros-melodic-gazebo-plugins
     ```
 
-- Download dataset from [this link](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/).
+- Download dataset from [this link](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/).
 
 - Clone the repository :
 
