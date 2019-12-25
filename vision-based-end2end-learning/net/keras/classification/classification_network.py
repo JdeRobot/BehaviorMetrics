@@ -11,7 +11,7 @@ from keras.models import load_model
 from keras.backend import set_session
 
 class ClassificationNetwork():
-    def __init__(self, net_model):
+    def __init__(self, net_options):
 
         # Obtain the graph
         self.sess = tf.Session()
@@ -19,15 +19,15 @@ class ClassificationNetwork():
         set_session(self.sess)
       
         # Load model
-        self.model_file_v = net_model['Models_Path'] + "/" + net_model['Model_Classification_v']
-        self.model_file_w = net_model['Models_Path'] + "/" + net_model['Model_Classification_w']
-        self.model_v = load_model(self.model_file_v)
-        self.model_w = load_model(self.model_file_w)
+        self.model_v = load_model(net_options['model_v_path'])
+        self.model_w = load_model(net_options['model_w_path'])
+        self.cropped = net_options['cropped']
 
         # The Keras network works on 160x120
-        #self.img_height = 120
-        # If we have cropped images, the network works on 160x60
-        self.img_height = 60
+        if self.cropped:
+            self.img_height = 60
+        else:
+            self.img_height = 120
         self.img_width = 160
 
         self.num_classes_w = 7
@@ -101,8 +101,11 @@ class ClassificationNetwork():
         input_image = self.camera.getImage()
 
         # Preprocessing
-        #img = cv2.cvtColor(input_image.data, cv2.COLOR_RGB2BGR)
-        img = cv2.cvtColor(input_image.data[240:480, 0:640], cv2.COLOR_RGB2BGR)
+        if self.cropped:
+            img = cv2.cvtColor(input_image.data[240:480, 0:640], cv2.COLOR_RGB2BGR)
+        else:
+            img = cv2.cvtColor(input_image.data, cv2.COLOR_RGB2BGR)
+        
         if img is not None:
             img_resized = cv2.resize(img, (self.img_width, self.img_height))
 
