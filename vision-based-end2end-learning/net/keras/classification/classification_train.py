@@ -10,7 +10,7 @@ from time import time
 from sklearn.model_selection import train_test_split
 from keras.utils import plot_model, np_utils
 from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
-from models.classification_model import cnn_model, lenet5, SmallerVGGNet
+from net.models.classification_model import cnn_model, lenet5, SmallerVGGNet
 
 
 def parse_json_2_classes_w(data):
