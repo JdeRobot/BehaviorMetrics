@@ -143,20 +143,52 @@ class MainWindow(QtWidgets.QWidget):
         self.stopButton.setText('Stop')
         self.stopButton.clicked.connect(self.stopClicked)
 
+        # Train/Test group
+        self.group = QtWidgets.QGroupBox(self)
+        self.group.setTitle("Train/Test")
+        self.group.move(550,400)
+        self.group.setFixedSize(200,300)
+
+        layout = QtWidgets.QVBoxLayout(self)
+
         # Save button
         self.save = False
         self.saveButton = QtWidgets.QPushButton(self)
-        self.saveButton.move(550, 400)
-        self.saveButton.resize(200, 50)
         self.saveButton.setText('Save Dataset')
         self.saveButton.clicked.connect(self.saveDataset)
 
         # Remove button
         self.removeButton = QtWidgets.QPushButton(self)
-        self.removeButton.move(550, 500)
-        self.removeButton.resize(200, 50)
         self.removeButton.setText('Remove Dataset')
         self.removeButton.clicked.connect(self.removeDataset)
+
+        # See config button
+        self.config_set = False
+        self.seeConfigButton = QtWidgets.QPushButton(self)
+        self.seeConfigButton.setEnabled(False)
+        self.seeConfigButton.setText('See configuration')
+        self.seeConfigButton.clicked.connect(self.seeConfigClicked)
+
+        # Train button
+        self.trained = False
+        self.trainButton = QtWidgets.QPushButton(self)
+        self.trainButton.setEnabled(False)
+        self.trainButton.setText('Train Network')
+        self.trainButton.clicked.connect(self.trainClicked)
+
+        # Test button
+        self.testButton = QtWidgets.QPushButton(self)
+        self.testButton.setEnabled(False)
+        self.testButton.setText('Test Network')
+        self.testButton.clicked.connect(self.removeDataset)
+
+        layout.addWidget(self.saveButton)
+        layout.addWidget(self.removeButton)
+        layout.addWidget(self.seeConfigButton)
+        layout.addWidget(self.trainButton)
+        layout.addWidget(self.testButton)
+
+        self.group.setLayout(layout)
 
         # Logo
         self.logo_label = QtWidgets.QLabel(self)
@@ -378,6 +410,7 @@ class MainWindow(QtWidgets.QWidget):
         ):
         self.train_reg_params = None
         self.train_class_params = [variable, classes, net_model, dataset_mode, train_cropped]
+        print(self.train_class_params)
 
     def setRegTrainParams(self, type_image, type_net):
         self.train_class_params = None
@@ -391,6 +424,8 @@ class MainWindow(QtWidgets.QWidget):
         else:
             import net.keras.regression.regression_train as regression_train
             regression_train.train(self.train_reg_params)
+        self.trained = True
+        self.testButton.setEnabled(True)
 
 
     def testClicked(self):
@@ -400,5 +435,91 @@ class MainWindow(QtWidgets.QWidget):
         else:
             import net.keras.regression.regression_test as regression_test
             regression_test.test(self.train_reg_params)
+    
+    def seeConfigClicked(self):
+        about = QtWidgets.QDialog()
+        about.setFixedSize(550,350)
+        about.setWindowTitle("About JdeRobot")
+        logoLayout = QtWidgets.QHBoxLayout()
+        text = QtWidgets.QLabel(about)
 
+        if self.train_class_params:
+            content = """
+                    <table style="width: 49%; margin-right: calc(51%);">
+                    <tbody>
+                        <tr>
+                        <td style="width: 62.5%;"><span style="font-size: 18px;"><strong>Parameters</strong></span></td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;"><span style="font-size: 18px;"><strong>Values</strong></span></div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="width: 62.5%;">Variable to train</td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;">{0}</div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="width: 62.5%;">Number of classes</td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;">{1}</div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="width: 62.5%;">Selected network</td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;">{2}</div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="width: 62.5%;">Dataset mode</td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;">{3}</div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="width: 62.5%;">Cropped images</td>
+                        <td style="width: 37.2549%;">
+                            <div style="text-align: center;">{4}</div>
+                        </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    """.format(self.train_class_params[0],
+                                    self.train_class_params[1],
+                                    self.train_class_params[2],
+                                    self.train_class_params[3],
+                                    self.train_class_params[4])
+        else:
+            content = """
+            <table style="width: 100%; margin-right: calc(100%);">
+            <tbody>
+                <tr>
+                <td style="width: 50%;"><span style="font-size: 18px;"><strong>Parameters</strong></span></td>
+                <td style="width: 100%;">
+                    <div style="text-align: center;"><span style="font-size: 18px;"><strong>Values</strong></span></div>
+                </td>
+                </tr>
+                <tr>
+                <td style="width: 100%;">Cropped images</td>
+                <td style="width: 100%;">
+                    <div style="text-align: center;">{0}</div>
+                </td>
+                </tr>
+                <tr>
+                <td style="width: 100%;">Selected network</td>
+                <td style="width: 100%;">
+                    <div style="text-align: center;">{1}</div>
+                </td>
+                </tr>
+            </tbody>
+            </table>
 
+            """.format(self.train_reg_params[0], self.train_reg_params[1])
+        text.setFixedSize(200, 350)
+        text.setWordWrap(True)
+        text.setTextFormat(QtCore.Qt.RichText)
+        text.setText(content)
+        logoLayout.addWidget(text)
+        about.setLayout(logoLayout)
+        about.exec_()

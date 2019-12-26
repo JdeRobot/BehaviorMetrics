@@ -281,6 +281,7 @@ class ConfWidget(QtWidgets.QWidget):
             self.net_model_w
         )
         self.winParent.getAlgorithm().setNetwork(network)
+        self.close()
     
     def saveBtnClkTrain(self):
         self.winParent.setClassTrainParams(
@@ -290,9 +291,17 @@ class ConfWidget(QtWidgets.QWidget):
             self.dataset_mode,
             self.train_cropped
         )
+        self.winParent.config_set = True
+        self.winParent.seeConfigButton.setEnabled(True)
+        self.winParent.trainButton.setEnabled(True)
+        self.close()
 
     def saveBtnClkTrain2(self):
         self.winParent.setRegTrainParams(self.type_image, self.type_net )
+        self.winParent.config_set = True
+        self.winParent.seeConfigButton.setEnabled(True)
+        self.winParent.trainButton.setEnabled(True)
+        self.close()
     
     def rb_toggled(self, b, mode):
         if mode == 'framework':
