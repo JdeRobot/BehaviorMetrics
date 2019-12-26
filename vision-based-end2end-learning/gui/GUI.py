@@ -28,7 +28,6 @@ class MainWindow(QtWidgets.QWidget):
         self.setWindowIcon(QtGui.QIcon('gui/resources/jderobot.png'))
 
         # self.updGUI.connect(self.updateGUI)
-
         self.train_class_params = None
         self.train_reg_params = None
 
