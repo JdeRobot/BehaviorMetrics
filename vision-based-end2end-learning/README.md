@@ -45,7 +45,7 @@ The models used in this repository are the following:
 | Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
 | Stacked Dif or Temporal   | -                                                            | -                                                           |
 
-The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
+The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/models.zip).
 
 
 ## Installation
