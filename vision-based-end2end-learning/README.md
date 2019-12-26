@@ -27,8 +27,8 @@ The objective of this project is to **take images** from the camera on a circuit
 
 There are currently **two sets** of data to train the neural network that resolves the circuit. One contains **images of all types** such as straights and curves and the other contains **only the curves** of the circuit. The second one is smaller and the results are good enough to solve a lap of the circuit.
 
-- [Complete dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/complete_dataset/).
-- [Curve dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/curves_only/).
+- [Complete dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/complete_dataset.zip).
+- [Curve dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/curves_only.zip).
 
 ## Models
 
@@ -45,7 +45,7 @@ The models used in this repository are the following:
 | Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
 | Stacked Dif or Temporal   | -                                                            | -                                                           |
 
-The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
+The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/models.zip).
 
 
 ## Installation
