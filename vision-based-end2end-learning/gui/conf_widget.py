@@ -1,7 +1,7 @@
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from network_configurator import NetworkConfiurator
+from network_configurator import NetworkConfigurator
 
 class ConfWidget(QtWidgets.QWidget):
 
@@ -23,7 +23,7 @@ class ConfWidget(QtWidgets.QWidget):
                         padding: 0px 5px 0px 5px;
                     }"""
         # execution parameters
-        self.net_configurator = NetworkConfiurator()
+        self.net_configurator = NetworkConfigurator()
         self.net_framework = 'Keras'
         self.net_type = 'Classification'
         self.net_cropped = 'cropped'

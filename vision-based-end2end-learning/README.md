@@ -1,34 +1,62 @@
+<a href="https://mmg-ai.com/en/"><img src="https://jderobot.github.io/assets/images/logo.png" width="100 " align="right" /></a>
+
 # Vision-based end-to-end learning
 
-1. [Usage](#1-usage)
+1. [Datasets](#datasets)
 
-2. [Models](#2-models).
+2. [Models](#models)
 
-3. [Solutions](#3-solutions)
+3. [Installation](#installation)
 
-   3.1. [Manual Solution](#31-manual-solution)
+4. [Usage](#usage)
 
-   3.2. [Classification Network](#32-classification-network)
+   3.1. [Manual Solution](#1-manual-solution)
 
-   3.3. [Regression Network](#33-regression-network)
+   3.2. [Classification Network](#2-classification-network)
+
+   3.3. [Regression Network](#3-regression-network)
+
+The objective of this project is to **take images** from the camera on a circuit where the mission is to follow a red line to complete a lap of the circuit **using classification and regression neural networks**.
 
 ## Info
 
-- More detailed info at my [wiki](https://jderobot.org/Vmartinezf-tfm).
-
 - More detailed info at my [Github-pages](https://roboticslaburjc.github.io/2017-tfm-vanessa-fernandez/).
 
-## 1. Usage
 
-- First of all, we need to install the JdeRobot packages. We need two packages: [JdeRobot-base](https://github.com/JdeRobot/base) and [JdeRobot-assets](https://github.com/JdeRobot/assets). You can follow [this tutorial](https://github.com/JdeRobot/base#getting-environment-ready) for the complete installation.
+## Datasets
+
+There are currently **two sets** of data to train the neural network that resolves the circuit. One contains **images of all types** such as straights and curves and the other contains **only the curves** of the circuit. The second one is smaller and the results are good enough to solve a lap of the circuit.
+
+- [Complete dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/complete_dataset/).
+- [Curve dataset](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/curves_only/).
+
+## Models
+
+The models used in this repository are the following:
+
+| Model                     | Links                                                        | Image                                                       |
+| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| PilotNet                  | [Paper](https://arxiv.org/pdf/1704.07911.pdf). [Nvidia source.](https://devblogs.nvidia.com/explaining-deep-learning-self-driving-car/) | [Structure](./docs/imgs/model_pilotnet.png)                 |
+| TinyPilotNet              | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | -                                                           |
+| LSTM                      | [Info](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) | -                                                           |
+| LSTM TinyPilotNet         | -                                                            | [Structure](./docs/imgs/model_lstm_tinypilotnet.png)        |
+| Deepest LSTM TinyPilotNet | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | [Structure](./docs/imgs/model_deepestlstm_tinypilotnet.png) |
+| ControlNet                | -                                                            | [Structure](./docs/imgs/model_controlnet.png)               |
+| Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
+| Stacked Dif or Temporal   | -                                                            | -                                                           |
+
+The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
+
+
+## Installation
+
+- First of all, we need to **install the JdeRobot environment** packages. We need two packages: [JdeRobot-base](https://github.com/JdeRobot/base) and [JdeRobot-assets](https://github.com/JdeRobot/assets). You can follow [this tutorial](https://github.com/JdeRobot/base#getting-environment-ready) for the complete installation.
 
 - Install ROS plugins typing:
 
     ```bash
     sudo apt install ros-melodic-gazebo-plugins
     ```
-
-- Download dataset from [this link](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-datasets/vision-based-end2end-learning/).
 
 - Clone the repository :
 
@@ -48,37 +76,22 @@
   pip install -r requirements.txt
   ```
 
-Launch Gazebo with the f1 world through the command
-```bash
-roslaunch /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
-```
+- Launch Gazebo with the F1 world through the command:
 
-Then you have to execute the application, which will incorporate your code:
+    ```bash
+    roslaunch /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
+    ```
 
-```bash
-python2 driver.py driver.yml
-```
+- Then you have to execute the application, which will incorporate your code:
 
-## 2. Models
+    ```bash
+    python2 driver.py driver.yml
+    ```
 
-The models used in this repo are the following:
 
-| Model                     | Links                                                        | Image                                                       |
-| ------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
-| PilotNet                  | [Paper](https://arxiv.org/pdf/1704.07911.pdf). [Nvidia source.](https://devblogs.nvidia.com/explaining-deep-learning-self-driving-car/) | [Structure](./docs/imgs/model_pilotnet.png)                 |
-| TinyPilotNet              | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | -                                                           |
-| LSTM                      | [Info](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) | -                                                           |
-| LSTM TinyPilotNet         | -                                                            | [Structure](./docs/imgs/model_lstm_tinypilotnet.png)        |
-| Deepest LSTM TinyPilotNet | [Javier del Egido Sierra](https://ebuah.uah.es/dspace/bitstream/handle/10017/33946/TFG_Egido_Sierra_2018.pdf?sequence=1&isAllowed=y) TFG's. | [Structure](./docs/imgs/model_deepestlstm_tinypilotnet.png) |
-| ControlNet                | -                                                            | [Structure](./docs/imgs/model_controlnet.png)               |
-| Stacked                   | -                                                            | [Structure](./docs/imgs/model_stacked.png)                  |
-| Stacked Dif or Temporal   | -                                                            | -                                                           |
+## Usage
 
-The models are available in the [following repository](http://wiki.jderobot.org/store/jmplaza/uploads/deeplearning-models/).
-
-## 3. Solutions
-
-### 3.1. Manual Solution
+### 1. Manual Solution
 
 For this solution, the **code developed in the robotics course of the Official Master's Degree** in **Computer Vision** has been used. The structure of the project allows to combine between the different solutions. As a first approach, the one developed manually by a student or user is used.
 
@@ -88,7 +101,7 @@ An excerpt of the solution can be seen in the following gif:
 
 
 
-### 3.2. Classification Network
+### 2. Classification Network
 
 The solution using **classification networks** leaves a somewhat slower solution than the manual solution but equally useful. A piece of the solution can be seen in the following gif.
 
@@ -172,7 +185,7 @@ When the program is running it will ask for data to know the characteristics of 
 
 5. **Choose the model you want to use:** `lenet`, `smaller_vgg` or `other`: *Here you have to choose the model you want to train. The option that offers the best results is `smaller_vgg`. The `lenet` model gave very bad results because it was very basic. The `other` model loaded another model that gives worse results. The files containing the network models as such are in the folder `models/`. For classification you have them in `classification_model.py` for regression in `model_nvidia.py`.*
 
-### 3.3. Regression Network
+### 3. Regression Network
 
 If you want to train the regression network you have to run the `regression_train.py` file which is in the `/net/keras/` path. To run it, type `python train.py`. When you run it, it will ask you for the parameters for the training.
 
