@@ -217,8 +217,6 @@ class MyAlgorithm(threading.Thread):
         prediction_v = self.network.prediction_v
         prediction_w = self.network.prediction_w
 
-        print(prediction_v, prediction_w)
-
         if prediction_w != '' and prediction_w != '':
 
             net_type = self.network.__class__.__name__
@@ -229,7 +227,7 @@ class MyAlgorithm(threading.Thread):
             elif net_type == 'RegressionNetwork':
                 # self.net_regression_constant_v(prediction_w)
                 self.net_regression(prediction_v, prediction_w)
-        
+       
         #SHOW THE FILTERED IMAGE ON THE GUI
         self.set_threshold_image(image)
     

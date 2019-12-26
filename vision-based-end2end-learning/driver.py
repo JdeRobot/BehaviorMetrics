@@ -31,6 +31,7 @@ import importlib
 from gui.GUI import MainWindow
 from gui.threadGUI import ThreadGUI
 from MyAlgorithm import MyAlgorithm
+from autopilot import AutoPilot
 from PyQt5.QtWidgets import QApplication
 from interfaces.camera import ListenerCamera
 from interfaces.motors import PublisherMotors
@@ -63,12 +64,15 @@ if __name__ == "__main__":
     t_network.start()
 
     algorithm = MyAlgorithm(camera, motors, network)
+    autopilot = AutoPilot(camera, motors)
+    # algorithm = MyAlgorithm(None, None, None)
 
     app = QApplication(sys.argv)
     myGUI = MainWindow()
     myGUI.setCamera(camera)
     myGUI.setMotors(motors)
     myGUI.setAlgorithm(algorithm)
+    myGUI.setAutopilot(autopilot)
     myGUI.setThreadConnector(t_network)
     myGUI.show()
 

@@ -30,6 +30,7 @@ class MainWindow(QtWidgets.QWidget):
         self.updGUI.connect(self.updateGUI)
         self.train_class_params = None
         self.train_reg_params = None
+        self.autopilot_enabled = False
 
         # Menu Bar
         self.menubar = QtWidgets.QMenuBar(self)
@@ -115,6 +116,7 @@ class MainWindow(QtWidgets.QWidget):
 
         # Play button
         self.pushButton = QtWidgets.QPushButton(self)
+        self.pushButton.setStyleSheet("QPushButton { background-color: lightgreen}")
         self.pushButton.move(50, 470)
         self.pushButton.resize(450,50)
         self.pushButton.setText('Play Code')
@@ -137,11 +139,22 @@ class MainWindow(QtWidgets.QWidget):
         # Stop button
         icon = QtGui.QIcon('gui/resources/stop.png')
         self.stopButton = QtWidgets.QPushButton(self)
+        self.stopButton.setStyleSheet("QPushButton { background-color: tomato}")
         self.stopButton.move(100, 925)
-        self.stopButton.resize(350, 50)
+        self.stopButton.resize(175, 50)
         self.stopButton.setIcon(icon)
         self.stopButton.setText('Stop')
         self.stopButton.clicked.connect(self.stopClicked)
+
+        # Autopilot button
+        icon = QtGui.QIcon('gui/resources/stop.png')
+        self.autoButton = QtWidgets.QPushButton(self)
+        self.autoButton.setStyleSheet("QPushButton { background-color: lightblue}")
+        self.autoButton.move(280, 925)
+        self.autoButton.resize(175, 50)
+        self.autoButton.setIcon(icon)
+        self.autoButton.setText('AutoPilot')
+        self.autoButton.clicked.connect(self.autopilotClicked)
 
         # Train/Test group
         self.group = QtWidgets.QGroupBox(self)
@@ -227,10 +240,17 @@ class MainWindow(QtWidgets.QWidget):
         self.camera1.setPixmap(QtGui.QPixmap.fromImage(self.im_scaled))
 
         # We get the v and w
-        #self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
-        #self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
+        self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
+        self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
 
         self.turn_on_off_leds()
+
+        if self.autopilot_enabled:
+            im = self.autopilot.get_threshold_image()
+            im1 = QtGui.QImage(im, im.shape[1], im.shape[0],
+                          QtGui.QImage.Format_RGB888)
+
+            self.autopilotdialog_camera.setPixmap(QtGui.QPixmap.fromImage(im1))
 
         if self.save:
             img = cv2.cvtColor(self.im_prev.data, cv2.COLOR_RGB2BGR)
@@ -388,6 +408,9 @@ class MainWindow(QtWidgets.QWidget):
     def setAlgorithm(self, algorithm):
         self.algorithm=algorithm
 
+    def setAutopilot(self, autopilot):
+        self.autopilot=autopilot
+
     def getAlgorithm(self):
         return self.algorithm
 
@@ -401,10 +424,13 @@ class MainWindow(QtWidgets.QWidget):
     def stopClicked(self):
         self.motors.sendV(0)
         self.motors.sendW(0)
+        self.autopilot_enabled =False
+        self.autopilot.stop()
         self.returnToOrigin()
 
     def closeEvent(self, event):
         self.algorithm.kill()
+        self.autopilot.kill()
         self.camera.stop()
         event.accept()
         self.exit()
@@ -459,6 +485,21 @@ class MainWindow(QtWidgets.QWidget):
         else:
             import net.keras.regression.regression_test as regression_test
             regression_test.test(self.train_reg_params)
+        
+    def autopilotClicked(self):
+        self.autopilot_enabled = True
+        self.autopilotdialog = QtWidgets.QDialog()
+        self.autopilotdialog.setWindowTitle("About JdeRobot")
+        layout = QtWidgets.QHBoxLayout()
+        self.autopilotdialog_camera = QtWidgets.QLabel(self)
+        self.autopilotdialog_camera.resize(450, 350)
+        self.autopilotdialog_camera.move(50, 50)
+        self.autopilotdialog_camera.show()
+        layout.addWidget(self.autopilotdialog_camera, 0, QtCore.Qt.AlignTop)
+        self.autopilotdialog.setLayout(layout)
+
+        self.autopilot.play()
+        self.autopilotdialog.exec_()
     
     def seeConfigClicked(self):
         about = QtWidgets.QDialog()
