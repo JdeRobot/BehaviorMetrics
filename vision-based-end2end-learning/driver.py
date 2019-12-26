@@ -69,6 +69,7 @@ if __name__ == "__main__":
     myGUI.setCamera(camera)
     myGUI.setMotors(motors)
     myGUI.setAlgorithm(algorithm)
+    myGUI.setThreadConnector(t_network)
     myGUI.show()
 
     t2 = ThreadGUI(myGUI)

@@ -9,14 +9,22 @@ time_cycle = 50 #ms
 class ThreadNetwork(threading.Thread):
     def __init__(self, network):
         self.network = network
+        self.playing = False
 
         threading.Thread.__init__(self)
+
+    def setNetworkRuntime(self, network):
+        self.network = network
+    
+    def setPlaying(self, playing):
+        self.playing = playing
 
     def run(self):
 
         while(True):
             start_time = datetime.now()
-            self.network.predict()
+            if self.playing:
+                self.network.predict()
 
             finish_Time = datetime.now()
 

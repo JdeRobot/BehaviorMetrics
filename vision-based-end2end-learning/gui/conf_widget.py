@@ -281,6 +281,7 @@ class ConfWidget(QtWidgets.QWidget):
             self.net_model_w
         )
         self.winParent.getAlgorithm().setNetwork(network)
+        self.winParent.network_connector.setNetworkRuntime(network)
         self.close()
     
     def saveBtnClkTrain(self):
