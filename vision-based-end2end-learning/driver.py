@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import QApplication
 from interfaces.camera import ListenerCamera
 from interfaces.motors import PublisherMotors
 from net.threadNetwork import ThreadNetwork
-from network_configurator import NetworkConfiurator
+from network_configurator import NetworkConfigurator
 
 
 def readConfig():
@@ -52,7 +52,7 @@ def readConfig():
 if __name__ == "__main__":
 
     cfg = readConfig()
-    configurator = NetworkConfiurator(cfg)
+    configurator = NetworkConfigurator(cfg)
     network = configurator.create_network()
 
     camera = ListenerCamera("/F1ROS/cameraL/image_raw")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     t_network = ThreadNetwork(network)
     t_network.start()
 
-    algorithm=MyAlgorithm(camera, motors, network)
+    algorithm = MyAlgorithm(camera, motors, network)
 
     app = QApplication(sys.argv)
     myGUI = MainWindow()
