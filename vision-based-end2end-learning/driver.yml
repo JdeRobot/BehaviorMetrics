@@ -25,5 +25,5 @@ Driver:
     #Model: ssdlite_mobilenet_v2_coco_2018_05_29.pb
     Dataset_Path: net/dataset
     Models_Path: net/models
-    Cropped: True
+    Cropped: False
 NodeName: Driver
