@@ -62,7 +62,7 @@ if __name__ == "__main__":
     t_network = ThreadNetwork(network)
     t_network.start()
 
-    algorithm=MyAlgorithm(camera, motors, network)
+    algorithm = MyAlgorithm(camera, motors, network)
 
     app = QApplication(sys.argv)
     myGUI = MainWindow()
