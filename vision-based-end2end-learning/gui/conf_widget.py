@@ -128,6 +128,15 @@ class ConfWidget(QtWidgets.QWidget):
         layout.addWidget(cropped_check, 3, 0)
         cropped_check.clicked.connect(lambda: self.cropped_checked(cropped_check))
 
+        self.lbl = QtWidgets.QLabel()
+        self.lbl.setStyleSheet("QLabel { font-weight: bold; font-size: 18px; color: green}")
+        self.lbl.setText("Setting up network...")
+        self.lbl.hide()
+        # self.movie = QtGui.QMovie('/tmp/loader.gif')
+        # self.lbl.setMovie(self.movie)
+        # self.movie.start()
+        layout.addWidget(self.lbl, 4, 0)
+
         save_button = QtWidgets.QPushButton("Save")
         layout.addWidget(save_button, 4, 0, alignment=QtCore.Qt.AlignRight)
         save_button.clicked.connect(self.saveBtnClk)
@@ -273,6 +282,8 @@ class ConfWidget(QtWidgets.QWidget):
                 self.net_model_w = filenames[0]
 
     def saveBtnClk(self):
+        self.lbl.show()
+        self.repaint()
         network = self.net_configurator.config_from_gui(
             self.net_framework,
             self.net_type,
@@ -280,7 +291,9 @@ class ConfWidget(QtWidgets.QWidget):
             self.net_model_v,
             self.net_model_w
         )
+
         self.winParent.getAlgorithm().setNetwork(network)
+        
         self.winParent.network_connector.setNetworkRuntime(network)
         self.close()
     
