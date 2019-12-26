@@ -194,9 +194,17 @@ class MyAlgorithm(threading.Thread):
             self.motors.sendW(-0.75)
         elif prediction_w == "radically_right":
             self.motors.sendW(-1.8)
-
-
     
+    def net_regression(self, prediction_v, prediction_w):
+        # REGRESSION NETWORK FOR W AND V
+        self.motors.sendV(prediction_v)
+        self.motors.sendW(prediction_w)
+
+    def net_regression_constant_v(self, prediction_v, prediction_w):
+        # REGRESSION NETWORK FOR W AND V
+        self.motors.sendV(3)
+        self.motors.sendW(prediction_w)
+
     def algorithm(self):
         #GETTING THE IMAGES
         image = self.getImage()
@@ -206,20 +214,17 @@ class MyAlgorithm(threading.Thread):
             self.cont += 1
 
         prediction_v = self.network.prediction_v
-        prediction_w = self.network.prediction_w    
+        prediction_w = self.network.prediction_w
 
-        # REGRESSION NETWORK FOR W AND V
-        # self.motors.sendV(prediction_v)
-        # self.motors.sendW(prediction_w)
-
-        # REGRESSION NETWORK FOR W AND CONSTANT V
-        # self.motors.sendV(3)
-        # self.motors.sendW(prediction_w)
-
-        # self.net_classification_7w_constant_v(prediction_w)
-        # self.net_classification_7w_4v(prediction_v, prediction_w)
-        self.net_classification_7w_5v(prediction_v, prediction_w)
-
+        net_type = self.network.__class__.__name__
+        if net_type == 'ClassificationNetwork':
+            # self.net_classification_7w_constant_v(prediction_w)
+            # self.net_classification_7w_4v(prediction_v, prediction_w)
+            self.net_classification_7w_5v(prediction_v, prediction_w)
+        elif net_type == 'RegressionNetwork':
+            # self.net_regression_constant_v(prediction_w)
+            self.net_regression(prediction_v, prediction_w)
+       
         #SHOW THE FILTERED IMAGE ON THE GUI
         self.set_threshold_image(image)
     
