@@ -231,8 +231,9 @@ class MyAlgorithm(threading.Thread):
 
 
 
-
-
+    ################################################
+    ###### MANUAL SOLUTION from MOVA
+    ####################################################
 
     # def processed_image(self, img):
         
