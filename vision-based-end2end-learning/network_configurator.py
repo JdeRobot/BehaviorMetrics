@@ -1,7 +1,7 @@
 
 import importlib
 
-class NetworkConfiurator:
+class NetworkConfigurator:
 
     def __init__(self, cfg_file=None):
         self.cfg = cfg_file
