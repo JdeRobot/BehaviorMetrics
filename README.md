@@ -6,7 +6,7 @@ This project presents different approaches to the follow-the-line exercise but u
 - Using reinforcement learning.
 - Solution for real robots.
 
-<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:30%;" />
+<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:20%;" />
 
 Index of the project:
 
