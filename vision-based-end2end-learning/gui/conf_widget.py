@@ -293,7 +293,6 @@ class ConfWidget(QtWidgets.QWidget):
         )
 
         self.winParent.getAlgorithm().setNetwork(network)
-        
         self.winParent.network_connector.setNetworkRuntime(network)
         self.close()
     
