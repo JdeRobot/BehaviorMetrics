@@ -146,10 +146,24 @@ class MainWindow(QtWidgets.QWidget):
 
         # Train/Test group
         self.group = QtWidgets.QGroupBox(self)
-        self.group.setTitle("Train/Test")
-        self.group.move(550,400)
-        self.group.setFixedSize(200,300)
+        self.group.setStyleSheet(
+            """QGroupBox {
+                font: bold;
+                border: 1px solid silver;
+                border-radius: 6px;
+                margin-top: 6px;
+                padding: 10px 5px 5px 5px
+            }
 
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 7px;
+                padding: 0px 5px 0px 5px;
+            }"""
+        )
+        self.group.setTitle("Train/Test")
+        self.group.move(550,600)
+        self.group.setFixedSize(200,300)
         layout = QtWidgets.QVBoxLayout(self)
 
         # Save button
@@ -181,7 +195,7 @@ class MainWindow(QtWidgets.QWidget):
         self.testButton = QtWidgets.QPushButton(self)
         self.testButton.setEnabled(False)
         self.testButton.setText('Test Network')
-        self.testButton.clicked.connect(self.removeDataset)
+        self.testButton.clicked.connect(self.testClicked)
 
         layout.addWidget(self.saveButton)
         layout.addWidget(self.removeButton)
@@ -357,11 +371,13 @@ class MainWindow(QtWidgets.QWidget):
     def saveDataset(self):
         create_dataset()
         self.save = True
+        self.saveButton.setStyleSheet("QPushButton { background-color: green }")
 
     def removeDataset(self):
         if os.path.exists('Net/Dataset'):
             shutil.rmtree('Net/Dataset')
         self.save = False
+        self.saveButton.setStyleSheet("QPushButton { }")
 
     def setAlgorithm(self, algorithm):
         self.algorithm=algorithm
@@ -385,6 +401,7 @@ class MainWindow(QtWidgets.QWidget):
         self.algorithm.kill()
         self.camera.stop()
         event.accept()
+        self.exit()
 
     def aboutWindow(self):
         about = QtWidgets.QDialog()
