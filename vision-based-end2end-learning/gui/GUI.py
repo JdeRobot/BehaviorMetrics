@@ -145,10 +145,24 @@ class MainWindow(QtWidgets.QWidget):
 
         # Train/Test group
         self.group = QtWidgets.QGroupBox(self)
-        self.group.setTitle("Train/Test")
-        self.group.move(550,400)
-        self.group.setFixedSize(200,300)
+        self.group.setStyleSheet(
+            """QGroupBox {
+                font: bold;
+                border: 1px solid silver;
+                border-radius: 6px;
+                margin-top: 6px;
+                padding: 10px 5px 5px 5px
+            }
 
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 7px;
+                padding: 0px 5px 0px 5px;
+            }"""
+        )
+        self.group.setTitle("Train/Test")
+        self.group.move(550,600)
+        self.group.setFixedSize(200,300)
         layout = QtWidgets.QVBoxLayout(self)
 
         # Save button
@@ -180,7 +194,7 @@ class MainWindow(QtWidgets.QWidget):
         self.testButton = QtWidgets.QPushButton(self)
         self.testButton.setEnabled(False)
         self.testButton.setText('Test Network')
-        self.testButton.clicked.connect(self.removeDataset)
+        self.testButton.clicked.connect(self.testClicked)
 
         layout.addWidget(self.saveButton)
         layout.addWidget(self.removeButton)
@@ -213,8 +227,8 @@ class MainWindow(QtWidgets.QWidget):
         self.camera1.setPixmap(QtGui.QPixmap.fromImage(self.im_scaled))
 
         # We get the v and w
-        self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
-        self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
+        #self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
+        #self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
 
         self.turn_on_off_leds()
 
@@ -234,6 +248,9 @@ class MainWindow(QtWidgets.QWidget):
 
     def setMotors(self,motors):
         self.motors=motors
+    
+    def setThreadConnector(self, t_network):
+        self.network_connector = t_network
 
     def stop(self):
         self.line = QtCore.QPointF(0, 0)
@@ -310,10 +327,14 @@ class MainWindow(QtWidgets.QWidget):
         if self.pushButton.isChecked():
             self.pushButton.setText('Stop Code')
             self.pushButton.setStyleSheet("background-color: #7dcea0")
+            self.network_connector.setPlaying(True)
             self.algorithm.play()
         else:
             self.pushButton.setText('Play Code')
             self.pushButton.setStyleSheet("background-color: #ec7063")
+            self.motors.sendV(0)
+            self.motors.sendW(0)
+            self.network_connector.setPlaying(False)
             self.algorithm.stop()
 
     def turn_on_off_leds(self):
@@ -356,11 +377,13 @@ class MainWindow(QtWidgets.QWidget):
     def saveDataset(self):
         create_dataset()
         self.save = True
+        self.saveButton.setStyleSheet("QPushButton { background-color: green }")
 
     def removeDataset(self):
         if os.path.exists('Net/Dataset'):
             shutil.rmtree('Net/Dataset')
         self.save = False
+        self.saveButton.setStyleSheet("QPushButton { }")
 
     def setAlgorithm(self, algorithm):
         self.algorithm=algorithm
@@ -384,6 +407,7 @@ class MainWindow(QtWidgets.QWidget):
         self.algorithm.kill()
         self.camera.stop()
         event.accept()
+        self.exit()
 
     def aboutWindow(self):
         about = QtWidgets.QDialog()
