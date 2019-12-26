@@ -227,8 +227,8 @@ class MainWindow(QtWidgets.QWidget):
         self.camera1.setPixmap(QtGui.QPixmap.fromImage(self.im_scaled))
 
         # We get the v and w
-        self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
-        self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
+        #self.predict_v_label.setText('{0:0.2f}'.format(self.motors.v) + " v")
+        #self.predict_w_label.setText('{0:0.2f}'.format(self.motors.w) + " w")
 
         self.turn_on_off_leds()
 
@@ -248,6 +248,9 @@ class MainWindow(QtWidgets.QWidget):
 
     def setMotors(self,motors):
         self.motors=motors
+    
+    def setThreadConnector(self, t_network):
+        self.network_connector = t_network
 
     def stop(self):
         self.line = QtCore.QPointF(0, 0)
@@ -324,10 +327,14 @@ class MainWindow(QtWidgets.QWidget):
         if self.pushButton.isChecked():
             self.pushButton.setText('Stop Code')
             self.pushButton.setStyleSheet("background-color: #7dcea0")
+            self.network_connector.setPlaying(True)
             self.algorithm.play()
         else:
             self.pushButton.setText('Play Code')
             self.pushButton.setStyleSheet("background-color: #ec7063")
+            self.motors.sendV(0)
+            self.motors.sendW(0)
+            self.network_connector.setPlaying(False)
             self.algorithm.stop()
 
     def turn_on_off_leds(self):

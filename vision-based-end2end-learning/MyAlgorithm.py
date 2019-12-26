@@ -54,6 +54,7 @@ class MyAlgorithm(threading.Thread):
     
     def setNetwork(self, custom_net):
         self.network = custom_net
+        self.network.setCamera(self.camera)
     
     def getImage(self):
         self.lock.acquire()
@@ -216,15 +217,19 @@ class MyAlgorithm(threading.Thread):
         prediction_v = self.network.prediction_v
         prediction_w = self.network.prediction_w
 
-        net_type = self.network.__class__.__name__
-        if net_type == 'ClassificationNetwork':
-            # self.net_classification_7w_constant_v(prediction_w)
-            # self.net_classification_7w_4v(prediction_v, prediction_w)
-            self.net_classification_7w_5v(prediction_v, prediction_w)
-        elif net_type == 'RegressionNetwork':
-            # self.net_regression_constant_v(prediction_w)
-            self.net_regression(prediction_v, prediction_w)
-       
+        print(prediction_v, prediction_w)
+
+        if prediction_w != '' and prediction_w != '':
+
+            net_type = self.network.__class__.__name__
+            if net_type == 'ClassificationNetwork':
+                # self.net_classification_7w_constant_v(prediction_w)
+                # self.net_classification_7w_4v(prediction_v, prediction_w)
+                self.net_classification_7w_5v(prediction_v, prediction_w)
+            elif net_type == 'RegressionNetwork':
+                # self.net_regression_constant_v(prediction_w)
+                self.net_regression(prediction_v, prediction_w)
+        
         #SHOW THE FILTERED IMAGE ON THE GUI
         self.set_threshold_image(image)
     
