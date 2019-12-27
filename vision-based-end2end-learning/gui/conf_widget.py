@@ -124,9 +124,9 @@ class ConfWidget(QtWidgets.QWidget):
         models_groupbox.setLayout(lv)
         layout.addWidget(models_groupbox, 2, 0)
 
-        cropped_check = QtWidgets.QCheckBox("Cropped")
-        layout.addWidget(cropped_check, 3, 0)
-        cropped_check.clicked.connect(lambda: self.cropped_checked(cropped_check))
+        self.cropped_check = QtWidgets.QCheckBox("Cropped")
+        layout.addWidget(self.cropped_check, 3, 0)
+        self.cropped_check.clicked.connect(lambda: self.cropped_checked(self.cropped_check))
 
         self.lbl = QtWidgets.QLabel()
         self.lbl.setStyleSheet("QLabel { font-weight: bold; font-size: 18px; color: green}")
@@ -284,6 +284,10 @@ class ConfWidget(QtWidgets.QWidget):
     def saveBtnClk(self):
         self.lbl.show()
         self.repaint()
+        if self.cropped_check.isChecked():
+            self.net_cropped = True
+        else:
+            self.net_cropped = False
         network = self.net_configurator.config_from_gui(
             self.net_framework,
             self.net_type,
