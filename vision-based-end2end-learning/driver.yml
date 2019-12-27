@@ -17,11 +17,11 @@ Driver:
 
   Network:
     Framework: keras  # Currently supported: "Keras" or "TensorFlow"
-    Use: Regression # or Regression  -- caps are important! -- 
+    Use: Classification # Use Classification or Regression  -- caps are important! -- 
     Model_Classification_w: model_smaller_vgg_7classes_biased_cropped_w.h5
     Model_Classification_v: model_smaller_vgg_5classes_biased_cropped_v.h5
-    Model_Regression_v: model_pilotnet_v.h5
-    Model_Regression_w: model_pilotnet_w.h5
+    Model_Regression_v: model_controlnet_v.h5 # model_pilotnet_v.h5
+    Model_Regression_w: model_controlnet_w.h5 # model_pilotnet_w.h5
     #Model: ssdlite_mobilenet_v2_coco_2018_05_29.pb
     Dataset_Path: net/dataset
     Models_Path: net/models
