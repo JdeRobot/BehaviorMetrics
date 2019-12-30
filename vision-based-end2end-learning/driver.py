@@ -14,8 +14,10 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see http://www.gnu.org/licenses/.
-#  Authors :
+#  Authors:
 #       Vanessa Fernandez Martinez <vanessa_1895@msn.com>
+#       Franciso Perez Salgado <f.perez475@gmail.com>
+#       Ignacio Arranz Agueda <n.arranz.agueda@gmail.com>
 #  Based on:
 #       Follow line code: https://github.com/JdeRobot/Academy/tree/master/exercises/follow_line
 #       and @naxvm code: https://github.com/JdeRobot/dl-objectdetector
@@ -26,6 +28,7 @@
 import sys
 import yaml
 import importlib
+import logging
 
 # Practice imports
 from gui.GUI import MainWindow
@@ -37,6 +40,22 @@ from interfaces.camera import ListenerCamera
 from interfaces.motors import PublisherMotors
 from net.threadNetwork import ThreadNetwork
 from network_configurator import NetworkConfigurator
+
+
+class Colors:
+    """
+    Colors defined for improve the prints in each Stage
+    """
+    DEBUG = '\033[1;36;1m'
+    OKCYAN = '\033[96m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    def __init__(self):
+        pass
 
 
 def readConfig():
@@ -51,6 +70,8 @@ def readConfig():
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(format='[%(levelname)s]{} %(message)s{}'.format(Colors.OKBLUE, Colors.ENDC), level=logging.INFO)
 
     cfg = readConfig()
     configurator = NetworkConfigurator(cfg)
