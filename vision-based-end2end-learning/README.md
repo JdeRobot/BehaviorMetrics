@@ -2,17 +2,12 @@
 
 # Vision-based end-to-end learning
 
-1. [Datasets](#datasets)
-
-2. [Models](#models)
-
-3. [Installation](#installation)
-
-4. [Usage](#usage)
-
-   3.1. [Manual Solution](#1-manual-solution)
-
-   3.2. [Classification Network](#2-classification-network)
+1. [Usage](#1-usage)
+2. [Models](#2-models).
+3. [Solutions](#3-solutions)
+   3.1. [Manual Solution](#31-manual-solution)
+   3.2. [Classification Network](#32-classification-network)
+   3.3. [Regression Network](#33-regression-network)
 
    3.3. [Regression Network](#3-regression-network)
 
