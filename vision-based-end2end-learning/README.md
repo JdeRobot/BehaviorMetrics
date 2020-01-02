@@ -2,14 +2,13 @@
 
 # Vision-based end-to-end learning
 
-1. [Usage](#1-usage)
-2. [Models](#2-models).
-3. [Solutions](#3-solutions)
-   3.1. [Manual Solution](#31-manual-solution)
-   3.2. [Classification Network](#32-classification-network)
-   3.3. [Regression Network](#33-regression-network)
-
-   3.3. [Regression Network](#3-regression-network)
+- [Usage](#usage)
+- [Dataset](#datasets)
+- [Models](#models)
+- [Solutions](#solutions)
+  - [Manual Solution](#manual-solution)
+  - [Classification Network](#classification-network)
+  - [Regression Network](#regression-network)
 
 The objective of this project is to **take images** from the camera on a circuit where the mission is to follow a red line to complete a lap of the circuit **using classification and regression neural networks**.
 
