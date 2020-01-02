@@ -9,6 +9,7 @@
   - [Manual Solution](#manual-solution)
   - [Classification Network](#classification-network)
   - [Regression Network](#regression-network)
+- [FAQ](#faq)
 
 The objective of this project is to **take images** from the camera on a circuit where the mission is to follow a red line to complete a lap of the circuit **using classification and regression neural networks**.
 
@@ -198,3 +199,18 @@ If you want to train the regression network you have to run the `regression_trai
 
    
 
+## FAQ
+
+### Install Graphviz:
+
+- Problem
+
+    ```
+    E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+    ```
+
+- Solution
+
+    ```
+    sudo apt autoclean && apt-get -f install && sudo dpkg --configure -a && sudo apt-get -f install
+    ```
