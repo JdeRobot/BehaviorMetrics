@@ -46,3 +46,13 @@ The following table contains **non-functional requirements**:
 | RN02   | Memory      | -      |
 | RN03   | GPU-Ready   | -      |
 
+## References
+
+Zhicheng Li, Zhihao Gu, Xuan Di, Rongye Shi. An LSTM-Based Autonomous Driving Model Using Waymo Open Dataset.
+*arXiv e-prints, art.arXiv:2002.05878*, Feb 2020. https://arxiv.org/abs/2002.05878
+ 
+Pei Sun et at. Scalability in Perception for Autonomous Driving: Waymo Open Dataset. 
+*arXiv e-prints, art.arXiv:1912.04838*, Dec 2019. https://arxiv.org/abs/1912.04838 
+(Waymo Open Dataset)[https://waymo.com/open/]
+
+
