@@ -1,29 +1,35 @@
-Driver:
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/F1ROS/cameraL/image_raw'
+                Camera_1:
+                    Name: 'camera_1'
+                    Topic: '/F1ROS/cameraR/image_raw'
+            
+            Lasers:
+                Laser_0:
+                    Name: 'laser_0'
+                    Topic: '/F1ROS/scan'
+            
+            Pose:
+                Pose_0:
+                    Name: 'pose_0'
+                    Topic: '/F1ROS/odom'
+        
+        Actuators:
+            Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/F1ROS/cmd_vel'
+                    MaxV: 3
+                    MaxW: 0.3
+        Name: 'formula1'
+                    
 
-  CameraLeft:
-    Server: 2 # 0 -> Deactivate, 1 -> Ice , 2 -> ROS
-    Proxy: "cam_f1_left:tcp -h localhost -p 8995"
-    Format: RGB8
-    Topic: "/F1ROS/CameraL/image_raw"
-    Name: FollowLineF1CameraLeft
 
-  Motors:
-    Server: 0 # 0 -> Deactivate, 1 -> Ice , 2 -> ROS
-    Proxy: "Motors:tcp -h localhost -p 9999"
-    Topic: "/F1ROS/Motors"
-    Name: FollowLineF1Motors
 
-  robot: F1
-
-  Network:
-    Framework: keras  # Currently supported: "Keras" or "TensorFlow"
-    Use: Regression # Use Classification or Regression  -- caps are important! -- 
-    Model_Classification_w: model_smaller_vgg_7classes_biased_cropped_w.h5
-    Model_Classification_v: model_smaller_vgg_5classes_biased_cropped_v.h5
-    Model_Regression_v: model_pilotnet_v.h5 # model_controlnet_v.h5
-    Model_Regression_w: model_pilotnet_w.h5 # model_controlnet_w.h5
-    #Model: ssdlite_mobilenet_v2_coco_2018_05_29.pb
-    Dataset_Path: net/dataset
-    Models_Path: net/models
-    Cropped: False
-NodeName: Driver
+        
+  

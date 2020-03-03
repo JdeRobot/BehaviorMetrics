@@ -15,7 +15,6 @@ from interfaces.motors import PublisherMotors
 time_cycle = 80
 
 
-
 # Show text into an image
 font = cv2.FONT_HERSHEY_SIMPLEX
 
