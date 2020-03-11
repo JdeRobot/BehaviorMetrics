@@ -1,4 +1,4 @@
-# Neural Behaviors
+# Behaviors Suite
 
 This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
 - Using classification networks.
@@ -10,7 +10,7 @@ This project presents different approaches to the follow-the-line exercise but u
 
 Index of the project:
 
-- [Vision-based end-to-end using Deep Learning](https://github.com/JdeRobot/NeuralBehaviors/tree/master/vision-based-end2end-learning).
+- [Vision-based end-to-end using Deep Learning](https://github.com/JdeRobot/BehaviorSuite/tree/master/vision-based-end2end-learning).
 
 - [Deep Reinforcement Learning for autonomous car](https://github.com/RoboticsLabURJC/2019-tfm-ignacio-arranz) (WIP).
 
@@ -20,9 +20,9 @@ Index of the project:
 
 ## Design
 
-Neural Behaviors project has the following structure (WIP):
+Behaviors Suite project has the following structure (WIP):
 
-![neural_behavior_diagram](docs/assets/images/neural_behavior_diagram.png)
+![behavior_suite_diagram](docs/assets/images/behavior_suite_diagram.png)
 
 ## Current Status
 
@@ -50,7 +50,7 @@ The following table contains **non-functional requirements**:
 
 Zhicheng Li, Zhihao Gu, Xuan Di, Rongye Shi. An LSTM-Based Autonomous Driving Model Using Waymo Open Dataset.
 *arXiv e-prints, art.arXiv:2002.05878*, Feb 2020. https://arxiv.org/abs/2002.05878
- 
+
 Pei Sun et at. Scalability in Perception for Autonomous Driving: Waymo Open Dataset. 
 *arXiv e-prints, art.arXiv:1912.04838*, Dec 2019. https://arxiv.org/abs/1912.04838 
 (Waymo Open Dataset)[https://waymo.com/open/]
