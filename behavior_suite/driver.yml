@@ -12,8 +12,7 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        # BrainPath: '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/brain_f1_keras_classification_7w5v.py'
-        BrainPath: '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/brain_f1_opencv.py'
+        BrainPath: 'brains/f1/brain_f1_opencv.py'
         Name: 'formula1'
                     
 
