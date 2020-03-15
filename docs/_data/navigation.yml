@@ -1,18 +1,18 @@
 # main links
 main:
 
-  - title: LogBook
-    url: /logbook/
+  - title: Test your Network
+    url: /test_your_network/
 
   - title: Installation
     url: /install/
 
-  - title: About
-    url: /about/
+  - title: Documentation
+    url: /documentation/
 
 # left side bar
 docs:
-  - title: LogBook
+  - title: Test your Network
     children:
       - title: Check it out
         url: /logbook/
@@ -22,8 +22,12 @@ docs:
     - title: How to install
       url: /install/
 
-  - title: About
+  - title: Documentation
     children:
-    - title: References
-      url: /references/
+    - title: Requisites
+      url: //
+    - title: Install
+      url: //
+    - title: Usage
+      url: //
   

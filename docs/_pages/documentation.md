@@ -1,12 +1,12 @@
 ---
-permalink: /about/
+permalink: /documentation/
 title: "References used in this project"
 
 sidebar:
   nav: "docs"
 ---
 
-You can add here references to:
+Here, you can see references to:
 
 - Articles
 - Programs
