@@ -55,13 +55,14 @@ class RosSrvHandler:
 
 class Pilot(threading.Thread):
 
-    def __init__(self, config_data):
+    def __init__(self, config_data, ss):
         robot = config_data['Behaviors']['Robot']
         sensors_config = robot['Sensors']
         actuators_config = robot['Actuators']
         brain_path = robot['BrainPath']
 
-        self.sensors = Sensors(sensors_config)
+        # self.sensors = Sensors(sensors_config)
+        self.sensors = ss
         self.actuators = Actuators(actuators_config)
         self.brains = Brains(self.sensors, self.actuators, brain_path)
 
@@ -116,7 +117,11 @@ class Pilot(threading.Thread):
             self.ros_handler.stop_record()
         elif data.data == 'quit':
             self.kill()
+        
+    def callback_topics(self, data):
+        pass
             
     def ui_listener(self):
         rospy.Subscriber("/behavior/ui_comm", String, self.callback)
+        rospy.Subscriber("/behavior/ui_comm", String, self.callback_topics)
         rospy.spin()

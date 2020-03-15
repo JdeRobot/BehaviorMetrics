@@ -8,3 +8,7 @@ class Communicator:
 
     def send_msg(self, key):
         self.pub.publish(str(key))
+    
+    def send_topics(self, topics):
+        pass
+

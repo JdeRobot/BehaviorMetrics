@@ -1,0 +1,78 @@
+aNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterrupt
+No handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterruptNo handlers could be found for logger "pynput.keyboard.Listener"
+s^CTraceback (most recent call last):
+  File "cui.py", line 75, in <module>
+    time.sleep(10)
+KeyboardInterrupt

@@ -10,33 +10,22 @@ from pynput import keyboard
 
 from ui.ros_ui_com import Communicator
 
-class Colors:
-    """
-    Colors defined for improve the prints in each Stage
-    """
-    DEBUG = '\033[1;36;1m'
-    OKCYAN = '\033[96m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
 class CUI:
+
+    last_key = None
 
     def __init__(self):
         self.listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release
         )
-        self.comm = Communicator()
-        self.dataset_submenu = False
-        self.evaluate_submenu = False
+        # self.comm = Communicator()
 
     def on_press(self, key):
         try:
             # print('Pressed key'.format(key.char))
-            self.comm.send_msg(key.char)
+            # self.comm.send_msg(key.char)
+            self.last_key = key.char
         except AttributeError:
             # print('Not alphanumeric'.format(key))
             pass
@@ -44,13 +33,23 @@ class CUI:
     def on_release(self, key):
         # print('Released'.format(key))
         if key == keyboard.Key.esc:
-            self.comm.send_msg('quit')
+            self.last_key = '-1'
+            # self.comm.send_msg('quit')
             return False
 
     def start(self):
         self.listener.start()
 
+    def stop(self):
+        self.listener.stop()
 
-    def show_main_menu():
+    def set_dset_dir(self, dset_out):
         pass
 
+    def set_dset_name(self, dset_name):
+        pass
+    def set_topics(self, topics_box):
+        pass
+    
+    def set_brain(self, brain):
+        pass

@@ -6,6 +6,10 @@ import yaml
 
 from pilot import Pilot
 from ui.cui.cui import CUI
+from ui.gui.main import ExampleWindow
+from PyQt5.QtWidgets import QApplication
+from robot.sensors import Sensors
+from ui.gui.threadGUI import ThreadGUI
 
 class Colors:
     """
@@ -84,16 +88,29 @@ if __name__ == '__main__':
     config_file = config_data.get('config', None)
     configuration = get_config_data(config_file)
 
+    ss = configuration['Behaviors']['Robot']['Sensors']
+    sensors = Sensors(ss)
     # start pilot thread
-    pilot = Pilot(configuration)
+    pilot = Pilot(configuration, sensors)
     pilot.daemon=True
     pilot.start()
 
     # start cui thread
-    c = CUI()
-    c.start()
+    # c = CUI()
+    # c.start()
 
     # start gui thread
+    app = QApplication(sys.argv)
+    
+
+    ex = ExampleWindow(sensors)
+    ex.show()
+
+    t2 = ThreadGUI(ex)
+    t2.daemon=True
+    t2.start()
+
+    sys.exit(app.exec_())
 
     # join all threads
     pilot.join()
