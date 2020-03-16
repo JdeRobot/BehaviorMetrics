@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "air"
 
 # Site Settings
 #locale                   : "en-US"
-title                    : "Behaviors Suite"
+title                    : "Behavior Suite"
 title_separator          : "-"
 subtitle                 : "Autonomous driving network comparison tool"
 name                     : "JdeRobot"

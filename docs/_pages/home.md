@@ -38,6 +38,6 @@ youTube_id: ID7qaEcIu4k
 
 {% include feature_row %}
 
-Behaviors Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
+Behavior Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
 
 You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorSuite).
