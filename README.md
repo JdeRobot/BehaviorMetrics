@@ -1,6 +1,6 @@
 <a href="https://mmg-ai.com/en/"><img src="https://jderobot.github.io/assets/images/logo.png" width="100 " align="right" /></a>
 
-# Behaviors Suite
+# Behavior Suite
 
 This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
 - Using classification networks.
@@ -22,7 +22,7 @@ Index of the project:
 
 ## Design
 
-Behaviors Suite project has the following structure (WIP):
+Behavior Suite project has the following structure (WIP):
 
 ![behavior_suite_diagram](docs/assets/images/behavior_suite_diagram.png)
 
