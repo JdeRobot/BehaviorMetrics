@@ -19,12 +19,12 @@ class CUI:
             on_press=self.on_press,
             on_release=self.on_release
         )
-        # self.comm = Communicator()
+        self.comm = Communicator()
 
     def on_press(self, key):
         try:
-            # print('Pressed key'.format(key.char))
-            # self.comm.send_msg(key.char)
+            print('Pressed key'.format(key.char))
+            self.comm.send_msg(key.char)
             self.last_key = key.char
         except AttributeError:
             # print('Not alphanumeric'.format(key))
@@ -34,7 +34,7 @@ class CUI:
         # print('Released'.format(key))
         if key == keyboard.Key.esc:
             self.last_key = '-1'
-            # self.comm.send_msg('quit')
+            self.comm.send_msg('quit')
             return False
 
     def start(self):
@@ -50,6 +50,6 @@ class CUI:
         pass
     def set_topics(self, topics_box):
         pass
-    
+
     def set_brain(self, brain):
         pass

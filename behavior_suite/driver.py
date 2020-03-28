@@ -96,21 +96,27 @@ if __name__ == '__main__':
     pilot.start()
 
     # start cui thread
-    # c = CUI()
-    # c.start()
+    from ui.cui.test_npy import MyTestApp
+    try:
+        TA = MyTestApp()
+        TA.run()
+    except KeyboardInterrupt:
+        print("Exiting... Press Esc to confirm")
+        TA.stop()
+        exit(0)
 
     # start gui thread
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
     
 
-    ex = ExampleWindow(sensors)
-    ex.show()
+    # ex = ExampleWindow(sensors)
+    # ex.show()
 
-    t2 = ThreadGUI(ex)
-    t2.daemon=True
-    t2.start()
+    # t2 = ThreadGUI(ex)
+    # t2.daemon=True
+    # t2.start()
 
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())
 
     # join all threads
     pilot.join()

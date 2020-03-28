@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSequentialAnimationGroup, pyqtSignal
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import (QLabel, QFrame, QGraphicsOpacityEffect, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -99,52 +97,37 @@ class ClickableQFrame(QFrame):
                     }
                 """
 
-    def __init__(self, parent, row, col):
+    def __init__(self, parent=None):
         QFrame.__init__(self)
         self.setObjectName('customframe')
         self.parent = parent
-        self.is_selected = False
-        self.group_id = -1
-        self.row = row
-        self.col = col
+        self.is_active = False
+        self.topic = None
         self.setStyleSheet(self.normal_qss)
         lay = QVBoxLayout()
         global current_selection_id
-        self.labelgr = QLabel()
+        self.labelgr = QLabel('Click me!')
         self.labelgr.setAlignment(Qt.AlignCenter)
         lay.addWidget(self.labelgr)
         self.setLayout(lay)
 
     def enterEvent(self, event):
-        if not self.is_selected:
+        if not self.is_active:
             self.setStyleSheet(self.hover_qss)
 
     def leaveEvent(self, event):
-        if not self.is_selected:
+        if not self.is_active:
             self.setStyleSheet(self.normal_qss)
 
     def mousePressEvent(self, event):
-        global current_selection_id
         if event.buttons() & Qt.LeftButton:
-            if not self.is_selected:
-                modifiers = QApplication.keyboardModifiers()
-                if not modifiers == Qt.ControlModifier:
-                    current_selection_id += 1
-                self.is_selected = True
-                self.group_id = current_selection_id
-                self.labelgr.setText(str(self.group_id))
-            else:
-                self.is_selected = False
-                self.group_id = -1
-                self.labelgr.setText('')
-
-    def get_position(self):
-        return (self.row, self.col)
+            # show frame configuration window
+            pass
 
     def clear(self):
-        self.is_selected = False
-        self.group_id = -1
-        self.labelgr.setText('')
+        self.is_active = False
+        self.topic = None
+        self.labelgr.setText('Click me!')
         self.setStyleSheet(self.normal_qss)
 
 
@@ -174,7 +157,9 @@ class FakeToolbar(QWidget):
         self.main_layout = QVBoxLayout()
         b1 = QGroupBox()
         b1.setTitle('Toolbar')
+        logo = Logo()
         self.main_layout.addWidget(b1)
+        self.main_layout.addWidget(logo)
         self.setLayout(self.main_layout)
 
 
@@ -183,16 +168,14 @@ class LayoutMatrix(QWidget):
     def __init__(self, positions, parent=None):
         QWidget.__init__(self, parent)
         self.main_layout = QGridLayout()
+        self.parent = parent
 
         self.setStyleSheet('background-color: rgb(51,51,51)')
         self.setLayout(self.main_layout)
 
         for c in positions:
-            lbl = QLabel()
-            lbl.setStyleSheet('border: 2px solid white')
-            lbl.setPixmap(QPixmap(':/assets/logo_200.svg'))
-            lbl.setAlignment(Qt.AlignCenter)
-            self.main_layout.addWidget(lbl, c[0], c[1], c[2], c[3])
+            sensor_frame = ClickableQFrame(self.parent)
+            self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
 
 
 class MainView(QWidget):
@@ -214,11 +197,10 @@ class MainView(QWidget):
         self.setLayout(main_layout)
 
         # define view's widgets
-        logo = Logo()
 
         central_layout = QHBoxLayout()
         toolbar = FakeToolbar()
-        matrix = LayoutMatrix(self.layout_configuration)
+        matrix = LayoutMatrix(self.layout_configuration, self)
         central_layout.addWidget(toolbar)
         central_layout.addWidget(matrix)
 

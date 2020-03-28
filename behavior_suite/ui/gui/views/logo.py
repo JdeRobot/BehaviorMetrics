@@ -1,6 +1,7 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QImage, QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QFont, QPixmap, QImage
+
 import resources
 
 
@@ -20,7 +21,7 @@ class Logo(QWidget):
         logo_label.setFixedHeight(50)
 
         title_label = QLabel('Behavior Suite')
-        title_label.setFont(QFont('Techno Capture', 36))
+        title_label.setFont(QFont('Techno Capture', 30))
         title_label.setStyleSheet('color: white')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setFixedHeight(50)
