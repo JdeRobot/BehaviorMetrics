@@ -1,0 +1,112 @@
+{
+    "f1": [
+      {
+        "name": "Simple circuit",
+        "world": "f1_1_simplecircuit.world",
+        "description": "Description"
+      },
+      {
+        "name": "Simple circuit obstacles",
+        "world": "f1_1_monacolineROS.world",
+        "description": "Description"
+      },
+      {
+        "name": "Nurburgring",
+        "world": "f1_1_nurburgrinlineROS.world",
+        "description": "Description"
+      },
+      {
+        "name": "Monaco",
+        "world": "f1_1_monacolineROS.world",
+        "description": "Description"
+      }
+    ],
+    "drone": [
+      {
+        "name": "Follow road",
+        "world": "iris_follow_road.world",
+        "description": "Description"
+      },
+      {
+        "name": "Cat and mouse",
+        "world": "iris_drone_cat_mouse.world",
+        "description": "Description"
+      },
+      {
+        "name": "Labyrinth",
+        "world": "iris_labyrinth.world",
+        "description": "Description"
+      },
+      {
+        "name": "Hangar",
+        "world": "iris_drone_hangar.world",
+        "description": "Description"
+      },
+      {
+        "name": "Position control",
+        "world": "iris_position_control.world",
+        "description": "Description"
+      },
+      {
+        "name": "Follow Turtlebot",
+        "world": "iris_follow_turtlebot.world",
+        "description": "Description"
+      },
+      {
+        "name": "Visual lander",
+        "world": "iris_visual_lander.world",
+        "description": "Description"
+      },
+      {
+        "name": "Rescue people",
+        "world": "iris_rescue_people.world",
+        "description": "Description"
+      },
+      {
+        "name": "Position control",
+        "world": "iris_position_control.world",
+        "description": "Description"
+      }
+    ],
+    "turtlebot": [
+      {
+        "name": "Empty world",
+        "world": "kobuki_1_simpleROS.world",
+        "description": "Description"
+      }
+    ],
+    "car": [
+      {
+        "name": "Junction",
+        "world": "car_1_junction.world",
+        "description": "Description"
+      },
+      {
+        "name": "Parking",
+        "world": "car_1_parking.world",
+        "description": "Description"
+      },
+      {
+        "name": "Global navigation",
+        "world": "taxiholo_1_citylarge.world",
+        "description": "Description"
+      },
+      {
+        "name": "Global navigation small",
+        "world": "taxiholo_1_citymedium.world",
+        "description": "Description"
+      }
+    ],
+    "roomba": [
+      {
+        "name": "Vacuum room",
+        "world": "roomba_1_houseroom.world",
+        "description": "Description"
+      },
+      {
+        "name": "Vacuum house",
+        "world": "roomba_1_house.world",
+        "description": "Description"
+      }
+    ]
+}

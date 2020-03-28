@@ -1,0 +1,32 @@
+<RCC>
+  <qresource prefix="/">
+    <file>assets/car.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/f1.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/drone.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/roomba.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/turtlebot.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/pepper.obj</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/logo.svg</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/logo_200.svg</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/logo_100.svg</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/info_icon.png</file>
+  </qresource>
+</RCC>
