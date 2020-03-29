@@ -211,12 +211,10 @@ class LayoutMatrix(QWidget):
 
 
 class LayoutSelection(QWidget):
-    updGUI = pyqtSignal()
     switch_window = pyqtSignal()
 
     def __init__(self, parent=None):
         super(LayoutSelection, self).__init__(parent)
-        self.updGUI.connect(self.update_gui)
         self.parent = parent
         self.parent.status_bar.showMessage('LMB for single selection ---- Ctrl + LMB for multiple selection')
         self.initUI()

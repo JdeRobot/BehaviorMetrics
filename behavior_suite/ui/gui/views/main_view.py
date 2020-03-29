@@ -1,11 +1,12 @@
-from PyQt5.QtCore import Qt, QPropertyAnimation, QSequentialAnimationGroup, pyqtSignal
-from PyQt5.QtGui import QPixmap, QFont
-from PyQt5.QtWidgets import (QLabel, QFrame, QGraphicsOpacityEffect, QVBoxLayout, QHBoxLayout, QGridLayout,
-                             QApplication, QWidget, QPushButton, QGroupBox)
+from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, Qt, pyqtSignal)
+from PyQt5.QtGui import QColor, QFont, QImage, QPalette, QPixmap
+from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame, QGraphicsOpacityEffect, QGridLayout, QGroupBox,
+                             QHBoxLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QScrollArea, QVBoxLayout,
+                             QWidget)
 
 from logo import Logo
-
-current_selection_id = 0
+from widgets.camera import CameraWidget
+from widgets.laser import LaserWidgetPro
 
 
 class InfoLabel(QLabel):
@@ -73,62 +74,198 @@ class AnimatedLabel(QLabel):
         self.ga.start()
 
 
-class ClickableQFrame(QFrame):
+class HLine(QFrame):
+    def __init__(self):
+        super(HLine, self).__init__()
+        self.setFrameShape(self.HLine | self.Sunken)
+        pal = self.palette()
+        pal.setColor(QPalette.WindowText, QColor(255, 255, 255))
+        self.setPalette(pal)
 
-    normal_qss = """
-                    QFrame#customframe{
-                        border: 3px solid white;
-                        border-radius: 20px
-                    }
-                    QLabel {
-                        font-size: 50px;
-                        color: white
-                    }
-                """
+class ClickableLabel(QLabel):
 
-    hover_qss = """
-                    QFrame#customframe{
-                        border: 3px solid yellow;
-                        border-radius: 20px
-                    }
-                    QLabel {
-                        font-size: 50px;
-                        color: white
-                    }
-                """
-
-    def __init__(self, parent=None):
-        QFrame.__init__(self)
-        self.setObjectName('customframe')
+    def __init__(self, creator, parent=None):
+        QLabel.__init__(self, parent)
+        self.setFixedSize(30, 30)
         self.parent = parent
-        self.is_active = False
-        self.topic = None
-        self.setStyleSheet(self.normal_qss)
-        lay = QVBoxLayout()
-        global current_selection_id
-        self.labelgr = QLabel('Click me!')
-        self.labelgr.setAlignment(Qt.AlignCenter)
-        lay.addWidget(self.labelgr)
-        self.setLayout(lay)
+        self.creator = creator
+        self.pmax_dark = QPixmap(':/assets/gear_icon_dark.png')
+        self.pmax_light = QPixmap(':/assets/gear_icon_light.png')
+        self.setStyleSheet('background-color: rgba(0, 0, 0, 0)')
+        self.setPixmap(self.pmax_light)
+        self.setScaledContents(True)
 
     def enterEvent(self, event):
-        if not self.is_active:
-            self.setStyleSheet(self.hover_qss)
+        self.setPixmap(self.pmax_dark)
 
     def leaveEvent(self, event):
-        if not self.is_active:
-            self.setStyleSheet(self.normal_qss)
+        self.setPixmap(self.pmax_light)
 
     def mousePressEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
-            # show frame configuration window
+        if event.button() & Qt.LeftButton:
+            self.creator.clear()        
+        
+
+class FrameConfig(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.parent = parent
+        self.frame_name = ''
+        self.data_type = None
+        self.msg = ''
+        self.initUI()
+
+    def initUI(self):
+
+        self.setFixedSize(250, 300)
+        self.setStyleSheet('color: white; font-size: 14px')
+        layout = QVBoxLayout()
+        name_label = QLabel('Frame name')
+        name_edit = QLineEdit()
+        name_edit.setPlaceholderText('Frame name')
+        name_edit.setMaximumWidth(200)
+        data_label = QLabel('Data type')
+        self.button_group = QButtonGroup()
+        self.button_group.setExclusive(True)
+        rgb_image_data = QRadioButton('RGB Image')
+        rgb_image_data.setObjectName('rgbimage')
+        depth_image_data = QRadioButton('Depth Image')
+        depth_image_data.setObjectName('depthimage')
+        laser_data = QRadioButton('Laser Data')
+        laser_data.setObjectName('laser')
+        pose_data = QRadioButton('Pose3D Data')
+        pose_data.setObjectName('pose')
+        rgb_image_data.setChecked(True)
+        depth_image_data.setEnabled(False)
+        self.button_group.addButton(rgb_image_data)
+        self.button_group.addButton(laser_data)
+        self.button_group.addButton(pose_data)
+        self.button_group.addButton(depth_image_data)
+        self.aspect_ratio = QCheckBox('Keep aspect ratio')
+        self.aspect_ratio.setChecked(True)
+        confirm_button = QPushButton('Confirm')
+        confirm_button.setMaximumWidth(200)
+
+        self.button_group.buttonClicked.connect(self.button_handle)
+        confirm_button.pressed.connect(self.confirm_configuration)
+        name_edit.textChanged[str].connect(self.change_name)
+
+        layout.addWidget(name_label, alignment=Qt.AlignCenter)
+        layout.addWidget(name_edit)
+        layout.addWidget(data_label, alignment=Qt.AlignCenter)
+        layout.addWidget(rgb_image_data)
+        layout.addWidget(depth_image_data)
+        layout.addWidget(laser_data)
+        layout.addWidget(pose_data)
+        layout.addWidget(HLine())
+        layout.addWidget(self.aspect_ratio, alignment=Qt.AlignLeft)
+        layout.addWidget(confirm_button)
+
+        self.setLayout(layout)
+
+    def button_handle(self, button):
+        self.parent.data_type = button.objectName()
+        self.change_title()
+
+    def confirm_configuration(self):
+        self.hide()
+        self.parent.keep_ratio = self.aspect_ratio.isChecked
+        self.parent.confirm.emit()
+
+    def change_name(self, text):
+        self.parent.id = "_".join(text.split())
+        self.parent.setObjectName(self.parent.id)
+        self.change_title()
+
+    def change_title(self):
+        self.parent.setTitle('id:  ' + self.parent.id + ' | Data:  ' + str(self.parent.data_type))
+
+
+class ClickableQFrame(QGroupBox):
+
+    normal_qss = """
+                    QGroupBox {
+                        font: bold;
+                        border: 1px solid silver;
+                        border-radius: 6px;
+                        margin-top: 6px;
+                    }
+
+                    QGroupBox::title {
+                        subcontrol-origin: margin;
+                        left: 7px;
+                        padding: 0px 5px 0px 5px;
+                    }
+                 
+                """
+    hover_qss = """
+                    QGroupBox{
+                        border: 3px solid yellow;
+                        border-radius: 5px;
+                        font-size: 18px;
+                        font-weight: bold;
+                    }
+                    QGroupBox::Title{
+                        color: white;
+                        background-color: rgba(51, 51, 51);
+                    }
+                    QLabel {
+                        font-size: 50px;
+                        color: white
+                    }
+                """
+
+    confirm = pyqtSignal()
+
+    def __init__(self, id, parent=None):
+        QGroupBox.__init__(self)
+        self.parent = parent
+        self.id = id
+        self.data_type = 'rgbimage'
+        self.setObjectName(id)
+        self.setTitle('id:  ' + self.id + ' | Data:  ' + str(self.data_type))
+        self.setAlignment(Qt.AlignCenter)
+        self.is_active = False
+        self.setStyleSheet(self.normal_qss)
+        self.confirm.connect(self.create_widget)
+        self.widget = None
+        self.keep_ratio = False
+
+        self.lay = QHBoxLayout()
+        self.frame_config = FrameConfig(self)
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(self.frame_config)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.lay.addWidget(self.scroll, alignment=Qt.AlignCenter)
+
+        self.setLayout(self.lay)
+
+    def create_widget(self):
+        self.scroll.hide()
+        if self.data_type == 'rgbimage':
+            self.widget = CameraWidget(self.objectName(), self.width(), self.height(), self.keep_ratio, self.parent)
+        elif self.data_type == 'depthimage':
             pass
+        elif self.data_type == 'laser':
+            self.widget = LaserWidgetPro(self.objectName(), self.width(), self.height(), self.parent)
+        elif self.data_type == 'pose':
+            pass
+        self.lay.addWidget(self.widget)
+        self.settings_label = ClickableLabel(self, self.widget)
+        p = self.geometry().topRight() - self.settings_label.geometry().topRight() 
+        self.settings_label.move(10, 10)
 
     def clear(self):
-        self.is_active = False
-        self.topic = None
-        self.labelgr.setText('Click me!')
-        self.setStyleSheet(self.normal_qss)
+        self.widget.close()
+        self.widget.setParent(None)
+        self.scroll.show()
+        self.frame_config.show()
+
+    def update(self):
+        if self.widget:
+            self.widget.update()
+        pass
 
 
 class FakeToolbar(QWidget):
@@ -173,19 +310,23 @@ class LayoutMatrix(QWidget):
         self.setStyleSheet('background-color: rgb(51,51,51)')
         self.setLayout(self.main_layout)
 
-        for c in positions:
-            sensor_frame = ClickableQFrame(self.parent)
+        for idx, c in enumerate(positions):
+            sensor_frame = ClickableQFrame('frame_' + str(idx), self.parent)
             self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
+
+    def update(self):
+        for i in range(self.main_layout.count()):
+            self.main_layout.itemAt(i).widget().update()
 
 
 class MainView(QWidget):
-    updGUI = pyqtSignal()
+    
     switch_window = pyqtSignal()
 
-    def __init__(self, layout_configuration, parent=None):
+    def __init__(self, layout_configuration, controller, parent=None):
         super(MainView, self).__init__(parent)
-        self.updGUI.connect(self.update_gui)
         self.parent = parent
+        self.controller = controller
         self.layout_configuration = layout_configuration
         self.parent.status_bar.showMessage('Select the topic for each view')
         self.initUI()
@@ -200,17 +341,20 @@ class MainView(QWidget):
 
         central_layout = QHBoxLayout()
         toolbar = FakeToolbar()
-        matrix = LayoutMatrix(self.layout_configuration, self)
+        self.matrix = LayoutMatrix(self.layout_configuration, self)
         central_layout.addWidget(toolbar)
-        central_layout.addWidget(matrix)
+        central_layout.addWidget(self.matrix)
 
         # main_layout.addWidget(logo)
         main_layout.addLayout(central_layout)
 
         self.show_information_popup()
 
+    def get_frame(self, id):
+        return self.matrix.findChild(ClickableQFrame, id)
+
     def update_gui(self):
-        pass
+        self.matrix.update()
 
     def show_information_popup(self):
         pass

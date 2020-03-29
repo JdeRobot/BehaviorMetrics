@@ -1,6 +1,7 @@
 
 from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
+from robot.interfaces.pose3d import ListenerPose3d
 
 
 class Sensors:
@@ -19,6 +20,11 @@ class Sensors:
         if lasers_conf:
             self.lasers = self.__create_sensor(lasers_conf, 'laser')
 
+        # Load pose3d
+        pose3d_conf = sensors_config.get('Pose3D', None)
+        if pose3d_conf:
+            self.pose3d = self.__create_sensor(pose3d_conf, 'pose3d')
+
     def __create_sensor(self, sensor_config, sensor_type):
 
         sensor_dict = {}
@@ -30,6 +36,8 @@ class Sensors:
                 sensor_dict[name] = ListenerCamera(topic)
             elif sensor_type == 'laser':
                 sensor_dict[name] = ListenerLaser(topic)
+            elif sensor_type == 'pose3d':
+                sensor_dict[name] = ListenerPose3d(topic)
 
         return sensor_dict
 
@@ -40,7 +48,9 @@ class Sensors:
             if sensor_type == 'camera':
                 sensor = self.cameras[sensor_name]
             elif sensor_type == 'laser':
-                sensor = self.laser[sensor_name]
+                sensor = self.lasers[sensor_name]
+            elif sensor_type == 'pose3d':
+                sensor = self.pose3d[sensor_name]
         except KeyError:
             return "[ERROR] No existing camera with {} name.".format(sensor_name)
 
@@ -51,3 +61,6 @@ class Sensors:
 
     def get_laser(self, laser_name):
         return self.__get_sensor(laser_name, 'laser')
+
+    def get_pose3d(self, pose_name):
+        return self.__get_sensor(pose_name, 'pose3d')

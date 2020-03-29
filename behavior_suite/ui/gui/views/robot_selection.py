@@ -2,8 +2,8 @@ from PyQt5.QtCore import Qt, QPropertyAnimation, QSequentialAnimationGroup, pyqt
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import QLabel, QGraphicsOpacityEffect, QWidget, QGridLayout, QVBoxLayout, QFrame
 
-from views.logo import Logo
-from views.models3d import View3D
+from ui.gui.views.logo import Logo
+from ui.gui.views.models3d import View3D
 
 
 class ClickableLabel(QLabel):
@@ -75,12 +75,10 @@ class CustomQFrame(QFrame):
 
 
 class RobotSelection(QWidget):
-    updGUI = pyqtSignal()
     switch_window = pyqtSignal()
 
     def __init__(self, parent=None):
         super(RobotSelection, self).__init__(parent)
-        self.updGUI.connect(self.update_gui)
         self.parent = parent
         self.initUI()
 

@@ -1,8 +1,9 @@
 import datetime
 import sys
+import time
 
 from memory_profiler import profile
-from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
+from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QLabel, QMainWindow, QVBoxLayout, QWidget)
 
@@ -11,6 +12,8 @@ from views.robot_selection import RobotSelection
 from views.world_selection import WorldSelection
 from views.layout_selection import LayoutSelection
 from views.main_view import MainView
+import threading
+from ui.gui.threadGUI import ThreadGUI
 
 WIDTH = 1750
 HEIGHT = 900
@@ -24,12 +27,10 @@ class VLine(QFrame):
 
 
 class ParentWindow(QMainWindow):
-    updGUI = pyqtSignal()
 
     def __init__(self):
         super(ParentWindow, self).__init__()
         self.windowsize = QSize(WIDTH, HEIGHT)
-        self.updGUI.connect(self.update_gui)
         self.initUI()
 
         self.robot_selection = None
@@ -76,24 +77,28 @@ class ParentWindow(QMainWindow):
         pass
 
 
-class Controller:
+class ViewsController(QMainWindow):
 
     home_singal = pyqtSignal()
     robot_select_signal = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
+        QMainWindow.__init__(self)
         self.parent = parent
+        self.controller = controller
+        self.main_view = None
+        self.thread_gui = ThreadGUI(self)
+        self.thread_gui.daemon = True
+
         # self.home_singal.connect(self.show_title)
         # self.robot_select_signal.connect(self.show_robot_selection)
 
-    @profile
     def show_title(self):
         title = TitleWindow(self.parent)
         title.switch_window.connect(self.show_robot_selection)
         self.parent.main_layout.addWidget(title)
         self.fadein_animation()
 
-    @profile
     def show_robot_selection(self):
         delete_widgets_from(self.parent.main_layout)
         robot_selector = RobotSelection(self.parent)
@@ -101,7 +106,6 @@ class Controller:
         self.parent.main_layout.addWidget(robot_selector, 0)
         self.fadein_animation()
 
-    @profile
     def show_world_selection(self):
         delete_widgets_from(self.parent.main_layout)
         world_selector = WorldSelection(self.parent.robot_selection, self.parent)
@@ -109,7 +113,6 @@ class Controller:
         self.parent.main_layout.addWidget(world_selector)
         self.fadein_animation()
 
-    @profile
     def show_layout_selection(self):
         delete_widgets_from(self.parent.main_layout)
         self.layout_selector = LayoutSelection(self.parent)
@@ -120,9 +123,13 @@ class Controller:
     def show_main_view(self):
         layout_configuration = self.layout_selector.get_config()
         delete_widgets_from(self.parent.main_layout)
-        main_view = MainView(layout_configuration, self.parent)
-        self.parent.main_layout.addWidget(main_view)
+        self.main_view = MainView(layout_configuration, self.controller, self.parent)
+        self.parent.main_layout.addWidget(self.main_view)
         self.fadein_animation()
+        self.start_thread()
+
+    def start_thread(self):
+        self.thread_gui.start()
 
     def fadein_animation(self):
         self.w = QFrame(self.parent)
@@ -147,6 +154,12 @@ class Controller:
         del self.w
         del self.animation
 
+    def update_gui(self):
+        while 1:
+            if self.main_view:
+                self.main_view.update_gui()
+            time.sleep(0.1)
+
 
 def delete_widgets_from(layout):
     """ memory secure. """
@@ -164,7 +177,7 @@ if __name__ == '__main__':
     main_window = ParentWindow()
     main_window.show()
 
-    views_controller = Controller(main_window)
+    views_controller = ViewsController(main_window)
     views_controller.show_title()
 
     # th = ThreadGUI(main_window)

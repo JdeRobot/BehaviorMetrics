@@ -133,12 +133,10 @@ class QCustomQWidget (QWidget):
 
 
 class WorldSelection(QWidget):
-    updGUI = pyqtSignal()
     switch_window = pyqtSignal()
 
     def __init__(self, robot_type, parent=None):
         super(WorldSelection, self).__init__(parent)
-        self.updGUI.connect(self.update_gui)
         self.parent = parent
         self.robot_type = robot_type
         self.enable_gazebo_gui = 'false'

@@ -31,10 +31,11 @@ v_mult = V_MULT
 
 class Brain(Brains):
 
-    def __init__(self, sensors, actuators):
-        super(Brain, self).__init__(sensors, actuators, brain_path=None)
+    def __init__(self, sensors, actuators, handler):
+        # super(Brain, self).__init__(sensors, actuators, brain_path=None)
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
+        self.viewer = handler
 
         self.threshold_image = np.zeros((640,360,3), np.uint8)
         self.color_image = np.zeros((640,360,3), np.uint8)
@@ -42,7 +43,15 @@ class Brain(Brains):
         self.threshold_image_lock = threading.Lock()
         self.color_image_lock = threading.Lock()
         self.cont = 0
-    
+
+    def show_data(self, frame_id, data):
+        # img  = np.copy(data)
+        # if len(img.shape) == 2:
+        #     img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        # self.color_image_lock.acquire()
+        # self.color_image = img
+        # self.color_image_lock.release()
+        self.viewer.update_frame(frame_id, data)
     
     def getImage(self):
         self.lock.acquire()
@@ -118,11 +127,16 @@ class Brain(Brains):
         red_lower=(0,255,15)
         kernel = np.ones((8,8), np.uint8)
         image = self.getImage()
+        if image.shape == (3, 3, 3):
+           time.sleep(3) 
+
         image_cropped=image[230:,:,:]
         image_blur = cv2.GaussianBlur(image_cropped, (27,27), 0)
         image_hsv = cv2.cvtColor(image_blur, cv2.COLOR_RGB2HSV)
         image_mask = cv2.inRange(image_hsv, red_lower,red_upper)
         image_eroded = cv2.erode(image_mask, kernel, iterations = 3)
+
+        self.show_data('frame_0', image)
 
         rows, cols = image_mask.shape
         rows = rows - 1     # para evitar desbordamiento
@@ -189,6 +203,7 @@ class Brain(Brains):
         cv2.putText(image_mask,  'actual: {}'.format(current),(10,60), cv2.FONT_HERSHEY_SIMPLEX, 1,MAGENTA,2,cv2.LINE_AA)
 
         self.set_threshold_image(image_mask)
+        self.show_data('frame_1', image_mask)
 
 
 

@@ -4,7 +4,7 @@ __author__ = 'frivas'
 import threading, time
 from datetime import datetime
 
-time_cycle = 50;
+time_cycle = 1;
 
 class ThreadGUI(threading.Thread):
     def __init__(self, gui):
@@ -16,7 +16,7 @@ class ThreadGUI(threading.Thread):
 
         while(True):
             start_time = datetime.now()
-            self.gui.updGUI.emit()
+            self.gui.update_gui()
 
             finish_Time = datetime.now()
 
@@ -24,5 +24,5 @@ class ThreadGUI(threading.Thread):
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
 
             if(ms < time_cycle):
-                time.sleep((time_cycle-ms) / 1000.0);
+                time.sleep((time_cycle-ms) / 1000.0)
 

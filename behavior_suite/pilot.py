@@ -55,16 +55,18 @@ class RosSrvHandler:
 
 class Pilot(threading.Thread):
 
-    def __init__(self, config_data, ss):
+    def __init__(self, config_data, controller):
+        self.controller = controller
+
         robot = config_data['Behaviors']['Robot']
         sensors_config = robot['Sensors']
         actuators_config = robot['Actuators']
         brain_path = robot['BrainPath']
 
-        # self.sensors = Sensors(sensors_config)
-        self.sensors = ss
         self.actuators = Actuators(actuators_config)
-        self.brains = Brains(self.sensors, self.actuators, brain_path)
+        self.sensors = Sensors(sensors_config)
+        self.brains = Brains(self.sensors, self.actuators, brain_path, self.controller)
+        time.sleep(2)
 
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
@@ -102,7 +104,7 @@ class Pilot(threading.Thread):
         self.actuators.kill()
         self.kill_event.set()
     
-    def callback(self,data):
+    def callback(self, data):
         if data.data == env.PAUSE_SIMULATION:
             self.ros_handler.pause_gazebo_simulation()
         elif data.data == env.RESUME_SIMULATION:

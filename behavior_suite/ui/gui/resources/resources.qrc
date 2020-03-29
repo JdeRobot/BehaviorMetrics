@@ -29,4 +29,10 @@
   <qresource prefix="/">
     <file>assets/info_icon.png</file>
   </qresource>
+  <qresource prefix="/">
+    <file>assets/gear_icon_light.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/gear_icon_dark.png</file>
+  </qresource>
 </RCC>

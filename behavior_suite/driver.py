@@ -11,6 +11,8 @@ from PyQt5.QtWidgets import QApplication
 from robot.sensors import Sensors
 from ui.gui.threadGUI import ThreadGUI
 
+from controller import Controller
+
 class Colors:
     """
     Colors defined for improve the prints in each Stage
@@ -88,35 +90,39 @@ if __name__ == '__main__':
     config_file = config_data.get('config', None)
     configuration = get_config_data(config_file)
 
-    ss = configuration['Behaviors']['Robot']['Sensors']
-    sensors = Sensors(ss)
-    # start pilot thread
-    pilot = Pilot(configuration, sensors)
-    pilot.daemon=True
-    pilot.start()
+    controller = Controller()
 
     # start cui thread
-    from ui.cui.test_npy import MyTestApp
-    try:
-        TA = MyTestApp()
-        TA.run()
-    except KeyboardInterrupt:
-        print("Exiting... Press Esc to confirm")
-        TA.stop()
-        exit(0)
+    # from ui.cui.test_npy import MyTestApp
+    # try:
+    #     TA = MyTestApp()
+    #     TA.run()
+    # except KeyboardInterrupt:
+    #     print("Exiting... Press Esc to confirm")
+    #     TA.stop()
+    #     exit(0)
 
     # start gui thread
-    # app = QApplication(sys.argv)
-    
+    from ui.gui.views_controller import ParentWindow, ViewsController
+    app = QApplication(sys.argv)
 
-    # ex = ExampleWindow(sensors)
-    # ex.show()
+    main_window = ParentWindow()
+    main_window.show()
 
-    # t2 = ThreadGUI(ex)
-    # t2.daemon=True
+    views_controller = ViewsController(main_window, controller)
+    # views_controller.show_title()
+    views_controller.show_layout_selection()
+
+    # t2 = ThreadGUI(views_controller)
+    # t2.daemon = True
     # t2.start()
 
-    # sys.exit(app.exec_())
+    # start pilot thread
+    pilot = Pilot(configuration, controller)
+    pilot.daemon = True
+    pilot.start()
+
+    sys.exit(app.exec_())
 
     # join all threads
     pilot.join()

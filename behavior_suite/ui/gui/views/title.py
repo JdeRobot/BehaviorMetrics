@@ -50,12 +50,10 @@ class AnimatedLabel(QLabel):
 
 
 class TitleWindow(QWidget):
-    updGUI = pyqtSignal()
     switch_window = pyqtSignal()
 
     def __init__(self, parent=None):
         super(QWidget, self).__init__(parent)
-        self.updGUI.connect(self.update_gui)
         self.parent = parent
         self.initUI()
 

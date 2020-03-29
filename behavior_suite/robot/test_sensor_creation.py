@@ -10,5 +10,3 @@ if __name__ == '__main__':
     sensors_cfg = cfg['Behaviors']['Robots']['Robot_0']['Sensors']  
 
     sensors = Sensors(sensors_cfg)
-
-    print()
