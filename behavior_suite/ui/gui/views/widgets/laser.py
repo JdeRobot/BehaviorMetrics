@@ -18,13 +18,10 @@
 #  Authors :
 #       Carlos Awadallah Estévez<carlosawadallah@gmail.com>
 
-from PyQt5.QtWidgets import QWidget, QGridLayout, QGraphicsView, QGraphicsScene, QFrame
-from PyQt5.QtGui import QPen, QPainter, QPalette
-from PyQt5.QtCore import QPoint, QPointF, Qt
-from PyQt5 import QtGui, QtCore
-import numpy as np
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPen, QPainter
+from PyQt5.QtCore import QPointF, Qt
 import math
-
 
 
 class LaserWidgetPro(QFrame):
@@ -36,14 +33,7 @@ class LaserWidgetPro(QFrame):
         self._width = w
         self._height = h
         self.parent = parent
-        # self.mutex = Lock()
-        # self.setAutoFillBackground(True)
         self.setStyleSheet('background-color: white')
-        # palette = QPalette()
-        # self.setPalette(palette)
-        # self.setMaximumSize(500, 500)
-        # self.setMinimumSize(500, 500)
-        print(self._width, self._height)
         self.resize(self._width, self._height)
 
     def paintEvent(self, event):
@@ -56,13 +46,12 @@ class LaserWidgetPro(QFrame):
 
         x1 = y1 = d = ang = 0
 
-        width = 6
+        width = 2
         pen = QPen(Qt.blue, width)
 
         painter = QPainter(self)
         painter.setPen(pen)
-        # painter.drawPoint(QPoint(100, 100))
-        # painter.drawLine(QPointF(0,0), QPoint(100,100))
+
         if self.laser_data:
             if len(self.laser_data.values) > 0:
                 step = (self.laser_data.maxAngle - self.laser_data.minAngle) / len(self.laser_data.values)
@@ -74,5 +63,3 @@ class LaserWidgetPro(QFrame):
                     y1 = cy - (self.laser_data.values[i] / d) * math.sin(ang)
 
                     painter.drawPoint(QPointF(x1, y1))
-                    # print('painting point at ', x1, ',', y1)
-

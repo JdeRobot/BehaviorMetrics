@@ -1,7 +1,5 @@
 import threading
 
-import numpy as np
-
 
 class Controller:
 

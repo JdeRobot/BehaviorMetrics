@@ -2,18 +2,16 @@ import datetime
 import sys
 import time
 
-from memory_profiler import profile
-from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal, QObject
+from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QLabel, QMainWindow, QVBoxLayout, QWidget)
 
-from views.title import TitleWindow
-from views.robot_selection import RobotSelection
-from views.world_selection import WorldSelection
+from ui.gui.threadGUI import ThreadGUI
 from views.layout_selection import LayoutSelection
 from views.main_view import MainView
-import threading
-from ui.gui.threadGUI import ThreadGUI
+from views.robot_selection import RobotSelection
+from views.title import TitleWindow
+from views.world_selection import WorldSelection
 
 WIDTH = 1750
 HEIGHT = 900

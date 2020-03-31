@@ -1,5 +1,5 @@
 from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, Qt, pyqtSignal)
-from PyQt5.QtGui import QColor, QFont, QImage, QPalette, QPixmap
+from PyQt5.QtGui import QColor, QFont, QPalette, QPixmap
 from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame, QGraphicsOpacityEffect, QGridLayout, QGroupBox,
                              QHBoxLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QScrollArea, QVBoxLayout,
                              QWidget)
@@ -82,6 +82,7 @@ class HLine(QFrame):
         pal.setColor(QPalette.WindowText, QColor(255, 255, 255))
         self.setPalette(pal)
 
+
 class ClickableLabel(QLabel):
 
     def __init__(self, creator, parent=None):
@@ -103,8 +104,8 @@ class ClickableLabel(QLabel):
 
     def mousePressEvent(self, event):
         if event.button() & Qt.LeftButton:
-            self.creator.clear()        
-        
+            self.creator.clear()
+
 
 class FrameConfig(QWidget):
 
@@ -197,7 +198,6 @@ class ClickableQFrame(QGroupBox):
                         left: 7px;
                         padding: 0px 5px 0px 5px;
                     }
-                 
                 """
     hover_qss = """
                     QGroupBox{
@@ -253,7 +253,6 @@ class ClickableQFrame(QGroupBox):
             pass
         self.lay.addWidget(self.widget)
         self.settings_label = ClickableLabel(self, self.widget)
-        p = self.geometry().topRight() - self.settings_label.geometry().topRight() 
         self.settings_label.move(10, 10)
 
     def clear(self):
@@ -275,20 +274,20 @@ class FakeToolbar(QWidget):
         self.setMaximumWidth(400)
         self.initUI()
 
-        self.setStyleSheet("""
-            QGroupBox {
-                border: 1px solid gray;
-                border-color: #ffffff00;
-                margin-top: 27px;
-                font-size: 14px;
-                border-radius: 15px;
-            }
-            QGroupBox::title {
-                border-top-left-radius: 9px;
-                border-top-right-radius: 9px;
-                padding: 2px 82px;
-                color: #ffffff00;
-            }""")
+        self.setStyleSheet( """
+                    QGroupBox {
+                        font: bold;
+                        border: 1px solid silver;
+                        border-radius: 6px;
+                        margin-top: 6px;
+                    }
+
+                    QGroupBox::title {
+                        subcontrol-origin: margin;
+                        left: 7px;
+                        padding: 0px 5px 0px 5px;
+                    }
+                """)
 
     def initUI(self):
         self.main_layout = QVBoxLayout()
@@ -320,7 +319,7 @@ class LayoutMatrix(QWidget):
 
 
 class MainView(QWidget):
-    
+
     switch_window = pyqtSignal()
 
     def __init__(self, layout_configuration, controller, parent=None):

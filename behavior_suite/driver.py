@@ -1,17 +1,15 @@
-import sys
-import os
-
 import argparse
-import yaml
+import os
+import sys
 
-from pilot import Pilot
-from ui.cui.cui import CUI
-from ui.gui.main import ExampleWindow
+import yaml
 from PyQt5.QtWidgets import QApplication
-from robot.sensors import Sensors
-from ui.gui.threadGUI import ThreadGUI
 
 from controller import Controller
+from pilot import Pilot
+from ui.cui.cui import CUI
+from ui.gui.threadGUI import ThreadGUI
+
 
 class Colors:
     """
@@ -25,6 +23,7 @@ class Colors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+
 def check_args(argv):
 
     config_data = {}
@@ -37,12 +36,14 @@ def check_args(argv):
                         action='store',
                         type=str,
                         required=True,
-                        help='{}Path to the configuration file in YML format.{}'.format(Colors.OKBLUE, Colors.ENDC))
+                        help='{}Path to the configuration file in YML format.{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
 
     parser.add_argument('-g',
                         '--gui',
                         action='store_true',
-                        help='{}Load the GUI. If not set, the console UI will start by default{}'.format(Colors.OKBLUE, Colors.ENDC))
+                        help='{}Load the GUI. If not set, the console UI will start by default{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
 
     parser.add_argument('-l',
                         '--launch',
@@ -50,7 +51,8 @@ def check_args(argv):
                         type=str,
                         required=False,
                         help='''{}Path to the ROS launch file of the desired environment. If not set, the porgram will
-                        assume that there is already a simulation or a real robot ready to rock!{}'''.format(Colors.OKBLUE, Colors.ENDC))
+                        assume that there is already a simulation or a real robot ready to rock!{}'''.format(
+                            Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
@@ -66,16 +68,19 @@ def check_args(argv):
 
     return config_data
 
+
 def launch_env(launch_file):
     pass
+
 
 def get_config_data(config_file):
 
     try:
         with open(config_file) as file:
             cfg = yaml.safe_load(file)
-    except yaml.YAMLError as exc:
-        raise SystemExit('{}Error: Cannot read/parse YML file. Check YAML syntax.{}'.format(Colors.FAIL, Colors.ENDC))
+    except yaml.YAMLError as e:
+        raise SystemExit('{}Error: Cannot read/parse YML file. Check YAML syntax: {}.{}'.format(
+            Colors.FAIL, e, Colors.ENDC))
     return cfg
 
 
@@ -126,5 +131,3 @@ if __name__ == '__main__':
 
     # join all threads
     pilot.join()
-
-

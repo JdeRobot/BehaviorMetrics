@@ -2,8 +2,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QImage, QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-import ui.gui.resources.resources
-
 
 class Logo(QWidget):
 

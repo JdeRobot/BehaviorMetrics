@@ -1,6 +1,7 @@
 import importlib
 from abc import abstractmethod
 
+
 class Brains(object):
 
     def __init__(self, sensors, actuatrors, brain_path, controller):

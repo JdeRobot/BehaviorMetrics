@@ -35,4 +35,25 @@
   <qresource prefix="/">
     <file>assets/gear_icon_dark.png</file>
   </qresource>
+  <qresource prefix="/">
+    <file>assets/play.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/pause.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/load.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/recording.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/twitter.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/github.png</file>
+  </qresource>
+  <qresource prefix="/">
+    <file>assets/youtube.png</file>
+  </qresource>
 </RCC>

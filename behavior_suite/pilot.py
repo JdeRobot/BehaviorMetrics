@@ -66,12 +66,11 @@ class Pilot(threading.Thread):
         self.actuators = Actuators(actuators_config)
         self.sensors = Sensors(sensors_config)
         self.brains = Brains(self.sensors, self.actuators, brain_path, self.controller)
-        time.sleep(2)
 
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
-        
+
         thread_ui_comm = threading.Thread(target=self.ui_listener)
         thread_ui_comm.daemon = True
         thread_ui_comm.start()
