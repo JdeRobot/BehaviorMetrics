@@ -43,6 +43,7 @@ class Brain(Brains):
         self.threshold_image_lock = threading.Lock()
         self.color_image_lock = threading.Lock()
         self.cont = 0
+        time.sleep(2)
 
     def show_data(self, frame_id, data):
         # img  = np.copy(data)

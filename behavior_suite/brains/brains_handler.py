@@ -9,6 +9,7 @@ class Brains(object):
         self.sensors = sensors
         self.actuatrors = actuatrors
         self.controller = controller
+        self.brain_path = brain_path
         try:
             if brain_path:
                 self.load_brain(brain_path)

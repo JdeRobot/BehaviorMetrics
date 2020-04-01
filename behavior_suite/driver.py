@@ -9,6 +9,7 @@ from controller import Controller
 from pilot import Pilot
 from ui.cui.cui import CUI
 from ui.gui.threadGUI import ThreadGUI
+from configuration import Config
 
 
 class Colors:
@@ -35,7 +36,7 @@ def check_args(argv):
                         '--config',
                         action='store',
                         type=str,
-                        required=True,
+                        required=False,
                         help='{}Path to the configuration file in YML format.{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
@@ -56,10 +57,13 @@ def check_args(argv):
 
     args = parser.parse_args()
 
-    if not os.path.isfile(args.config):
-        parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
+    config_data = None
+    if args.config:
+        config_data = {}
+        if not os.path.isfile(args.config):
+            parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
 
-    config_data['config'] = args.config
+        config_data['config'] = args.config
 
     if args.launch:
         if not os.path.isfile(args.launch):
@@ -87,13 +91,16 @@ def get_config_data(config_file):
 if __name__ == '__main__':
 
     config_data = check_args(sys.argv)
+    
+    yml_info = None
+    if config_data:
+        launch_file = config_data.get('launch', None)
+        if launch_file:
+            launch_env(launch_file)
 
-    launch_file = config_data.get('launch', None)
-    if launch_file:
-        launch_env(launch_file)
-
-    config_file = config_data.get('config', None)
-    configuration = get_config_data(config_file)
+        config_file = config_data.get('config', None)
+        yml_info = get_config_data(config_file)
+    app_configuration = Config(yml_info)
 
     controller = Controller()
 
@@ -114,16 +121,19 @@ if __name__ == '__main__':
     main_window = ParentWindow()
     main_window.show()
 
-    views_controller = ViewsController(main_window, controller)
-    # views_controller.show_title()
-    views_controller.show_layout_selection()
+    views_controller = ViewsController(main_window, controller, app_configuration)
+    if not yml_info:
+        views_controller.show_title()
+    else:
+        views_controller.show_layout_selection()
+        pass # show main view configured
 
     # t2 = ThreadGUI(views_controller)
     # t2.daemon = True
     # t2.start()
 
     # start pilot thread
-    pilot = Pilot(configuration, controller)
+    pilot = Pilot(app_configuration, controller)
     pilot.daemon = True
     pilot.start()
 

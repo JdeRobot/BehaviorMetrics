@@ -16,56 +16,60 @@ import conf.environment as env
 
 TIME_CYCLE = 80
 
-class RosSrvHandler:
+# class RosSrvHandler:
 
-    def __init__(self):
-        self.recording = False
-        self.rosbag_proc = None
+#     def __init__(self):
+#         self.recording = False
+#         self.rosbag_proc = None
 
-    def pause_gazebo_simulation(self):
-        print("Pausing gazebo simulation...")
-        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics',Empty)
-        pause_physics()
+#     def pause_gazebo_simulation(self):
+#         print("Pausing gazebo simulation...")
+#         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics',Empty)
+#         pause_physics()
 
-    def unpause_gazebo_simulation(self):
-        print("UNPausing gazebo simulation...")
-        unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics',Empty)
-        unpause_physics()
+#     def unpause_gazebo_simulation(self):
+#         print("UNPausing gazebo simulation...")
+#         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics',Empty)
+#         unpause_physics()
 
-    def record_rosbag(self, topics, dataset_name):
-        if not self.recording:
-            self.recording = True
-            dataset_name = 'testbag'
-            topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
-            command = "rosbag record -O datasets/" + dataset_name + " " +" ".join(topics)
-            command = shlex.split(command)
-            self.rosbag_proc = subprocess.Popen(command)
+#     def record_rosbag(self, topics, dataset_name):
+#         if not self.recording:
+#             self.recording = True
+#             dataset_name = 'testbag'
+#             topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
+#             command = "rosbag record -O datasets/" + dataset_name + " " +" ".join(topics)
+#             command = shlex.split(command)
+#             self.rosbag_proc = subprocess.Popen(command)
 
-        else:
-            print("Rosbag record already running")
+#         else:
+#             print("Rosbag record already running")
 
-    def stop_record(self):
-        if self.rosbag_proc and self.recording:
-            print('Stopping rosbag record')
-            self.recording = False
-            self.rosbag_proc.terminate()
-        else:
-            print("No bags recording")
+#     def stop_record(self):
+#         if self.rosbag_proc and self.recording:
+#             print('Stopping rosbag record')
+#             self.recording = False
+#             self.rosbag_proc.terminate()
+#         else:
+#             print("No bags recording")
 
 
 class Pilot(threading.Thread):
 
-    def __init__(self, config_data, controller):
+    def __init__(self, configuration, controller):
         self.controller = controller
+        self.controller.set_pilot(self)
+        self.configuration = configuration
 
-        robot = config_data['Behaviors']['Robot']
-        sensors_config = robot['Sensors']
-        actuators_config = robot['Actuators']
-        brain_path = robot['BrainPath']
+        # robot = config_data['Behaviors']['Robot']
+        # sensors_config = robot['Sensors']
+        # actuators_config = robot['Actuators']
+        # brain_path = robot['BrainPath']
 
-        self.actuators = Actuators(actuators_config)
-        self.sensors = Sensors(sensors_config)
-        self.brains = Brains(self.sensors, self.actuators, brain_path, self.controller)
+        # self.actuators = Actuators(actuators_config)
+        # self.sensors = Sensors(sensors_config)
+        self.sensors = self.configuration.sensors
+        self.actuators = self.configuration.actuators
+        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
 
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
@@ -75,7 +79,9 @@ class Pilot(threading.Thread):
         thread_ui_comm.daemon = True
         thread_ui_comm.start()
 
-        self.ros_handler = RosSrvHandler()
+        # self.ros_handler = RosSrvHandler()
+        # self.ros_handler.pause_gazebo_simulation()  # start the simulation paused
+        self.controller.pause_gazebo_simulation()
 
 
     def run(self):
@@ -102,6 +108,9 @@ class Pilot(threading.Thread):
     def kill(self):
         self.actuators.kill()
         self.kill_event.set()
+    
+    def reload_brain(self, brain_path):
+        self.brains.load_brain(brain_path)
     
     def callback(self, data):
         if data.data == env.PAUSE_SIMULATION:

@@ -3,22 +3,26 @@
       {
         "name": "Simple circuit",
         "world": "f1_1_simplecircuit.world",
-        "description": "Description"
+        "description": "Description",
+        "model": "f1"
       },
       {
         "name": "Simple circuit obstacles",
         "world": "f1_1_monacolineROS.world",
-        "description": "Description"
+        "description": "Description",
+        "model": "f1_laser"
       },
       {
         "name": "Nurburgring",
         "world": "f1_1_nurburgrinlineROS.world",
-        "description": "Description"
+        "description": "Description",
+        "model": "f1"
       },
       {
         "name": "Monaco",
         "world": "f1_1_monacolineROS.world",
-        "description": "Description"
+        "description": "Description",
+        "model": "f1"
       }
     ],
     "drone": [

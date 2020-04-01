@@ -213,9 +213,10 @@ class LayoutMatrix(QWidget):
 class LayoutSelection(QWidget):
     switch_window = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, configuration, parent=None):
         super(LayoutSelection, self).__init__(parent)
         self.parent = parent
+        self.configuration = configuration
         self.parent.status_bar.showMessage('LMB for single selection ---- Ctrl + LMB for multiple selection')
         self.initUI()
 
@@ -259,6 +260,7 @@ class LayoutSelection(QWidget):
 
     def confirm(self):
         self.switch_window.emit()
+        self.configuration.create_layout_from_gui(self.get_config())
 
     def get_config(self):
         groups = self.base.collect_groups()
@@ -272,7 +274,7 @@ class LayoutSelection(QWidget):
             max_row = max(frame.row for frame in frames)
             max_col = max(frame.col for frame in frames)
             # print('(widget, {}, {}, {}, {})'.format(min_row, min_col, (max_row - min_row)+1, (max_col - min_col)+1))
-            gs.append((min_row, min_col, (max_row - min_row)+1, (max_col - min_col)+1))
+            gs.append((min_row, min_col, (max_row - min_row)+1, (max_col - min_col)+1, id))
         return gs
 
     def preview_win(self, ):

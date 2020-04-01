@@ -13,8 +13,8 @@ from views.robot_selection import RobotSelection
 from views.title import TitleWindow
 from views.world_selection import WorldSelection
 
-WIDTH = 1750
-HEIGHT = 900
+WIDTH = 1700
+HEIGHT = 1000
 
 
 class VLine(QFrame):
@@ -32,7 +32,6 @@ class ParentWindow(QMainWindow):
         self.initUI()
 
         self.robot_selection = None
-        self.world_selection = None
 
     def initUI(self):
         self.setFixedSize(self.windowsize)
@@ -80,10 +79,11 @@ class ViewsController(QMainWindow):
     home_singal = pyqtSignal()
     robot_select_signal = pyqtSignal()
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, configuration):
         QMainWindow.__init__(self)
         self.parent = parent
         self.controller = controller
+        self.configuration = configuration
         self.main_view = None
         self.thread_gui = ThreadGUI(self)
         self.thread_gui.daemon = True
@@ -106,14 +106,14 @@ class ViewsController(QMainWindow):
 
     def show_world_selection(self):
         delete_widgets_from(self.parent.main_layout)
-        world_selector = WorldSelection(self.parent.robot_selection, self.parent)
+        world_selector = WorldSelection(self.parent.robot_selection, self.configuration, self.parent)
         world_selector.switch_window.connect(self.show_layout_selection)
         self.parent.main_layout.addWidget(world_selector)
         self.fadein_animation()
 
     def show_layout_selection(self):
         delete_widgets_from(self.parent.main_layout)
-        self.layout_selector = LayoutSelection(self.parent)
+        self.layout_selector = LayoutSelection(self.configuration, self.parent)
         self.layout_selector.switch_window.connect(self.show_main_view)
         self.parent.main_layout.addWidget(self.layout_selector)
         self.fadein_animation()
@@ -121,7 +121,7 @@ class ViewsController(QMainWindow):
     def show_main_view(self):
         layout_configuration = self.layout_selector.get_config()
         delete_widgets_from(self.parent.main_layout)
-        self.main_view = MainView(layout_configuration, self.controller, self.parent)
+        self.main_view = MainView(layout_configuration, self.configuration, self.controller, self.parent)
         self.parent.main_layout.addWidget(self.main_view)
         self.fadein_animation()
         self.start_thread()

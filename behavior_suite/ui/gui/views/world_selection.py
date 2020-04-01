@@ -130,15 +130,17 @@ class QCustomQWidget (QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.parent.generate_launch_file(self.world['world'])
+            self.parent.save_config(self.world['model'], self.world['world'])
 
 
 class WorldSelection(QWidget):
     switch_window = pyqtSignal()
 
-    def __init__(self, robot_type, parent=None):
+    def __init__(self, robot_type, configuration, parent=None):
         super(WorldSelection, self).__init__(parent)
         self.parent = parent
         self.robot_type = robot_type
+        self.configuration = configuration
         self.enable_gazebo_gui = 'false'
         self.initUI()
 
@@ -218,6 +220,10 @@ class WorldSelection(QWidget):
             file.write(data)
 
         self.switch_window.emit()
+
+    def save_config(self, robot_type, world):
+        self.configuration.robot_type_set(robot_type)
+        self.configuration.current_world = world
 
     def update_gui(self):
         pass

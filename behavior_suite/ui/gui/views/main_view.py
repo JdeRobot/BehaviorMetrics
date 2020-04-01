@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame, QGraphicsOpacityEf
 from logo import Logo
 from widgets.camera import CameraWidget
 from widgets.laser import LaserWidgetPro
+from toolbar import Toolbar
 
 
 class InfoLabel(QLabel):
@@ -175,8 +176,10 @@ class FrameConfig(QWidget):
         self.parent.confirm.emit()
 
     def change_name(self, text):
+        prev_id = self.parent.id
         self.parent.id = "_".join(text.split())
         self.parent.setObjectName(self.parent.id)
+        self.parent.parent.change_frame_name(prev_id, self.parent.id)
         self.change_title()
 
     def change_title(self):
@@ -310,7 +313,7 @@ class LayoutMatrix(QWidget):
         self.setLayout(self.main_layout)
 
         for idx, c in enumerate(positions):
-            sensor_frame = ClickableQFrame('frame_' + str(idx), self.parent)
+            sensor_frame = ClickableQFrame('frame_' + str(c[4]), self.parent)
             self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
 
     def update(self):
@@ -322,11 +325,12 @@ class MainView(QWidget):
 
     switch_window = pyqtSignal()
 
-    def __init__(self, layout_configuration, controller, parent=None):
+    def __init__(self, layout_configuration, configuration, controller, parent=None):
         super(MainView, self).__init__(parent)
         self.parent = parent
         self.controller = controller
         self.layout_configuration = layout_configuration
+        self.configuration = configuration
         self.parent.status_bar.showMessage('Select the topic for each view')
         self.initUI()
 
@@ -339,7 +343,7 @@ class MainView(QWidget):
         # define view's widgets
 
         central_layout = QHBoxLayout()
-        toolbar = FakeToolbar()
+        toolbar = Toolbar(self.configuration, self.controller)
         self.matrix = LayoutMatrix(self.layout_configuration, self)
         central_layout.addWidget(toolbar)
         central_layout.addWidget(self.matrix)
@@ -354,6 +358,9 @@ class MainView(QWidget):
 
     def update_gui(self):
         self.matrix.update()
+
+    def change_frame_name(self, old, new):
+        self.configuration.change_frame_name(old, new)
 
     def show_information_popup(self):
         pass

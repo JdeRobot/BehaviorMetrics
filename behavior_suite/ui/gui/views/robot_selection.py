@@ -71,7 +71,7 @@ class CustomQFrame(QFrame):
             print('mouse pressed in', self.scene.robot_type)
             self.scene.set_animation_speed(1000)
             self.scene.start_animation_with_duration(2000)
-            self.parent.parent.robot_selection = self.scene.robot_type
+            self.parent.parent.robot_selection = self.scene.robot_type       
 
 
 class RobotSelection(QWidget):
