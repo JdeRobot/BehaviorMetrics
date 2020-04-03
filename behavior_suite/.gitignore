@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=python,visualstudiocode
 
 *resources.py
+**/logs
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
