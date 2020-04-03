@@ -3,6 +3,7 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QLabel,  QVBoxLayout, QWidget
 from threading import Lock
 
+
 class CameraWidget(QWidget):
 
     signal_update = pyqtSignal()
@@ -36,7 +37,6 @@ class CameraWidget(QWidget):
         image = self.parent.controller.get_data(self.id)
         if image is not None:
             with self.lock_update:
-                print('----------')
                 im = QImage(image.data, image.shape[1], image.shape[0], QImage.Format_RGB888)
                 pixmap = QPixmap.fromImage(im)
                 scale_width = self.parent_width
@@ -45,6 +45,4 @@ class CameraWidget(QWidget):
                     pixmap = pixmap.scaled(scale_width, scale_height, Qt.KeepAspectRatio)
                 else:
                     pixmap = pixmap.scaled(scale_width, scale_height)
-                print('updating image..')
                 self.image_label.setPixmap(pixmap)
-                print('image updated!')

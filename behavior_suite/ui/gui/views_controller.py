@@ -1,7 +1,6 @@
 import datetime
 import sys
 import time
-import environment
 
 from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
@@ -16,6 +15,7 @@ from views.world_selection import WorldSelection
 
 WIDTH = 1700
 HEIGHT = 1050
+
 
 class VLine(QFrame):
     # a simple VLine, like the one you get from designer
@@ -78,7 +78,7 @@ class ViewsController(QMainWindow):
     home_singal = pyqtSignal()
     robot_select_signal = pyqtSignal()
 
-    def __init__(self, parent, controller, configuration):
+    def __init__(self, parent, configuration, controller=None):
         QMainWindow.__init__(self)
         self.parent = parent
         self.controller = controller

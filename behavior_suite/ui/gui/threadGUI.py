@@ -4,7 +4,7 @@ import threading
 import time
 from datetime import datetime
 
-time_cycle = 1
+time_cycle = 80
 
 
 class ThreadGUI(threading.Thread):

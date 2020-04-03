@@ -9,5 +9,6 @@
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
     <arg name="verbose" default="false"/>
+    <arg name="output" default="log"/>
   </include>  
 </launch>

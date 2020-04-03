@@ -1,13 +1,13 @@
 from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, Qt, pyqtSignal)
 from PyQt5.QtGui import QColor, QFont, QPalette, QPixmap
-from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame, QGraphicsOpacityEffect, QGridLayout, QGroupBox,
-                             QHBoxLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QScrollArea, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame,
+                             QGraphicsOpacityEffect, QGridLayout, QGroupBox,
+                             QHBoxLayout, QLabel, QLineEdit, QPushButton,
+                             QRadioButton, QScrollArea, QVBoxLayout, QWidget)
 
-from logo import Logo
+from toolbar import Toolbar
 from widgets.camera import CameraWidget
 from widgets.laser import LaserWidgetPro
-from toolbar import Toolbar
 
 
 class InfoLabel(QLabel):

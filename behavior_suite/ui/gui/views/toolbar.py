@@ -16,7 +16,6 @@ brains_path = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/'
 
 """ TODO:   change absolute paths
             fix dataset file selector and configuration
-            initialize widget from configuration
 """
 
 
