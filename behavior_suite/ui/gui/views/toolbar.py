@@ -118,6 +118,8 @@ class ClickableLabel(QLabel):
                     self.setPixmap(QPixmap(':/assets/play.png'))
                     self.active = False
                     self.parent.pause_simulation()
+            elif self.id == 'reset':
+                self.parent.reset_simulation()
                     
 
 class Toolbar(QWidget):
@@ -169,8 +171,8 @@ class Toolbar(QWidget):
         logo = Logo()
         social = SocialMedia()
         
-        self.main_layout.addWidget(logo)
         self.main_layout.addWidget(social)
+        self.main_layout.addWidget(logo)
         self.setLayout(self.main_layout)
         
 
@@ -180,6 +182,7 @@ class Toolbar(QWidget):
     
     def create_stats_gb(self):
         stats_group = QGroupBox()
+        # stats_group.setMinimumHeight(400)
         stats_group.setTitle('Stats')
         stats_layout = QGridLayout()
 
@@ -202,10 +205,10 @@ class Toolbar(QWidget):
         selector_save_button.setMaximumSize(30,30)
         selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
         selector_load_button = QPushButton('...')
-        selector_load_button.setMaximumSize(30,30)
+        selector_load_button.setMaximumSize(30, 30)
         selector_load_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
 
-        verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        # verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum);
 
         icons_layout = QHBoxLayout()
@@ -226,16 +229,16 @@ class Toolbar(QWidget):
         icons_layout.addWidget(load_dataset_label, alignment=Qt.AlignBottom)
         icons_layout.addWidget(start_pause_record_label, alignment=Qt.AlignBottom)
 
-        dataset_layout.addWidget(save_path_label, 0, 0)
-        dataset_layout.addWidget(self.file_selector_save, 0, 1)
-        dataset_layout.addWidget(selector_save_button, 0, 2)
+        dataset_layout.addWidget(save_path_label, 0, 0, 1, 1)
+        dataset_layout.addWidget(self.file_selector_save, 0, 1, 1, 1)
+        dataset_layout.addWidget(selector_save_button, 0, 2, 1, 1)
 
-        dataset_layout.addWidget(load_path_label, 1, 0)
-        dataset_layout.addWidget(self.file_selector_load, 1, 1)
-        dataset_layout.addWidget(selector_load_button, 1, 2)
+        dataset_layout.addWidget(load_path_label, 1, 0, 1, 1)
+        dataset_layout.addWidget(self.file_selector_load, 1, 1, 1, 1)
+        dataset_layout.addWidget(selector_load_button, 1, 2, 1, 1)
 
         # dataset_layout.addItem(verticalSpacer,2,0)
-        dataset_layout.addLayout(icons_layout, 3, 0, 3, 3)
+        dataset_layout.addLayout(icons_layout, 2, 0, 1, 3)
         dataset_group.setLayout(dataset_layout)
         self.main_layout.addWidget(dataset_group)
 
@@ -255,7 +258,7 @@ class Toolbar(QWidget):
 
 
         self.brain_combobox = QComboBox()
-        self.brain_combobox.setEnabled(False)
+        self.brain_combobox.setEnabled(True)
         brains = [file.split(".")[0] for file in os.listdir(brains_path) if file.endswith('.py') and file.split(".")[0] != '__init__']
         self.brain_combobox.addItem('')
         self.brain_combobox.addItems(brains)
@@ -263,13 +266,11 @@ class Toolbar(QWidget):
         if index >= 0:
             self.brain_combobox.setCurrentIndex(index)
         self.brain_combobox.currentIndexChanged.connect(self.selection_change_brain)
-        self.brain_combobox.setStyleSheet("""color:gray;""")  # emulate disabled, default style doesn't work (inheritance?)
 
         self.confirm_brain = QPushButton('Load')
-        self.confirm_brain.setEnabled(False)
+        self.confirm_brain.setEnabled(True)
         self.confirm_brain.clicked.connect(self.load_brain)
         self.confirm_brain.setMaximumWidth(60)
-        self.confirm_brain.setStyleSheet('color: grey')
         
         brain_layout.addWidget(brain_label, 0, 0)
         brain_layout.addWidget(self.brain_combobox, 0, 1, alignment=Qt.AlignLeft)
@@ -302,7 +303,7 @@ class Toolbar(QWidget):
         
 
         self.world_combobox = QComboBox()
-        self.world_combobox.setEnabled(False)
+        self.world_combobox.setEnabled(True)
         worlds = [elem['world'] for elem in worlds_dict]
         self.world_combobox.addItem('')
         self.world_combobox.addItems(worlds)
@@ -310,25 +311,27 @@ class Toolbar(QWidget):
         if index >= 0:
             self.world_combobox.setCurrentIndex(index)
         self.world_combobox.currentIndexChanged.connect(self.selection_change_world)
-        self.world_combobox.setStyleSheet("""color:gray;""")  # emulate disabled, default style doesn't work (inheritance?)
 
         self.confirm_world = QPushButton('Load')
-        self.confirm_world.setEnabled(False)
+        self.confirm_world.setEnabled(True)
         self.confirm_world.clicked.connect(self.load_world)
         self.confirm_world.setMaximumWidth(60)
-        self.confirm_world.setStyleSheet('color: grey')
 
         start_pause_simulation_label = ClickableLabel('sim', 60, QPixmap(':/assets/play.png'), parent=self)
         start_pause_simulation_label.setToolTip('Start/Pause the simulation')
+        reset_simulation = ClickableLabel('reset', 60, QPixmap(':/assets/reload.png'), parent=self)
+        reset_simulation.setToolTip('Reset the simulation')
+        pause_reset_layout = QHBoxLayout()
+        pause_reset_layout.addWidget(start_pause_simulation_label, alignment=Qt.AlignRight)
+        pause_reset_layout.addWidget(reset_simulation, alignment=Qt.AlignLeft)
 
-        
         sim_layout.addWidget(sim_label, 0, 0)
         sim_layout.addWidget(self.world_combobox, 0, 1, alignment=Qt.AlignLeft)
         sim_layout.addWidget(hint_label,1, 1, alignment=Qt.AlignTop)
         sim_layout.addWidget(self.current_sim_label, 2, 0, 1, 2)
         sim_layout.addWidget(self.confirm_world, 2, 1, alignment=Qt.AlignRight)
-        sim_layout.addWidget(start_pause_simulation_label, 3, 0, 1, 2, alignment=Qt.AlignCenter)
-
+        sim_layout.addLayout(pause_reset_layout, 3, 0, 1, 2)
+    
 
         sim_group.setLayout(sim_layout)
         self.main_layout.addWidget(sim_group)
@@ -362,6 +365,9 @@ class Toolbar(QWidget):
             print self.world_combobox.itemText(count)
         print "Current index",i,"selection changed ",self.world_combobox.currentText()
 
+    def reset_simulation(self):
+        self.controller.reset_gazebo_simulation()
+
     def pause_simulation(self):
         self.world_combobox.setEnabled(True)
         self.confirm_world.setEnabled(True)
@@ -373,7 +379,6 @@ class Toolbar(QWidget):
         self.confirm_brain.setStyleSheet('color: white')
 
         self.controller.pause_gazebo_simulation()
-        self.controller.reload_brain(brains_path + self.brain_combobox.currentText() + '.py')
 
     def resume_simulation(self):
         self.world_combobox.setEnabled(False)
@@ -385,6 +390,7 @@ class Toolbar(QWidget):
         self.brain_combobox.setStyleSheet('color: grey')
         self.confirm_brain.setStyleSheet('color: grey')
 
+        self.controller.reload_brain(brains_path + self.brain_combobox.currentText() + '.py')
         self.controller.unpause_gazebo_simulation()
 
     def load_brain(self):

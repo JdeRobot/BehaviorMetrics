@@ -224,6 +224,7 @@ class WorldSelection(QWidget):
     def save_config(self, robot_type, world):
         self.configuration.robot_type_set(robot_type)
         self.configuration.current_world = world
+        self.configuration.create_sensors_actuators(robot_type)
 
     def update_gui(self):
         pass

@@ -23,7 +23,7 @@ class Controller:
 
     def get_data(self, frame_id):
         with self.data_lock:
-            data = self.data[frame_id]
+            data = self.data.get(frame_id, None)
             # self.data[frame_id] = None
 
         return data
@@ -37,16 +37,22 @@ class Controller:
 
     ### Simulation and dataset
 
+    def reset_gazebo_simulation(self):
+        reset_physics = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+        reset_physics()
+
     def pause_gazebo_simulation(self):
-        print("Pausing gazebo simulation...")
+        # print("Pausing gazebo simulation...")
         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics',Empty)
         pause_physics()
+        self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
         print("UNPausing gazebo simulation...")
         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics',Empty)
         unpause_physics()
-    
+        self.pilot.stop_event.clear()
+
     def record_rosbag(self, topics, dataset_name):
         if not self.recording:
             self.recording = True

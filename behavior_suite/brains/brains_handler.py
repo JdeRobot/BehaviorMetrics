@@ -1,4 +1,5 @@
 import importlib
+import sys
 from abc import abstractmethod
 
 
@@ -23,6 +24,8 @@ class Brains(object):
         robot_type = path_split[-2]
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
+        if import_name in sys.modules:  # for reloading sake
+            del sys.modules[import_name]
         module = importlib.import_module(import_name)
 
         Brain = getattr(module, 'Brain')

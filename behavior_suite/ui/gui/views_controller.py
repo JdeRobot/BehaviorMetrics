@@ -1,6 +1,7 @@
 import datetime
 import sys
 import time
+import environment
 
 from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
@@ -14,8 +15,7 @@ from views.title import TitleWindow
 from views.world_selection import WorldSelection
 
 WIDTH = 1700
-HEIGHT = 1000
-
+HEIGHT = 1050
 
 class VLine(QFrame):
     # a simple VLine, like the one you get from designer
@@ -30,11 +30,10 @@ class ParentWindow(QMainWindow):
         super(ParentWindow, self).__init__()
         self.windowsize = QSize(WIDTH, HEIGHT)
         self.initUI()
-
         self.robot_selection = None
 
     def initUI(self):
-        self.setFixedSize(self.windowsize)
+        # self.setFixedSize(self.windowsize)
         self.init_statusbar()
 
         self.timer = QTimer()
@@ -114,13 +113,20 @@ class ViewsController(QMainWindow):
     def show_layout_selection(self):
         delete_widgets_from(self.parent.main_layout)
         self.layout_selector = LayoutSelection(self.configuration, self.parent)
-        self.layout_selector.switch_window.connect(self.show_main_view)
+        self.layout_selector.switch_window.connect(self.show_main_view_proxy)
         self.parent.main_layout.addWidget(self.layout_selector)
         self.fadein_animation()
 
-    def show_main_view(self):
-        layout_configuration = self.layout_selector.get_config()
-        delete_widgets_from(self.parent.main_layout)
+    def show_main_view_proxy(self):
+        # self.show_main_view(False)
+        self.parent.close()
+
+    def show_main_view(self, from_main):
+        if not from_main:
+            layout_configuration = self.layout_selector.get_config()
+            delete_widgets_from(self.parent.main_layout)
+        else:
+            layout_configuration = None
         self.main_view = MainView(layout_configuration, self.configuration, self.controller, self.parent)
         self.parent.main_layout.addWidget(self.main_view)
         self.fadein_animation()
@@ -145,9 +151,9 @@ class ViewsController(QMainWindow):
         self.animation.setEndValue(0)
 
         self.animation.start(QPropertyAnimation.DeleteWhenStopped)
-        self.animation.finished.connect(self.fff)
+        self.animation.finished.connect(self.fade_animation)
 
-    def fff(self):
+    def fade_animation(self):
         self.w.close()
         del self.w
         del self.animation

@@ -15,10 +15,10 @@
 from brains import Brains
 from behaviorlib.keraslib.keras_predict import KerasPredictor
 
-class Brain(Brains):
+class Brain:
 
-    def __init__(self, sensors, actuators):
-        super(Brain, self).__init__(sensors, actuators, brain_path=None)
+    def __init__(self, sensors, actuators, handler=None):
+        # super(Brain, self).__init__(sensors, actuators, brain_path=None)
         self.cont = 0
         self.net_v = KerasPredictor('path_to_v')
         self.net_w = KerasPredictor('path_to_w')

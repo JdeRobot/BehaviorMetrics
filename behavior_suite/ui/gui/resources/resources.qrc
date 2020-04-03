@@ -56,4 +56,7 @@
   <qresource prefix="/">
     <file>assets/youtube.png</file>
   </qresource>
+  <qresource prefix="/">
+    <file>assets/reload.png</file>
+  </qresource>
 </RCC>

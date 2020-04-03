@@ -221,11 +221,11 @@ class ClickableQFrame(QGroupBox):
 
     confirm = pyqtSignal()
 
-    def __init__(self, id, parent=None):
+    def __init__(self, id, data='rgbimage', parent=None):
         QGroupBox.__init__(self)
         self.parent = parent
         self.id = id
-        self.data_type = 'rgbimage'
+        self.data_type = data
         self.setObjectName(id)
         self.setTitle('id:  ' + self.id + ' | Data:  ' + str(self.data_type))
         self.setAlignment(Qt.AlignCenter)
@@ -270,41 +270,9 @@ class ClickableQFrame(QGroupBox):
         pass
 
 
-class FakeToolbar(QWidget):
-
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        self.setMaximumWidth(400)
-        self.initUI()
-
-        self.setStyleSheet( """
-                    QGroupBox {
-                        font: bold;
-                        border: 1px solid silver;
-                        border-radius: 6px;
-                        margin-top: 6px;
-                    }
-
-                    QGroupBox::title {
-                        subcontrol-origin: margin;
-                        left: 7px;
-                        padding: 0px 5px 0px 5px;
-                    }
-                """)
-
-    def initUI(self):
-        self.main_layout = QVBoxLayout()
-        b1 = QGroupBox()
-        b1.setTitle('Toolbar')
-        logo = Logo()
-        self.main_layout.addWidget(b1)
-        self.main_layout.addWidget(logo)
-        self.setLayout(self.main_layout)
-
-
 class LayoutMatrix(QWidget):
 
-    def __init__(self, positions, parent=None):
+    def __init__(self, positions, configuration, parent=None):
         QWidget.__init__(self, parent)
         self.main_layout = QGridLayout()
         self.parent = parent
@@ -312,9 +280,18 @@ class LayoutMatrix(QWidget):
         self.setStyleSheet('background-color: rgb(51,51,51)')
         self.setLayout(self.main_layout)
 
-        for idx, c in enumerate(positions):
-            sensor_frame = ClickableQFrame('frame_' + str(c[4]), self.parent)
-            self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
+        # coming from title
+        if positions:
+            for idx, c in enumerate(positions):
+                sensor_frame = ClickableQFrame('frame_' + str(c[4]), data='rgbimage', parent=self.parent)
+                self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
+        # coming from config file
+        else:
+            layout = configuration.layout
+            for frame in layout:
+                sensor_frame = ClickableQFrame(frame, data=layout[frame][1], parent=self.parent)
+                c = layout[frame][0]
+                self.main_layout.addWidget(sensor_frame, c[0], c[1], c[2], c[3])
 
     def update(self):
         for i in range(self.main_layout.count()):
@@ -344,7 +321,7 @@ class MainView(QWidget):
 
         central_layout = QHBoxLayout()
         toolbar = Toolbar(self.configuration, self.controller)
-        self.matrix = LayoutMatrix(self.layout_configuration, self)
+        self.matrix = LayoutMatrix(self.layout_configuration, self.configuration, self)
         central_layout.addWidget(toolbar)
         central_layout.addWidget(self.matrix)
 

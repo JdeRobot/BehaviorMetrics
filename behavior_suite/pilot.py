@@ -60,20 +60,13 @@ class Pilot(threading.Thread):
         self.controller.set_pilot(self)
         self.configuration = configuration
 
-        # robot = config_data['Behaviors']['Robot']
-        # sensors_config = robot['Sensors']
-        # actuators_config = robot['Actuators']
-        # brain_path = robot['BrainPath']
-
-        # self.actuators = Actuators(actuators_config)
-        # self.sensors = Sensors(sensors_config)
-        self.sensors = self.configuration.sensors
-        self.actuators = self.configuration.actuators
-        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
-
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
+
+        self.actuators = Actuators(self.configuration.actuators)
+        self.sensors = Sensors(self.configuration.sensors)
+        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
 
         thread_ui_comm = threading.Thread(target=self.ui_listener)
         thread_ui_comm.daemon = True
@@ -81,8 +74,14 @@ class Pilot(threading.Thread):
 
         # self.ros_handler = RosSrvHandler()
         # self.ros_handler.pause_gazebo_simulation()  # start the simulation paused
-        self.controller.pause_gazebo_simulation()
-
+        # TODO: improve for real robots, not only simulation
+        gazebo_ready = False
+        while not gazebo_ready:
+            try:
+                self.controller.pause_gazebo_simulation()
+                gazebo_ready = True
+            except Exception:
+                pass
 
     def run(self):
 

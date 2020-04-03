@@ -7,7 +7,7 @@ class Brain:
     def __init__(self, sensors, actuators, handler):
         # super(Brain, self).__init__(sensors, actuators, brain_path=None)
         self.camera = sensors.get_camera('camera_0')
-        self.laser = sensors.get_laser('laser_0')
+        # self.laser = sensors.get_laser('laser_0')
         self.pose = sensors.get_pose3d('pose3d_0')
         self.motors = actuators.get_motor('motors_0')
         # self.viewer = viewer
@@ -21,13 +21,15 @@ class Brain:
 
     def execute(self):
         self.update_pose(self.pose.getPose3d())
-        self.motors.sendV(0)
-        self.motors.sendW(0.5)
-        # image = self.camera.getImage()
-        laser_data = self.laser.getLaserData()
+        v = 0
+        w = 0.8
+        self.motors.sendV(v)
+        self.motors.sendW(w)
+        image = self.camera.getImage().data
+        # laser_data = self.laser.getLaserData()
         # self.update_frame('frame_0', image)
-        self.update_frame('frame_0', laser_data)
-        # self.update_frame('frame_1', image)
+        # self.update_frame('frame_0', laser_data)
+        self.update_frame('frame_0', image)
         # frame = None
         # try:
         #     frame = self.viewer.main_view.get_frame('frame_0')
