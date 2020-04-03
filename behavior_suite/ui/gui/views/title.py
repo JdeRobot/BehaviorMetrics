@@ -1,10 +1,10 @@
 from __future__ import division
 
-from PyQt5.QtWidgets import QLabel, QGraphicsOpacityEffect, QWidget, QVBoxLayout
-from PyQt5.QtGui import QPixmap, QFont
-from PyQt5.QtCore import Qt, pyqtSignal, QPropertyAnimation, QSequentialAnimationGroup, QParallelAnimationGroup, QPoint
-
-import ui.gui.resources.resources
+from PyQt5.QtCore import (QParallelAnimationGroup, QPoint, QPropertyAnimation,
+                          QSequentialAnimationGroup, Qt, pyqtSignal)
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtWidgets import (QGraphicsOpacityEffect, QLabel, QVBoxLayout,
+                             QWidget)
 
 WIDTH = 1750
 HEIGHT = 900

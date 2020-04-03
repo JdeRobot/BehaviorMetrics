@@ -1,15 +1,18 @@
 import json
 import os
-import sys
-from pathlib import Path
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, QSize,
+                          Qt)
+from PyQt5.QtGui import QColor, QPalette, QPixmap
+from PyQt5.QtWidgets import (QComboBox, QFrame, QGraphicsOpacityEffect,
+                             QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+                             QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
-import ui.gui.resources.resources
 from logo import Logo
 from social import SocialMedia
+
+# from pathlib import Path
 
 worlds_path = '/home/fran/github/BehaviorSuite/behavior_suite/ui/gui/resources/worlds.json'
 brains_path = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/'
@@ -38,11 +41,10 @@ class AnimatedLabel(QLabel):
         QLabel.__init__(self, parent)
         self.config_animation(self.MID_DURATION)
         self.setPixmap(QPixmap(':/assets/recording.png'))
-        self.setFixedSize(40,40)
+        self.setFixedSize(40, 40)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet('color: ' + color)
         self.setScaledContents(True)
-
 
     def config_animation(self, duration):
         self.effect = QGraphicsOpacityEffect()
@@ -68,6 +70,7 @@ class AnimatedLabel(QLabel):
 
     def stop_animation(self):
         self.group_animation.stop()
+
 
 class ClickableLabel(QLabel):
 
@@ -102,7 +105,7 @@ class ClickableLabel(QLabel):
                     self.setPixmap(QPixmap(':/assets/pause.png'))
                     self.active = True
                     self.parent.start_recording()
-                else: 
+                else:
                     self.setPixmap(QPixmap(':/assets/play.png'))
                     self.active = False
                     self.parent.stop_recording()
@@ -113,26 +116,26 @@ class ClickableLabel(QLabel):
                     self.setPixmap(QPixmap(':/assets/pause.png'))
                     self.active = True
                     self.parent.resume_simulation()
-                else: 
+                else:
                     self.setPixmap(QPixmap(':/assets/play.png'))
                     self.active = False
                     self.parent.pause_simulation()
             elif self.id == 'reset':
                 self.parent.reset_simulation()
-                    
+
 
 class Toolbar(QWidget):
 
     def __init__(self, configuration, controller):
         super(Toolbar, self).__init__()
         # self.setStyleSheet('background-color: rgb(51,51,51); color: white;')
-        self.windowsize = QSize(440, 1000)    
+        self.windowsize = QSize(440, 1000)
         self.configuration = configuration
         self.controller = controller
         self.setFixedSize(self.windowsize)
         self.initUI()
 
-        self.setStyleSheet( """
+        self.setStyleSheet("""
                     QWidget {
                         background-color: rgb(51,51,51);
                         color: white;
@@ -169,16 +172,14 @@ class Toolbar(QWidget):
 
         logo = Logo()
         social = SocialMedia()
-        
+
         self.main_layout.addWidget(social)
         self.main_layout.addWidget(logo)
         self.setLayout(self.main_layout)
-        
 
     def file_handler(self):
         print('fiel sel')
 
-    
     def create_stats_gb(self):
         stats_group = QGroupBox()
         # stats_group.setMinimumHeight(400)
@@ -201,17 +202,17 @@ class Toolbar(QWidget):
         self.file_selector_load.setPlaceholderText('Select dataset load path')
         self.file_selector_load.setObjectName("dataset_load")
         selector_save_button = QPushButton('...')
-        selector_save_button.setMaximumSize(30,30)
+        selector_save_button.setMaximumSize(30, 30)
         selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
         selector_load_button = QPushButton('...')
         selector_load_button.setMaximumSize(30, 30)
         selector_load_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
 
         # verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum);
+        horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         icons_layout = QHBoxLayout()
-        
+
         self.recording_animation_label = AnimatedLabel()
         self.recording_label = QLabel("Recording...")
         self.recording_label.setStyleSheet('color: yellow; font-weight: bold;')
@@ -249,16 +250,16 @@ class Toolbar(QWidget):
         brain_label.setMaximumWidth(100)
         if self.configuration.brain_path:
             current_brain = self.configuration.brain_path.split('/')[-1].split(".")[0]   # get brain name without .py
-        else: 
+        else:
             current_brain = ''
         self.current_brain_label = QLabel('Current brain: <b><FONT COLOR = lightgreen>' + current_brain + '</b>')
         hint_label = QLabel('(pause simulation to change brain)')
         hint_label.setStyleSheet('color: lightblue; font-size: 12px; font-style: italic')
 
-
         self.brain_combobox = QComboBox()
         self.brain_combobox.setEnabled(True)
-        brains = [file.split(".")[0] for file in os.listdir(brains_path) if file.endswith('.py') and file.split(".")[0] != '__init__']
+        brains = [file.split(".")[0] for file in os.listdir(brains_path)
+                  if file.endswith('.py') and file.split(".")[0] != '__init__']
         self.brain_combobox.addItem('')
         self.brain_combobox.addItems(brains)
         index = self.brain_combobox.findText(current_brain, Qt.MatchFixedString)
@@ -270,10 +271,10 @@ class Toolbar(QWidget):
         self.confirm_brain.setEnabled(True)
         self.confirm_brain.clicked.connect(self.load_brain)
         self.confirm_brain.setMaximumWidth(60)
-        
+
         brain_layout.addWidget(brain_label, 0, 0)
         brain_layout.addWidget(self.brain_combobox, 0, 1, alignment=Qt.AlignLeft)
-        brain_layout.addWidget(hint_label,1, 1, alignment=Qt.AlignTop)
+        brain_layout.addWidget(hint_label, 1, 1, alignment=Qt.AlignTop)
         brain_layout.addWidget(self.current_brain_label, 2, 0, 1, 2)
         brain_layout.addWidget(self.confirm_brain, 2, 1, alignment=Qt.AlignRight)
 
@@ -294,12 +295,11 @@ class Toolbar(QWidget):
         sim_label.setMaximumWidth(100)
         if self.configuration.current_world:
             current_world = self.configuration.current_world
-        else: 
+        else:
             current_world = ''
-        self.current_sim_label = QLabel('Current world:   <b><FONT COLOR = lightgreen>' + current_world+ '</b>')
+        self.current_sim_label = QLabel('Current world:   <b><FONT COLOR = lightgreen>' + current_world + '</b>')
         hint_label = QLabel('(pause simulation to change world)')
         hint_label.setStyleSheet('color: lightblue; font-size: 12px; font-style: italic')
-        
 
         self.world_combobox = QComboBox()
         self.world_combobox.setEnabled(True)
@@ -326,15 +326,13 @@ class Toolbar(QWidget):
 
         sim_layout.addWidget(sim_label, 0, 0)
         sim_layout.addWidget(self.world_combobox, 0, 1, alignment=Qt.AlignLeft)
-        sim_layout.addWidget(hint_label,1, 1, alignment=Qt.AlignTop)
+        sim_layout.addWidget(hint_label, 1, 1, alignment=Qt.AlignTop)
         sim_layout.addWidget(self.current_sim_label, 2, 0, 1, 2)
         sim_layout.addWidget(self.confirm_world, 2, 1, alignment=Qt.AlignRight)
         sim_layout.addLayout(pause_reset_layout, 3, 0, 1, 2)
-    
 
         sim_group.setLayout(sim_layout)
         self.main_layout.addWidget(sim_group)
-
 
     def start_recording(self):
         print('starting record')
@@ -347,22 +345,22 @@ class Toolbar(QWidget):
         self.recording_animation_label.stop_animation()
         self.recording_animation_label.hide()
         self.recording_label.hide()
-    
+
     def load_dataset(self):
         print('loading dataset')
 
-    def selection_change_brain(self,i):
+    def selection_change_brain(self, i):
         print "Items in the list are :"
 
         for count in range(self.brain_combobox.count()):
             print self.brain_combobox.itemText(count)
-        print "Current index",i,"selection changed ",self.brain_combobox.currentText()
+        print "Current index", i, "selection changed ", self.brain_combobox.currentText()
 
-    def selection_change_world(self,i):
+    def selection_change_world(self, i):
 
         for count in range(self.world_combobox.count()):
             print self.world_combobox.itemText(count)
-        print "Current index",i,"selection changed ",self.world_combobox.currentText()
+        print "Current index", i, "selection changed ", self.world_combobox.currentText()
 
     def reset_simulation(self):
         self.controller.reset_gazebo_simulation()
@@ -394,28 +392,21 @@ class Toolbar(QWidget):
 
     def load_brain(self):
         brain = self.brain_combobox.currentText() + '.py'
-        self.current_brain_label.setText('Current brain:   <b><FONT COLOR = lightgreen>' + " ".join(self.brain_combobox.currentText().split("_")) + '</b>')
+        txt = '<b><FONT COLOR = lightgreen>' + " ".join(self.brain_combobox.currentText().split("_")) + '</b>'
+        self.current_brain_label.setText('Current brain: ' + txt)
         # load brain from controller
         self.controller.reload_brain(brains_path + brain)
 
-        #save to configuration
+        # save to configuration
         self.configuration.brain_path = brains_path + brain
         print('current brain', brains_path + brain)
 
     def load_world(self):
         world = self.world_combobox.currentText()
-        self.current_sim_label.setText('Current world:   <b><FONT COLOR = lightgreen>' + self.world_combobox.currentText() + '</b>')
+        txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText() + '</b>'
+        self.current_sim_label.setText('Current world: ' + txt)
         # load brain from controller
 
-        #save to configuration
+        # save to configuration
         self.configuration.current_world = world
         print('current world', world)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-
-    ex = Toolbar()
-    ex.show()
-
-    sys.exit(app.exec_())

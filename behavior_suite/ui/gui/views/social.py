@@ -1,9 +1,8 @@
 import webbrowser
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QImage, QPixmap
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QSpacerItem,
-                             QWidget)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, QWidget)
 
 
 class ClickableLabel(QLabel):
@@ -11,9 +10,9 @@ class ClickableLabel(QLabel):
     def __init__(self, url):
         QLabel.__init__(self)
         self.url = url
-    
+
     def mousePressEvent(self, event):
-         webbrowser.open(self.url)
+        webbrowser.open(self.url)
 
 
 class SocialMedia(QWidget):
@@ -23,12 +22,13 @@ class SocialMedia(QWidget):
 
         main_layout = QHBoxLayout()
         self.setMaximumHeight(30)
-        self.setContentsMargins(0,0,0,0)
-        main_layout.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
         github_label = self.create_button('https://github.com/jderobot/behaviorsuite', ':/assets/github.png')
-        youtube_label = self.create_button('https://www.youtube.com/channel/UCgmUgpircYAv_QhLQziHJOQ', ':/assets/youtube.png')
         twitter_label = self.create_button('https://twitter.com/jderobot', ':/assets/twitter.png')
+        youtube_label = self.create_button('https://www.youtube.com/channel/UCgmUgpircYAv_QhLQziHJOQ',
+                                           ':/assets/youtube.png')
 
         horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 

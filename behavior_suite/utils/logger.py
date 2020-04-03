@@ -1,20 +1,24 @@
+# Code from https://stackoverflow.com/a/8349076
 import logging
 import sys
+
 from colors import Colors
 
-# Custom formatter
+
 class MyFormatter(logging.Formatter):
 
     prefix = '{}[%(name)s]{} - '.format(Colors.CVIOLET2, Colors.ENDC)
-    err_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(Colors.FAIL, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
-    dbg_fmt = prefix + "{}%(levelname)s (%(module)s: %(lineno)d): {}{}%(message)s{}".format(Colors.CGREEN2, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
-    info_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(Colors.CBLUE2, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
-    wrn_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(Colors.CYELLOW, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
-
+    err_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(
+                                                                Colors.FAIL, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
+    info_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(
+                                                                Colors.CBLUE2, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
+    wrn_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(
+                                                                Colors.CYELLOW, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
+    dbg_fmt = prefix + "{}%(levelname)s (%(module)s: %(lineno)d): {}{}%(message)s{}".format(
+                                                                Colors.CGREEN2, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
 
     def __init__(self, fmt="%(levelno)s: %(msg)s"):
         logging.Formatter.__init__(self, fmt)
-
 
     def format(self, record):
 
@@ -31,7 +35,7 @@ class MyFormatter(logging.Formatter):
 
         elif record.levelno == logging.ERROR:
             self._fmt = MyFormatter.err_fmt
-        
+
         elif record.levelno == logging.WARNING:
             self._fmt = MyFormatter.wrn_fmt
 

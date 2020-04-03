@@ -54,6 +54,6 @@ if __name__ == "__main__":
     import inspect
 
     c = Colors()
-    variables = [i for i in dir(c) if not inspect.ismethod(i) and not i in ('__doc__', '__module__')]
+    variables = [i for i in dir(c) if not inspect.ismethod(i) and i not in ('__doc__', '__module__')]
     for v in variables:
         print("{}Sample:{}\t-->  {}".format(getattr(c, v), c.ENDC, v))

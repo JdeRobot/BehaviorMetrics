@@ -1,8 +1,9 @@
+import shlex
+import subprocess
 import threading
-import rospy
 
+import rospy
 from std_srvs.srv import Empty
-from std_msgs.msg import String
 
 
 class Controller:
@@ -14,8 +15,7 @@ class Controller:
         self.data = {}
         self.pose3D_data = None
 
-    ### GUI update
-
+    # GUI update
     def update_frame(self, frame_id, data):
         with self.data_lock:
             self.data[frame_id] = data
@@ -35,7 +35,7 @@ class Controller:
     def get_pose3D(self):
         return self.pose3D_data
 
-    ### Simulation and dataset
+    # Simulation and dataset
 
     def reset_gazebo_simulation(self):
         reset_physics = rospy.ServiceProxy('/gazebo/reset_world', Empty)
@@ -43,13 +43,13 @@ class Controller:
 
     def pause_gazebo_simulation(self):
         # print("Pausing gazebo simulation...")
-        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics',Empty)
+        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         pause_physics()
         self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
         print("UNPausing gazebo simulation...")
-        unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics',Empty)
+        unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         unpause_physics()
         self.pilot.stop_event.clear()
 
@@ -58,7 +58,7 @@ class Controller:
             self.recording = True
             dataset_name = 'testbag'
             topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
-            command = "rosbag record -O datasets/" + dataset_name + " " +" ".join(topics)
+            command = "rosbag record -O datasets/" + dataset_name + " " + " ".join(topics)
             command = shlex.split(command)
             self.rosbag_proc = subprocess.Popen(command)
         else:
@@ -74,7 +74,6 @@ class Controller:
 
     def reload_brain(self, brain):
         self.pilot.reload_brain(brain)
-
 
     def set_pilot(self, pilot):
         self.pilot = pilot

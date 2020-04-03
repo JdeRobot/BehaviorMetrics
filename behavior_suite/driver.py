@@ -112,7 +112,6 @@ def main():
 
     logger.info('closing all processes...')
     pilot.kill_event.set()
-    logger.debug('Pilot: pilot killed.')
     environment.close_gazebo()
     logger.info('DONE! Bye, bye :)')
 
