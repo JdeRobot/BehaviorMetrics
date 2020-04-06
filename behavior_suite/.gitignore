@@ -5,6 +5,7 @@
 ### project related
 *resources.py
 **/logs
+**.bag
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

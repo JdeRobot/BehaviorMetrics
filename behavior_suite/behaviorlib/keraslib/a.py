@@ -1,2 +1,0 @@
-def algo():
-    print("ALGOOOOOOOOOOOOOOOOOOO")

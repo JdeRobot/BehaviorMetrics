@@ -9,18 +9,17 @@
     This brain uses a regression network based on Keras framework to predict the angular velocity of the F1 car.
     For that task it uses a regression convolutional neural network for w leaving the linear speed constant
 """
-from brains import Brains
-from behaviorlib.keras.keras_predict import KerasPredictor
+from behaviorlib.keraslib.keras_predict import KerasPredictor
 
 
-class Brain(brains.Brains):
+class Brain:
 
-    def __init__(self, sensors, actuators):
-        super(Brain, self).__init__(sensors, actuators, brain_path=None)
+    def __init__(self, sensors, actuators, handler=None):
         self.cont = 0
         self.net_w = KerasPredictor('path_to_w')
         self.k_v = 5
         self.motors = self.get_motors('motors_0')
+        self.handler = handler
 
     def load_brain(self, path):
         raise AttributeError("Brain object has no attribute 'load_brain'")

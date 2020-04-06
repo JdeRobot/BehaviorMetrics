@@ -1,1 +1,1 @@
-from .brains_handler import Brains
+from .brains_handler import Brains  # FQDN

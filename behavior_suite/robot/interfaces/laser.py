@@ -4,9 +4,10 @@ import threading
 from math import pi as PI
 from jderobotTypes import LaserData
 
+
 def laserScan2LaserData(scan):
     '''
-    Translates from ROS LaserScan to JderobotTypes LaserData. 
+    Translates from ROS LaserScan to JderobotTypes LaserData.
 
     @param scan: ROS LaserScan to translate
 
@@ -14,10 +15,6 @@ def laserScan2LaserData(scan):
 
     @return a LaserData translated from scan
 
-    '''
-    laser = LaserData()
-    laser.values = scan.ranges
-    ''' 
           ROS Angle Map      JdeRobot Angle Map
                 0                  PI/2
                 |                   |
@@ -26,12 +23,15 @@ def laserScan2LaserData(scan):
                 |                   |
                 |                   |
     '''
-    laser.minAngle = scan.angle_min  + PI/2
-    laser.maxAngle = scan.angle_max  + PI/2
+    laser = LaserData()
+    laser.values = scan.ranges
+    laser.minAngle = scan.angle_min + PI/2
+    laser.maxAngle = scan.angle_max + PI/2
     laser.maxRange = scan.range_max
     laser.minRange = scan.range_min
-    laser.timeStamp = scan.header.stamp.secs + (scan.header.stamp.nsecs *1e-9)
+    laser.timeStamp = scan.header.stamp.secs + (scan.header.stamp.nsecs * 1e-9)
     return laser
+
 
 class ListenerLaser:
     '''
@@ -41,7 +41,7 @@ class ListenerLaser:
         '''
         ListenerLaser Constructor.
 
-        @param topic: ROS topic to subscribe        
+        @param topic: ROS topic to subscribe
         @type topic: String
 
         '''
@@ -53,9 +53,9 @@ class ListenerLaser:
 
     def __callback(self, scan):
         '''
-        Callback function to receive and save Laser Scans. 
+        Callback function to receive and save Laser Scans.
 
-        @param scan: ROS LaserScan received     
+        @param scan: ROS LaserScan received
         @type scan: LaserScan
         '''
         laser = laserScan2LaserData(scan)
@@ -80,7 +80,7 @@ class ListenerLaser:
 
     def getLaserData(self):
         '''
-        Returns last LaserData. 
+        Returns last LaserData.
 
         @return last JdeRobotTypes LaserData saved
 

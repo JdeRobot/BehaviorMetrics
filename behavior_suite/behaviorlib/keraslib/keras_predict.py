@@ -1,11 +1,10 @@
-import numpy as np
-import sys
 import time
-import cv2
 
-from keras.models import load_model
-from keras.backend import set_session
+import cv2
+import numpy as np
 import tensorflow as tf
+from keras.backend import set_session
+from keras.models import load_model
 
 
 class KerasPredictor:

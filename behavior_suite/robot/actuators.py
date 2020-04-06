@@ -43,4 +43,3 @@ class Actuators:
         # do the same for every publisher that requires threading
         for actuator in self.motors.values():
             actuator.stop()
-

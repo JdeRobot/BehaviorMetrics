@@ -12,23 +12,21 @@
     (with 4 classes) and another one for w (with 7 classes)
 
 """
-
-from brains import Brains
-from behaviorlib.keras.keras_predict import KerasPredictor
+from behaviorlib.keraslib.keras_predict import KerasPredictor
 
 
-class Brain(Brains):
+class Brain:
 
-    def __init__(self, sensors, actuators):
-        super(Brain, self).__init__(sensors, actuators, brain_path=None)
+    def __init__(self, sensors, actuators, handler=None):
         self.cont = 0
         self.net_v = KerasPredictor('path_to_v')
         self.net_w = KerasPredictor('path_to_w')
         self.motors = self.get_motors('motors_0')
+        self.handler = handler
 
     def load_brain(self, path):
         raise AttributeError("Brain object has no attribute 'load_brain'")
-   
+
     def calculate_v(self, predicted_class):
         """
         Method that calculates the linear speed of the robot (v) based on the predicted class

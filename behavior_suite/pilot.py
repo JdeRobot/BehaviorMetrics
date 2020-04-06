@@ -25,9 +25,9 @@ class Pilot(threading.Thread):
         self.sensors = Sensors(self.configuration.sensors)
         self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
 
-        thread_ui_comm = threading.Thread(target=self.ui_listener)
-        thread_ui_comm.daemon = True
-        thread_ui_comm.start()
+        # thread_ui_comm = threading.Thread(target=self.ui_listener)
+        # thread_ui_comm.daemon = True
+        # thread_ui_comm.start()
 
         # self.ros_handler = RosSrvHandler()
         # self.ros_handler.pause_gazebo_simulation()  # start the simulation paused

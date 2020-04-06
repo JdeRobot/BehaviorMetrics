@@ -1,8 +1,8 @@
 import rospy
 from geometry_msgs.msg import Twist
 import threading
-from math import pi as PI
 from .threadPublisher import ThreadPublisher
+
 
 def cmdvel2Twist(vel):
 
@@ -21,22 +21,23 @@ class CMDVel ():
 
     def __init__(self):
 
-        self.vx = 0 # vel in x[m/s] (use this for V in wheeled robots)
-        self.vy = 0 # vel in y[m/s]
-        self.vz = 0 # vel in z[m/s]
-        self.ax = 0 # angular vel in X axis [rad/s]
-        self.ay = 0 # angular vel in X axis [rad/s]
-        self.az = 0 # angular vel in Z axis [rad/s] (use this for W in wheeled robots)
-        self.timeStamp = 0 # Time stamp [s]
-        self.v = 0 # vel[m/s]
-        self.w = 0 # angular vel [rad/s]
+        self.vx = 0  # vel in x[m/s] (use this for V in wheeled robots)
+        self.vy = 0  # vel in y[m/s]
+        self.vz = 0  # vel in z[m/s]
+        self.ax = 0  # angular vel in X axis [rad/s]
+        self.ay = 0  # angular vel in X axis [rad/s]
+        self.az = 0  # angular vel in Z axis [rad/s] (use this for W in wheeled robots)
+        self.timeStamp = 0  # Time stamp [s]
+        self.v = 0  # vel[m/s]
+        self.w = 0  # angular vel [rad/s]
 
     def __str__(self):
         s = "CMDVel: {\n   vx: " + str(self.vx) + "\n   vy: " + str(self.vy)
-        s = s + "\n   vz: " + str(self.vz) + "\n   ax: " + str(self.ax) 
+        s = s + "\n   vz: " + str(self.vz) + "\n   ax: " + str(self.ax)
         s = s + "\n   ay: " + str(self.ay) + "\n   az: " + str(self.az)
-        s = s + "\n   timeStamp: " + str(self.timeStamp)  + "\n}"
-        return s 
+        s = s + "\n   timeStamp: " + str(self.timeStamp) + "\n}"
+        return s
+
 
 class PublisherMotors:
 

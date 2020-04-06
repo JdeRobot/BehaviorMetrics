@@ -21,7 +21,7 @@ Behaviors:
     Simulation:
         World: f1_1_simplecircuit.world
     Dataset:
-        In: ''
+        In: '/tmp/my_bag.bag'
         Out: ''
     Layout:
         Frame_0:

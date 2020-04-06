@@ -2,6 +2,8 @@ import shlex
 import subprocess
 import threading
 
+from utils.logger import logger
+
 import rospy
 from std_srvs.srv import Empty
 
@@ -14,12 +16,12 @@ class Controller:
         self.pose_lock = threading.Lock()
         self.data = {}
         self.pose3D_data = None
+        self.recording = False
 
     # GUI update
     def update_frame(self, frame_id, data):
         with self.data_lock:
             self.data[frame_id] = data
-            # print(self.data[frame_id])
 
     def get_data(self, frame_id):
         with self.data_lock:
@@ -38,41 +40,48 @@ class Controller:
     # Simulation and dataset
 
     def reset_gazebo_simulation(self):
+        logger.info("Restarting simulation")
         reset_physics = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         reset_physics()
 
     def pause_gazebo_simulation(self):
-        # print("Pausing gazebo simulation...")
+        logger.info("Pausing simulation")
         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         pause_physics()
         self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
-        print("UNPausing gazebo simulation...")
+        logger.info("Resuming simulation")
         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         unpause_physics()
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):
         if not self.recording:
+            logger.info("Recording bag at: {}".format(dataset_name))
             self.recording = True
-            dataset_name = 'testbag'
             topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
-            command = "rosbag record -O datasets/" + dataset_name + " " + " ".join(topics)
+            command = "rosbag record -O " + dataset_name + " " + " ".join(topics) + " __name:=behav_bag"
             command = shlex.split(command)
-            self.rosbag_proc = subprocess.Popen(command)
+            with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+                self.rosbag_proc = subprocess.Popen(command, stdout=out, stderr=err)
         else:
-            print("Rosbag record already running")
+            logger.info("Rosbag already recording")
+            self.stop_record()
 
     def stop_record(self):
         if self.rosbag_proc and self.recording:
-            print('Stopping rosbag record')
+            logger.info("Stopping bag recording")
             self.recording = False
-            self.rosbag_proc.terminate()
+            command = "rosnode kill /behav_bag"
+            command = shlex.split(command)
+            with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+                subprocess.Popen(command, stdout=out, stderr=err)
         else:
-            print("No bags recording")
+            logger.info("No bag recording")
 
     def reload_brain(self, brain):
+        logger.info("Reloading brain... {}".format(brain))
         self.pilot.reload_brain(brain)
 
     def set_pilot(self, pilot):

@@ -1,25 +1,69 @@
 import json
 import os
+import rospy
 
 from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, QSize,
                           Qt)
 from PyQt5.QtGui import QColor, QPalette, QPixmap
-from PyQt5.QtWidgets import (QComboBox, QFrame, QGraphicsOpacityEffect,
-                             QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-                             QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QComboBox, QFileDialog, QFrame,
+                             QGraphicsOpacityEffect, QGridLayout, QGroupBox, QButtonGroup, QCheckBox,
+                             QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea,
+                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 from logo import Logo
 from social import SocialMedia
+from ui.gui.resources import resources
 
 # from pathlib import Path
 
 worlds_path = '/home/fran/github/BehaviorSuite/behavior_suite/ui/gui/resources/worlds.json'
 brains_path = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/'
 
-""" TODO:   change absolute paths
-            fix dataset file selector and configuration
-"""
+""" TODO:   change absolute paths """
+
+
+class TopicsPopup(QWidget):
+
+    def __init__(self):
+        QWidget.__init__(self)
+        self.setFixedSize(500, 300)
+        self.setWindowTitle("Select your topics")
+        self.active_topics = []
+        self.hide()
+        self.initUI()
+
+    def initUI(self):
+        self.setStyleSheet('background-color: rgb(51, 51, 51); color: white;')
+
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+        self.button_group = QButtonGroup()
+        self.button_group.buttonClicked.connect(self.add_topic)
+        self.button_group.setExclusive(False)
+
+        scroll = QScrollArea(self)
+        self.main_layout.addWidget(scroll)
+        scroll.setWidgetResizable(True)
+        scroll_content = QWidget(scroll)
+
+        self.scroll_layout = QVBoxLayout(scroll_content)
+        scroll_content.setLayout(self.scroll_layout)
+        scroll.setWidget(scroll_content)
+
+    def fill_topics(self):
+        topics = rospy.get_published_topics()
+        for topic in topics:
+            topic_check = QCheckBox(str(topic[0]))
+            self.button_group.addButton(topic_check)
+            self.scroll_layout.addWidget(topic_check)
+
+    def show_updated(self):
+        self.show()
+        self.fill_topics()
+        self.active_topics = []
+
+    def add_topic(self, btn):
+        self.active_topics.append(btn.text())
 
 
 class HLine(QFrame):
@@ -170,15 +214,14 @@ class Toolbar(QWidget):
         self.create_simulation_gb()
         self.main_layout.addWidget(HLine())
 
+        self.topics_popup = TopicsPopup()
+
         logo = Logo()
         social = SocialMedia()
 
         self.main_layout.addWidget(social)
         self.main_layout.addWidget(logo)
         self.setLayout(self.main_layout)
-
-    def file_handler(self):
-        print('fiel sel')
 
     def create_stats_gb(self):
         stats_group = QGroupBox()
@@ -198,15 +241,25 @@ class Toolbar(QWidget):
         self.file_selector_save = QLineEdit()
         self.file_selector_save.setPlaceholderText('Select dataset save path')
         self.file_selector_save.setObjectName("dataset_save")
+        self.file_selector_save.setReadOnly(True)
         self.file_selector_load = QLineEdit()
         self.file_selector_load.setPlaceholderText('Select dataset load path')
         self.file_selector_load.setObjectName("dataset_load")
+        self.file_selector_load.setReadOnly(True)
+        if self.configuration.dataset_in:
+            if not os.path.isfile(self.configuration.dataset_in):
+                open(self.configuration.dataset_in, 'w').close()
+            self.file_selector_save.setText(self.configuration.dataset_in)
         selector_save_button = QPushButton('...')
         selector_save_button.setMaximumSize(30, 30)
-        selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
+        selector_save_button.clicked.connect(self.saveFileDialog)
+        # selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
         selector_load_button = QPushButton('...')
         selector_load_button.setMaximumSize(30, 30)
-        selector_load_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
+        selector_load_button.clicked.connect(lambda: self.topics_popup.show_updated())
+        self.dataset_hint_label = QLabel('Select a .bag file to save dataset first!')
+        self.dataset_hint_label.setStyleSheet('color: yellow; font-size: 12px; font-style: italic')
+        self.dataset_hint_label.hide()
 
         # verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -219,15 +272,15 @@ class Toolbar(QWidget):
         self.recording_animation_label.hide()
         self.recording_label.hide()
         self.recording_animation_label.setPixmap(QPixmap(':/assets/recording.png'))
-        start_pause_record_label = ClickableLabel('play', 30, QPixmap(':/assets/play.png'), parent=self)
-        start_pause_record_label.setToolTip('Start/Stop recording dataset')
+        self.start_pause_record_label = ClickableLabel('play', 30, QPixmap(':/assets/play.png'), parent=self)
+        self.start_pause_record_label.setToolTip('Start/Stop recording dataset')
         load_dataset_label = ClickableLabel('load', 30, QPixmap(':/assets/load.png'), parent=self)
 
         icons_layout.addWidget(self.recording_animation_label, alignment=Qt.AlignBottom)
         icons_layout.addWidget(self.recording_label, alignment=Qt.AlignBottom)
         icons_layout.addItem(horizontalSpacer)
         icons_layout.addWidget(load_dataset_label, alignment=Qt.AlignBottom)
-        icons_layout.addWidget(start_pause_record_label, alignment=Qt.AlignBottom)
+        icons_layout.addWidget(self.start_pause_record_label, alignment=Qt.AlignBottom)
 
         dataset_layout.addWidget(save_path_label, 0, 0, 1, 1)
         dataset_layout.addWidget(self.file_selector_save, 0, 1, 1, 1)
@@ -238,6 +291,7 @@ class Toolbar(QWidget):
         dataset_layout.addWidget(selector_load_button, 1, 2, 1, 1)
 
         # dataset_layout.addItem(verticalSpacer,2,0)
+        dataset_layout.addWidget(self.dataset_hint_label, 2, 1, alignment=Qt.AlignTop)
         dataset_layout.addLayout(icons_layout, 2, 0, 1, 3)
         dataset_group.setLayout(dataset_layout)
         self.main_layout.addWidget(dataset_group)
@@ -335,32 +389,59 @@ class Toolbar(QWidget):
         self.main_layout.addWidget(sim_group)
 
     def start_recording(self):
-        print('starting record')
-        self.recording_animation_label.start_animation()
-        self.recording_label.show()
-        self.recording_animation_label.show()
+        filename = self.file_selector_save.text()
+        if os.path.isfile(filename) and filename.endswith(".bag"):
+            topics = self.topics_popup.active_topics
+            if len(topics) > 0:
+                self.dataset_hint_label.hide()
+                self.recording_animation_label.start_animation()
+                self.recording_label.show()
+                self.recording_animation_label.show()
+                self.controller.record_rosbag(topics, self.file_selector_save.text())
+            else:
+                self.dataset_hint_label.setText("Select a topic to record first")
+                self.dataset_hint_label.show()
+                self.start_pause_record_label.active = False
+                self.start_pause_record_label.setPixmap(QPixmap(':/assets/play.png'))
+        else:
+            self.dataset_hint_label.setText('Select a .bag file to save dataset first!')
+            self.dataset_hint_label.show()
+            self.start_pause_record_label.active = False
+            self.start_pause_record_label.setPixmap(QPixmap(':/assets/play.png'))
 
     def stop_recording(self):
-        print('stopping record')
         self.recording_animation_label.stop_animation()
         self.recording_animation_label.hide()
         self.recording_label.hide()
+        self.controller.stop_record()
 
     def load_dataset(self):
-        print('loading dataset')
+        pass
 
     def selection_change_brain(self, i):
-        print "Items in the list are :"
+        # print "Items in the list are :"
 
-        for count in range(self.brain_combobox.count()):
-            print self.brain_combobox.itemText(count)
-        print "Current index", i, "selection changed ", self.brain_combobox.currentText()
+        # for count in range(self.brain_combobox.count()):
+        #     print self.brain_combobox.itemText(count)
+        # print "Current index", i, "selection changed ", self.brain_combobox.currentText()
+        pass
 
     def selection_change_world(self, i):
 
-        for count in range(self.world_combobox.count()):
-            print self.world_combobox.itemText(count)
-        print "Current index", i, "selection changed ", self.world_combobox.currentText()
+        # for count in range(self.world_combobox.count()):
+        #     print self.world_combobox.itemText(count)
+        print("Current index", i, "selection changed ", self.world_combobox.currentText())
+        pass
+
+    def saveFileDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "Bag Files (*.bag)", options=options)
+        if filename:
+            if not filename.endswith(".bag"):
+                filename += ".bag"
+            open(filename, 'w').close()
+            self.file_selector_save.setText(filename)
 
     def reset_simulation(self):
         self.controller.reset_gazebo_simulation()
@@ -399,7 +480,6 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.brain_path = brains_path + brain
-        print('current brain', brains_path + brain)
 
     def load_world(self):
         world = self.world_combobox.currentText()
@@ -409,4 +489,3 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.current_world = world
-        print('current world', world)
