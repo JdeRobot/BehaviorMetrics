@@ -436,7 +436,8 @@ class Toolbar(QWidget):
     def saveFileDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "Bag Files (*.bag)", options=options)
+        filename, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "Bag Files (*.bag)",
+                                                  options=options)
         if filename:
             if not filename.endswith(".bag"):
                 filename += ".bag"
@@ -468,7 +469,7 @@ class Toolbar(QWidget):
         self.brain_combobox.setStyleSheet('color: grey')
         self.confirm_brain.setStyleSheet('color: grey')
 
-        self.controller.reload_brain(brains_path + self.brain_combobox.currentText() + '.py')
+        # self.controller.reload_brain(brains_path + self.brain_combobox.currentText() + '.py')
         self.controller.unpause_gazebo_simulation()
 
     def load_brain(self):

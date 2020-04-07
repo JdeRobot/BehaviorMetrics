@@ -31,6 +31,7 @@ class ParentWindow(QMainWindow):
         self.windowsize = QSize(WIDTH, HEIGHT)
         self.initUI()
         self.robot_selection = None
+        self.closing = False
 
     def initUI(self):
         # self.setFixedSize(self.windowsize)
@@ -71,6 +72,11 @@ class ParentWindow(QMainWindow):
 
     def update_gui(self):
         pass
+
+    def closeEvent(self, event):
+        self.closing = True
+        time.sleep(0.2)
+        event.accept()
 
 
 class ViewsController(QMainWindow):
@@ -159,7 +165,7 @@ class ViewsController(QMainWindow):
         del self.animation
 
     def update_gui(self):
-        while 1:
+        while not self.parent.closing:
             if self.main_view:
                 self.main_view.update_gui()
             time.sleep(0.1)

@@ -28,7 +28,7 @@ def launch_env(world_name):
     #     sys.exit(-1)
 
     try:
-        with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+        with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(["roslaunch", resources_path + 'world.launch'], stdout=out, stderr=err)
         logger.info("GazeboEnv: gzserver launched.")
     except OSError as oe:

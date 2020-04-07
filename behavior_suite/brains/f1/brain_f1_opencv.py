@@ -29,7 +29,7 @@ class Brain:
     def __init__(self, sensors, actuators, handler):
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
-        self.viewer = handler
+        self.handler = handler
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
@@ -39,48 +39,8 @@ class Brain:
         self.cont = 0
         time.sleep(2)
 
-    def show_data(self, frame_id, data):
-        # img  = np.copy(data)
-        # if len(img.shape) == 2:
-        #     img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-        # self.color_image_lock.acquire()
-        # self.color_image = img
-        # self.color_image_lock.release()
-        self.viewer.update_frame(frame_id, data)
-
-    def getImage(self):
-        self.lock.acquire()
-        img = self.camera.getImage().data
-        self.lock.release()
-        return img
-
-    def set_color_image(self, image):
-        img = np.copy(image)
-        if len(img.shape) == 2:
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-        self.color_image_lock.acquire()
-        self.color_image = img
-        self.color_image_lock.release()
-
-    def get_color_image(self):
-        self.color_image_lock.acquire()
-        img = np.copy(self.color_image)
-        self.color_image_lock.release()
-        return img
-
-    def set_threshold_image(self, image):
-        img = np.copy(image)
-        if len(img.shape) == 2:
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-        self.threshold_image_lock.acquire()
-        self.threshold_image = img
-        self.threshold_image_lock.release()
-
-    def get_threshold_image(self):
-        self.threshold_image_lock.acquire()
-        img = np.copy(self.threshold_image)
-        self.threshold_image_lock.release()
-        return img
+    def update_frame(self, frame_id, data):
+        self.handler.update_frame(frame_id, data)
 
     def collinear3(self, x1, y1, x2, y2, x3, y3):
         line = 0
@@ -121,7 +81,7 @@ class Brain:
         # red_lower=(0,255,171)
         red_lower = (0, 255, 15)
         # kernel = np.ones((8, 8), np.uint8)
-        image = self.getImage()
+        image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
 
@@ -132,7 +92,7 @@ class Brain:
         # image_eroded = cv2.erode(image_mask, kernel, iterations=3)
 
         # show image in gui -> frame_0
-        self.show_data('frame_0', image)
+        self.update_frame('frame_0', image)
 
         rows, cols = image_mask.shape
         rows = rows - 1     # para evitar desbordamiento
@@ -200,5 +160,4 @@ class Brain:
         cv2.putText(image_mask, 'actual: {}'.format(current),
                                 (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
-        self.set_threshold_image(image_mask)
-        self.show_data('frame_1', image_mask)
+        self.update_frame('frame_1', image_mask)

@@ -12,20 +12,24 @@
     (with 5 classes) and another one for w (with 7 classes)
 
 """
+import cv2
+
 from behaviorlib.keraslib.keras_predict import KerasPredictor
+from utils.constants import PRETRAINED_MODELS_DIR
 
 
 class Brain:
 
     def __init__(self, sensors, actuators, handler=None):
-        # super(Brain, self).__init__(sensors, actuators, brain_path=None)
+        self.motors = actuators.get_motor('motors_0')
+        self.camera = sensors.get_camera('camera_0')
+        self.handler = handler
         self.cont = 0
-        self.net_v = KerasPredictor('path_to_v')
-        self.net_w = KerasPredictor('path_to_w')
-        self.motors = self.get_motors('motors_0')
+        self.net_v = KerasPredictor(PRETRAINED_MODELS_DIR + '/model_smaller_vgg_5classes_biased_cropped_v.h5')
+        self.net_w = KerasPredictor(PRETRAINED_MODELS_DIR + '/model_smaller_vgg_7classes_biased_cropped_w.h5')
 
-    def load_brain(self, path):
-        raise AttributeError("Brain object has no attribute 'load_brain'")
+    def update_frame(self, frame_id, data):
+        self.handler.update_frame(frame_id, data)
 
     def calculate_v(self, predicted_class):
         """
@@ -79,17 +83,18 @@ class Brain:
             self.motors.sendW(-1.7)
 
     def execute(self):
-        image = self.get_image('camera_0')
 
         if self.cont > 0:
             print("Runing...")
             self.cont += 1
 
-        prediction_v = self.net_v.predict(image)
-        prediction_w = self.net_w.predict(image)
+        image = self.camera.getImage().data
+        img = cv2.cvtColor(image[240:480, 0:640], cv2.COLOR_RGB2BGR)
+        prediction_v = self.net_v.predict(img)
+        prediction_w = self.net_w.predict(img)
 
         if prediction_w != '' and prediction_w != '':
-            v = self.calculate_v(prediction_v)
-            w = self.calculate_w(prediction_w)
-            self.motors.sendV(v)
-            self.motors.sendW(w)
+            self.calculate_v(prediction_v)
+            self.calculate_w(prediction_w)
+
+        self.update_frame('frame_0', image)

@@ -20,19 +20,28 @@ class Controller:
 
     # GUI update
     def update_frame(self, frame_id, data):
-        with self.data_lock:
-            self.data[frame_id] = data
+        try:
+            with self.data_lock:
+                self.data[frame_id] = data
+        except Exception:
+            pass
 
     def get_data(self, frame_id):
-        with self.data_lock:
-            data = self.data.get(frame_id, None)
-            # self.data[frame_id] = None
+        try:
+            with self.data_lock:
+                data = self.data.get(frame_id, None)
+                # self.data[frame_id] = None
+        except Exception:
+            pass
 
         return data
 
     def update_pose3d(self, data):
-        with self.pose_lock:
-            self.pose3D_data = data
+        try:
+            with self.pose_lock:
+                self.pose3D_data = data
+        except Exception:
+            pass
 
     def get_pose3D(self):
         return self.pose3D_data
