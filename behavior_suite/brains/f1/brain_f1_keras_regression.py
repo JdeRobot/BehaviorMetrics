@@ -15,8 +15,6 @@ from behaviorlib.keraslib.keras_predict import KerasPredictor
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR
 
-PRETRAINED_MODELS_DIR = '/home/fran/github/BehaviorSuite/behavior_suite/models/'
-
 class Brain:
 
     def __init__(self, sensors, actuators, handler=None):
