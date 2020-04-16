@@ -15,6 +15,9 @@ from behaviorlib.keraslib.keras_predict import KerasPredictor
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR
 
+PRETRAINED_MODELS_DIR = '/home/fran/github/BehaviorSuite/behavior_suite/models/'
+
+
 class Brain:
 
     def __init__(self, sensors, actuators, handler=None):
@@ -39,7 +42,6 @@ class Brain:
 
         prediction_v = self.net_v.predict(img)
         prediction_w = self.net_w.predict(img)
-        print(prediction_v, prediction_w)
 
         if prediction_w != '' and prediction_w != '':
             self.motors.sendV(prediction_v)

@@ -1,23 +1,56 @@
-import npyscreen
+import sys
 import threading
 import time
 
-from cui import CUI
+import npyscreen
+import rospy
+
+from ui.tui.keyboard_handler import KHandler
+from utils.constants import ROOT_PATH
 
 # This application class serves as a wrapper for the initialization of curses
 # and also manages the actual forms of the application
 
-cui = CUI()
-cui.start()
-brains_dir = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/brain_f1_opencv.py'
-dset_dir = '/home/fran/github/BehaviorSuite/behavior_suite/datasets/'
-logs_path = '/home/fran/github/BehaviorSuite/behavior_suite/logs/log.txt'
-ros_topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw', '/F1ROS/odom', '/F1ROS/laser/scan']
+brains_dir = ROOT_PATH + '/brains/f1/brain_f1_opencv.py'
+dset_dir = ROOT_PATH + '/datasets/'
+logs_path = ROOT_PATH + '/logs/log.log'
 cont = 0
 
-class MyTestApp(npyscreen.StandardApp):
+class StdOutWrapper:
+    text = ""
+    def write(self,txt):
+        self.text += txt
+        self.text = '\n'.join(self.text.split('\n')[-30:])
+    def get_text(self,beg,end):
+        return '\n'.join(self.text.split('\n')[beg:end])
+
+
+class TUI(npyscreen.StandardApp):
+
+    def __init__(self, controller):
+        super(TUI, self).__init__()
+        self.controller = controller
+        self.khandler = KHandler(self.controller)
+        self.khandler.start()
+        
+        # self.mystdout = StdOutWrapper()
+        # sys.stdout = self.mystdout
+        # sys.stderr = self.mystdout
+
     def onStart(self):
+        self.ros_topics = []
+        ros_ready = False
+        while not ros_ready:
+            try:
+                raw_topics = rospy.get_published_topics()
+                ros_ready = True
+            except Exception as e:
+                pass
+        for topic in raw_topics:
+            self.ros_topics.append(str(topic[0]))
+    
         self.form = self.addForm("MAIN", MainForm)
+        self.form.set_controller(self.controller)
 
     def stop(self):
         self.queue_event(npyscreen.Event("exit_app"))
@@ -32,15 +65,20 @@ class MainForm(npyscreen.FormMultiPage):
     log_data = ""
     logs = open(logs_path, 'r')
     data = []
+
+    def set_controller(self, cont):
+        self.controller = cont
     
     def event_value_edited(self, event):
-        self.status.value = 'Last command: ' + cui.last_key
+        self.status.value = 'Last command: ' + self.parentApp.khandler.last_key
         self.status.display()
     
     def log_update(self, event):
-        self.data.append(self.logs.readline())
-        self.log_box.buffer(self.data)
-        self.log_box.display()
+        line = self.logs.readline()
+        if line != '':
+            self.data.append(line)
+            self.log_box.buffer(self.data)
+            self.log_box.display()
         # prev = self.log_data
         # self.log_data = self.logs.read()
         # self.log_box.value = self.log_data
@@ -51,6 +89,7 @@ class MainForm(npyscreen.FormMultiPage):
         self.data = []
     
     def exit_func(self, _input):
+        self.parentApp.controller.stop_pilot()
         self.logs.close()
         self.kill_event.set()
         exit(0)
@@ -146,9 +185,8 @@ class MainForm(npyscreen.FormMultiPage):
             max_height =4,
             value = [1,],
             name="ROS Topics",
-            values = ros_topics,
+            values = self.parentApp.ros_topics,
             scroll_exit=True,
-        
         )
         self.info = self.add(npyscreen.FixedText,
             value='For dataset recording (press space to select).',
@@ -174,28 +212,28 @@ class MainForm(npyscreen.FormMultiPage):
         self.edit()
 
     def update_form(self):
-        global cont 
+        global cont, ros_topics
         while not self.kill_event.isSet():
             
             cont += 1
             self.update_info()
             self.parentApp.queue_event(npyscreen.Event("log_update"))
-            if cui.last_key in self.commands:
+            if self.parentApp.khandler.last_key in self.commands:
                 self.parentApp.queue_event(npyscreen.Event("event_value_edited"))
-            elif cui.last_key == '-1':
+            elif self.parentApp.khandler.last_key == '-1':
                 break
-            time.sleep(1)
+            time.sleep(0.1)
     
     def update_info(self):
-        global cui
-        cui.set_dset_dir(self.dset_out.value)
-        cui.set_dset_name(self.dset_name.value)
-        cui.set_topics([ros_topics[i] for i in self.topics_box.value])
-        cui.set_brain(self.brain.value)
+        pass
+        # self.parentApp.khandler.set_dset_dir(self.dset_out.value)
+        # self.parentApp.khandler.set_dset_name(self.dset_name.value)
+        # self.parentApp.khandler.set_topics([ros_topics[i] for i in self.topics_box.value])
+        # self.parentApp.khandler.set_brain(self.brain.value)
         
 if __name__ == '__main__':
     try:
-        TA = MyTestApp()
+        TA = TUI("asdfa")
         TA.run()
     except KeyboardInterrupt:
         print("Exiting... Press Esc to confirm")

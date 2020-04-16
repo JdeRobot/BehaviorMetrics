@@ -8,6 +8,8 @@ from utils.configuration import Config
 from utils.controller import Controller
 from utils.colors import Colors
 from utils.logger import logger
+from ui.tui.main_view import TUI
+import threading
 
 
 def check_args(argv):
@@ -35,7 +37,6 @@ def check_args(argv):
 
     config_data = {'config': None, 'gui': None}
     if args.config:
-        config_data = {}
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
 
@@ -90,26 +91,40 @@ def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'])
 
-    # If there's no config, configure the app through the GUI
-    if app_configuration.empty and config_data['gui']:
-        conf_window(app_configuration)
+    # Create controller of model-view
+    controller = Controller()
 
     # Launch the simulation
     if app_configuration.current_world:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
 
-    # Create controller of model-view
-    controller = Controller()
-
+    # If there's no config, configure the app through the GUI
+    if app_configuration.empty and config_data['gui']:
+        conf_window(app_configuration)
+    else:
+        rows, columns = os.popen('stty size', 'r').read().split()
+        if rows < 34 and columns < 115:
+            logger.error("Terminal window too small: {}x{}, please resize it to at least 35x115".format(rows, columns))
+            sys.exit(1)
+        else:
+            t = TUI(controller)
+            ttui = threading.Thread(target=t.run)
+            ttui.start()
+            
     # Launch control
     pilot = Pilot(app_configuration, controller)
     pilot.daemon = True
     pilot.start()
     logger.info('Executing app')
 
-    main_win(app_configuration, controller)
+    # If GUI specified, launch it. Otherwise don't
+    if config_data['gui']:
+        main_win(app_configuration, controller)
+    else:
+        pilot.join()
 
+    # When window is closed or keypress for quit is detected, quit gracefully.
     logger.info('closing all processes...')
     pilot.kill_event.set()
     environment.close_gazebo()

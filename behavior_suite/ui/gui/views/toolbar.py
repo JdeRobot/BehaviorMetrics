@@ -19,7 +19,9 @@ from ui.gui.resources import resources
 worlds_path = '/home/fran/github/BehaviorSuite/behavior_suite/ui/gui/resources/worlds.json'
 brains_path = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/'
 
-""" TODO:   change absolute paths """
+""" TODO:   change absolute paths
+            put button for topic selection
+            put button for showing logs? """
 
 
 class TopicsPopup(QWidget):

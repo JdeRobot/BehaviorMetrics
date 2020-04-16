@@ -14,7 +14,7 @@ def launch_env(world_name):
         data = file.read()
 
     data = data.replace('[WRLD]', world_name)
-    data = data.replace('[GUI]', 'false')
+    data = data.replace('[GUI]', 'true')
 
     with open(resources_path + 'world.launch', 'w') as file:
         file.write(data)

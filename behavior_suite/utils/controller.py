@@ -95,3 +95,6 @@ class Controller:
 
     def set_pilot(self, pilot):
         self.pilot = pilot
+
+    def stop_pilot(self):
+        self.pilot.kill_event.set()

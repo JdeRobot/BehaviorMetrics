@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from utils.logger import logger
 
 class Brain:
 
@@ -21,6 +22,7 @@ class Brain:
 
     def execute(self):
         self.update_pose(self.pose.getPose3d())
+        # logger.info('asdfasdfas')
         v = 0
         w = 0.8
         self.motors.sendV(v)

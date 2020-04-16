@@ -7,7 +7,7 @@ from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
 
-TIME_CYCLE = 80
+TIME_CYCLE = 60
 
 
 class Pilot(threading.Thread):
@@ -35,13 +35,14 @@ class Pilot(threading.Thread):
         gazebo_ready = False
         while not gazebo_ready:
             try:
-                self.controller.pause_gazebo_simulation()
+                # self.controller.pause_gazebo_simulation()
                 gazebo_ready = True
             except Exception:
                 pass
 
     def run(self):
-
+        it = 0
+        ss = time.time()
         while (not self.kill_event.is_set()):
             start_time = datetime.now()
             if not self.stop_event.is_set():
@@ -50,6 +51,14 @@ class Pilot(threading.Thread):
 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+            elapsed = time.time() - ss
+            if elapsed < 1:
+                it += 1
+            else:
+                ss = time.time()
+                # print(it)
+                it = 0
+
             if (ms < TIME_CYCLE):
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
         logger.debug('Pilot: pilot killed.')

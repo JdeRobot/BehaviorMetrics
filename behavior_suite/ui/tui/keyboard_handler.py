@@ -8,23 +8,24 @@
 """
 from pynput import keyboard
 
-from ui.ros_ui_com import Communicator
+# from ui.ros_ui_com import Communicator
 
-class CUI:
+class KHandler:
 
     last_key = None
 
-    def __init__(self):
+    def __init__(self, controller):
         self.listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release
         )
-        self.comm = Communicator()
+        self.controller = controller
+        # self.comm = Communicator()
 
     def on_press(self, key):
         try:
-            print('Pressed key'.format(key.char))
-            self.comm.send_msg(key.char)
+            # print('Pressed key'.format(key.char))
+            # self.comm.send_msg(key.char)
             self.last_key = key.char
         except AttributeError:
             # print('Not alphanumeric'.format(key))
@@ -34,7 +35,7 @@ class CUI:
         # print('Released'.format(key))
         if key == keyboard.Key.esc:
             self.last_key = '-1'
-            self.comm.send_msg('quit')
+            # self.comm.send_msg('quit')
             return False
 
     def start(self):
