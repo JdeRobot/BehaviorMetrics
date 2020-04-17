@@ -2,25 +2,25 @@
     "f1": [
       {
         "name": "Simple circuit",
-        "world": "f1_1_simplecircuit.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch",
         "description": "Description",
         "model": "f1"
       },
       {
         "name": "Simple circuit obstacles",
-        "world": "f1_1_monacolineROS.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_monacolineROS.launch",
         "description": "Description",
         "model": "f1_laser"
       },
       {
         "name": "Nurburgring",
-        "world": "f1_1_nurburgrinlineROS.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_nurburgrinlineROS.launch",
         "description": "Description",
         "model": "f1"
       },
       {
         "name": "Monaco",
-        "world": "f1_1_monacolineROS.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_monacolineROS.launch",
         "description": "Description",
         "model": "f1"
       }
@@ -28,88 +28,88 @@
     "drone": [
       {
         "name": "Follow road",
-        "world": "iris_follow_road.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_follow_road.launch",
         "description": "Description"
       },
       {
         "name": "Cat and mouse",
-        "world": "iris_drone_cat_mouse.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_drone_cat_mouse.launch",
         "description": "Description"
       },
       {
         "name": "Labyrinth",
-        "world": "iris_labyrinth.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_labyrinth.launch",
         "description": "Description"
       },
       {
         "name": "Hangar",
-        "world": "iris_drone_hangar.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_drone_hangar.launch",
         "description": "Description"
       },
       {
         "name": "Position control",
-        "world": "iris_position_control.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_position_control.launch",
         "description": "Description"
       },
       {
         "name": "Follow Turtlebot",
-        "world": "iris_follow_turtlebot.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_follow_turtlebot.launch",
         "description": "Description"
       },
       {
         "name": "Visual lander",
-        "world": "iris_visual_lander.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_visual_lander.launch",
         "description": "Description"
       },
       {
         "name": "Rescue people",
-        "world": "iris_rescue_people.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_rescue_people.launch",
         "description": "Description"
       },
       {
         "name": "Position control",
-        "world": "iris_position_control.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_position_control.launch",
         "description": "Description"
       }
     ],
     "turtlebot": [
       {
         "name": "Empty world",
-        "world": "kobuki_1_simpleROS.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/kobuki_1_simpleROS.launch",
         "description": "Description"
       }
     ],
     "car": [
       {
         "name": "Junction",
-        "world": "car_1_junction.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/car_1_junction.launch",
         "description": "Description"
       },
       {
         "name": "Parking",
-        "world": "car_1_parking.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/car_1_parking.launch",
         "description": "Description"
       },
       {
         "name": "Global navigation",
-        "world": "taxiholo_1_citylarge.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/taxiholo_1_citylarge.launch",
         "description": "Description"
       },
       {
         "name": "Global navigation small",
-        "world": "taxiholo_1_citymedium.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/taxiholo_1_citymedium.launch",
         "description": "Description"
       }
     ],
     "roomba": [
       {
         "name": "Vacuum room",
-        "world": "roomba_1_houseroom.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/roomba_1_houseroom.launch",
         "description": "Description"
       },
       {
         "name": "Vacuum house",
-        "world": "roomba_1_house.world",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/roomba_1_house.launch",
         "description": "Description"
       }
     ]

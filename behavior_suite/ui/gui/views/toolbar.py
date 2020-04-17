@@ -1,18 +1,20 @@
 import json
 import os
-import rospy
 
+import rospy
 from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, QSize,
                           Qt)
 from PyQt5.QtGui import QColor, QPalette, QPixmap
-from PyQt5.QtWidgets import (QComboBox, QFileDialog, QFrame,
-                             QGraphicsOpacityEffect, QGridLayout, QGroupBox, QButtonGroup, QCheckBox,
-                             QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
+                             QFrame, QGraphicsOpacityEffect, QGridLayout,
+                             QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+                             QPushButton, QScrollArea, QSizePolicy,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from logo import Logo
 from social import SocialMedia
 from ui.gui.resources import resources
+from utils import environment
 
 # from pathlib import Path
 
@@ -353,7 +355,7 @@ class Toolbar(QWidget):
             current_world = self.configuration.current_world
         else:
             current_world = ''
-        self.current_sim_label = QLabel('Current world:   <b><FONT COLOR = lightgreen>' + current_world + '</b>')
+        self.current_sim_label = QLabel('Current world:   <b><FONT COLOR = lightgreen>' + current_world.split('/')[-1] + '</b>')
         hint_label = QLabel('(pause simulation to change world)')
         hint_label.setStyleSheet('color: lightblue; font-size: 12px; font-style: italic')
 
@@ -486,9 +488,12 @@ class Toolbar(QWidget):
 
     def load_world(self):
         world = self.world_combobox.currentText()
-        txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText() + '</b>'
+        txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText().split('/')[-1]  + '</b>'
         self.current_sim_label.setText('Current world: ' + txt)
-        # load brain from controller
+        # Load new world
+        environment.launch_env(world)
+        self.controller.initialize_robot()
+
 
         # save to configuration
         self.configuration.current_world = world

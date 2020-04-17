@@ -98,3 +98,14 @@ class Controller:
 
     def stop_pilot(self):
         self.pilot.kill_event.set()
+    
+    def pause_pilot(self):
+        self.pilot.stop_event.set()
+
+    def resume_pilot(self):
+        self.pilot.stop_event.clear()
+
+    def initialize_robot(self):
+        self.pause_pilot()
+        self.pilot.initialize_robot()
+        self.resume_pilot()

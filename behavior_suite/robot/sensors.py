@@ -64,3 +64,15 @@ class Sensors:
 
     def get_pose3d(self, pose_name):
         return self.__get_sensor(pose_name, 'pose3d')
+
+    def kill(self):
+        if self.cameras:
+            for camera in self.cameras.values():
+                camera.stop()
+        if self.lasers:
+            for laser in self.lasers.values():
+                laser.stop()
+        if self.pose3d:
+            for pose in self.pose3d.values():
+                pose.stop()
+        

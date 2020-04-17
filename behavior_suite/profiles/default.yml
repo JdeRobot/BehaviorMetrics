@@ -19,7 +19,7 @@ Behaviors:
         BrainPath: 'brains/f1/brain_f1_opencv2.py'
         Type: 'f1'
     Simulation:
-        World: f1_1_simplecircuit.world
+        World: /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

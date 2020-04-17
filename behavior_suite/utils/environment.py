@@ -6,31 +6,12 @@ from logger import logger
 # TODO: quitar paths absolutos
 
 
-def launch_env(world_name):
-
-    resources_path = '/home/fran/github/BehaviorSuite/behavior_suite/ui/gui/resources/'
-
-    with open(resources_path + 'template.launch') as file:
-        data = file.read()
-
-    data = data.replace('[WRLD]', world_name)
-    data = data.replace('[GUI]', 'true')
-
-    with open(resources_path + 'world.launch', 'w') as file:
-        file.write(data)
-
-    # try:
-    #     with open(".roscore_stdout.log", "w") as out, open(".roscore_stderr.log", "w") as err:
-    #         subprocess.Popen(["roscore"],)# stdout=out, stderr=err)
-    #     print("GazeboEnv: roscore launched.")
-    # except OSError as oe:
-    #     print("GazeboEnv: exception raised launching roscore. {}".format(oe))
-    #     sys.exit(-1)
-
+def launch_env(launch_file):
+    close_gazebo()
     try:
         with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-            subprocess.Popen(["roslaunch", resources_path + 'world.launch'], stdout=out, stderr=err)
-        logger.info("GazeboEnv: gzserver launched.")
+            subprocess.Popen(["roslaunch", launch_file], stdout=out, stderr=err)
+        logger.info("GazeboEnv: launching gzserver.")
     except OSError as oe:
         logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
         close_gazebo()

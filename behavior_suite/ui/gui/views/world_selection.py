@@ -37,23 +37,23 @@ class InfoLabel(QLabel):
         self.setPixmap(QPixmap(':/assets/info_icon.png').scaled(50, 50, Qt.KeepAspectRatio))
 
 
-class WorldLabel(QLabel):
+# class WorldLabel(QLabel):
 
-    def __init__(self, parent=None):
-        QLabel.__init__(self, parent)
-        self.setMouseTracking(True)
-        self.parent = parent
-        self.setStyleSheet('color: white')
+#     def __init__(self, parent=None):
+#         QLabel.__init__(self, parent)
+#         self.setMouseTracking(True)
+#         self.parent = parent
+#         self.setStyleSheet('color: white')
 
-    def enterEvent(self, event):
-        self.setStyleSheet('color: yellow')
+#     def enterEvent(self, event):
+#         self.setStyleSheet('color: yellow')
 
-    def leaveEvent(self, event):
-        self.setStyleSheet('color: white')
+#     def leaveEvent(self, event):
+#         self.setStyleSheet('color: white')
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.parent.parent.generate_launch_file(self.parent.world['world'])
+#     def mousePressEvent(self, event):
+#         if event.button() == Qt.LeftButton:
+#             self.parent.parent.generate_launch_file(self.parent.world['world'])
 
 
 class ClickableLabel(QLabel):
@@ -129,8 +129,9 @@ class QCustomQWidget (QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.parent.generate_launch_file(self.world['world'])
+            # self.parent.generate_launch_file(self.world['world'])
             self.parent.save_config(self.world['model'], self.world['world'])
+            self.parent.switch_window.emit()
 
 
 class WorldSelection(QWidget):
@@ -209,17 +210,15 @@ class WorldSelection(QWidget):
     def handle_gazebo_gui(self):
         self.enable_gui = not self.enable_gazebo_gui
 
-    def generate_launch_file(self, world_name):
-        with open(resources_path + 'template.launch') as file:
-            data = file.read()
+    # def generate_launch_file(self, world_name):
+    #     with open(resources_path + 'template.launch') as file:
+    #         data = file.read()
 
-        data = data.replace('[WRLD]', world_name)
-        data = data.replace('[GUI]', self.enable_gazebo_gui)
+    #     data = data.replace('[WRLD]', world_name)
+    #     data = data.replace('[GUI]', self.enable_gazebo_gui)
 
-        with open('world.launch', 'w') as file:
-            file.write(data)
-
-        self.switch_window.emit()
+    #     with open('world.launch', 'w') as file:
+    #         file.write(data)
 
     def save_config(self, robot_type, world):
         self.configuration.robot_type_set(robot_type)

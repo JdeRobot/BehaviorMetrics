@@ -27,15 +27,22 @@ def check_args(argv):
                         help='{}Path to the configuration file in YML format.{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
-    parser.add_argument('-g',
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-g',
                         '--gui',
                         action='store_true',
-                        help='{}Load the GUI. If not set, the console UI will start by default{}'.format(
+                        help='{}Load the GUI (Graphic User Interface). Requires PyQt5 installed{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+
+    group.add_argument('-t',
+                        '--tui',
+                        action='store_true',
+                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None}
+    config_data = {'config': None, 'gui': None, 'tui': None}
     if args.config:
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
@@ -44,6 +51,9 @@ def check_args(argv):
 
     if args.gui:
         config_data['gui'] = args.gui
+    
+    if args.tui:
+        config_data['tui'] = args.tui
 
     return config_data
 
@@ -93,16 +103,17 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
+    
+    # If there's no config, configure the app through the GUI
+    if app_configuration.empty and config_data['gui']:
+        conf_window(app_configuration)
 
     # Launch the simulation
     if app_configuration.current_world:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
 
-    # If there's no config, configure the app through the GUI
-    if app_configuration.empty and config_data['gui']:
-        conf_window(app_configuration)
-    else:
+    if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
         if rows < 34 and columns < 115:
             logger.error("Terminal window too small: {}x{}, please resize it to at least 35x115".format(rows, columns))

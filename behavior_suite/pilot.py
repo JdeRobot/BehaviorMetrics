@@ -21,9 +21,10 @@ class Pilot(threading.Thread):
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
 
-        self.actuators = Actuators(self.configuration.actuators)
-        self.sensors = Sensors(self.configuration.sensors)
-        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
+        self.sensors = None
+        self.actuators = None
+        self.brains = None
+        self.initialize_robot()
 
         # thread_ui_comm = threading.Thread(target=self.ui_listener)
         # thread_ui_comm.daemon = True
@@ -32,13 +33,29 @@ class Pilot(threading.Thread):
         # self.ros_handler = RosSrvHandler()
         # self.ros_handler.pause_gazebo_simulation()  # start the simulation paused
         # TODO: improve for real robots, not only simulation
+        
+
+    def wait_gazebo(self):
         gazebo_ready = False
         while not gazebo_ready:
             try:
-                # self.controller.pause_gazebo_simulation()
+                self.controller.pause_gazebo_simulation()
                 gazebo_ready = True
             except Exception:
                 pass
+
+    def initialize_robot(self):
+        self.stop_interfaces()
+        self.actuators = Actuators(self.configuration.actuators)
+        self.sensors = Sensors(self.configuration.sensors)
+        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
+        self.wait_gazebo()
+    
+    def stop_interfaces(self):
+        if self.sensors:
+            self.sensors.kill()
+        if self.actuators:
+            self.actuators.kill()
 
     def run(self):
         it = 0
@@ -46,8 +63,10 @@ class Pilot(threading.Thread):
         while (not self.kill_event.is_set()):
             start_time = datetime.now()
             if not self.stop_event.is_set():
-
-                self.brains.active_brain.execute()
+                try:
+                    self.brains.active_brain.execute()
+                except AttributeError:
+                    logger.warning('No Brain selected')
 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
