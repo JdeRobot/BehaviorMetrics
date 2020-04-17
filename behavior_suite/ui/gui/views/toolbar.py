@@ -14,12 +14,12 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
 from logo import Logo
 from social import SocialMedia
 from ui.gui.resources import resources
-from utils import environment
+from utils import environment, constants
 
 # from pathlib import Path
 
-worlds_path = '/home/fran/github/BehaviorSuite/behavior_suite/ui/gui/resources/worlds.json'
-brains_path = '/home/fran/github/BehaviorSuite/behavior_suite/brains/f1/'
+worlds_path = constants.ROOT_PATH + '/ui/gui/resources/worlds.json'
+brains_path = constants.ROOT_PATH + '/brains/'
 
 """ TODO:   change absolute paths
             put button for topic selection
@@ -316,7 +316,7 @@ class Toolbar(QWidget):
 
         self.brain_combobox = QComboBox()
         self.brain_combobox.setEnabled(True)
-        brains = [file.split(".")[0] for file in os.listdir(brains_path)
+        brains = [file.split(".")[0] for file in os.listdir(brains_path + self.configuration.robot_type)
                   if file.endswith('.py') and file.split(".")[0] != '__init__']
         self.brain_combobox.addItem('')
         self.brain_combobox.addItems(brains)
@@ -481,10 +481,10 @@ class Toolbar(QWidget):
         txt = '<b><FONT COLOR = lightgreen>' + " ".join(self.brain_combobox.currentText().split("_")) + '</b>'
         self.current_brain_label.setText('Current brain: ' + txt)
         # load brain from controller
-        self.controller.reload_brain(brains_path + brain)
+        self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
 
         # save to configuration
-        self.configuration.brain_path = brains_path + brain
+        self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
 
     def load_world(self):
         world = self.world_combobox.currentText()

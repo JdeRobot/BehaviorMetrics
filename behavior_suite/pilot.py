@@ -37,10 +37,12 @@ class Pilot(threading.Thread):
 
     def wait_gazebo(self):
         gazebo_ready = False
+        self.stop_event.set()
         while not gazebo_ready:
             try:
                 self.controller.pause_gazebo_simulation()
                 gazebo_ready = True
+                self.stop_event.clear()
             except Exception:
                 pass
 
@@ -56,6 +58,7 @@ class Pilot(threading.Thread):
             self.sensors.kill()
         if self.actuators:
             self.actuators.kill()
+        pass
 
     def run(self):
         it = 0
@@ -65,8 +68,9 @@ class Pilot(threading.Thread):
             if not self.stop_event.is_set():
                 try:
                     self.brains.active_brain.execute()
-                except AttributeError:
+                except AttributeError as e:
                     logger.warning('No Brain selected')
+                    logger.error(e)
 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0

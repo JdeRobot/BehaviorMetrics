@@ -23,8 +23,8 @@ class Controller:
         try:
             with self.data_lock:
                 self.data[frame_id] = data
-        except Exception:
-            pass
+        except Exception as e:
+            logger.info(e)
 
     def get_data(self, frame_id):
         try:
@@ -91,7 +91,9 @@ class Controller:
 
     def reload_brain(self, brain):
         logger.info("Reloading brain... {}".format(brain))
+        self.pause_pilot()
         self.pilot.reload_brain(brain)
+        self.resume_pilot()
 
     def set_pilot(self, pilot):
         self.pilot = pilot

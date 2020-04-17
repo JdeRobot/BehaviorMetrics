@@ -33,7 +33,7 @@
       },
       {
         "name": "Cat and mouse",
-        "world": "/opt/jderobot/share/jderobot/gazebo/launch/iris_drone_cat_mouse.launch",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/drone_hangar.launch",
         "description": "Description"
       },
       {

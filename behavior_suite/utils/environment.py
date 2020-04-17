@@ -18,7 +18,7 @@ def launch_env(launch_file):
         sys.exit(-1)
 
     time.sleep(5)
-
+    pass
 
 def close_gazebo():
     try:
@@ -54,3 +54,10 @@ def close_gazebo():
             logger.debug("GazeboEnv: roscore killed.")
         except subprocess.CalledProcessError as ce:
             logger.error("GazeboEnv: exception raised executing killall command for roscore {}".format(ce))
+
+    if ps_output.count('px4') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "px4"])
+            logger.debug("GazeboEnv: px4 killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))
