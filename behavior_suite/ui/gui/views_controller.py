@@ -3,8 +3,9 @@ import sys
 import time
 
 from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
+from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
-                             QLabel, QMainWindow, QVBoxLayout, QWidget)
+                             QLabel, QMainWindow, QVBoxLayout, QWidget, QDesktopWidget)
 
 from ui.gui.threadGUI import ThreadGUI
 from views.layout_selection import LayoutSelection
@@ -13,8 +14,8 @@ from views.robot_selection import RobotSelection
 from views.title import TitleWindow
 from views.world_selection import WorldSelection
 
-WIDTH = 1700
-HEIGHT = 1050
+WIDTH = 1500
+HEIGHT = 1000
 
 
 class VLine(QFrame):
@@ -33,8 +34,18 @@ class ParentWindow(QMainWindow):
         self.robot_selection = None
         self.closing = False
 
+    def location_on_the_screen(self):
+        ag = QDesktopWidget().availableGeometry()
+        sg = QDesktopWidget().screenGeometry()
+
+        widget = self.geometry()
+        x = ag.width() - widget.width()
+        y = 2 * ag.height() - sg.height() - widget.height()
+        self.move(x, y)
+
     def initUI(self):
         # self.setFixedSize(self.windowsize)
+        self.setMinimumSize(self.windowsize)
         self.init_statusbar()
 
         self.timer = QTimer()
@@ -48,7 +59,10 @@ class ParentWindow(QMainWindow):
         self.central_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.central_widget)
 
+        self.location_on_the_screen()
+
     def init_statusbar(self):
+    
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('background-color: #444444; color: white; QStatusBar::item {border: none;}')
 
@@ -62,8 +76,25 @@ class ParentWindow(QMainWindow):
         self.status_bar.addPermanentWidget(VLine())
         self.status_bar.addPermanentWidget(self.status_date)
         self.status_bar.addPermanentWidget(VLine())
+        
 
         self.status_title.setText("Behavior Suite ")
+
+    #     self.animation_label = QLabel()
+    #     self.animation_label.setFixedSize(20, 20)
+    #     self.animation_label.setScaledContents(True)
+    #     self.movie = QMovie("/home/fran/load.gif")
+    #     self.animation_label.setMovie(self.movie)
+    #     self.status_bar.addPermanentWidget(self.animation_label)
+    
+    # def start_load_animation(self):
+    #     # self.animation_label.show()
+    #     self.movie.start()
+    #     self.update()
+    
+    # def stop_load_animation(self):
+    #     # self.animation_label.hide()
+    #     self.movie.stop()
 
     def recurring_timer(self):
         hour = datetime.datetime.now()

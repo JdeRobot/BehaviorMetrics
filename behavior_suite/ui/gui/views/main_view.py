@@ -91,8 +91,8 @@ class ClickableLabel(QLabel):
         self.setFixedSize(30, 30)
         self.parent = parent
         self.creator = creator
-        self.pmax_dark = QPixmap(':/assets/gear_icon_dark.png')
-        self.pmax_light = QPixmap(':/assets/gear_icon_light.png')
+        self.pmax_dark = QPixmap(':/assets/gear_dark.png')
+        self.pmax_light = QPixmap(':/assets/gear_light.png')
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0)')
         self.setPixmap(self.pmax_light)
         self.setScaledContents(True)
@@ -320,7 +320,7 @@ class MainView(QWidget):
         # define view's widgets
 
         central_layout = QHBoxLayout()
-        toolbar = Toolbar(self.configuration, self.controller)
+        toolbar = Toolbar(self.configuration, self.controller, self.parent)
         self.matrix = LayoutMatrix(self.layout_configuration, self.configuration, self)
         central_layout.addWidget(toolbar)
         central_layout.addWidget(self.matrix)

@@ -8,7 +8,7 @@ from colors import Colors
 class MyFormatter(logging.Formatter):
 
     prefix = '{}[%(name)s]{} - '.format(Colors.CVIOLET2, Colors.ENDC)
-    err_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(
+    err_fmt = prefix + "{}%(levelname)s (%(module)s: %(lineno)d): {}{}%(message)s{}".format(
                                                                 Colors.FAIL, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
     info_fmt = prefix + "{}%(levelname)s: {}{}%(message)s{}".format(
                                                                 Colors.CBLUE2, Colors.ENDC, Colors.CBOLD, Colors.ENDC)
@@ -50,7 +50,7 @@ class MyFormatter(logging.Formatter):
 class MyConsoleFormatter(logging.Formatter):
 
     prefix = '[%(name)s] - '
-    err_fmt = prefix + "%(levelname)s: %(message)s"
+    err_fmt = prefix + "%(levelname)s (%(module)s: %(lineno)d): %(message)s"
     info_fmt = prefix + "%(levelname)s: %(message)s"
     wrn_fmt = prefix + "%(levelname)s: %(message)s"
     dbg_fmt = prefix + "%(levelname)s (%(module)s: %(lineno)d): %(message)s"

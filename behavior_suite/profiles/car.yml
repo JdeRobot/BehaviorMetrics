@@ -1,0 +1,45 @@
+Behaviors:    
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_c'
+                    Topic: '/opel/cameraC/image_raw'
+                Camera_1:
+                    Name: 'camera_l'
+                    Topic: '/opel/cameraR/image_raw'
+                Camera_2:
+                    Name: 'camera_r'
+                    Topic: '/opel/cameraR/image_raw'
+            Lasers: {}
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/opel/odom'
+        Actuators:
+            Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/opel/cmd_vel'
+                    MaxV: 3
+                    MaxW: 0.3
+        BrainPath: 'brains/car/brain_car_opencv2.py'
+        Type: 'car'
+    Simulation:
+        World: /opt/jderobot/share/jderobot/gazebo/launch/car_1_junction.launch
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 2, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage

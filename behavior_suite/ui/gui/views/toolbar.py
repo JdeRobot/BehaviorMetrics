@@ -30,7 +30,7 @@ class TopicsPopup(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.setFixedSize(500, 300)
+        self.setFixedSize(800, 600)
         self.setWindowTitle("Select your topics")
         self.active_topics = []
         self.hide()
@@ -56,10 +56,18 @@ class TopicsPopup(QWidget):
 
     def fill_topics(self):
         topics = rospy.get_published_topics()
-        for topic in topics:
+        for idx, topic in enumerate(topics):
+            cont = QFrame()
+            ll = QHBoxLayout()
+            cont.setLayout(ll)
             topic_check = QCheckBox(str(topic[0]))
             self.button_group.addButton(topic_check)
-            self.scroll_layout.addWidget(topic_check)
+            ll.addWidget(topic_check)
+            self.scroll_layout.addWidget(cont)
+            if idx % 2 == 0:
+                cont.setStyleSheet('background-color: rgb(51,51,51)')
+            else:
+                cont.setStyleSheet('background-color: rgb(71, 71, 71)')
 
     def show_updated(self):
         self.show()
@@ -140,10 +148,28 @@ class ClickableLabel(QLabel):
 
     def enterEvent(self, event):
         # self.setStyleSheet('background-color: black')
+        if self.id == 'gzcli':
+            self.setPixmap(QPixmap(':/assets/gazebo_dark.png'))
+        elif self.id == 'play' or self.id == 'sim':
+            if self.active:
+                self.setPixmap(QPixmap(':/assets/pause_dark.png'))
+            else:
+                self.setPixmap(QPixmap(':/assets/play_dark.png'))
+        elif self.id == 'reset':
+            self.setPixmap(QPixmap(':/assets/reload_dark.png'))
         pass
 
     def leaveEvent(self, event):
         # self.setStyleSheet('background-color: rgb(0, 0, 0, 0,)')
+        if self.id == 'gzcli':
+            self.setPixmap(QPixmap(':/assets/gazebo_light.png'))
+        elif self.id == 'play' or self.id == 'sim':
+            if self.active:
+                self.setPixmap(QPixmap(':/assets/pause.png'))
+            else:
+                self.setPixmap(QPixmap(':/assets/play.png'))
+        elif self.id == 'reset':
+            self.setPixmap(QPixmap(':/assets/reload.png'))
         pass
 
     def mousePressEvent(self, event):
@@ -157,8 +183,6 @@ class ClickableLabel(QLabel):
                     self.setPixmap(QPixmap(':/assets/play.png'))
                     self.active = False
                     self.parent.stop_recording()
-            elif self.id == 'load':
-                self.parent.load_dataset()
             elif self.id == 'sim':
                 if not self.active:
                     self.setPixmap(QPixmap(':/assets/pause.png'))
@@ -170,16 +194,19 @@ class ClickableLabel(QLabel):
                     self.parent.pause_simulation()
             elif self.id == 'reset':
                 self.parent.reset_simulation()
+            elif self.id == 'gzcli':
+                self.parent.open_close_simulator_gui()
 
 
 class Toolbar(QWidget):
 
-    def __init__(self, configuration, controller):
+    def __init__(self, configuration, controller, parent=None):
         super(Toolbar, self).__init__()
         # self.setStyleSheet('background-color: rgb(51,51,51); color: white;')
         self.windowsize = QSize(440, 1000)
         self.configuration = configuration
         self.controller = controller
+        self.parent = parent
         self.setFixedSize(self.windowsize)
         self.initUI()
 
@@ -241,15 +268,11 @@ class Toolbar(QWidget):
         dataset_group.setTitle('Dataset')
         dataset_layout = QGridLayout()
         save_path_label = QLabel('Save path:  ')
-        load_path_label = QLabel('Load path:  ')
         self.file_selector_save = QLineEdit()
         self.file_selector_save.setPlaceholderText('Select dataset save path')
         self.file_selector_save.setObjectName("dataset_save")
         self.file_selector_save.setReadOnly(True)
-        self.file_selector_load = QLineEdit()
-        self.file_selector_load.setPlaceholderText('Select dataset load path')
-        self.file_selector_load.setObjectName("dataset_load")
-        self.file_selector_load.setReadOnly(True)
+       
         if self.configuration.dataset_in:
             if not os.path.isfile(self.configuration.dataset_in):
                 open(self.configuration.dataset_in, 'w').close()
@@ -258,9 +281,8 @@ class Toolbar(QWidget):
         selector_save_button.setMaximumSize(30, 30)
         selector_save_button.clicked.connect(self.saveFileDialog)
         # selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
-        selector_load_button = QPushButton('...')
-        selector_load_button.setMaximumSize(30, 30)
-        selector_load_button.clicked.connect(lambda: self.topics_popup.show_updated())
+        selector_topics_button = QPushButton('Select Topics')
+        selector_topics_button.clicked.connect(lambda: self.topics_popup.show_updated())
         self.dataset_hint_label = QLabel('Select a .bag file to save dataset first!')
         self.dataset_hint_label.setStyleSheet('color: yellow; font-size: 12px; font-style: italic')
         self.dataset_hint_label.hide()
@@ -276,23 +298,19 @@ class Toolbar(QWidget):
         self.recording_animation_label.hide()
         self.recording_label.hide()
         self.recording_animation_label.setPixmap(QPixmap(':/assets/recording.png'))
-        self.start_pause_record_label = ClickableLabel('play', 30, QPixmap(':/assets/play.png'), parent=self)
+        self.start_pause_record_label = ClickableLabel('play', 50, QPixmap(':/assets/play.png'), parent=self)
         self.start_pause_record_label.setToolTip('Start/Stop recording dataset')
-        load_dataset_label = ClickableLabel('load', 30, QPixmap(':/assets/load.png'), parent=self)
 
         icons_layout.addWidget(self.recording_animation_label, alignment=Qt.AlignBottom)
         icons_layout.addWidget(self.recording_label, alignment=Qt.AlignBottom)
-        icons_layout.addItem(horizontalSpacer)
-        icons_layout.addWidget(load_dataset_label, alignment=Qt.AlignBottom)
+        # icons_layout.addItem(horizontalSpacer)
         icons_layout.addWidget(self.start_pause_record_label, alignment=Qt.AlignBottom)
 
         dataset_layout.addWidget(save_path_label, 0, 0, 1, 1)
         dataset_layout.addWidget(self.file_selector_save, 0, 1, 1, 1)
         dataset_layout.addWidget(selector_save_button, 0, 2, 1, 1)
 
-        dataset_layout.addWidget(load_path_label, 1, 0, 1, 1)
-        dataset_layout.addWidget(self.file_selector_load, 1, 1, 1, 1)
-        dataset_layout.addWidget(selector_load_button, 1, 2, 1, 1)
+        dataset_layout.addWidget(selector_topics_button, 1, 1, 1, 1)
 
         # dataset_layout.addItem(verticalSpacer,2,0)
         dataset_layout.addWidget(self.dataset_hint_label, 2, 1, alignment=Qt.AlignTop)
@@ -376,10 +394,13 @@ class Toolbar(QWidget):
 
         start_pause_simulation_label = ClickableLabel('sim', 60, QPixmap(':/assets/play.png'), parent=self)
         start_pause_simulation_label.setToolTip('Start/Pause the simulation')
-        reset_simulation = ClickableLabel('reset', 60, QPixmap(':/assets/reload.png'), parent=self)
+        reset_simulation = ClickableLabel('reset', 40, QPixmap(':/assets/reload.png'), parent=self)
         reset_simulation.setToolTip('Reset the simulation')
+        show_gzclient = ClickableLabel('gzcli', 40, QPixmap(':/assets/gazebo_light.png'), parent=self)
+        show_gzclient.setToolTip('Open/Close simulator window')
         pause_reset_layout = QHBoxLayout()
-        pause_reset_layout.addWidget(start_pause_simulation_label, alignment=Qt.AlignRight)
+        pause_reset_layout.addWidget(show_gzclient, alignment=Qt.AlignRight)
+        pause_reset_layout.addWidget(start_pause_simulation_label, alignment=Qt.AlignCenter)
         pause_reset_layout.addWidget(reset_simulation, alignment=Qt.AlignLeft)
 
         sim_layout.addWidget(sim_label, 0, 0)
@@ -418,9 +439,6 @@ class Toolbar(QWidget):
         self.recording_animation_label.hide()
         self.recording_label.hide()
         self.controller.stop_record()
-
-    def load_dataset(self):
-        pass
 
     def selection_change_brain(self, i):
         # print "Items in the list are :"
@@ -497,3 +515,10 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.current_world = world
+
+    @staticmethod
+    def open_close_simulator_gui():
+        if not environment.is_gzclient_open():
+            environment.open_gzclient()
+        else:
+            environment.close_gzclient()

@@ -33,7 +33,7 @@ class LaserWidgetPro(QFrame):
         self._width = w
         self._height = h
         self.parent = parent
-        self.setStyleSheet('background-color: white')
+        self.setStyleSheet('background-color: rgb(51,51,51)')
         self.resize(self._width, self._height)
 
     def paintEvent(self, event):
@@ -47,7 +47,7 @@ class LaserWidgetPro(QFrame):
         x1 = y1 = d = ang = 0
 
         width = 2
-        pen = QPen(Qt.blue, width)
+        pen = QPen(Qt.white, width)
 
         painter = QPainter(self)
         painter.setPen(pen)

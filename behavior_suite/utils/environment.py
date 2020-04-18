@@ -61,3 +61,30 @@ def close_gazebo():
             logger.debug("GazeboEnv: px4 killed.")
         except subprocess.CalledProcessError as ce:
             logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))
+
+
+def is_gzclient_open():
+    try:
+        ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
+    except subprocess.CalledProcessError as ce:
+        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
+        sys.exit(-1)
+
+    return ps_output.count('gzclient') > 0
+
+def close_gzclient():
+    if is_gzclient_open():
+        try:
+            subprocess.check_call(["killall", "-9", "gzclient"])
+            logger.debug("GazeboEnv: gzclient killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
+
+def open_gzclient():
+    if not is_gzclient_open():
+        try:
+            with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
+                subprocess.Popen(["gzclient"], stdout=out, stderr=err)
+            logger.debug("GazeboEnv: gzclient started.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing gzclient {}".format(ce))

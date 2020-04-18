@@ -1,0 +1,26 @@
+Robot:
+    Sensors:
+        Cameras:
+            Camera_0:
+                Name: 'camera_left'
+                Topic: '/TurtlebotROS/cameraL/image_raw'
+            Camera_0:
+                Name: 'camera_right'
+                Topic: '/TurtlebotROS/cameraL/image_raw'
+        Lasers:
+            Laser_0:
+                Name: 'laser_0'
+                Topic: '/TurtlebotROS/laser/scan'
+        Pose3D:
+            Pose3D_0:
+                Name: 'pose3d_0'
+                Topic: '/TurtlebotROS/odom'
+    Actuators:
+        Motors:
+            Motors_0:
+                Name: 'motors_0'
+                Topic: '/turtlebotROS/mobile_base/commands/velocity'
+                MaxV: 3
+                MaxW: 0.3
+    BrainPath: 'brains/f1/brain_f1_opencv2.py'
+    Type: 'turtlebot'

@@ -130,7 +130,7 @@ class QCustomQWidget (QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             # self.parent.generate_launch_file(self.world['world'])
-            self.parent.save_config(self.world['model'], self.world['world'])
+            self.parent.save_config(self.parent.robot_type, self.world['world'])
             self.parent.switch_window.emit()
 
 
