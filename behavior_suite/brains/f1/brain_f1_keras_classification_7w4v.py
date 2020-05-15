@@ -16,8 +16,19 @@ from behaviorlib.keraslib.keras_predict import KerasPredictor
 
 
 class Brain:
+    """Specific brain for the f1 robot. See header."""
 
     def __init__(self, sensors, actuators, handler=None):
+        """Constructor of the class.
+
+        Arguments:
+            sensors {robot.sensors.Sensors} -- Sensors instance of the robot
+            actuators {robot.actuators.Actuators} -- Actuators instance of the robot
+
+        Keyword Arguments:
+            handler {brains.brain_handler.Brains} -- Handler of the current brain. Communication with the controller
+            (default: {None})
+        """
         self.motors = actuators.get_motor('motors_0')
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
@@ -26,6 +37,12 @@ class Brain:
         self.net_w = KerasPredictor('path_to_w')
 
     def update_frame(self, frame_id, data):
+        """Update the information to be shown in one of the GUI's frames.
+
+        Arguments:
+            frame_id {str} -- Id of the frame that will represent the data
+            data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
+        """
         self.handler.update_frame(frame_id, data)
 
     def calculate_v(self, predicted_class):
@@ -37,6 +54,9 @@ class Brain:
             class 1 = moderate
             class 2 = fast
             class 3 = very fast
+
+        Arguments:
+            predicted_class {int} -- Class predicted by the model in base of an input image
         """
 
         if predicted_class == 0:
@@ -60,6 +80,9 @@ class Brain:
             class 4 = slightly right
             class 5 = moderate right
             class 6 = radically right
+
+        Arguments:
+            predicted_class {int} -- Class predicted by the model in base of an input image
         """
         if predicted_class == 0:
             self.motors.sendW(1.7)
@@ -77,14 +100,15 @@ class Brain:
             self.motors.sendW(-1.7)
 
     def execute(self):
+        """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
         if self.cont > 0:
             print("Runing...")
             self.cont += 1
 
         image = self.camera.getImage().data
-        prediction_v = self.net_v.predict(image)
-        prediction_w = self.net_w.predict(image)
+        prediction_v = self.net_v.predict(image, type='classification')
+        prediction_w = self.net_w.predict(image, type='classification')
 
         if prediction_w != '' and prediction_w != '':
             self.calculate_v(prediction_v)

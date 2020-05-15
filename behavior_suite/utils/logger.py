@@ -3,9 +3,14 @@ import logging
 import sys
 
 from colors import Colors
+from utils.constants import ROOT_PATH
 
 
-class MyFormatter(logging.Formatter):
+class ColorLogger(logging.Formatter):
+    """Class for colored python logs for the application.
+
+    Use only if terminal supports coloring.
+    """
 
     prefix = '{}[%(name)s]{} - '.format(Colors.CVIOLET2, Colors.ENDC)
     err_fmt = prefix + "{}%(levelname)s (%(module)s: %(lineno)d): {}{}%(message)s{}".format(
@@ -28,16 +33,16 @@ class MyFormatter(logging.Formatter):
 
         # Replace the original format with one customized by logging level
         if record.levelno == logging.DEBUG:
-            self._fmt = MyFormatter.dbg_fmt
+            self._fmt = ColorLogger.dbg_fmt
 
         elif record.levelno == logging.INFO:
-            self._fmt = MyFormatter.info_fmt
+            self._fmt = ColorLogger.info_fmt
 
         elif record.levelno == logging.ERROR:
-            self._fmt = MyFormatter.err_fmt
+            self._fmt = ColorLogger.err_fmt
 
         elif record.levelno == logging.WARNING:
-            self._fmt = MyFormatter.wrn_fmt
+            self._fmt = ColorLogger.wrn_fmt
 
         # Call the original formatter class to do the grunt work
         result = logging.Formatter.format(self, record)
@@ -47,7 +52,12 @@ class MyFormatter(logging.Formatter):
 
         return result
 
-class MyConsoleFormatter(logging.Formatter):
+
+class PlainLogger(logging.Formatter):
+    """Class for plain white python logs for the application.
+
+    Use if terminal does not support coloring.
+    """
 
     prefix = '[%(name)s] - '
     err_fmt = prefix + "%(levelname)s (%(module)s: %(lineno)d): %(message)s"
@@ -66,16 +76,16 @@ class MyConsoleFormatter(logging.Formatter):
 
         # Replace the original format with one customized by logging level
         if record.levelno == logging.DEBUG:
-            self._fmt = MyConsoleFormatter.dbg_fmt
+            self._fmt = PlainLogger.dbg_fmt
 
         elif record.levelno == logging.INFO:
-            self._fmt = MyConsoleFormatter.info_fmt
+            self._fmt = PlainLogger.info_fmt
 
         elif record.levelno == logging.ERROR:
-            self._fmt = MyConsoleFormatter.err_fmt
+            self._fmt = PlainLogger.err_fmt
 
         elif record.levelno == logging.WARNING:
-            self._fmt = MyConsoleFormatter.wrn_fmt
+            self._fmt = PlainLogger.wrn_fmt
 
         # Call the original formatter class to do the grunt work
         result = logging.Formatter.format(self, record)
@@ -86,13 +96,23 @@ class MyConsoleFormatter(logging.Formatter):
         return result
 
 
-logger = logging.getLogger('Behavior-Log')
-with open('/home/fran/github/BehaviorSuite/behavior_suite/logs/log.log', 'w') as f:
-    f.truncate(0)
+def file_handler(logfile):
+    with open(ROOT_PATH + '/logs/log.log', 'w') as f:
+        f.truncate(0)
+    return logging.FileHandler(logfile)
 
-fmt = MyFormatter()
-hdlr = logging.StreamHandler(sys.stdout)
-# hdlr = logging.FileHandler('/home/fran/github/BehaviorSuite/behavior_suite/logs/log.log')
+
+def std_handler():
+    return logging.StreamHandler(sys.stdout)
+
+
+logger = logging.getLogger('Behavior-Log')
+
+fmt = ColorLogger()
+# stdout as output
+hdlr = std_handler()
+# file as output
+# hdlr = file_handler(ROOT_PATH + '/logs/log.log')
 hdlr.setFormatter(fmt)
 logger.addHandler(hdlr)
 logger.setLevel(logging.INFO)

@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+""" This module contains the world selection view.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import json
 from pathlib import Path
 
@@ -9,12 +23,24 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout, QVBoxLayout, QGraphic
 from logo import Logo
 from models3d import View3D
 
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
+
 resources_path = str(Path(__file__).parent.parent) + '/resources/'
 
 
 class InfoLabel(QLabel):
+    """This class extends the default functionality of the QLabel adding a tooltip to it"""
 
     def __init__(self, description, parent=None):
+        """Constructor of the class
+
+        Arguments:
+            description {str} -- Tooltip text
+            parent {ui.gui.views.main_view.MainView} -- Parent of the widget
+
+        """
         QLabel.__init__(self, parent)
         self.description = description
 
@@ -31,9 +57,11 @@ class InfoLabel(QLabel):
         self.setToolTip(self.description)
 
     def enterEvent(self, event):
+        """Mouse event when entering the widget"""
         self.setPixmap(QPixmap(':/assets/info_icon.png').scaled(60, 60, Qt.KeepAspectRatio))
 
     def leaveEvent(self, event):
+        """Mouse event when leaving the widget"""
         self.setPixmap(QPixmap(':/assets/info_icon.png').scaled(50, 50, Qt.KeepAspectRatio))
 
 
@@ -57,6 +85,7 @@ class InfoLabel(QLabel):
 
 
 class ClickableLabel(QLabel):
+    """Class that extends the functionality of the QLabel adding mouse events"""
 
     clicked = pyqtSignal()
 
@@ -65,10 +94,20 @@ class ClickableLabel(QLabel):
     FAST_DURATION = 500
 
     def __init__(self, parent=None):
+        """Constructor of the class
+
+        Keyword Arguments:
+            parent {ui.gui.views.main_view.world_selection.WorldSelection} -- Parent of this widget (default: {None})
+        """
         QLabel.__init__(self, parent)
         self.start_animation(self.SLOW_DURATION)
 
     def start_animation(self, duration):
+        """Start a fadein-fadeout animation
+
+        Arguments:
+            duration {int} -- Duration of millisecondns of each fadein-fadeout cycle of the animation.
+        """
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
 
@@ -89,20 +128,33 @@ class ClickableLabel(QLabel):
         self.ga.start()
 
     def enterEvent(self, event):
+        """Mouse event when entering the widget"""
         self.ga.stop()
         self.start_animation(self.FAST_DURATION)
 
     def leaveEvent(self, event):
+        """Mouse event when leaving the widget"""
         self.ga.stop()
         self.start_animation(self.SLOW_DURATION)
 
     def end_animation(self):
+        """Finish the fade animation"""
         self.ga.stop()
         self.hide()
 
 
 class QCustomQWidget (QWidget):
+    """This custom widget is a helper widget to show the name of the world and an icon for the tooltip"""
+
     def __init__(self, world, parent=None):
+        """Constructor of the class
+
+        Arguments:
+            world {str} -- Name of the world
+
+        Keyword Arguments:
+            parent {ui.gui.views.world_selection.WorldSelection} -- Parent of this widget (default: {None})
+        """
         super(QCustomQWidget, self).__init__(parent)
         self.world = world
         self.parent = parent
@@ -119,15 +171,19 @@ class QCustomQWidget (QWidget):
         self.setLayout(self.allQHBoxLayout)
 
     def setTextUp(self, text):
+        """Modify the shown world name"""
         self.textUpQLabel.setText(text)
 
     def enterEvent(self, event):
+        """Mouse event when entering the widget"""
         self.textUpQLabel.setStyleSheet('color: yellow')
 
     def leaveEvent(self, event):
+        """Mouse event when leaving the widget"""
         self.textUpQLabel.setStyleSheet('color: white')
 
     def mousePressEvent(self, event):
+        """Mouse event when pressing the widget"""
         if event.button() == Qt.LeftButton:
             # self.parent.generate_launch_file(self.world['world'])
             self.parent.save_config(self.parent.robot_type, self.world['world'])
@@ -135,9 +191,19 @@ class QCustomQWidget (QWidget):
 
 
 class WorldSelection(QWidget):
+    """Main class of the world selection view. Handles all the elements of this view"""
     switch_window = pyqtSignal()
 
     def __init__(self, robot_type, configuration, parent=None):
+        """Constructor of the class
+
+        Arguments:
+            robot_type {str} -- Identifier of the robot type (f1, drone, car, ...)
+            configuration {utils.configuration.Config} -- Configuration instance of the application
+
+        Keyword Arguments:
+            parent {ui.gui.views_controller.ParentWindow} -- Parent container of this view (default: {None})
+        """
         super(WorldSelection, self).__init__(parent)
         self.parent = parent
         self.robot_type = robot_type
@@ -146,6 +212,7 @@ class WorldSelection(QWidget):
         self.initUI()
 
     def initUI(self):
+        """Initialize the GUI elements"""
         main_layout = QVBoxLayout()
         self.setStyleSheet('background-color: rgb(51,51,51)')
         self.setLayout(main_layout)
@@ -207,8 +274,8 @@ class WorldSelection(QWidget):
         # main_layout.addWidget(enable_gui, 2, Qt.AlignCenter)
         main_layout.addWidget(lbl)
 
-    def handle_gazebo_gui(self):
-        self.enable_gui = not self.enable_gazebo_gui
+    # def handle_gazebo_gui(self):
+    #     self.enable_gui = not self.enable_gazebo_gui
 
     # def generate_launch_file(self, world_name):
     #     with open(resources_path + 'template.launch') as file:
@@ -221,6 +288,12 @@ class WorldSelection(QWidget):
     #         file.write(data)
 
     def save_config(self, robot_type, world):
+        """Save the chosen configuration to the configuration instance
+
+        Arguments:
+            robot_type {str} -- Identifier of the robot type (f1, drone, car, ...)
+            world {str} -- Path to the launch file of the environment
+        """
         self.configuration.robot_type_set(robot_type)
         self.configuration.current_world = world
         self.configuration.create_sensors_actuators(robot_type)

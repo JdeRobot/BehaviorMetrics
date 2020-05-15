@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+""" This is a helper module to pretty print in linux-based terminals."""
+
+
 class Colors:
     """
     Colors defined for improve the prints in each Stage
@@ -51,6 +56,7 @@ class Colors:
 
 
 if __name__ == "__main__":
+
     import inspect
 
     c = Colors()

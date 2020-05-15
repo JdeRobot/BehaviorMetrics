@@ -1,11 +1,29 @@
+#!/usr/bin/env python
+""" This module contains the handler of the different views of the application.
+
+This module will handle the order in which the different views are shown, and pass all the information
+within them.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import datetime
 import sys
 import time
 
 from PyQt5.QtCore import QPropertyAnimation, QSize, QTimer, pyqtSignal
-from PyQt5.QtGui import QMovie
-from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
-                             QLabel, QMainWindow, QVBoxLayout, QWidget, QDesktopWidget)
+# from PyQt5.QtGui import QMovie
+from PyQt5.QtWidgets import (QApplication, QDesktopWidget, QFrame,
+                             QGraphicsOpacityEffect, QLabel, QMainWindow,
+                             QVBoxLayout, QWidget)
 
 from ui.gui.threadGUI import ThreadGUI
 from views.layout_selection import LayoutSelection
@@ -14,20 +32,29 @@ from views.robot_selection import RobotSelection
 from views.title import TitleWindow
 from views.world_selection import WorldSelection
 
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
+
 WIDTH = 1500
 HEIGHT = 1000
 
 
 class VLine(QFrame):
-    # a simple VLine, like the one you get from designer
+    """Helper class that creates a vertical separator"""
     def __init__(self):
         super(VLine, self).__init__()
         self.setFrameShape(self.VLine | self.Sunken)
 
 
 class ParentWindow(QMainWindow):
+    """Main window of the application.
+
+    This window will contain all the views managed by the ViewsController class. Works like a views container.
+    """
 
     def __init__(self):
+        """Constructor of the class"""
         super(ParentWindow, self).__init__()
         self.windowsize = QSize(WIDTH, HEIGHT)
         self.initUI()
@@ -35,6 +62,7 @@ class ParentWindow(QMainWindow):
         self.closing = False
 
     def location_on_the_screen(self):
+        """Helper function that will locate the window in a specific position in the desktop"""
         ag = QDesktopWidget().availableGeometry()
         sg = QDesktopWidget().screenGeometry()
 
@@ -44,6 +72,7 @@ class ParentWindow(QMainWindow):
         self.move(x, y)
 
     def initUI(self):
+        """Initialize all the GUI elements"""
         # self.setFixedSize(self.windowsize)
         self.setMinimumSize(self.windowsize)
         self.init_statusbar()
@@ -62,7 +91,8 @@ class ParentWindow(QMainWindow):
         self.location_on_the_screen()
 
     def init_statusbar(self):
-    
+        """Create and fill the bottom status bar of the application including hint messages and a clock"""
+
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('background-color: #444444; color: white; QStatusBar::item {border: none;}')
 
@@ -76,7 +106,6 @@ class ParentWindow(QMainWindow):
         self.status_bar.addPermanentWidget(VLine())
         self.status_bar.addPermanentWidget(self.status_date)
         self.status_bar.addPermanentWidget(VLine())
-        
 
         self.status_title.setText("Behavior Suite ")
 
@@ -86,17 +115,18 @@ class ParentWindow(QMainWindow):
     #     self.movie = QMovie("/home/fran/load.gif")
     #     self.animation_label.setMovie(self.movie)
     #     self.status_bar.addPermanentWidget(self.animation_label)
-    
+
     # def start_load_animation(self):
     #     # self.animation_label.show()
     #     self.movie.start()
     #     self.update()
-    
+
     # def stop_load_animation(self):
     #     # self.animation_label.hide()
     #     self.movie.stop()
 
     def recurring_timer(self):
+        """Handles the statusbar clock update"""
         hour = datetime.datetime.now()
         dt_string = hour.strftime("%d/%m/%Y %H:%M:%S")
         self.status_date.setText(dt_string)
@@ -105,17 +135,33 @@ class ParentWindow(QMainWindow):
         pass
 
     def closeEvent(self, event):
+        """Helper function to safe kill the application without segments violation"""
         self.closing = True
         time.sleep(0.2)
         event.accept()
 
 
 class ViewsController(QMainWindow):
+    """This class will handle all the views of the application.
+
+    Responsible for showing the differnet views in a specific order depending on the input of the user. If the
+    application is launched with a profile (configuration file), the main view of the application will be shown;
+    otherwise, the title and the configuration views will be shown prior to the main view.
+    """
 
     home_singal = pyqtSignal()
     robot_select_signal = pyqtSignal()
 
     def __init__(self, parent, configuration, controller=None):
+        """Constructor of the class.
+
+        Arguments:
+            parent {ui.gui.views_controller.ParentWindow} -- Parent of this.
+            configuration {utils.configuration.Config} -- Configuration instance of the application
+
+        Keyword Arguments:
+            controller {utils.controller.Controller} -- Controller of the application (default: {None})
+        """
         QMainWindow.__init__(self)
         self.parent = parent
         self.controller = controller
@@ -128,12 +174,14 @@ class ViewsController(QMainWindow):
         # self.robot_select_signal.connect(self.show_robot_selection)
 
     def show_title(self):
+        """Shows the title view"""
         title = TitleWindow(self.parent)
         title.switch_window.connect(self.show_robot_selection)
         self.parent.main_layout.addWidget(title)
         self.fadein_animation()
 
     def show_robot_selection(self):
+        """Shows the robot selection view"""
         delete_widgets_from(self.parent.main_layout)
         robot_selector = RobotSelection(self.parent)
         robot_selector.switch_window.connect(self.show_world_selection)
@@ -141,6 +189,7 @@ class ViewsController(QMainWindow):
         self.fadein_animation()
 
     def show_world_selection(self):
+        """Shows the world selection view"""
         delete_widgets_from(self.parent.main_layout)
         world_selector = WorldSelection(self.parent.robot_selection, self.configuration, self.parent)
         world_selector.switch_window.connect(self.show_layout_selection)
@@ -148,6 +197,7 @@ class ViewsController(QMainWindow):
         self.fadein_animation()
 
     def show_layout_selection(self):
+        """Show the layout configuration view"""
         delete_widgets_from(self.parent.main_layout)
         self.layout_selector = LayoutSelection(self.configuration, self.parent)
         self.layout_selector.switch_window.connect(self.show_main_view_proxy)
@@ -155,10 +205,19 @@ class ViewsController(QMainWindow):
         self.fadein_animation()
 
     def show_main_view_proxy(self):
+        """Helper function to show the main view. Will close the parent window to create  a new one"""
         # self.show_main_view(False)
         self.parent.close()
 
     def show_main_view(self, from_main):
+        """Shows the main window depending on where the application comes from.
+
+        If the from_main flag is true, the configuration comes from the previous GUI views. Otherwise, the configuration
+        comes from a configuration file. Eitherway, the main view will be shown with the proper configuration.
+
+        Arguments:
+            from_main {bool} -- tells if the configuration comes from either configuration file or GUI.
+        """
         if not from_main:
             layout_configuration = self.layout_selector.get_config()
             delete_widgets_from(self.parent.main_layout)
@@ -170,9 +229,11 @@ class ViewsController(QMainWindow):
         self.start_thread()
 
     def start_thread(self):
+        """Start the GUI refresing loop"""
         self.thread_gui.start()
 
     def fadein_animation(self):
+        """Start a fadein animation for views transitions"""
         self.w = QFrame(self.parent)
         # self.parent.main_layout.addWidget(self.w, 0)
         self.w.setFixedSize(WIDTH, HEIGHT)
@@ -191,11 +252,13 @@ class ViewsController(QMainWindow):
         self.animation.finished.connect(self.fade_animation)
 
     def fade_animation(self):
+        """Safe kill the animation"""
         self.w.close()
         del self.w
         del self.animation
 
     def update_gui(self):
+        """Update the GUI. Called from the refresing loop thread"""
         while not self.parent.closing:
             if self.main_view:
                 self.main_view.update_gui()
@@ -203,7 +266,8 @@ class ViewsController(QMainWindow):
 
 
 def delete_widgets_from(layout):
-    """ memory secure. """
+    """ memory secure deletion of widgets (does not work always...)
+    TODO: review this function"""
     for i in reversed(range(layout.count())):
         widgetToRemove = layout.itemAt(i).widget()
         # remove it from the layout list

@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+""" This module is responsible for handling the logic of the robot and its current brain.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import threading
 import time
 from datetime import datetime
@@ -7,12 +21,35 @@ from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
 
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
+
 TIME_CYCLE = 60
 
 
 class Pilot(threading.Thread):
+    """This class handles the robot and its brain.
+
+    This class called Pilot that handles the initialization of the robot sensors and actuators and the
+    brain that will control the robot. The main logic consists of an infinite loop called every 60 milliseconds that
+    invoke an action from the brain.
+
+    Attributes:
+        controller {utils.controller.Controller} -- Controller instance of the MVC of the application
+        configuration {utils.configuration.Config} -- Configuration instance of the application
+        sensors {robot.sensors.Sensors} -- Sensors instance of the robot
+        actuators {robot.actuators.Actuators} -- Actuators instance of the robot
+        brains {brains.brains_handler.Brains} -- Brains controller instance
+    """
 
     def __init__(self, configuration, controller):
+        """Constructor of the pilot class
+
+        Arguments:
+            configuration {utils.configuration.Config} -- Configuration instance of the application
+            controller {utils.controller.Controller} -- Controller instance of the MVC of the application
+        """
         self.controller = controller
         self.controller.set_pilot(self)
         self.configuration = configuration
@@ -26,16 +63,9 @@ class Pilot(threading.Thread):
         self.brains = None
         self.initialize_robot()
 
-        # thread_ui_comm = threading.Thread(target=self.ui_listener)
-        # thread_ui_comm.daemon = True
-        # thread_ui_comm.start()
+    def __wait_gazebo(self):
+        """Wait for gazebo to be initialized"""
 
-        # self.ros_handler = RosSrvHandler()
-        # self.ros_handler.pause_gazebo_simulation()  # start the simulation paused
-        # TODO: improve for real robots, not only simulation
-        
-
-    def wait_gazebo(self):
         gazebo_ready = False
         self.stop_event.set()
         while not gazebo_ready:
@@ -43,17 +73,21 @@ class Pilot(threading.Thread):
                 self.controller.pause_gazebo_simulation()
                 gazebo_ready = True
                 self.stop_event.clear()
-            except Exception:
-                pass
+            except Exception as ex:
+                print(ex)
 
     def initialize_robot(self):
+        """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
+
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
         self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
-        self.wait_gazebo()
-    
+        self.__wait_gazebo()
+
     def stop_interfaces(self):
+        """Function that kill the current interfaces of the robot. For reloading purposes."""
+
         if self.sensors:
             self.sensors.kill()
         if self.actuators:
@@ -61,6 +95,8 @@ class Pilot(threading.Thread):
         pass
 
     def run(self):
+        """Main loop of the class. Calls a brain action every TIME_CYCLE"""
+        "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
         while (not self.kill_event.is_set()):
@@ -87,41 +123,30 @@ class Pilot(threading.Thread):
         logger.debug('Pilot: pilot killed.')
 
     def stop(self):
+        """Pause the main loop"""
+
         self.stop_event.set()
 
     def play(self):
+        """Resume the main loop."""
+
         if self.is_alive():
             self.stop_event.clear()
         else:
             self.start()
 
     def kill(self):
+        """Destroy the main loop. For exiting"""
+
         self.actuators.kill()
         self.kill_event.set()
 
     def reload_brain(self, brain_path):
+        """Reload a brain specified by brain_path
+
+        This function is useful if one wants to change the environment of the robot (simulated world).
+
+        Arguments:
+            brain_path {str} -- Path to the brain module to load.
+        """
         self.brains.load_brain(brain_path)
-
-    # def callback(self, data):
-    #     if data.data == env.PAUSE_SIMULATION:
-    #         self.ros_handler.pause_gazebo_simulation()
-    #     elif data.data == env.RESUME_SIMULATION:
-    #         self.ros_handler.unpause_gazebo_simulation()
-    #     elif data.data == env.CHANGE_BRAIN:
-    #         self.ros_handler.pause_gazebo_simulation()
-    #         self.brains.load_brain('brains/f1/brain_f1_opencv2.py')
-    #         self.ros_handler.unpause_gazebo_simulation()
-    #     elif data.data == env.RECORD_DATASET:
-    #         self.ros_handler.record_rosbag(None, None)
-    #     elif data.data == env.STOP_RECORD_DATASET:
-    #         self.ros_handler.stop_record()
-    #     elif data.data == 'quit':
-    #         self.kill()
-
-    # def callback_topics(self, data):
-    #     pass
-
-    # def ui_listener(self):
-    #     rospy.Subscriber("/behavior/ui_comm", String, self.callback)
-    #     rospy.Subscriber("/behavior/ui_comm", String, self.callback_topics)
-    #     rospy.spin()

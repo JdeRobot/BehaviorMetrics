@@ -1,12 +1,41 @@
+#!/usr/bin/env python
+
+"""This module contains the environment handler.
+
+This module is in charge of loading and stopping gazebo and ros processes such as gazebo and ros launch files.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import subprocess
 import sys
 import time
+
 from logger import logger
 
 # TODO: quitar paths absolutos
 
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
+
 
 def launch_env(launch_file):
+    """Launch the environmet specified by the launch_file given in command line at launch time.
+
+    Arguments:
+        launch_file {str} -- path of the launch file to be executed
+    """
+
+    # close previous instances of gazebo if hanged.
     close_gazebo()
     try:
         with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
@@ -17,10 +46,12 @@ def launch_env(launch_file):
         close_gazebo()
         sys.exit(-1)
 
+    # give gazebo some time to initialize
     time.sleep(5)
-    pass
+
 
 def close_gazebo():
+    """Kill all the gazebo and ROS processes."""
     try:
         ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
     except subprocess.CalledProcessError as ce:
@@ -64,6 +95,12 @@ def close_gazebo():
 
 
 def is_gzclient_open():
+    """Determine if there is an instance of Gazebo GUI running
+
+    Returns:
+        bool -- True if there is an instance running, False otherwise
+    """
+
     try:
         ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
     except subprocess.CalledProcessError as ce:
@@ -72,7 +109,10 @@ def is_gzclient_open():
 
     return ps_output.count('gzclient') > 0
 
+
 def close_gzclient():
+    """Close the Gazebo GUI if opened."""
+
     if is_gzclient_open():
         try:
             subprocess.check_call(["killall", "-9", "gzclient"])
@@ -80,7 +120,10 @@ def close_gzclient():
         except subprocess.CalledProcessError as ce:
             logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
 
+
 def open_gzclient():
+    """Open the Gazebo GUI if not running"""
+
     if not is_gzclient_open():
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:

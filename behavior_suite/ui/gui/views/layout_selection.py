@@ -1,18 +1,46 @@
+#!/usr/bin/env python
+""" This module is responsible for the layout of frames view.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 from collections import defaultdict
 
-from PyQt5.QtCore import Qt, QPropertyAnimation, QSequentialAnimationGroup, pyqtSignal
-from PyQt5.QtGui import QPixmap, QFont
-from PyQt5.QtWidgets import (QLabel, QFrame, QGraphicsOpacityEffect, QVBoxLayout, QHBoxLayout, QGridLayout,
-                             QApplication, QWidget, QPushButton, QGroupBox)
+from PyQt5.QtCore import (QPropertyAnimation, QSequentialAnimationGroup, Qt,
+                          pyqtSignal)
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
+                             QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from logo import Logo
+
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
 
 current_selection_id = 0
 
 
 class InfoLabel(QLabel):
+    """This is a helper class that adds a tooltip to a default QLabel."""
 
     def __init__(self, description='Click me!', parent=None):
+        """ Constructor of the class
+
+        Arguments:
+            description {str} -- Text for the tooltip
+            parent {ui.gui.views.main_view.MainView} -- Parent of this widget
+        """
+
         QLabel.__init__(self, parent)
         self.description = description
         self.parent = parent
@@ -29,22 +57,32 @@ class InfoLabel(QLabel):
         self.setToolTip(self.description)
 
     def enterEvent(self, event):
+        """ Mouse event when hover the widget"""
         self.setPixmap(QPixmap(':/assets/info_icon.png').scaled(60, 60, Qt.KeepAspectRatio))
 
     def leaveEvent(self, event):
+        """Mouse event when exit the widget"""
         self.setPixmap(QPixmap(':/assets/info_icon.png').scaled(50, 50, Qt.KeepAspectRatio))
 
     def mousePressEvent(self, event):
+        """Mouse event when press the widget"""
         if event.button() & Qt.LeftButton:
             self.parent.show_information_popup()
 
 
 class AnimatedLabel(QLabel):
+    """This is a helper class that extends the functioality of the default QLabel with a fade in-out animation"""
 
     SLOW_DURATION = 1500
     FAST_DURATION = 500
 
     def __init__(self, parent=None, color='yellow'):
+        """Constructor of the class
+
+        Keyword Arguments:
+            parent {ui.gui.views.main_view.MainView} -- parent of this widget (default: {None})
+            color {str} -- Foreground color of the label (default: {'yellow'})
+        """
         QLabel.__init__(self, parent)
         self.start_animation(self.SLOW_DURATION)
         font = QFont('Arial', 30)
@@ -55,6 +93,11 @@ class AnimatedLabel(QLabel):
         self.setStyleSheet('color: ' + color)
 
     def start_animation(self, duration):
+        """Start the fading animation of the label
+
+        Arguments:
+            duration {int} -- Duration in milliseconds of a complete fade in-fade out cycle
+        """
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
 
@@ -76,7 +119,9 @@ class AnimatedLabel(QLabel):
 
 
 class ClickableQFrame(QFrame):
+    """This class extends the QFrame and with mouse events"""
 
+    # default style
     normal_qss = """
                     QFrame#customframe{
                         border: 3px solid white;
@@ -88,6 +133,7 @@ class ClickableQFrame(QFrame):
                     }
                 """
 
+    # hover style
     hover_qss = """
                     QFrame#customframe{
                         border: 3px solid yellow;
@@ -100,6 +146,13 @@ class ClickableQFrame(QFrame):
                 """
 
     def __init__(self, parent, row, col):
+        """Constructor of the class
+
+        Arguments:
+            parent {ui.gui.views.main_view.MainView} -- Parent of this widget
+            row {int} -- Position of the frame in rows
+            col {int} -- Position of the frame in columns
+        """
         QFrame.__init__(self)
         self.setObjectName('customframe')
         self.parent = parent
@@ -116,14 +169,17 @@ class ClickableQFrame(QFrame):
         self.setLayout(lay)
 
     def enterEvent(self, event):
+        """Mouse event when hover frame"""
         if not self.is_selected:
             self.setStyleSheet(self.hover_qss)
 
     def leaveEvent(self, event):
+        """Mouse event when leave frame"""
         if not self.is_selected:
             self.setStyleSheet(self.normal_qss)
 
     def mousePressEvent(self, event):
+        """Mouse event when pressed on widget"""
         global current_selection_id
         if event.buttons() & Qt.LeftButton:
             if not self.is_selected:
@@ -139,9 +195,15 @@ class ClickableQFrame(QFrame):
                 self.labelgr.setText('')
 
     def get_position(self):
+        """Getter for the frame position in row, column
+
+        Returns:
+            tuple -- Position of the frame in the main window (row, column)
+        """
         return (self.row, self.col)
 
     def clear(self):
+        """Clear the current selected frame from selected ones"""
         self.is_selected = False
         self.group_id = -1
         self.labelgr.setText('')
@@ -149,8 +211,10 @@ class ClickableQFrame(QFrame):
 
 
 class FakeToolbar(QWidget):
+    """ This is a helper class for previsualization purposes"""
 
     def __init__(self, parent=None):
+        """ Constructor of the class"""
         QWidget.__init__(self, parent)
         self.setMaximumWidth(400)
         self.initUI()
@@ -179,11 +243,20 @@ class FakeToolbar(QWidget):
 
 
 class LayoutMatrix(QWidget):
+    """Class that create the matrix view of the frames.
+
+    This class is the responsible for painting the matrix of the different frames to be selected.
+    This matrix will be used to setup the main window view with the user selection."""
 
     ROWS = 3
     COLS = 3
 
     def __init__(self, parent=None):
+        """Constructor of the class
+
+        Keyword Arguments:
+            parent {ui.gui.views.main_view.MainView} -- parent of this widget (default: {None})
+        """
         QWidget.__init__(self, parent)
         self.dragstart = None
         self.main_layout = QGridLayout()
@@ -199,21 +272,34 @@ class LayoutMatrix(QWidget):
         self.setLayout(self.main_layout)
 
     def collect_groups(self):
-        """ retrieve info of the final layout"""
+        """Retrieve info of the final layout"""
         groups = defaultdict(list)
         for frame in self.frames:
             groups[frame.group_id].append(frame)
         return groups
 
     def clear_frames(self):
+        """Clear all the selections made from the user"""
         for frame in self.frames:
             frame.clear()
 
 
 class LayoutSelection(QWidget):
+    """Main class of the layout selector view
+
+    This class is responsible to paint the layout selector of the application and the controls to modify it."""
+
     switch_window = pyqtSignal()
 
     def __init__(self, configuration, parent=None):
+        """Constructor of the class
+
+        Arguments:
+            configuration {utils.configuration.Config} -- Configuration of the application
+
+        Keyword Arguments:
+            parent {ui.gui.views_controller.ParentWindow} -- Parent of this widget (default: {None})
+        """
         super(LayoutSelection, self).__init__(parent)
         self.parent = parent
         self.configuration = configuration
@@ -221,6 +307,7 @@ class LayoutSelection(QWidget):
         self.initUI()
 
     def initUI(self):
+        """Initialize the GUI elements"""
 
         main_layout = QVBoxLayout()
         self.setStyleSheet('background-color: rgb(51,51,51); color: white')
@@ -259,10 +346,12 @@ class LayoutSelection(QWidget):
         self.show_information_popup()
 
     def confirm(self):
+        """Confirm the selection of the configuration of the layouts"""
         self.switch_window.emit()
         self.configuration.create_layout_from_gui(self.get_config())
 
     def get_config(self):
+        """Retrieve the configuration of the layout"""
         groups = self.base.collect_groups()
         gs = []
         for id in groups:
@@ -278,6 +367,7 @@ class LayoutSelection(QWidget):
         return gs
 
     def preview_win(self, ):
+        """Preview the selection as it will be in the main window"""
         self.preview = QWidget()
         self.preview.setStyleSheet('background-color: rgb(51,51,51)')
         self.preview.setFixedSize(1750, 900)
@@ -297,6 +387,7 @@ class LayoutSelection(QWidget):
         self.preview.show()
 
     def clear(self):
+        """Clear selection"""
         global current_selection_id
         current_selection_id = 0
         self.base.clear_frames()

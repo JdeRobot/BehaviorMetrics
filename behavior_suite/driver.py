@@ -1,18 +1,46 @@
+#!/usr/bin/env python
+""" Main module of the BehaviorStudio application.
+
+This module is the responsible for initializing and destroying all the elements of the application when it is launched.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import argparse
 import os
 import sys
+import threading
 
 from pilot import Pilot
+from ui.tui.main_view import TUI
 from utils import environment
+from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
-from utils.colors import Colors
 from utils.logger import logger
-from ui.tui.main_view import TUI
-import threading
+
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
 
 
 def check_args(argv):
+    """Function that handles argument checking and parsing.
+
+    Arguments:
+        argv {list} -- list of arguments from command line.
+
+    Returns:
+        dict -- dictionary with the detected configuration.
+    """
 
     config_data = {}
 
@@ -29,16 +57,16 @@ def check_args(argv):
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-g',
-                        '--gui',
-                        action='store_true',
-                        help='{}Load the GUI (Graphic User Interface). Requires PyQt5 installed{}'.format(
-                            Colors.OKBLUE, Colors.ENDC))
+                       '--gui',
+                       action='store_true',
+                       help='{}Load the GUI (Graphic User Interface). Requires PyQt5 installed{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
 
     group.add_argument('-t',
-                        '--tui',
-                        action='store_true',
-                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
-                            Colors.OKBLUE, Colors.ENDC))
+                       '--tui',
+                       action='store_true',
+                       help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
@@ -51,7 +79,7 @@ def check_args(argv):
 
     if args.gui:
         config_data['gui'] = args.gui
-    
+
     if args.tui:
         config_data['tui'] = args.tui
 
@@ -59,6 +87,15 @@ def check_args(argv):
 
 
 def conf_window(configuration, controller=None):
+    """Gui windows for configuring the app. If not configuration file specified when launched, this windows appears,
+    otherwise, main_win is called.
+
+    Arguments:
+        configuration {Config} -- configuration instance for the application
+
+    Keyword Arguments:
+        controller {Controller} -- controller part of the MVC of the application (default: {None})
+    """
     try:
 
         from PyQt5.QtWidgets import QApplication
@@ -78,6 +115,12 @@ def conf_window(configuration, controller=None):
 
 
 def main_win(configuration, controller):
+    """shows the Qt main window of the application
+
+    Arguments:
+        configuration {Config} -- configuration instance for the application
+        controller {Controller} -- controller part of the MVC model of the application
+    """
     try:
         from PyQt5.QtWidgets import QApplication
         from ui.gui.views_controller import ParentWindow, ViewsController
@@ -96,6 +139,7 @@ def main_win(configuration, controller):
 
 
 def main():
+    """Main function for the app. Handles creation and destruction of every element of the application."""
 
     # Check and generate configuration
     config_data = check_args(sys.argv)
@@ -103,7 +147,7 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
-    
+
     # If there's no config, configure the app through the GUI
     if app_configuration.empty and config_data['gui']:
         conf_window(app_configuration)
@@ -122,7 +166,7 @@ def main():
             t = TUI(controller)
             ttui = threading.Thread(target=t.run)
             ttui.start()
-            
+
     # Launch control
     pilot = Pilot(app_configuration, controller)
     pilot.daemon = True

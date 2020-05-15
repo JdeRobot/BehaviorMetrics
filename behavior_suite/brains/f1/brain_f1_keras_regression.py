@@ -13,25 +13,43 @@
 """
 from behaviorlib.keraslib.keras_predict import KerasPredictor
 import cv2
-from utils.constants import PRETRAINED_MODELS_DIR
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-PRETRAINED_MODELS_DIR = '/home/fran/github/BehaviorSuite/behavior_suite/models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + '/'
 
 
 class Brain:
+    """Specific brain for the f1 robot. See header."""
 
     def __init__(self, sensors, actuators, handler=None):
+        """Constructor of the class.
+
+        Arguments:
+            sensors {robot.sensors.Sensors} -- Sensors instance of the robot
+            actuators {robot.actuators.Actuators} -- Actuators instance of the robot
+
+        Keyword Arguments:
+            handler {brains.brain_handler.Brains} -- Handler of the current brain. Communication with the controller
+            (default: {None})
+        """
         self.motors = actuators.get_motor('motors_0')
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
-        self.net_v = KerasPredictor(PRETRAINED_MODELS_DIR + 'model_pilotnet_v.h5')
-        self.net_w = KerasPredictor(PRETRAINED_MODELS_DIR + 'model_pilotnet_w.h5')
+        self.net_v = KerasPredictor(PRETRAINED_MODELS + 'model_pilotnet_v.h5')
+        self.net_w = KerasPredictor(PRETRAINED_MODELS + 'model_pilotnet_w.h5')
 
     def update_frame(self, frame_id, data):
+        """Update the information to be shown in one of the GUI's frames.
+
+        Arguments:
+            frame_id {str} -- Id of the frame that will represent the data
+            data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
+        """
         self.handler.update_frame(frame_id, data)
 
     def execute(self):
+        """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
         if self.cont > 0:
             print("Runing...")
@@ -40,8 +58,8 @@ class Brain:
         image = self.camera.getImage().data
         img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        prediction_v = self.net_v.predict(img)
-        prediction_w = self.net_w.predict(img)
+        prediction_v = self.net_v.predict(img, type='regression')
+        prediction_w = self.net_w.predict(img, type='regression')
 
         if prediction_w != '' and prediction_w != '':
             self.motors.sendV(prediction_v)

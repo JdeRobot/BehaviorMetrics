@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+""" This module is responsible for handling the logic of the robot and its current brain.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import json
 import os
 
@@ -8,27 +22,32 @@ from PyQt5.QtGui import QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                              QFrame, QGraphicsOpacityEffect, QGridLayout,
                              QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-                             QPushButton, QScrollArea, QSizePolicy,
-                             QSpacerItem, QVBoxLayout, QWidget)
+                             QPushButton, QScrollArea, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from logo import Logo
 from social import SocialMedia
 from ui.gui.resources import resources
-from utils import environment, constants
+from utils import constants, environment
 
-# from pathlib import Path
+__author__ = 'fqez'
+__contributors__ = []
+__license__ = 'GPLv3'
 
 worlds_path = constants.ROOT_PATH + '/ui/gui/resources/worlds.json'
 brains_path = constants.ROOT_PATH + '/brains/'
 
-""" TODO:   change absolute paths
-            put button for topic selection
-            put button for showing logs? """
+""" TODO:   put button for showing logs? """
 
 
 class TopicsPopup(QWidget):
+    """This class will show a popup window to select topics to be recorded in a rosbag
+
+    Attributes:
+        active_topics {list} -- List of topcis to be recorded"""
 
     def __init__(self):
+        """Construtctor of the class"""
         QWidget.__init__(self)
         self.setFixedSize(800, 600)
         self.setWindowTitle("Select your topics")
@@ -37,6 +56,7 @@ class TopicsPopup(QWidget):
         self.initUI()
 
     def initUI(self):
+        """Initialize GUI elements"""
         self.setStyleSheet('background-color: rgb(51, 51, 51); color: white;')
 
         self.main_layout = QVBoxLayout()
@@ -55,6 +75,7 @@ class TopicsPopup(QWidget):
         scroll.setWidget(scroll_content)
 
     def fill_topics(self):
+        """Fill the active_topics with all the topics selected by the user"""
         topics = rospy.get_published_topics()
         for idx, topic in enumerate(topics):
             cont = QFrame()
@@ -70,15 +91,18 @@ class TopicsPopup(QWidget):
                 cont.setStyleSheet('background-color: rgb(71, 71, 71)')
 
     def show_updated(self):
+        """Update the window"""
         self.show()
         self.fill_topics()
         self.active_topics = []
 
     def add_topic(self, btn):
+        """Callback that adds topic to the active_topics list"""
         self.active_topics.append(btn.text())
 
 
 class HLine(QFrame):
+    """Helper class that creates an horizontal separator"""
     def __init__(self):
         super(HLine, self).__init__()
         self.setFrameShape(self.HLine | self.Sunken)
@@ -88,12 +112,19 @@ class HLine(QFrame):
 
 
 class AnimatedLabel(QLabel):
+    """Class that extends the default functionality of the QLabel adding an animation to it"""
 
     SLOW_DURATION = 1500
     MID_DURATION = 1000
     FAST_DURATION = 500
 
     def __init__(self, parent=None, color='yellow'):
+        """Constructor of the class
+
+        Keyword Arguments:
+            parent {ui.gui.views.toolbar.ToolBar} -- Parent of this widget (default: {None})
+            color {str} -- Color name for the label (default: {'yellow'})
+        """
         QLabel.__init__(self, parent)
         self.config_animation(self.MID_DURATION)
         self.setPixmap(QPixmap(':/assets/recording.png'))
@@ -103,6 +134,11 @@ class AnimatedLabel(QLabel):
         self.setScaledContents(True)
 
     def config_animation(self, duration):
+        """Start a fading animation for this label
+
+        Arguments:
+            duration {int} -- Duration in milliseconds of a complete fadein-fadeout cycle
+        """
         self.effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.effect)
 
@@ -129,8 +165,21 @@ class AnimatedLabel(QLabel):
 
 
 class ClickableLabel(QLabel):
+    """Class that extends the default functionality of QLabel adding mouse events to it
+
+    This class will handle all the buttons of the Toolbar such as star and stop buttons. It's a conversion between
+    labels an buttons"""
 
     def __init__(self, id, size, pmap, parent=None):
+        """Constructor of the class
+
+        Parameters:
+            id {str} -- Id of the label
+            size {QSize} -- Size of the icon contained in the label
+            pmap {QPixmap} -- Image of the icon that will be contained in the label
+            parent {ui.gui.views.toolbar.ToolBar} -- Parent of this widget (default: {None})
+        """
+
         QLabel.__init__(self, parent)
         self.setMaximumSize(size, size)
         self.parent = parent
@@ -147,6 +196,7 @@ class ClickableLabel(QLabel):
         self.active = False
 
     def enterEvent(self, event):
+        """Mouse event when entering the widget"""
         # self.setStyleSheet('background-color: black')
         if self.id == 'gzcli':
             self.setPixmap(QPixmap(':/assets/gazebo_dark.png'))
@@ -160,6 +210,7 @@ class ClickableLabel(QLabel):
         pass
 
     def leaveEvent(self, event):
+        """Mouse event when leaving the widget"""
         # self.setStyleSheet('background-color: rgb(0, 0, 0, 0,)')
         if self.id == 'gzcli':
             self.setPixmap(QPixmap(':/assets/gazebo_light.png'))
@@ -173,6 +224,7 @@ class ClickableLabel(QLabel):
         pass
 
     def mousePressEvent(self, event):
+        """Mouse event when pressing the widget"""
         if event.button() & Qt.LeftButton:
             if self.id == 'play':
                 if not self.active:
@@ -199,8 +251,16 @@ class ClickableLabel(QLabel):
 
 
 class Toolbar(QWidget):
+    """Main class for the toolbar widget"""
 
     def __init__(self, configuration, controller, parent=None):
+        """Constructor of the class
+
+        Parameters:
+            configuration {utils.configuration.Config} -- Configuration instance of the application
+            controller {uitls.controller.Controller} -- Controller instance of the application
+            parent {ui.gui.views.main_view.MainView} -- Parent of this widget
+        """
         super(Toolbar, self).__init__()
         # self.setStyleSheet('background-color: rgb(51,51,51); color: white;')
         self.windowsize = QSize(440, 1000)
@@ -210,6 +270,7 @@ class Toolbar(QWidget):
         self.setFixedSize(self.windowsize)
         self.initUI()
 
+        # Style of the widget
         self.setStyleSheet("""
                     QWidget {
                         background-color: rgb(51,51,51);
@@ -234,6 +295,7 @@ class Toolbar(QWidget):
                 """)
 
     def initUI(self):
+        """Initialize GUI elements"""
         self.main_layout = QVBoxLayout()
 
         self.create_stats_gb()
@@ -255,6 +317,10 @@ class Toolbar(QWidget):
         self.setLayout(self.main_layout)
 
     def create_stats_gb(self):
+        """Create stats groupbox.
+
+        The stat groupbox will show information of the application
+        TODO: complete this groupbox"""
         stats_group = QGroupBox()
         # stats_group.setMinimumHeight(400)
         stats_group.setTitle('Stats')
@@ -264,6 +330,7 @@ class Toolbar(QWidget):
         self.main_layout.addWidget(stats_group)
 
     def create_dataset_gb(self):
+        """Creates the dataset controls groupbox."""
         dataset_group = QGroupBox()
         dataset_group.setTitle('Dataset')
         dataset_layout = QGridLayout()
@@ -272,7 +339,7 @@ class Toolbar(QWidget):
         self.file_selector_save.setPlaceholderText('Select dataset save path')
         self.file_selector_save.setObjectName("dataset_save")
         self.file_selector_save.setReadOnly(True)
-       
+
         if self.configuration.dataset_in:
             if not os.path.isfile(self.configuration.dataset_in):
                 open(self.configuration.dataset_in, 'w').close()
@@ -288,7 +355,7 @@ class Toolbar(QWidget):
         self.dataset_hint_label.hide()
 
         # verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        # horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         icons_layout = QHBoxLayout()
 
@@ -319,6 +386,7 @@ class Toolbar(QWidget):
         self.main_layout.addWidget(dataset_group)
 
     def create_brain_gb(self):
+        """Creates the brain controls"""
         brain_group = QGroupBox()
         brain_group.setTitle('Brain')
         brain_layout = QGridLayout()
@@ -358,7 +426,7 @@ class Toolbar(QWidget):
         self.main_layout.addWidget(brain_group)
 
     def create_simulation_gb(self):
-
+        """Create the simulation controls"""
         with open(worlds_path) as f:
             data = f.read()
         worlds_dict = json.loads(data)[self.configuration.robot_type]
@@ -414,6 +482,7 @@ class Toolbar(QWidget):
         self.main_layout.addWidget(sim_group)
 
     def start_recording(self):
+        """Callback that handles the recording initialization"""
         filename = self.file_selector_save.text()
         if os.path.isfile(filename) and filename.endswith(".bag"):
             topics = self.topics_popup.active_topics
@@ -435,6 +504,7 @@ class Toolbar(QWidget):
             self.start_pause_record_label.setPixmap(QPixmap(':/assets/play.png'))
 
     def stop_recording(self):
+        """Callback that handles recording stopping"""
         self.recording_animation_label.stop_animation()
         self.recording_animation_label.hide()
         self.recording_label.hide()
@@ -452,10 +522,11 @@ class Toolbar(QWidget):
 
         # for count in range(self.world_combobox.count()):
         #     print self.world_combobox.itemText(count)
-        print("Current index", i, "selection changed ", self.world_combobox.currentText())
+        # print("Current index", i, "selection changed ", self.world_combobox.currentText())
         pass
 
     def saveFileDialog(self):
+        """Callback that will create the bag file where the dataset will be recorded"""
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "Bag Files (*.bag)",
@@ -467,9 +538,11 @@ class Toolbar(QWidget):
             self.file_selector_save.setText(filename)
 
     def reset_simulation(self):
+        """Callback that handles simulation resetting"""
         self.controller.reset_gazebo_simulation()
 
     def pause_simulation(self):
+        """Callback that handles simulation pausing"""
         self.world_combobox.setEnabled(True)
         self.confirm_world.setEnabled(True)
         self.world_combobox.setStyleSheet('color: white')
@@ -482,6 +555,7 @@ class Toolbar(QWidget):
         self.controller.pause_gazebo_simulation()
 
     def resume_simulation(self):
+        """Callback that handles simulation resuming"""
         self.world_combobox.setEnabled(False)
         self.confirm_world.setEnabled(False)
         self.world_combobox.setStyleSheet('color: grey')
@@ -495,6 +569,7 @@ class Toolbar(QWidget):
         self.controller.unpause_gazebo_simulation()
 
     def load_brain(self):
+        """Callback that handles brain reloading"""
         brain = self.brain_combobox.currentText() + '.py'
         txt = '<b><FONT COLOR = lightgreen>' + " ".join(self.brain_combobox.currentText().split("_")) + '</b>'
         self.current_brain_label.setText('Current brain: ' + txt)
@@ -505,19 +580,20 @@ class Toolbar(QWidget):
         self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
 
     def load_world(self):
+        """Callback that handles world change"""
         world = self.world_combobox.currentText()
-        txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText().split('/')[-1]  + '</b>'
+        txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText().split('/')[-1] + '</b>'
         self.current_sim_label.setText('Current world: ' + txt)
         # Load new world
         environment.launch_env(world)
         self.controller.initialize_robot()
-
 
         # save to configuration
         self.configuration.current_world = world
 
     @staticmethod
     def open_close_simulator_gui():
+        """Method tho enable/disable gazebo client GUI"""
         if not environment.is_gzclient_open():
             environment.open_gzclient()
         else:
