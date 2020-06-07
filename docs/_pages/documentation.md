@@ -1,9 +1,13 @@
 ---
 permalink: /documentation/
-title: "References used in this project"
+title: "Documentation"
 
 sidebar:
   nav: "docs"
+
+toc: true
+toc_label: "Documentation"
+toc_icon: "cog"
 ---
 
 
@@ -11,7 +15,7 @@ sidebar:
 
 The infrastructure of this application is composed of different pieces of software, as shown in the image below. It is based on the Model-View-Controller (MVC) architecture where we have the **model** (the main logic of the application), the **view** (the user interface) and the **controller** that acts as a form of intercommunication of the previous ones.
 
-<img src="https://github.com/JdeRobot/BehaviorStudio/raw/master/docs/assets/images/behavior_suite_diagram.png" alt="config" style="zoom:50%;" />
+![behavior_suite_diagram]({{ site.url }}{{ site.baseurl }}/assets/images/behavior_suite_diagram.png)
 
 The core of the application are the driver and the pilot modules, which are responsible for the management of the application and the management of the robot and behaviors respectively.
 
@@ -49,4 +53,39 @@ This part of the application is in a single module called *controller.py* and is
 
 
 ## Programing a custom brain
+
+[WIP]
+
+
+## Current Status
+
+We are currently redesigning the project. The following **functional requirements** have been specified:
+
+| Number | Description                                                  | Status |
+| ------ | ------------------------------------------------------------ | ------ |
+| RF01   | Changing run-time intelligence                               | WIP    |
+| RF02   | Save tagged dataset (IMG + ROSbags, cmd-vel)                 | WIP    |
+| RF03   | 'Manual' Autopilot. User solution (OpenCV)                   | DONE   |
+| RF04   | Teleoperation                                                | WIP    |
+| RF05   | Benchmarking (neuronal network vs groundthruth, checkpoints, center desviation, ...) | -      |
+| RF06   | Support for different environments (TensorFlow, Keras, Pytorch, OpenCV, ...) | WIP    |
+| RF07   | User profiles (configuration file)                           | -      |
+
+The following table contains **non-functional requirements**:
+
+| Number | Description | Status |
+| ------ | ----------- | ------ |
+| RN01   | Real time   | -      |
+| RN02   | Memory      | -      |
+| RN03   | GPU-Ready   | -      |
+
+## References
+
+* Zhicheng Li, Zhihao Gu, Xuan Di, Rongye Shi. An LSTM-Based Autonomous Driving Model Using Waymo Open Dataset.
+*arXiv e-prints, art.arXiv:2002.05878*, Feb 2020. https://arxiv.org/abs/2002.05878
+
+* Pei Sun et at. Scalability in Perception for Autonomous Driving: Waymo Open Dataset. 
+*arXiv e-prints, art.arXiv:1912.04838*, Dec 2019. https://arxiv.org/abs/1912.04838 
+(Waymo Open Dataset)[https://waymo.com/open/]
+
 
