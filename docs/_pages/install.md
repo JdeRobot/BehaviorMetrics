@@ -7,14 +7,14 @@ sidebar:
   nav: "docs"
 ---
 
-# Requisites
+This application depends on dome third party libraries, most of them are included in the requirements file. To install them just type the following:
 
-Libraries and necessary packages
+```bash
+pip install -r requirements.txt
+```
 
-# Install
+However since this project is built under python 2.7 the Qt5 dependencies cannot be installed via pip (it's included in the pip3 repositories). So it's needed to install the Qt5 dependencies through apt as follows:
 
-Steps to install your software.
-
-# Usage
-
-Orders to launch the program
+```bash
+INSTALL QT5 and PYQT5
+```
