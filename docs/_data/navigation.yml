@@ -1,8 +1,8 @@
 # main links
 main:
 
-  - title: Test your Network
-    url: /test_your_network/
+  - title: Quick Start
+    url: /quick_start/
 
   - title: Installation
     url: /install/
