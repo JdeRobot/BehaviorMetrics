@@ -52,7 +52,12 @@ The algorithms that command the robots are called **brains**, and there is where
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" />
 
+This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
 
+* Using classification networks.
+* Using regression networks.
+* Using reinforcement learning.
+* Solution for real robots.
 
 
 You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorSuite).
