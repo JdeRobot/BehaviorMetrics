@@ -1,5 +1,5 @@
 ---
-title: Logbook
+title: Quick Start
 layout: posts
 permalink: /quick_start/
 
@@ -10,8 +10,6 @@ classes: wide
 sidebar:
   nav: "docs"
 ---
-
-## Quick Start
 
 First of all you need to install all the dependencies from the previous section.
 
