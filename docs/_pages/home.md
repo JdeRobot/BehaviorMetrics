@@ -2,19 +2,19 @@
 layout: splash
 permalink: /
 header:
-  overlay_color: "#5e616c"
-  overlay_image: /assets/images/cover/peloto_texto.png
+  overlay_color: "#2F5565"
+  overlay_image: https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg
   actions:
     #- label: "<i class='fas fa-download'></i> Install now"
     #  url: "/installation/"
 excerpt: 
-  Write your doc title here
+  Autonomous driving network comparison tool
 feature_row:
-  - image_path: /assets/images/cover/logbook.jpg
-    alt: "Logbook"
-    title: "Logbook"
-    excerpt: "Goals, progress, problems and solutions achieved during development"
-    url: "/logbook/"
+  - image_path: /assets/images/cover/test_your_network.jpeg
+    alt: "Test your Network"
+    title: "Test your Network"
+    excerpt: "Load, run, get results and compare your network in different environments."
+    url: "/quick_start/"
     btn_class: "btn--primary"
     btn_label: "Learn more"
 
@@ -26,11 +26,11 @@ feature_row:
     btn_class: "btn--primary"
     btn_label: "Learn more"
 
-  - image_path: /assets/images/cover/about.jpg
-    alt: "About"
-    title: "About"
+  - image_path: /assets/images/cover/logbook.jpg
+    alt: "Documentation"
+    title: "Documentation"
     excerpt: "More information about the project. References used, guides, articles, etc."
-    url: "/about/"
+    url: "/documentation/"
     btn_class: "btn--primary"
     btn_label: "Learn more"   
 youTube_id: ID7qaEcIu4k
@@ -38,14 +38,26 @@ youTube_id: ID7qaEcIu4k
 
 {% include feature_row %}
 
-Hello, everybody.
+Behavior Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
 
-You can write an introduction about the work you are going to do, links, something about yourself, etc.
+This project aims to have a platform for evaluating and testing complex behaviors for different robots using machine learning and deep learning algorithms. This application provides different functionalities such as:
 
-In the `README.md` file at the root of the project are the steps to replicate the Minimal mistakes template on your local machine. This way you don't need to upload it to GitHub to be represented until it's ready.
+* Loading a simulated environment for different scenarios where you can evaluate complex robots behaviors.
+* Generating datasets to train your models to be tested later.
+* Evaluate the performance of your models comparing them against a other models.
+* Change the scenarios/models (called brains) on the go.
+* Live view of sensor readings.
 
-Uploading content to GitHub automatically displays your documentation in the link with a structure of the type:
+The algorithms that command the robots are called **brains**, and there is where the neural logic (behaviors) is at.
 
-```
-https://github_user_name.github.io/repository_name/
-```
+<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" />
+
+This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
+
+* Using classification networks.
+* Using regression networks.
+* Using reinforcement learning.
+* Solution for real robots.
+
+
+You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorSuite).

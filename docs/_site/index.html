@@ -9,23 +9,23 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>References used in this project - Robotics Lab Club</title>
-<meta name="description" content="Write your doc title here">
+<!-- begin _includes/seo.html --><title>Documentation - Behavior Suite</title>
+<meta name="description" content="Autonomous driving network comparison tool">
 
 
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
-<meta property="og:site_name" content="Robotics Lab Club">
-<meta property="og:title" content="Robotics Lab Club">
+<meta property="og:site_name" content="Behavior Suite">
+<meta property="og:title" content="Behavior Suite">
 <meta property="og:url" content="http://localhost:4000/">
 
 
-  <meta property="og:description" content="Write your doc title here">
+  <meta property="og:description" content="Autonomous driving network comparison tool">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/cover/peloto_texto.png">
+  <meta property="og:image" content="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg">
 
 
 
@@ -67,7 +67,7 @@
 <!-- end _includes/seo.html -->
 
 
-<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Robotics Lab Club Feed">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Behavior Suite Feed">
 
 <!-- https://t.co/dKP3o1e -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -128,15 +128,15 @@
           <a class="site-logo" href="/"><img src="/assets/images/peloto.png" alt=""></a>
         
         <a class="site-title" href="/">
-          Robotics Lab Club
-          <span class="site-subtitle">Programming Robot Intelligence</span>
+          Behavior Suite
+          <span class="site-subtitle">Autonomous driving network comparison tool</span>
         </a>
         <ul class="visible-links"><li class="masthead__menu-item">
-              <a href="/logbook/" >LogBook</a>
+              <a href="/quick_start/" >Quick Start</a>
             </li><li class="masthead__menu-item">
               <a href="/install/" >Installation</a>
             </li><li class="masthead__menu-item">
-              <a href="/about/" >About</a>
+              <a href="/documentation/" >Documentation</a>
             </li></ul>
         
         <button class="greedy-nav__toggle hidden" type="button">
@@ -165,18 +165,18 @@
 
 
 <div class="page__hero--overlay"
-  style="background-color: #5e616c; background-image: url('/assets/images/cover/peloto_texto.png');"
+  style="background-color: #2F5565; background-image: url('https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg');"
 >
   
     <div class="wrapper">
       <h1 id="page-title" class="page__title" itemprop="headline">
         
-          Robotics Lab Club
+          Behavior Suite
 
         
       </h1>
       
-        <p class="page__lead">Write your doc title here
+        <p class="page__lead">Autonomous driving network comparison tool
 </p>
       
       
@@ -192,7 +192,7 @@
 <div id="main" role="main">
   <article class="splash" itemscope itemtype="https://schema.org/CreativeWork">
     
-    <meta itemprop="description" content="Write your doc title here">
+    <meta itemprop="description" content="Autonomous driving network comparison tool">
     
     
 
@@ -208,25 +208,25 @@
       <div class="archive__item">
         
           <div class="archive__item-teaser">
-            <img src="/assets/images/cover/logbook.jpg" alt="Logbook" />
+            <img src="/assets/images/cover/test_your_network.jpeg" alt="Test your Network" />
             
           </div>
         
 
         <div class="archive__item-body">
           
-            <h2 class="archive__item-title">Logbook</h2>
+            <h2 class="archive__item-title">Test your Network</h2>
           
 
           
             <div class="archive__item-excerpt">
-              <p>Goals, progress, problems and solutions achieved during development</p>
+              <p>Load, run, get results and compare your network in different environments.</p>
 
             </div>
           
 
           
-            <p><a href="/logbook/" class="btn btn--primary">Learn more</a></p>
+            <p><a href="/quick_start/" class="btn btn--primary">Learn more</a></p>
           
         </div>
       </div>
@@ -270,14 +270,14 @@
       <div class="archive__item">
         
           <div class="archive__item-teaser">
-            <img src="/assets/images/cover/about.jpg" alt="About" />
+            <img src="/assets/images/cover/logbook.jpg" alt="Documentation" />
             
           </div>
         
 
         <div class="archive__item-body">
           
-            <h2 class="archive__item-title">About</h2>
+            <h2 class="archive__item-title">Documentation</h2>
           
 
           
@@ -288,7 +288,7 @@
           
 
           
-            <p><a href="/about/" class="btn btn--primary">Learn more</a></p>
+            <p><a href="/documentation/" class="btn btn--primary">Learn more</a></p>
           
         </div>
       </div>
@@ -297,16 +297,32 @@
 
 </div>
 
-<p>Hello, everybody.</p>
+<p>Behavior Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.</p>
 
-<p>You can write an introduction about the work you are going to do, links, something about yourself, etc.</p>
+<p>This project aims to have a platform for evaluating and testing complex behaviors for different robots using machine learning and deep learning algorithms. This application provides different functionalities such as:</p>
 
-<p>In the <code class="highlighter-rouge">README.md</code> file at the root of the project are the steps to replicate the Minimal mistakes template on your local machine. This way you don’t need to upload it to GitHub to be represented until it’s ready.</p>
+<ul>
+  <li>Loading a simulated environment for different scenarios where you can evaluate complex robots behaviors.</li>
+  <li>Generating datasets to train your models to be tested later.</li>
+  <li>Evaluate the performance of your models comparing them against a other models.</li>
+  <li>Change the scenarios/models (called brains) on the go.</li>
+  <li>Live view of sensor readings.</li>
+</ul>
 
-<p>Uploading content to GitHub automatically displays your documentation in the link with a structure of the type:</p>
+<p>The algorithms that command the robots are called <strong>brains</strong>, and there is where the neural logic (behaviors) is at.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github_user_name.github.io/repository_name/
-</code></pre></div></div>
+<p><img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" /></p>
+
+<p>This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:</p>
+
+<ul>
+  <li>Using classification networks.</li>
+  <li>Using regression networks.</li>
+  <li>Using reinforcement learning.</li>
+  <li>Solution for real robots.</li>
+</ul>
+
+<p>You can see the project status in the <a href="https://github.com/JdeRobot/BehaviorSuite">GitHub repository here</a>.</p>
 
     </section>
   </article>
@@ -328,11 +344,11 @@
     
       
         
-          <li><a href="https://twitter.com/roboticslaburjc" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/jderobot" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
         
-          <li><a href="https://github.com/RoboticsLabURJC" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/JdeRobot/BehaviorSuite" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
         
       
         
@@ -345,7 +361,7 @@
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2019 JdeRobot. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a>, <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a> &amp; modified by <a href="https://github.com/igarag">NachoAz</a>.</div>
+<div class="page__footer-copyright">&copy; 2020 JdeRobot. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a>, <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a> &amp; modified by <a href="https://github.com/igarag">NachoAz</a>.</div>
 
       </footer>
     </div>
