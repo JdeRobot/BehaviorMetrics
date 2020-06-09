@@ -22,7 +22,7 @@ subtitle                 : "Autonomous driving network comparison tool"
 name                     : "JdeRobot"
 description              : "Programming Robot Intelligence"
 url                      : https://github.com/JdeRobot/BehaviorStudio
-baseurl                  : # the subpath of your site, e.g. "/blog"
+baseurl                  : "/docs" # the subpath of your site, e.g. "/blog"
 repository               : JdeRobot/BehaviorStudio
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : /assets/images/peloto.png
