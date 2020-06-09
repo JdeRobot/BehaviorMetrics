@@ -9,6 +9,75 @@ classes: wide
 
 sidebar:
   nav: "docs"
+
+gallery1:
+  - url: /assets/images/behavior_suite_diagram.png
+    image_path: /assets/images/behavior_suite_diagram.png
+    alt: ""
+gallery2:
+  - url: /assets/images/matrix_schema.png
+    image_path: /assets/images/matrix_schema.png
+    alt: ""
+gallery3:
+  - url: /assets/images/config1.png
+    image_path: /assets/images/config1.png
+    alt: ""
+gallery4:
+  - url: /assets/images/default_config.png
+    image_path: /assets/images/default_config.png
+    alt: ""
+gallery5:
+  - url: /assets/images/main_window.png
+    image_path: /assets/images/main_window.png
+    alt: ""
+gallery6:
+  - url: /assets/images/toolbar.png
+    image_path: /assets/images/toolbar.png
+    alt: ""
+gallery7:
+  - url: /assets/images/dataset.png
+    image_path: /assets/images/dataset.png
+    alt: ""
+gallery8:
+  - url: /assets/images/brain.png
+    image_path: /assets/images/brain.png
+    alt: ""
+gallery9:
+  - url: /assets/images/change_brain.gif
+    image_path: /assets/images/change_brain.gif
+    alt: ""
+gallery10:
+  - url: /assets/images/simulation.png
+    image_path: /assets/images/simulation.png
+    alt: ""
+gallery11:
+  - url: /assets/images/gzclient.gif
+    image_path: /assets/images/gzclient.gif
+    alt: ""
+gallery12:
+  - url: /assets/images/brain_sim.gif
+    image_path: /assets/images/brain_sim.gif
+    alt: ""
+gallery13:
+  - url: /assets/images/reload_sim.gif
+    image_path: /assets/images/reload_sim.gif
+    alt: ""
+gallery14:
+  - url: /assets/images/layout.png
+    image_path: /assets/images/layout.png
+    alt: ""
+gallery15:
+  - url: /assets/images/frame.png
+    image_path: /assets/images/frame.png
+    alt: ""
+gallery16:
+  - url: /assets/images/rename.gif
+    image_path: /assets/images/rename.gif
+    alt: ""
+gallery17:
+  - url: /assets/images/frame_config.gif
+    image_path: /assets/images/frame_config.gif
+    alt: ""
 ---
 
 First of all you need to install all the dependencies from the previous section.
@@ -131,7 +200,7 @@ This key defines how the GUI will be shown. This is the trickiest part of the co
 
 The geometry is defined as follows.
 
-![](/assets/images/matrix_schema.png)
+{% include gallery id="gallery2" caption="" %}
 
 So if you want to create a view for one of the camera sensors of the robot located in the top-left corner of size 1x1 followed by another view of another camera in the bottom-right corner of size 2x2, you should configure the geometry array as:
 
@@ -147,22 +216,17 @@ Frame_1:
 
 So it will look like this in the GUI:
 
-![](/assets/images/config1.png)
-
-
+{% include gallery id="gallery3" caption="" %}
 
 Following this logic, you will see that the **default configuration** file will show something like this:
 
-![](/assets/images/default_config.png)
-
-
-
+{% include gallery id="gallery4" caption="" %}
 
 ### Using the application
 
 Once the configuration file is created and the application has launched, you will see something like this (depending on your layout configuration. We assume you launched the default profile):
 
-<img src="/assets/images/main_window.png" alt="config" style="zoom:70%;" />
+{% include gallery id="gallery5" caption="" %}
 
 You will see 2 different sections, one on the left: **the toolbar**, and another one in the right: **the layout**. 
 
@@ -170,7 +234,7 @@ You will see 2 different sections, one on the left: **the toolbar**, and another
 
 You have all the tools needed for controlling the whole application, simulation and control of the application. For usability sake, this section is subdivided in 4 different subsections: **stats, dataset, brains** and **simulation**.
 
-<img src="/assets/images/toolbar.png" alt="config" style="zoom:70%;" />
+{% include gallery id="gallery6" caption="" %}
 
 **Stats**
 
@@ -178,7 +242,7 @@ You have all the tools needed for controlling the whole application, simulation 
 
 **Dataset**
 
-<img src="/assets/images/dataset.png" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery7" caption="" %}
 
 This subsection will allow you to specify where the datasets will be saved by setting up the path and the name of the bag file.
 
@@ -192,7 +256,7 @@ Use the play button to start/stop recording the rosbag.
 
 **Brain**
 
-<img src="/assets/images/brain.png" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery8" caption="" %}
 
 This subsection will allow you to control the logic of the robot: its behavior. 
 
@@ -200,13 +264,13 @@ You have a drop-down menu that will detect the available brains for the current 
 
 The **Load** button will load a new brain in execution time **if the simulation is paused**
 
-<img src="/assets/images/change_brain.gif" alt="config" style="zoom:100%;"/>
+{% include gallery id="gallery9" caption="" %}
 
 All of this tools will be disabled while the simulation is running, so in order to interact with it, you should pause the simulation first.
 
 **Simulation**
 
-<img src="/assets/images/simulation.png" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery10" caption="" %}
 
 This subsection will allow you to control the simulation.
 
@@ -218,15 +282,15 @@ You have 3 additional buttons which:
 
 * Will load Gazebo GUI if it wasn't launched, or close it otherwise
 
-<img src="/assets/images/gzclient.gif" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery11" caption="" %}
 
 * Play/pause button for **pausing/resuming the simulation**
 
-<img src="/assets/images/brain_sim.gif" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery12" caption="" %}
 
 * Reload button will reload the simulation by resetting the robot position and both real and simulation time.
 
-<img src="/assets/images/reload_sim.gif" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery13" caption="" %}
 
 respectively.
 
@@ -234,18 +298,16 @@ respectively.
 
 This section is meant to show the data coming from the sensors of the robot (cameras, laser, odometry, etc.). For that purpose, the GUI is divided in sections conforming a **layout**. This disposition will come specified in the configuration file (see *Building your configuration file*) section.
 
-<img src="/assets/images/layout.png" alt="config" style="zoom:70%;" />
+{% include gallery id="gallery14" caption="" %}
 
 As you can see, there are several boxes or **frames** that will host data from different sensors. The view above shows the GUI before specifying what kind of sensor and data the frame will show. You only have to give the frame a **name** (if you leave it blank it will take the default name *frame_X* where X is the frame number), and pick which kind of data that frame will contain by clicking on one of the radio buttons.
 
-<img src="/assets/images/frame.png" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery15" caption="" %}
 
 As you type down the name of the frame, you will see how the name in the top-left corner of the frame changes dynamically.
 
-<img src="/assets/images/rename.gif" alt="config" style="zoom:100%;" />
+{% include gallery id="gallery16" caption="" %}
 
 Once you have chosen the frame name (this is important for later), you have to chose the data type the frame will show, from one of the checkboxes below the name textbox. After that, you will only have to click the **Confirm** button and the sensor will show its data.
 
-<img src="/assets/images/frame_config.gif" alt="config" style="zoom:100%;" />
-
-
+{% include gallery id="gallery17" caption="" %}
