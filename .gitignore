@@ -176,3 +176,9 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python,images
+#
+# JEKYLL
+.DS_Store
+_site/
+Gemfile.lock
+.jekyll-cache/
