@@ -131,7 +131,7 @@ This key defines how the GUI will be shown. This is the trickiest part of the co
 
 The geometry is defined as follows.
 
-![](./img/matrix_schema.png)
+![](/assets/images/matrix_schema.png)
 
 So if you want to create a view for one of the camera sensors of the robot located in the top-left corner of size 1x1 followed by another view of another camera in the bottom-right corner of size 2x2, you should configure the geometry array as:
 
@@ -147,13 +147,13 @@ Frame_1:
 
 So it will look like this in the GUI:
 
-![](./img/config1.png)
+![](/assets/images/config1.png)
 
 
 
 Following this logic, you will see that the **default configuration** file will show something like this:
 
-![](./img/default_config.png)
+![](/assets/images/default_config.png)
 
 
 
@@ -162,7 +162,7 @@ Following this logic, you will see that the **default configuration** file will 
 
 Once the configuration file is created and the application has launched, you will see something like this (depending on your layout configuration. We assume you launched the default profile):
 
-<img src="img/main_window.png" alt="config" style="zoom:70%;" />
+<img src="/assets/images/main_window.png" alt="config" style="zoom:70%;" />
 
 You will see 2 different sections, one on the left: **the toolbar**, and another one in the right: **the layout**. 
 
@@ -170,7 +170,7 @@ You will see 2 different sections, one on the left: **the toolbar**, and another
 
 You have all the tools needed for controlling the whole application, simulation and control of the application. For usability sake, this section is subdivided in 4 different subsections: **stats, dataset, brains** and **simulation**.
 
-<img src="img/toolbar.png" alt="config" style="zoom:70%;" />
+<img src="/assets/images/toolbar.png" alt="config" style="zoom:70%;" />
 
 **Stats**
 
@@ -178,7 +178,7 @@ You have all the tools needed for controlling the whole application, simulation 
 
 **Dataset**
 
-<img src="img/dataset.png" alt="config" style="zoom:100%;" />
+<img src="/assets/images/dataset.png" alt="config" style="zoom:100%;" />
 
 This subsection will allow you to specify where the datasets will be saved by setting up the path and the name of the bag file.
 
@@ -192,7 +192,7 @@ Use the play button to start/stop recording the rosbag.
 
 **Brain**
 
-<img src="img/brain.png" alt="config" style="zoom:100%;" />
+<img src="/assets/images/brain.png" alt="config" style="zoom:100%;" />
 
 This subsection will allow you to control the logic of the robot: its behavior. 
 
@@ -200,13 +200,13 @@ You have a drop-down menu that will detect the available brains for the current 
 
 The **Load** button will load a new brain in execution time **if the simulation is paused**
 
-<img src="img/change_brain.gif" alt="config" style="zoom:100%;"/>
+<img src="/assets/images/change_brain.gif" alt="config" style="zoom:100%;"/>
 
 All of this tools will be disabled while the simulation is running, so in order to interact with it, you should pause the simulation first.
 
 **Simulation**
 
-<img src="img/simulation.png" alt="config" style="zoom:100%;" />
+<img src="/assets/images/simulation.png" alt="config" style="zoom:100%;" />
 
 This subsection will allow you to control the simulation.
 
@@ -218,15 +218,15 @@ You have 3 additional buttons which:
 
 * Will load Gazebo GUI if it wasn't launched, or close it otherwise
 
-<img src="img/gzclient.gif" alt="config" style="zoom:100%;" />
+<img src="/assets/images/gzclient.gif" alt="config" style="zoom:100%;" />
 
 * Play/pause button for **pausing/resuming the simulation**
 
-<img src="img/brain_sim.gif" alt="config" style="zoom:100%;" />
+<img src="/assets/images/brain_sim.gif" alt="config" style="zoom:100%;" />
 
 * Reload button will reload the simulation by resetting the robot position and both real and simulation time.
 
-<img src="img/reload_sim.gif" alt="config" style="zoom:100%;" />
+<img src="/assets/images/reload_sim.gif" alt="config" style="zoom:100%;" />
 
 respectively.
 
@@ -234,18 +234,18 @@ respectively.
 
 This section is meant to show the data coming from the sensors of the robot (cameras, laser, odometry, etc.). For that purpose, the GUI is divided in sections conforming a **layout**. This disposition will come specified in the configuration file (see *Building your configuration file*) section.
 
-<img src="img/layout.png" alt="config" style="zoom:70%;" />
+<img src="/assets/images/layout.png" alt="config" style="zoom:70%;" />
 
 As you can see, there are several boxes or **frames** that will host data from different sensors. The view above shows the GUI before specifying what kind of sensor and data the frame will show. You only have to give the frame a **name** (if you leave it blank it will take the default name *frame_X* where X is the frame number), and pick which kind of data that frame will contain by clicking on one of the radio buttons.
 
-<img src="img/frame.png" alt="config" style="zoom:100%;" />
+<img src="/assets/images/frame.png" alt="config" style="zoom:100%;" />
 
 As you type down the name of the frame, you will see how the name in the top-left corner of the frame changes dynamically.
 
-<img src="img/rename.gif" alt="config" style="zoom:100%;" />
+<img src="/assets/images/rename.gif" alt="config" style="zoom:100%;" />
 
 Once you have chosen the frame name (this is important for later), you have to chose the data type the frame will show, from one of the checkboxes below the name textbox. After that, you will only have to click the **Confirm** button and the sensor will show its data.
 
-<img src="img/frame_config.gif" alt="config" style="zoom:100%;" />
+<img src="/assets/images/frame_config.gif" alt="config" style="zoom:100%;" />
 
 
