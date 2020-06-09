@@ -21,9 +21,9 @@ title_separator          : "-"
 subtitle                 : "Autonomous driving network comparison tool"
 name                     : "JdeRobot"
 description              : "Programming Robot Intelligence"
-url                      : https://github.com/JdeRobot/BehaviorSuite
+url                      : https://github.com/JdeRobot/BehaviorStudio
 baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : JdeRobot/BehaviorSuite
+repository               : JdeRobot/BehaviorStudio
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : /assets/images/peloto.png
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
@@ -166,7 +166,7 @@ footer:
       url: "https://twitter.com/jderobot"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/JdeRobot/BehaviorSuite"
+      url: "https://github.com/JdeRobot/BehaviorStudio"
     #- label: "GitLab"
     #  icon: "fab fa-fw fa-gitlab"
     #  url:
