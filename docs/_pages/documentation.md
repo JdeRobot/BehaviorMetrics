@@ -20,7 +20,7 @@ gallery1:
 
 The infrastructure of this application is composed of different pieces of software, as shown in the image below. It is based on the Model-View-Controller (MVC) architecture where we have the **model** (the main logic of the application), the **view** (the user interface) and the **controller** that acts as a form of intercommunication of the previous ones.
 
-{% include gallery id="gallery" caption="Behavior Studio Diagram" %}
+{% include gallery id="gallery1" caption="Behavior Studio Diagram" %}
 
 The core of the application are the driver and the pilot modules, which are responsible for the management of the application and the management of the robot and behaviors respectively.
 
