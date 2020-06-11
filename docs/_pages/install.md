@@ -16,7 +16,10 @@ pip install -r requirements.txt
 However since this project is built under python 2.7 the Qt5 dependencies cannot be installed via pip (it's included in the pip3 repositories). So it's needed to install the Qt5 dependencies through apt as follows:
 
 ```bash
-INSTALL QT5 and PYQT5
+sudo apt install python-pyqt5 python-pyqt5.qtsvg python-pyqt5.qsci pyqt5-dev-tools
 ```
+
+Aside from PyQt5, you will need to install also: **jderobot-base**, **jderobot-assets** and **ROS melodic**. To do that, you have a complete guide **here**: http://jderobot.github.io/RoboticsAcademy/installation/
+
 
 [WIP]

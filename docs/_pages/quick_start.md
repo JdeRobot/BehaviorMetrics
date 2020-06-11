@@ -97,6 +97,14 @@ python driver.py -c default.yml -t
 
 ## How to use
 
+First of all **if you are going to use the GUI** you need to create the resources file for the application. **YOU JUST HAVE TO DO THIS STEP THE FIRST TIME YOU RUN THE APPLICATION**
+
+
+```bash
+pyrcc5 -o ui/gui/resources/resources.py ui/gui/resources/resources.qrc
+```
+
+
 To launch the application just run the python script as follows:
 
 ```bash
