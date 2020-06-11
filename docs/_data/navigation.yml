@@ -15,7 +15,7 @@ docs:
   - title: Test your Network
     children:
       - title: Check it out
-        url: /logbook/
+        url: /quick_start/
 
   - title: Installation
     children: 
