@@ -19,7 +19,7 @@ However since this project is built under python 2.7 the Qt5 dependencies cannot
 sudo apt install python-pyqt5 python-pyqt5.qtsvg python-pyqt5.qsci pyqt5-dev-tools
 ```
 
-Aside from PyQt5, you will need to install also: **jderobot-base**, **jderobot-assets** and **ROS melodic**. To do that, you have a complete guide **here**: http://jderobot.github.io/RoboticsAcademy/installation/
+Aside from PyQt5, you will need to install also: **jderobot-base**, **jderobot-assets** and **ROS melodic**. To do that, you have a complete guide [**here**](https://jderobot.github.io/RoboticsAcademy/).
 
 
 [WIP]
