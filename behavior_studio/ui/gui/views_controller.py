@@ -28,9 +28,7 @@ from PyQt5.QtWidgets import (QApplication, QDesktopWidget, QFrame,
 from ui.gui.threadGUI import ThreadGUI
 from views.layout_selection import LayoutSelection
 from views.main_view import MainView
-from views.robot_selection import RobotSelection
 from views.title import TitleWindow
-from views.world_selection import WorldSelection
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -182,6 +180,8 @@ class ViewsController(QMainWindow):
 
     def show_robot_selection(self):
         """Shows the robot selection view"""
+        from views.robot_selection import RobotSelection
+
         delete_widgets_from(self.parent.main_layout)
         robot_selector = RobotSelection(self.parent)
         robot_selector.switch_window.connect(self.show_world_selection)
@@ -190,6 +190,8 @@ class ViewsController(QMainWindow):
 
     def show_world_selection(self):
         """Shows the world selection view"""
+        from views.world_selection import WorldSelection
+
         delete_widgets_from(self.parent.main_layout)
         world_selector = WorldSelection(self.parent.robot_selection, self.configuration, self.parent)
         world_selector.switch_window.connect(self.show_layout_selection)
