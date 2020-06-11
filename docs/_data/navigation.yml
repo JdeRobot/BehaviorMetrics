@@ -26,8 +26,6 @@ docs:
     children:
     - title: Requisites
       url: //
-    - title: Install
-      url: //
-    - title: Usage
-      url: //
+    - title: Status
+      url: /status/
   
