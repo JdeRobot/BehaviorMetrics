@@ -46,6 +46,16 @@ Test your installation
 docker run hello-world
 ```
 
+## Building the latest container
+
+First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
+
+```bash
+cd BehaviorStudio/.docker/noetic/
+docker build -t uddua/jderobot-behavior-studio:noetic .
+```
+
+
 ## Running Behavior Studio Containers
 
 ```bash

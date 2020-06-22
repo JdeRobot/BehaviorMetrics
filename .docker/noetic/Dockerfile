@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
 	x11vnc \
 	xvfb && \
     pip3 install --upgrade pip && \
-    pip3 install jupyterlab
+    pip3 install jupyterlab && \
+    rm -rf /var/lib/apt/lists/*
 
 # Installing behavior studio
 RUN cd /root/ && \
@@ -30,8 +31,10 @@ RUN cd /root/ && \
 WORKDIR /root/
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
-    echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc
+    echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
+    echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 
-COPY vnc_startup.sh /root/
+COPY ./vnc_startup.sh /
 
+ENTRYPOINT ["/vnc_startup.sh"]
 CMD ["bash"]
