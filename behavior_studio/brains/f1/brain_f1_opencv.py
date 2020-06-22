@@ -68,7 +68,7 @@ class Brain:
             left = np.min(np.nonzero(img[index]))
             right = np.max(np.nonzero(img[index]))
             mid = np.abs(left - right)/2 + left
-        return mid
+        return int(mid)
 
     def execute(self):
         global error
@@ -107,7 +107,7 @@ class Brain:
             if i == 0:
                 index = alt
             else:
-                index = rows/(2*i)
+                index = rows//(2*i)
             points.append((self.getPoint(index, image_mask), index))
 
         points.append((self.getPoint(rows, image_mask), rows))
@@ -118,9 +118,9 @@ class Brain:
             kp = 0.001
             kd = 0.004
             ki = 0
-            cv2.circle(image_mask, (0, cols/2), 6, RED, -1)
+            cv2.circle(image_mask, (0, cols//2), 6, RED, -1)
 
-            if image_cropped[0, cols/2, 0] < 170 and v > 8:
+            if image_cropped[0, cols//2, 0] < 170 and v > 8:
                 accel = -0.4
             else:
                 accel = 0.3
@@ -134,7 +134,7 @@ class Brain:
             ki = 0
             v_mult = V_MULT
 
-        new_error = cols/2 - points[0][0]
+        new_error = cols//2 - points[0][0]
 
         proportional = kp * new_error
         error_diff = new_error - error

@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
-from logo import Logo
+from ui.gui.views.logo import Logo
 
 __author__ = 'fqez'
 __contributors__ = []

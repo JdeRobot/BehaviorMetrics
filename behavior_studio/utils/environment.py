@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 
-from logger import logger
+from utils.logger import logger
 
 # TODO: quitar paths absolutos
 
@@ -53,7 +53,7 @@ def launch_env(launch_file):
 def close_gazebo():
     """Kill all the gazebo and ROS processes."""
     try:
-        ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
+        ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
     except subprocess.CalledProcessError as ce:
         logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
         sys.exit(-1)
