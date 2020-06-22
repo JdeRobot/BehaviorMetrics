@@ -25,9 +25,8 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                              QPushButton, QScrollArea, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from logo import Logo
-from social import SocialMedia
-from ui.gui.resources import resources
+from ui.gui.views.logo import Logo
+from ui.gui.views.social import SocialMedia
 from utils import constants, environment
 
 __author__ = 'fqez'

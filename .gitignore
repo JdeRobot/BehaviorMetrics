@@ -182,3 +182,7 @@ dmypy.json
 _site/
 Gemfile.lock
 .jekyll-cache/
+
+# Jupyter
+.ipynb_checkpoints
+

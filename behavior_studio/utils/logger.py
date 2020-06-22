@@ -2,7 +2,7 @@
 import logging
 import sys
 
-from colors import Colors
+from utils.colors import Colors
 from utils.constants import ROOT_PATH
 
 

@@ -26,9 +26,9 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QFrame, QGridLayout,
                              QPushButton, QRadioButton, QScrollArea,
                              QVBoxLayout, QWidget)
 
-from toolbar import Toolbar
-from widgets.camera import CameraWidget
-from widgets.laser import LaserWidgetPro
+from ui.gui.views.toolbar import Toolbar
+from ui.gui.views.widgets.camera import CameraWidget
+from ui.gui.views.widgets.laser import LaserWidgetPro
 
 __author__ = 'fqez'
 __contributors__ = []
