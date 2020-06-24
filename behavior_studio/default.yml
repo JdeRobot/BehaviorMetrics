@@ -1,0 +1,42 @@
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/F1ROS/cameraL/image_raw'
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/F1ROS/odom'
+        Actuators:
+            Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/F1ROS/cmd_vel'
+                    MaxV: 3
+                    MaxW: 0.3
+        BrainPath: 'brains/f1/brain_f1_opencv.py'
+        Type: 'f1'
+    Simulation:
+        World: /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 2, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [0, 3, 3, 1]
+            Data: rgbimag

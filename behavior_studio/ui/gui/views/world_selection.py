@@ -20,8 +20,8 @@ from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout, QVBoxLayout, QGraphicsOpacityEffect, QFrame, QListWidget,
                              QAbstractItemView, QListWidgetItem)
 
-from logo import Logo
-from models3d import View3D
+from ui.gui.views.logo import Logo
+from ui.gui.views.models3d import View3D
 
 __author__ = 'fqez'
 __contributors__ = []
