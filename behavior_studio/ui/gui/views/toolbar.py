@@ -571,13 +571,20 @@ class Toolbar(QWidget):
         """Callback that handles brain reloading"""
         brain = self.brain_combobox.currentText() + '.py'
         txt = '<b><FONT COLOR = lightgreen>' + " ".join(self.brain_combobox.currentText().split("_")) + '</b>'
-        self.current_brain_label.setText('Current brain: ' + txt)
-        # load brain from controller
-        self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
+        prev_label_text = self.current_brain_label.text()
 
-        # save to configuration
-        self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
+        try:
+            self.current_brain_label.setText('Current brain: ' + txt)
+            
+            # load brain from controller
+            self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
 
+            # save to configuration
+            self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
+        except:
+            self.current_brain_label.setText(prev_label_text)
+            print("Brain could not be loaded!.")
+            
     def load_world(self):
         """Callback that handles world change"""
         world = self.world_combobox.currentText()
