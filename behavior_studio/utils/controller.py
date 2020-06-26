@@ -165,6 +165,7 @@ class Controller:
             brain {srt} -- Brain to be reloadaed.
         """
         logger.info("Reloading brain... {}".format(brain))
+        
         self.pause_pilot()
         self.pilot.reload_brain(brain)
         self.resume_pilot()

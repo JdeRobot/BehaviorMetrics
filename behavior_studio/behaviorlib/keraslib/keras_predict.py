@@ -27,7 +27,6 @@ import numpy as np
 import tensorflow as tf
 from keras.backend import set_session
 from keras.models import load_model
-
 from utils.logger import logger
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -55,11 +54,10 @@ class KerasPredictor:
 
         # Obtain the graph
         logger.info("Loading keras model {}".format(path_to_hdf5))
-        self.sess = tf.Session()
-        self.graph = tf.get_default_graph()
-        set_session(self.sess)
-
-        self.model = load_model(path_to_hdf5)
+        self.sess = tf.compat.v1.Session()
+        self.graph = tf.compat.v1.get_default_graph()
+        tf.compat.v1.keras.backend.set_session(self.sess)
+        self.model = tf.keras.models.load_model(path_to_hdf5)
 
         input_size = self.model.input.shape.as_list()
         self.img_height = input_size[1]
