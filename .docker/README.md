@@ -69,7 +69,7 @@ docker run -dit --name behavior-studio-noetic \
 	uddua/jderobot-behavior-studio:noetic
 ```
 
-### Using VNC to visualize container <a name"vnc"></a>
+### Using VNC to visualize container <a name="vnc"></a>
 
 To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (recommended) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
 
