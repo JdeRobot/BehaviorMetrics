@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 	python3-pip \
  	python3-setuptools \
 	python3-opengl \ 
-        python3-pyqt5 \
+    python3-pyqt5 \
 	python3-pyqt5.qtsvg \
 	python3-pyqt5.qsci \
 	pyqt5-dev-tools \
