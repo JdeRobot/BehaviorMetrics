@@ -62,11 +62,34 @@ docker run hello-world
 
 Open up a terminal a paste the following command
 
+### For CPU only
+
 ```bash
 docker run -dit --name behavior-studio-noetic \
 	-p 5900:5900 \
 	-p 8888:8888 \
-	uddua/jderobot-behavior-studio:noetic
+	jderobot/behavior-studio:noetic
+```
+
+### For GPU support (CUDA 10.1 Cudnn 7)
+
+Some extra packages are needed for Ubuntu 16.04/18.04/20.04, more about installation in [nvidia-docker docs](https://github.com/NVIDIA/nvidia-docker).
+
+```bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+The flag `--gpus` is added along with the correct image that contains cuda drivers.
+
+```bash
+docker run --gpus all -dit --name behavior-studio-noetic \
+        -p 5900:5900 \
+        -p 8888:8888 \
+        jderobot/behavior-studio:noetic-10.1-cudnn7
 ```
 
 ### Using VNC to visualize container <a name="vnc"></a>
