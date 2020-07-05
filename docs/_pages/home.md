@@ -2,62 +2,36 @@
 layout: splash
 permalink: /
 header:
-  overlay_color: "#2F5565"
-  overlay_image: https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg
+  overlay_color: "#5e616c"
+  overlay_image: /assets/images/mm-home-page-feature.jpg
   actions:
-    #- label: "<i class='fas fa-download'></i> Install now"
-    #  url: "/installation/"
-excerpt: 
-  Autonomous driving network comparison tool
+    - label: "<i class='fas fa-download'></i> Install now"
+      url: "/docs/quick-start-guide/"
+excerpt: >
+  A flexible two-column Jekyll theme. Perfect for building personal sites, blogs, and portfolios.<br />
+  <small><a href="https://github.com/mmistakes/minimal-mistakes/releases/tag/4.16.6">Latest release v4.16.6</a></small>
 feature_row:
-  - image_path: /assets/images/cover/test_your_network.jpeg
-    alt: "Test your Network"
-    title: "Test your Network"
-    excerpt: "Load, run, get results and compare your network in different environments."
-    url: "/quick_start/"
+  - image_path: /assets/images/mm-customizable-feature.png
+    alt: "customizable"
+    title: "Super customizable"
+    excerpt: "Everything from the menus, sidebars, comments, and more can be configured or set with YAML Front Matter."
+    url: "/docs/configuration/"
     btn_class: "btn--primary"
     btn_label: "Learn more"
-
-  - image_path: /assets/images/cover/install.png
-    alt: "Install"
-    title: "Install"
-    excerpt: "Use of the software. Instructions for replicating project content."
-    url: "/install/"
+  - image_path: /assets/images/mm-responsive-feature.png
+    alt: "fully responsive"
+    title: "Responsive layouts"
+    excerpt: "Built with HTML5 + CSS3. All layouts are fully responsive with helpers to augment your content."
+    url: "/docs/layouts/"
     btn_class: "btn--primary"
     btn_label: "Learn more"
-
-  - image_path: /assets/images/cover/logbook.jpg
-    alt: "Documentation"
-    title: "Documentation"
-    excerpt: "More information about the project. References used, guides, articles, etc."
-    url: "/documentation/"
+  - image_path: /assets/images/mm-free-feature.png
+    alt: "100% free"
+    title: "100% free"
+    excerpt: "Free to use however you want under the MIT License. Clone it, fork it, customize it... whatever!"
+    url: "/docs/license/"
     btn_class: "btn--primary"
-    btn_label: "Learn more"   
-youTube_id: ID7qaEcIu4k
+    btn_label: "Learn more"      
 ---
 
 {% include feature_row %}
-
-Behavior Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
-
-This project aims to have a platform for evaluating and testing complex behaviors for different robots using machine learning and deep learning algorithms. This application provides different functionalities such as:
-
-* Loading a simulated environment for different scenarios where you can evaluate complex robots behaviors.
-* Generating datasets to train your models to be tested later.
-* Evaluate the performance of your models comparing them against a other models.
-* Change the scenarios/models (called brains) on the go.
-* Live view of sensor readings.
-
-The algorithms that command the robots are called **brains**, and there is where the neural logic (behaviors) is at.
-
-<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" />
-
-This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
-
-* Using classification networks.
-* Using regression networks.
-* Using reinforcement learning.
-* Solution for real robots.
-
-
-You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorSuite).
