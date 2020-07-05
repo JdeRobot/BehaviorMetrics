@@ -17,6 +17,8 @@ import cv2
 from behaviorlib.keraslib.keras_predict import KerasPredictor
 from utils.constants import PRETRAINED_MODELS_DIR
 
+SAVED_MODEL_V = 'model_smaller_vgg_5classes_biased_cropped_v.h5'
+SAVED_MODEL_W = 'model_smaller_vgg_7classes_biased_cropped_w.h5'
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -36,8 +38,14 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
-        self.net_v = KerasPredictor(PRETRAINED_MODELS_DIR + '/model_smaller_vgg_5classes_biased_cropped_v.h5')
-        self.net_w = KerasPredictor(PRETRAINED_MODELS_DIR + '/model_smaller_vgg_7classes_biased_cropped_w.h5')
+
+        if not path.exists(PRETRAINED_MODELS + SAVED_MODEL_V):
+            print("File "+SAVED_MODEL_V+" cannot be found in " + PRETRAINED_MODELS_DIR)
+        if not path.exists(PRETRAINED_MODELS + SAVED_MODEL_W):
+            print("File "+SAVED_MODEL_W+" cannot be found in " + PRETRAINED_MODELS_DIR)
+            
+        self.net_v = KerasPredictor(PRETRAINED_MODELS_DIR + SAVED_MODEL_V)
+        self.net_w = KerasPredictor(PRETRAINED_MODELS_DIR + SAVED_MODEL_W)
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.

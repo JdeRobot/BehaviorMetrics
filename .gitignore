@@ -186,3 +186,5 @@ Gemfile.lock
 # Jupyter
 .ipynb_checkpoints
 
+# Allow pngs for tutorial
+!.docker/imgs/*.png

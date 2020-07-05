@@ -1,8 +1,20 @@
-## Docker installation
+# Behavior Studio Docker
 
-The docker installation guide is very can be found in this [link](https://docs.docker.com/get-docker/) which is well documented.
+## Table of Contents
 
-### For ubuntu
+1. [Installing Docker](#docker-installation)
+2. [Starting Docker Container](#starting-docker)
+    1. [VNC container viewer](#vnc)
+    2. [Terminal in container](#term)
+    3. [Stopping container](#stop)
+    4. [Resuming container](#resume)
+3. [Building the container](#building)
+
+## Docker installation <a name="docker-installation"></a>
+
+The docker installation guide is very clear and can be found in this [link](https://docs.docker.com/get-docker/) which is well documented.
+
+### Ubuntu
 
 First remove older versions.
 
@@ -46,25 +58,96 @@ Test your installation
 docker run hello-world
 ```
 
-## Building the latest container
+## Running Behavior Studio Containers <a name="starting-docker"></a>
+
+Open up a terminal a paste the following command
+
+### For CPU only
+
+```bash
+docker run -dit --name behavior-studio-noetic \
+	-p 5900:5900 \
+	-p 8888:8888 \
+	jderobot/behavior-studio:noetic
+```
+
+### For GPU support (CUDA 10.1 Cudnn 7)
+
+Some extra packages are needed for Ubuntu 16.04/18.04/20.04, more about installation in [nvidia-docker docs](https://github.com/NVIDIA/nvidia-docker).
+
+```bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+The flag `--gpus` is added along with the correct image that contains cuda drivers.
+
+```bash
+docker run --gpus all -dit --name behavior-studio-noetic \
+        -p 5900:5900 \
+        -p 8888:8888 \
+        jderobot/behavior-studio:noetic-10.1-cudnn7
+```
+
+### Using VNC to visualize container <a name="vnc"></a>
+
+To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (recommended) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
+
+![vnc](imgs/vnc.png?raw=true "Searching VNC")
+
+Once vnc-viewer is open fill in `localhost:5900` in the address and then press connect.
+
+![vnc-viewer](imgs/vnc-viewer.png?raw=true "vnc-viewer")
+
+You will need to authenticate, the current password is **jderobot**, although it can be changed in the script `vnc_startup.sh`.
+
+### Using terminal in container <a name="term"></a>
+
+The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double clock on the last URL to open Jupyter.
+
+```bash
+docker logs behavior-studio-noetic
+```
+
+![jupyter](imgs/jupyter.png?raw=true "Jupyter")
+
+Once you are in the notebook you can open up a terminal by clicking in Terminal.
+
+![terminal](imgs/terminal.png?raw=true "Terminal")
+
+A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, one the GUI is opened it will be displayed in the VNC window.
+
+```bash
+cd BehaviorStudio/behavior_studio
+python3 driver.py -c -default -g
+```
+
+![behavior-studio](imgs/behavior-studio.png?raw=true "Behavior Studio")
+
+### Stopping container <a name="stop"></a>
+
+`behavior-studio-noetic` should be replaced with the name of your container.
+
+```bash
+docker stop behavior-studio-noetic
+```
+
+### Resuming container <a name="resume"></a>
+
+`behavior-studio-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
+
+```bash
+docker restart behavior-studio-noetic
+```
+
+## Building the latest container <a name="building"></a>
 
 First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
 
 ```bash
 cd BehaviorStudio/.docker/noetic/
-docker build -t uddua/jderobot-behavior-studio:noetic .
+docker build -t any-tag-you-want .
 ```
-
-
-## Running Behavior Studio Containers
-
-```bash
-docker run -dit --name behavior-studio-noetic \
-	-p 5900:5900 \ # vnc
-	-p 8888:8888 \ # jupyter
-	uddua/jderobot-behavior-studio:noetic
-```
-
-[VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) or [RealVNC](https://www.realvnc.com/en/) can be used to access the GUI through the port 5900.
-
-The current password is `jderobot`, although it can be changed in the script `vnc_startup.sh`.

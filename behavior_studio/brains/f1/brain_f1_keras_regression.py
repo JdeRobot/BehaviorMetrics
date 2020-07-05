@@ -15,8 +15,11 @@ from behaviorlib.keraslib.keras_predict import KerasPredictor
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + '/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR
+MODEL_PILOTNET_V = 'model_pilotnet_v.h5'
+MODEL_PILOTNET_W = 'model_pilotnet_w.h5'
 
+from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -36,8 +39,14 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
-        self.net_v = KerasPredictor(PRETRAINED_MODELS + 'model_pilotnet_v.h5')
-        self.net_w = KerasPredictor(PRETRAINED_MODELS + 'model_pilotnet_w.h5')
+        
+        if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET_V):
+            print("File "+MODEL_PILOTNET_V+" cannot be found in " + PRETRAINED_MODELS)
+        if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET_W):
+            print("File "+MODEL_PILOTNET_W+" cannot be found in " + PRETRAINED_MODELS)
+        
+        self.net_v = KerasPredictor(PRETRAINED_MODELS + MODEL_PILOTNET_V)
+        self.net_w = KerasPredictor(PRETRAINED_MODELS + MODEL_PILOTNET_W)
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
