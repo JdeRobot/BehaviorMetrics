@@ -1,7 +1,7 @@
 ---
-permalink: /install/
+permalink: /install/ros_melodic
 
-title: "Installation and use"
+title: "Installation with the ROS Melodic version"
 
 sidebar:
   nav: "docs"
@@ -12,14 +12,10 @@ gallery:
     image_path: /assets/images/install/ros_melodic.png
     alt: "ROS melodic"
     title: "ROS melodic"
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/ros_noetic.jpg
-    alt: "ROS noetic"
-    title: "ROS noetic"
 
 ---
 
-{% include gallery id="gallery" layout="half" %}
+{% include gallery id="gallery" %}
 
 
 This application depends on dome third party libraries, most of them are included in the requirements file. To install them just type the following:
