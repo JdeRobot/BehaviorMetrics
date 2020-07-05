@@ -1,8 +1,6 @@
 # Jekyll Local Installation
 
-## Prerequisites
-
-### Installing Ruby on Ubuntu
+## Installing Ruby on Ubuntu
 
 First of all, we need to install all the dependencies typing:
 
@@ -36,11 +34,6 @@ bundle exec jekyll serve
 ```
 
 If in the process of building the server there is a dependency problem, for example, there is a missing library to install, it is **necessary to delete** the `Gemfile.lock` file so that it is rebuilt with the installed dependency. This list of dependencies is found in the `Gemfile` file (in Python it would be equivalent to the `requirements.txt` file) and the version of each of the installed gems (packages) is specified. Having a list of dependencies is important for future updates as well as knowing the libraries needed to run the server. Once the `Gemfile.lock` file is deleted, the command shown above is launched again and the dependency errors should end.
-
-## Notes for exercise cards.
-
-- Teaser Images size: multiple of 600x400px
-
 
 ## FAQ
 
