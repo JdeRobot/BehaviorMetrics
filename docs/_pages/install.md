@@ -22,4 +22,5 @@ sudo apt install python-pyqt5 python-pyqt5.qtsvg python-pyqt5.qsci pyqt5-dev-too
 Aside from PyQt5, you will need to install also: **jderobot-base**, **jderobot-assets** and **ROS melodic**. To do that, you have a complete guide [**here**](https://jderobot.github.io/RoboticsAcademy/).
 
 
-[WIP]
+[Pretrained network models](http://jderobot.org/store/deeplearning-networks/).
+{: .notice--info}
