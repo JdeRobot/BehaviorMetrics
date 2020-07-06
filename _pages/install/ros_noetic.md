@@ -12,9 +12,251 @@ gallery:
     image_path: /assets/images/install/ros_noetic.jpg
     alt: "ROS noetic"
     title: "ROS noetic"
-
+gallery1:
+  - url: /install/ros_noetic
+    image_path: /assets/images/install/noetic/behavior-studio.png
+    alt: ""
+gallery2:
+  - url: /install/ros_noetic
+    image_path: /assets/images/install/noetic/jupyter.png
+    alt: ""
+gallery3:
+  - url: /install/ros_noetic
+    image_path: /assets/images/install/noetic/terminal.png
+    alt: ""
+gallery4:
+  - url: /install/ros_noetic
+    image_path: /assets/images/install/noetic/vnc.png
+    alt: ""
+gallery5:
+  - url: /install/ros_noetic
+    image_path: /assets/images/install/noetic/vnc-viewer.png
+    alt: ""
 ---
 
 {% include gallery id="gallery" %}
 
-[WIP]
+# Behavior Studio Docker
+
+## Table of Contents
+
+1. [Installing](#installation)
+    1. [Requirements](#requisites)
+    2. [Installing ROS Noetic](#noetic)
+    3. [Installing Jderobot' dependencies](#dependencies)
+    4. [Installing Behavior Studio](#behavior-studio)
+2. [Installing from Docker Image](#docker-installation)
+    1. [Starting Docker Container](#starting-docker)
+        1. [VNC container viewer](#vnc)
+        2. [Terminal in container](#term)
+        3. [Stopping container](#stop)
+        4. [Resuming container](#resume)
+    2. [Building the container](#building)
+
+## Installation
+
+### Requirements <a name="requisites"></a>
+
+- Ubuntu 20.04
+
+### Installing ROS Noetic <a name="noetic"></a>
+
+A detailed ROS Noetic installation guide can be found in the [ROS Wiki](http://wiki.ros.org/noetic/Installation/Ubuntu)
+
+#### Setup your sources
+
+```bash
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+```
+
+#### Set up your keys
+
+```bash
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+```
+
+#### Installing ROS Noetic
+
+```bash
+sudo apt update
+sudo apt install ros-noetic-desktop-full
+```
+
+#### Environment setup
+
+```bash
+echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Installing Jderobot's dependencies <a name="dependencies"></a>
+
+```bash
+sudo apt-get install ros-noetic-jderobot-assets
+git clone https://github.com/JdeRobot/assets
+cd assets/jderobot_assets && mkdir build && cd build
+cmake .. && make && make install
+echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Installing Behavior Studio <a name="behavior-studio"></a>
+
+This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
+
+```bash
+git clone https://github.com/JdeRobot/BehaviorStudio
+cd BehaviorStudio
+pip install -r requirements.txt
+```
+
+If you are going to use the GUI you need to create the resources file for the application. 
+
+```bash
+pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
+	behavior_studio/ui/gui/resources/resources.qrc
+```
+
+From here you are to go to our [Quick Start guide!](https://github.com/JdeRobot/BehaviorStudio)
+
+## Docker installation <a name="docker-installation"></a>
+
+The docker installation guide is very clear and can be found in this [link](https://docs.docker.com/get-docker/) which is well documented.
+
+### Ubuntu
+
+First remove older versions.
+
+```bash
+sudo apt-get remove docker docker-engine docker.io containerd runc
+```
+
+Then setup the stable repository
+
+```bash
+sudo apt-get update
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"    
+```
+
+Install the docker engine
+
+```bash
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+Add your user to the docker's group to avoid using `sudo` for docker, you have to log out and log in to for this change to take effect.
+
+```
+sudo usermod -aG docker your-user
+```
+
+Test your installation
+
+```bash
+docker run hello-world
+```
+
+## Running Behavior Studio Containers <a name="starting-docker"></a>
+
+Open up a terminal a paste the following command
+
+### For CPU only
+
+```bash
+docker run -dit --name behavior-studio-noetic \
+	-p 5900:5900 \
+	-p 8888:8888 \
+	jderobot/behavior-studio:noetic
+```
+
+### For GPU support (CUDA 10.1 Cudnn 7)
+
+Some extra packages are needed for Ubuntu 16.04/18.04/20.04, more about installation in [nvidia-docker docs](https://github.com/NVIDIA/nvidia-docker).
+
+```bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+The flag `--gpus` is added along with the correct image that contains cuda drivers.
+
+```bash
+docker run --gpus all -dit --name behavior-studio-noetic \
+        -p 5900:5900 \
+        -p 8888:8888 \
+        jderobot/behavior-studio:noetic-10.1-cudnn7
+```
+
+### Using VNC to visualize container <a name="vnc"></a>
+
+To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (recommended) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
+
+{% include gallery id="gallery4" %}
+
+Once vnc-viewer is open fill in `localhost:5900` in the address and then press connect.
+
+{% include gallery id="gallery5" %}
+
+You will need to authenticate, the current password is **jderobot**, although it can be changed in the script `vnc_startup.sh`.
+
+### Using terminal in container <a name="term"></a>
+
+The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double clock on the last URL to open Jupyter.
+
+```bash
+docker logs behavior-studio-noetic
+```
+
+{% include gallery id="gallery2" %}
+
+Once you are in the notebook you can open up a terminal by clicking in Terminal.
+
+{% include gallery id="gallery3" %}
+
+A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, one the GUI is opened it will be displayed in the VNC window.
+
+```bash
+cd BehaviorStudio/behavior_studio
+python3 driver.py -c -default -g
+```
+
+{% include gallery id="gallery1" %}
+
+### Stopping container <a name="stop"></a>
+
+`behavior-studio-noetic` should be replaced with the name of your container.
+
+```bash
+docker stop behavior-studio-noetic
+```
+
+### Resuming container <a name="resume"></a>
+
+`behavior-studio-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
+
+```bash
+docker restart behavior-studio-noetic
+```
+
+## Building the latest container <a name="building"></a>
+
+First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
+
+```bash
+cd BehaviorStudio/.docker/noetic/
+docker build -t any-tag-you-want .
+```
