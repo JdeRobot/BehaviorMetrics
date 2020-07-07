@@ -89,13 +89,26 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
+### Installing Python 3.6
+
+It is recommended to use virtual environment for Behavior Studio.
+
+```bash
+sudo apt install software-properties-common python3-pip python3-virtualenv
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install python3.6
+virtualenv -p python3.6 .behavior-studio
+source .behavior-studio/bin/activate
+pip install empy
+```
+
 ### Installing Jderobot's dependencies <a name="dependencies"></a>
 
 ```bash
 sudo apt-get install ros-noetic-jderobot-assets
 git clone https://github.com/JdeRobot/assets
 cd assets/jderobot_assets && mkdir build && cd build
-cmake .. && make && make install
+cmake .. && sudo make && sudo make install
 echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 source ~/.bashrc
 ```
