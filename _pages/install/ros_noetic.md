@@ -89,15 +89,15 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Installing Python 3.6
+### Installing Python 3.7
 
 It is recommended to use virtual environment for Behavior Studio.
 
 ```bash
 sudo apt install software-properties-common python3-pip python3-virtualenv
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.6
-virtualenv -p python3.6 .behavior-studio
+sudo apt install python3.7
+virtualenv -p python3.7 .behavior-studio
 source .behavior-studio/bin/activate
 pip install empy
 ```
