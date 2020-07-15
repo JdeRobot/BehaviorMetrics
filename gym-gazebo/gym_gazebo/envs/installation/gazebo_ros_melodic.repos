@@ -1,0 +1,109 @@
+repositories:
+  ar_track_alvar:
+    type: git
+    url: https://github.com/ros-perception/ar_track_alvar
+    version: melodic-devel
+  catkin_simple:
+    type: git
+    url: https://github.com/catkin/catkin_simple.git
+    version: master
+  control_toolbox:
+    type: git
+    url: https://github.com/ros-controls/control_toolbox.git
+    version: indigo-devel
+  ecl_core:
+    type: git
+    url: https://github.com/stonier/ecl_core
+    version: release/0.62-melodic
+  ecl_lite:
+    type: git
+    url: https://github.com/stonier/ecl_lite
+    version: release/0.61-melodic
+  ecl_navigation:
+    type: git
+    url: https://github.com/stonier/ecl_navigation
+    version: release/0.60-melodic
+  ecl_tools:
+    type: git
+    url: https://github.com/stonier/ecl_tools
+    version: release/0.61-melodic
+  driver_base:
+    type: git
+    url: https://github.com/ros-drivers/driver_common.git
+    version: indigo-devel
+  gazebo_ros_pkgs:
+    type: git
+    url: https://github.com/ros-simulation/gazebo_ros_pkgs
+    version: melodic-devel
+  hector_gazebo:
+    type: git
+    url: https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/
+    version: melodic-devel
+  image_common:
+    type: git
+    url: https://github.com/ros-perception/image_common.git
+    version: hydro-devel
+  joystick_drivers:
+    type: git
+    url: https://github.com/ros-drivers/joystick_drivers.git
+    version: indigo-devel
+  kobuki:
+    type: git
+    url: https://github.com/yujinrobot/kobuki
+    version: indigo
+  kobuki_core:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_core
+    version: indigo
+  kobuki_desktop:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_desktop
+    version: devel
+  kobuki_msgs:
+    type: git
+    url: https://github.com/yujinrobot/kobuki_msgs
+    version: indigo
+  navigation:
+    type: git
+    url: https://github.com/ros-planning/navigation
+    version: melodic-devel
+  pcl_ros:
+    type: git
+    url: https://github.com/ros-perception/perception_pcl.git
+    version: melodic-devel
+  realtime_tools:
+    type: git
+    url: https://github.com/ros-controls/realtime_tools
+    version: melodic-devel
+  ros_control:
+    type: git
+    url: https://github.com/ros-controls/ros_control
+    version: melodic-devel
+  roslint:
+    type: git
+    url: https://github.com/ros/roslint
+    version: master
+  turtlebot:
+    type: git
+    url: https://github.com/turtlebot/turtlebot
+    version: indigo
+  turtlebot_create:
+    type: git
+    url: https://github.com/turtlebot/turtlebot_create
+    version: indigo
+  turtlebot_simulator:
+    type: git
+    url: https://github.com/turtlebot/turtlebot_simulator
+    version: indigo
+  xacro:
+    type: git
+    url: https://github.com/ros/xacro
+    version: melodic-devel
+  yocs_msgs:
+    type: git
+    url: https://github.com/yujinrobot/yocs_msgs
+    version: release/0.7-melodic
+  yujin_ocs:
+    type: git
+    url: https://github.com/yujinrobot/yujin_ocs
+    version: release/0.8-melodic

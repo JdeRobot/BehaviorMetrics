@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+<world name="default">
+  <!-- A global light source -->
+  <include>
+    <uri>model://sun</uri>
+  </include>
+  <include>
+    <uri>model://pista_simple</uri>
+    <pose>0 0 0 0 0 0</pose>
+  </include>
+  <include>
+      <uri>model://f1_renault_laser</uri>
+      <!-- default: 53.462 -10.734 0.004 0 0 -1.57 -->
+      <!--<pose>53.462 -41.9884 0.004 0 0 -1.57</pose>-->
+    <pose>13.13 51.93 0.004 0 0 -0.1482</pose>
+  </include>
+
+  <scene>
+    <sky>
+      <clouds>
+        <speed>12</speed>
+      </clouds>
+    </sky>
+    <ambient>0 0 0 1</ambient>
+    <shadows>false</shadows>
+    <grid>false</grid>
+  </scene>
+</world>
+</sdf>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="world_file" default="$(env GYM_GAZEBO_WORLD_CIRCUIT_F1)"/>
+  <arg name="paused"     value="true"/> 
+  <arg name="gui"        default="true"/>
+  <arg name="headless"   value="true"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug"        value="false"/>
+    <arg name="gui"          value="$(arg gui)"/>
+    <arg name="world_name"   value="$(arg world_file)"/>
+    <arg name="verbose"      value="true"/>
+  </include>
+</launch>
