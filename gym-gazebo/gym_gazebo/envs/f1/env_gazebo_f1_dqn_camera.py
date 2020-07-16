@@ -28,7 +28,7 @@ from agents.f1.settings import telemetry
 
 # Images size
 witdh = 640
-center_image = witdh/2
+center_image = int(witdh/2)
 
 # Coord X ROW
 x_row = [260, 360, 450]
@@ -207,9 +207,9 @@ class GazeboF1CameraEnvDQN(gazebo_env.GazeboEnv):
         cv2.line(img, (320, x_row[1]), (320, x_row[1]), (255, 255, 0), thickness=5)
         cv2.line(img, (320, x_row[2]), (320, x_row[2]), (255, 255, 0), thickness=5)
         # Linea diferencia entre punto central - error (blanco)
-        cv2.line(img, (center_image, x_row[0]), (point_1, x_row[0]), (255, 255, 255), thickness=2)
-        cv2.line(img, (center_image, x_row[1]), (point_2, x_row[1]), (255, 255, 255), thickness=2)
-        cv2.line(img, (center_image, x_row[2]), (point_3, x_row[2]), (255, 255, 255), thickness=2)
+        cv2.line(img, (center_image, x_row[0]), (int(point_1), x_row[0]), (255, 255, 255), thickness=2)
+        cv2.line(img, (center_image, x_row[1]), (int(point_2), x_row[1]), (255, 255, 255), thickness=2)
+        cv2.line(img, (center_image, x_row[2]), (int(point_3), x_row[2]), (255, 255, 255), thickness=2)
         # Telemetry
         cv2.putText(img, str("action: {}".format(action)), (18, 280), font, 0.4, (255, 255, 255), 1)
         cv2.putText(img, str("w ang: {}".format(w_angular)), (18, 300), font, 0.4, (255, 255, 255), 1)

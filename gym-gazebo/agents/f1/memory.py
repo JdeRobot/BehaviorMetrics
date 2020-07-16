@@ -18,7 +18,7 @@ class Memory:
         self.finals = []
 
     def getMiniBatch(self, size) :
-        indices = random.sample(np.arange(len(self.states)), min(size,len(self.states)) )
+        indices = random.sample(list(np.arange(len(self.states))), min(size,len(self.states)) )
         miniBatch = []
         for index in indices:
             miniBatch.append({'state': self.states[index],'action': self.actions[index], 'reward': self.rewards[index], 'newState': self.newStates[index], 'isFinal': self.finals[index]})

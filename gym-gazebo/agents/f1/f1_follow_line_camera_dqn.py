@@ -136,14 +136,14 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Start iterating from 'current epoch'.
-    for epoch in xrange(current_epoch+1, epochs+1, 1):
+    for epoch in range(current_epoch+1, epochs+1, 1):
         
         observation, pos = env.reset()
 
         cumulated_reward = 0
 
         # Number of timesteps
-        for step in xrange(steps):
+        for step in range(steps):
 
             # make the model.predict
             qValues = deepQ.getQValues(observation)
