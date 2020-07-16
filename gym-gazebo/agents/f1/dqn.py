@@ -5,7 +5,7 @@ import numpy as np
 from gym import wrappers
 from keras import backend as K
 from keras import optimizers
-from keras.initializers import normal
+# from keras.initializers import normal
 from keras.layers import Convolution2D, Flatten, ZeroPadding2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.core import Activation, Dense, Dropout
@@ -125,7 +125,7 @@ class DeepQ:
         if isFinal:
             return reward
         else:
-            print("Target: {}".format(reward, self.discountFactor, self.getMaxQ(qValuesNewState)))
+#             print("Target: {}".format(reward, self.discountFactor, self.getMaxQ(qValuesNewState)))
             return reward + self.discountFactor * self.getMaxQ(qValuesNewState)
 
 
@@ -204,7 +204,7 @@ class DeepQ:
                 if isFinal:
                     X_batch = np.append(X_batch, newState.copy(), axis=0)
                     Y_batch = np.append(Y_batch, np.array([[reward]*self.output_size]), axis=0)
-            self.model.fit(X_batch, Y_batch, validation_split=0.2, batch_size = len(miniBatch), nb_epoch=1, verbose = 0)
+            self.model.fit(X_batch, Y_batch, validation_split=0.2, batch_size = len(miniBatch), epochs=1, verbose = 0)
     
     
     def saveModel(self, path):
