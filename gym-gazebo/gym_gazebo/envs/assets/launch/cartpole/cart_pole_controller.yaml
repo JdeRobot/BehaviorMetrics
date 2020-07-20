@@ -1,0 +1,8 @@
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+cart_pole_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: slider_to_cart
+  pid: {p: 100.0, i: 0.01, d: 10.0}
