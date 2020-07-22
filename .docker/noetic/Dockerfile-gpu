@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
 	psmisc \
  	python3-setuptools \
 	python3-pip \
+	python3-rviz \
+	python3-opengl \
 	pyqt5-dev-tools \
 	tmux \
 	x11vnc \

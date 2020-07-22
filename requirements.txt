@@ -15,10 +15,12 @@ pathlib
 jderobot-jderobottypes
 catkin_pkg
 numpy==1.18.5
-matplotlib
+matplotlib==3.3.0
+kiwisolver==1.2
 defusedxml
 scikit-image
-netifaces
+netifaces==0.10.9
+Pillow==7.2.0
 pyglet==1.5.0
 gym
 requests>=2.0
