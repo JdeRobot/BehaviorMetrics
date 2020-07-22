@@ -1,6 +1,7 @@
 PyQt5==5.15.0
 pyQt5-sip
 scipy==1.4.1
+jupyterlab
 PyQt3D==5.15.0
 npyscreen==4.10.5
 Keras==2.4.1
