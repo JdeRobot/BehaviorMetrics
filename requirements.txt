@@ -1,6 +1,7 @@
+PyQt5
+pyQt5-sip
 scipy==1.4.1
 PyQt3D==5.14
-PyQt5
 npyscreen==4.10.5
 Keras==2.4.1
 tf-nightly
