@@ -10,9 +10,9 @@ RUN apt-get update && apt-get install -y \
  	python3-setuptools \
 	python3-opengl \ 
 	python3-pip \
-    	python3-pyqt5 \
-	python3-pyqt5.qtsvg \
-	python3-pyqt5.qsci \
+#    	python3-pyqt5 \
+#	python3-pyqt5.qtsvg \
+#	python3-pyqt5.qsci \
 	pyqt5-dev-tools \
 	tmux \
 	x11vnc \
@@ -76,6 +76,8 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
 	ros-noetic-navigation && \
+    cd BehaviorStudio/gym-gazebo/ && \
+    pip3 install -e . && \	
     rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/strasdat/Sophus && \
