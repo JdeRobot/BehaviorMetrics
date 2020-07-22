@@ -7,8 +7,8 @@ else
 fi
 
 #Load turtlebot variables. Temporal solution
-chmod +x catkin_ws/src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
-bash catkin_ws/src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
+#chmod +x catkin_ws/src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
+#bash catkin_ws/src/turtlebot_simulator/turtlebot_gazebo/env-hooks/25.turtlebot-gazebo.sh.em
 
 #add Formula 1 launch environment variable
 
@@ -18,7 +18,7 @@ else
   bash -c 'sed "s,GYM_GAZEBO_WORLD_CIRCUIT=[^;]*,'GYM_GAZEBO_WORLD_CIRCUIT=`pwd`/../assets/worlds/f1_1_simplecircuit.world'," -i ~/.bashrc'
 fi
 
-export GYM_GAZEBO_WORLD_CIRCUIT_F1=/root/2019-tfm-ignacio-arranz/gym-gazebo/gym_gazebo/envs/assets/worlds/f1_1_simplecircuit.world
+export GYM_GAZEBO_WORLD_CIRCUIT_F1=`pwd`/../assets/worlds/f1_1_simplecircuit.world
 
  
 exec bash # reload bash

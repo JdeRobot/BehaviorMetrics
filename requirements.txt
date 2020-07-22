@@ -14,11 +14,11 @@ rospkg
 pathlib
 jderobot-jderobottypes
 catkin_pkg
+numpy==1.18.5
 matplotlib
 defusedxml
 scikit-image
 netifaces
-numpy==1.18.5
 pyglet==1.5.0
 gym
 requests>=2.0
