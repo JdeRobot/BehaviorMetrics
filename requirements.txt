@@ -25,6 +25,6 @@ requests>=2.0
 six
 empy
 vcstool 
-skimage
+scikit-image
 rviz
 opengl
