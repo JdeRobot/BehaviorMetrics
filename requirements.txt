@@ -26,4 +26,3 @@ six
 empy
 vcstool 
 scikit-image
-opengl
