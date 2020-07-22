@@ -26,5 +26,4 @@ six
 empy
 vcstool 
 scikit-image
-rviz
 opengl
