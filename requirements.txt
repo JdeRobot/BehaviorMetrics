@@ -24,3 +24,7 @@ gym
 requests>=2.0
 six
 empy
+vcstool 
+skimage
+rviz
+opengl

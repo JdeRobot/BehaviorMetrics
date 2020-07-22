@@ -8,11 +8,7 @@ RUN apt-get update && apt-get install -y \
 	git \
 	psmisc \
  	python3-setuptools \
-	python3-opengl \ 
 	python3-pip \
-#    	python3-pyqt5 \
-#	python3-pyqt5.qtsvg \
-#	python3-pyqt5.qsci \
 	pyqt5-dev-tools \
 	tmux \
 	x11vnc \
@@ -56,10 +52,6 @@ RUN apt-get update && apt-get install -y \
 	libsdl-dev \
 	libsdl-image1.2-dev \
  	libusb-dev \
-	python3-vcstool \
-	python3-skimage \
-	python3-rviz \
-	python3-defusedxml \
 	ros-noetic-octomap-msgs        \
 	ros-noetic-geodesy             \
 	ros-noetic-octomap-ros         \
@@ -76,7 +68,7 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
 	ros-noetic-navigation && \
-    cd BehaviorStudio/gym-gazebo/ && \
+    cd root/BehaviorStudio/gym-gazebo/ && \
     pip3 install -e . && \	
     rm -rf /var/lib/apt/lists/*
 

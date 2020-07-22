@@ -19,7 +19,7 @@ else
 fi
 
 export GYM_GAZEBO_WORLD_CIRCUIT_F1=`pwd`/../assets/worlds/f1_1_simplecircuit.world
-
+echo 'Formula 1 env variables loaded succesfully'
  
 exec bash # reload bash
 

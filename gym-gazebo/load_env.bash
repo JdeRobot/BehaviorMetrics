@@ -1,0 +1,5 @@
+#!/bin/bash
+cd gym_gazebo/envs/installation
+rm -rf catkin_ws
+bash setup_noetic.bash
+bash formula1_setup.bash
