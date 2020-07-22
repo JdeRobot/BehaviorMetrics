@@ -8,12 +8,14 @@ RUN apt-get update && apt-get install -y \
 	git \
 	psmisc \
 	python3-pip \
+	python3-virtualenv \
  	python3-setuptools \
 	python3-opengl \ 
     	python3-pyqt5 \
 	python3-pyqt5.qtsvg \
 	python3-pyqt5.qsci \
 	pyqt5-dev-tools \
+	software-properties-common \
 	tmux \
 	x11vnc \
 	xvfb && \
@@ -39,6 +41,41 @@ RUN git clone https://github.com/JdeRobot/assets && \
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+
+# Installing Gym-Gazebo
+RUN apt-get update && apt-get install -y \
+	libbluetooth-dev \
+	libcwiid-dev \
+	libftdi-dev \
+	libspnav-dev \
+	libsdl-dev \
+	libsdl-image1.2-dev \
+ 	libusb-dev \
+	python3-vcstool \
+	python3-skimage \
+	python3-rviz \
+	python3-defusedxml \
+	ros-noetic-octomap-msgs        \
+	ros-noetic-geodesy             \
+	ros-noetic-octomap-ros         \
+	ros-noetic-control-toolbox     \
+	ros-noetic-pluginlib	       \
+	ros-noetic-trajectory-msgs     \
+	ros-noetic-control-msgs	       \
+	ros-noetic-std-srvs 	       \
+	ros-noetic-nodelet	       \
+	ros-noetic-urdf		       \
+	ros-noetic-rviz		       \
+	ros-noetic-kdl-conversions     \
+	ros-noetic-eigen-conversions   \
+	ros-noetic-tf2-sensor-msgs     \
+	ros-noetic-pcl-ros \
+	ros-noetic-navigation && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/strasdat/Sophus && \
+	cd Sophus && mkdir build && cd build && \
+	cmake ../ && make && make install
 
 COPY ./vnc_startup.sh /
 
