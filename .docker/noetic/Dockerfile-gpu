@@ -45,6 +45,11 @@ RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 
+
+RUN git clone https://github.com/strasdat/Sophus && \
+	cd Sophus && mkdir build && cd build && \
+	cmake ../ && make && make install
+
 # Installing Gym-Gazebo
 RUN apt-get update && apt-get install -y \
 	libbluetooth-dev \
@@ -72,11 +77,9 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-navigation && \
     cd root/BehaviorStudio/gym-gazebo/ && \
     pip3 install -e . && \	
+    bash load_env.bash && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/strasdat/Sophus && \
-	cd Sophus && mkdir build && cd build && \
-	cmake ../ && make && make install
 
 COPY ./vnc_startup.sh /
 
