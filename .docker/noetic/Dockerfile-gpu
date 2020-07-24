@@ -77,9 +77,8 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-navigation && \
     cd root/BehaviorStudio/gym-gazebo/ && \
     pip3 install -e . && \	
-    bash load_env.bash && \
+    ./load_env.sh && \
     rm -rf /var/lib/apt/lists/*
-
 
 COPY ./vnc_startup.sh /
 
