@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 cd gym_gazebo/envs/installation
 rm -rf catkin_ws
 bash setup_noetic.bash
