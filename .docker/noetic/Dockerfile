@@ -3,31 +3,35 @@ FROM jderobot/ubuntu:ros-noetic
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-	cmake \
-	icewm \
-	git \
-	psmisc \
-	python3-pip \
-	python3-virtualenv \
- 	python3-setuptools \
-	python3-opengl \ 
-    	python3-pyqt5 \
-	python3-pyqt5.qtsvg \
-	python3-pyqt5.qsci \
-	pyqt5-dev-tools \
-	software-properties-common \
-	tmux \
-	x11vnc \
-	xvfb && \
+        cmake \
+        icewm \
+        git \
+        psmisc \
+        python3-setuptools \
+        python3-pip \
+        python3-rviz \
+        python3-opengl \
+        pyqt5-dev-tools \
+        tmux \
+        vim \
+        x11vnc \
+        xvfb && \
     pip3 install --upgrade pip && \
-    pip3 install jupyterlab && \
     rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+	software-properties-common && \
+	add-apt-repository ppa:deadsnakes/ppa && \
+	apt-get update && \
+	apt-get install -y python3.7 python3.7-dev && \
+	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
 
 # Installing behavior studio
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/dcharrezt/BehaviorStudio && \
     cd BehaviorStudio && \
     pip3 install -r requirements.txt && \
+    pip3 -V && python3 -V && \
     pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
 	behavior_studio/ui/gui/resources/resources.qrc
 
@@ -38,9 +42,18 @@ RUN git clone https://github.com/JdeRobot/assets && \
     		  cmake .. && make && make install;" && \
     echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
+RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
+    cd CustomRobots/f1 && mkdir build && cd build && \
+    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+		  cmake .. && make && make install;"
+
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+
+RUN git clone https://github.com/strasdat/Sophus && \
+	cd Sophus && mkdir build && cd build && \
+	cmake ../ && make && make install
 
 # Installing Gym-Gazebo
 RUN apt-get update && apt-get install -y \
@@ -51,10 +64,6 @@ RUN apt-get update && apt-get install -y \
 	libsdl-dev \
 	libsdl-image1.2-dev \
  	libusb-dev \
-	python3-vcstool \
-	python3-skimage \
-	python3-rviz \
-	python3-defusedxml \
 	ros-noetic-octomap-msgs        \
 	ros-noetic-geodesy             \
 	ros-noetic-octomap-ros         \
@@ -71,11 +80,10 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
 	ros-noetic-navigation && \
+    cd root/BehaviorStudio/gym-gazebo/ && \
+    pip3 install -e . && \	
+#    ./load_env.sh && \
     rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/strasdat/Sophus && \
-	cd Sophus && mkdir build && cd build && \
-	cmake ../ && make && make install
 
 COPY ./vnc_startup.sh /
 

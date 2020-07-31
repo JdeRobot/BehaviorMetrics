@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 	python3-opengl \
 	pyqt5-dev-tools \
 	tmux \
+	vim \
 	x11vnc \
 	xvfb && \
     pip3 install --upgrade pip && \
@@ -41,10 +42,14 @@ RUN git clone https://github.com/JdeRobot/assets && \
     		  cmake .. && make && make install;" && \
     echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
+RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
+    cd CustomRobots/f1 && mkdir build && cd build && \
+    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+		  cmake .. && make && make install;"
+
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
-
 
 RUN git clone https://github.com/strasdat/Sophus && \
 	cd Sophus && mkdir build && cd build && \
@@ -77,7 +82,7 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-navigation && \
     cd root/BehaviorStudio/gym-gazebo/ && \
     pip3 install -e . && \	
-    ./load_env.sh && \
+#    ./load_env.sh && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./vnc_startup.sh /
