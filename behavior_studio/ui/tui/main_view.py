@@ -1,6 +1,7 @@
 import sys
 import threading
 import time
+from os import path, makedirs
 
 import npyscreen
 import rospy
@@ -13,6 +14,7 @@ from utils.constants import ROOT_PATH
 
 brains_dir = ROOT_PATH + '/brains/f1/brain_f1_opencv.py'
 dset_dir = ROOT_PATH + '/datasets/'
+logs_dir = ROOT_PATH + '/logs/'
 logs_path = ROOT_PATH + '/logs/log.log'
 cont = 0
 
@@ -63,6 +65,10 @@ class MainForm(npyscreen.FormMultiPage):
     commands = ["p","r","d","s","c","e"]
     kill_event = threading.Event()
     log_data = ""
+
+    if not path.exists(logs_path):
+        makedirs(logs_dir)
+        open(logs_path, 'a').close()
     logs = open(logs_path, 'r')
     data = []
 
