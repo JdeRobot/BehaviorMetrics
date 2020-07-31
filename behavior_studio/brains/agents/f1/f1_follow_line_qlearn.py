@@ -42,7 +42,7 @@ def save_model():
 # MAIN PROGRAM
 ####################################################################################################################
 if __name__ == '__main__':
-    current_env = "camera"
+    current_env = "laser"
     if current_env == "laser":
         env = gym.make('GazeboF1QlearnLaserEnv-v0')
     elif current_env == "camera":
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     last_time_steps = np.ndarray(0)
 
-    actions = range(env.action_space.n)
+    actions = range(len(env.action_space))
     qlearn = QLearn(actions=actions, alpha=0.2, gamma=0.9, epsilon=0.99)
 
     if settings.load_model:
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                 highest_reward = cumulated_reward
 
             nextState = ''.join(map(str, observation))
-            print(nextState)
+#             print(nextState)
 
             qlearn.learn(state, action, reward, nextState)
 

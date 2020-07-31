@@ -11,7 +11,7 @@ env.read_env()
 debug_level = env.int("DEBUG_LEVEL")
 telemetry = env.bool("TELEMETRY", True)
 my_board = env.bool("MY_BOARD", False)
-save_model = env.bool("SAVE_MODEL", False)
+save_model = env.bool("SAVE_MODEL", True)
 load_model = env.bool("LOAD_MODEL", False)
 
 # === ACTIONS SET ===
