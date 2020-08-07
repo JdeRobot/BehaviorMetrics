@@ -3,14 +3,14 @@ import datetime
 import pickle
 
 import gym
-import liveplot
+from brains.f1rl.utils import liveplot
 import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
-from qlearn import QLearn
+from brains.f1rl.utils.qlearn import QLearn
 
-import settings as settings
-from settings import actions_set
+import brains.f1rl.utils.settings as settings
+from brains.f1rl.utils.settings import actions_set
 
 
 def render():
@@ -36,12 +36,8 @@ def save_model():
     pickle.dump(qlearn.q, file)
 
     print(qlearn.q)
-
-
-####################################################################################################################
-# MAIN PROGRAM
-####################################################################################################################
-if __name__ == '__main__':
+    
+def run_qlearn():
     current_env = "laser"
     if current_env == "laser":
         env = gym.make('GazeboF1QlearnLaserEnv-v0')
@@ -144,3 +140,6 @@ if __name__ == '__main__':
     print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
     env.close()
+
+if __name__ == '__main__':
+    run_qlearn()

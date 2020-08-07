@@ -25,7 +25,7 @@
         "model": "f1"
       }
     ],
-    "f1-rl": [
+    "f1rl": [
       {
         "name": "Simple circuit",
         "world": "BehaviorStudio/gym-gazebo/gym_gazebo/envs/assets/launch/F1Lasercircuit_v0.launch",
