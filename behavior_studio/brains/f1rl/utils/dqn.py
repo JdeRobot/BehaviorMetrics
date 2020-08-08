@@ -15,7 +15,7 @@ from keras.models import Sequential, load_model
 from keras.optimizers import SGD, Adam, RMSprop
 from keras.regularizers import l2
 
-import memory
+from utils import memory
 
 
 class DeepQ:
