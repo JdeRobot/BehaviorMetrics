@@ -152,14 +152,18 @@ class GazeboF1QlearnLaserEnv(gazebo_env.GazeboEnv):
                 laser_data = rospy.wait_for_message('/F1ROS/laser/scan', LaserScan, timeout=5)
             finally:
                 success = True
+                
+                if laser_data is None:
+                    state = [0]*5
+                    return state, -200, True, {}
 
         self._gazebo_pause()
 
         state, _ = self.discrete_observation(laser_data, 5)
 
         laser_len = len(laser_data.ranges)
-        left_sum = sum(laser_data.ranges[laser_len - (laser_len / 5):laser_len - (laser_len / 10)])  # 80-90
-        right_sum = sum(laser_data.ranges[(laser_len / 10):(laser_len / 5)])  # 10-20
+        left_sum = sum(laser_data.ranges[laser_len - (laser_len // 5):laser_len - (laser_len // 10)])  # 80-90
+        right_sum = sum(laser_data.ranges[(laser_len // 10):(laser_len // 5)])  # 10-20
         # center_detour = (right_sum - left_sum) / 5
         left_boundary = left_sum / 5
         right_boundary = right_sum / 5

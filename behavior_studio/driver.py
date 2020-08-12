@@ -159,7 +159,7 @@ def main():
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
-        if rows < 34 and columns < 115:
+        if int(rows) < 34 and int(columns) < 115:
             logger.error("Terminal window too small: {}x{}, please resize it to at least 35x115".format(rows, columns))
             sys.exit(1)
         else:
