@@ -43,7 +43,7 @@ class Pilot(threading.Thread):
         brains {brains.brains_handler.Brains} -- Brains controller instance
     """
 
-    def __init__(self, configuration, controller):
+    def __init__(self, configuration, controller, headless=False):
         """Constructor of the pilot class
 
         Arguments:
@@ -53,6 +53,7 @@ class Pilot(threading.Thread):
         self.controller = controller
         self.controller.set_pilot(self)
         self.configuration = configuration
+        self.headless = headless
 
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
@@ -83,7 +84,8 @@ class Pilot(threading.Thread):
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
         self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
-        self.__wait_gazebo()
+        if not self.headless:
+            self.__wait_gazebo()
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""

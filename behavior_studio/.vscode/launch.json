@@ -1,0 +1,52 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Behaviors",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/driver.py",
+            "args": ["-c", "profiles/default.yml", "-g"],
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Behaviors headless",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/driver.py",
+            "args": ["-c", "profiles/default.yml", "--headless"],
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Behaviors gui only",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/driver.py",
+            "args": ["-c", "profiles/default.yml", "--gui-only"],
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Behaviors noconf",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/driver.py",
+            "args": ["-g"],
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Current file",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

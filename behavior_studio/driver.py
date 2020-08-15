@@ -19,6 +19,8 @@ import os
 import sys
 import threading
 
+from pynput import keyboard
+
 from pilot import Pilot
 from ui.tui.main_view import TUI
 from utils import environment
@@ -55,7 +57,13 @@ def check_args(argv):
                         help='{}Path to the configuration file in YML format.{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    parser.add_argument('--headless',
+                        action='store_true',
+                        help="""{}Run the application in headless mode. Headless mode is useful to run the application
+                        in real robots allowing to run the UI from an external computer.{}
+                        """.format(Colors.OKBLUE, Colors.ENDC))
+
+    group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument('-g',
                        '--gui',
                        action='store_true',
@@ -68,20 +76,24 @@ def check_args(argv):
                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
 
+    group.add_argument('--gui-only',
+                       action='store_true',
+                       help="""{}Launch the GUI only. Useful if headless mode was launched on a real robot.{}
+                       """.format(Colors.OKBLUE, Colors.ENDC))
+
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None, 'tui': None}
+    config_data = {'config': args.config,
+                   'gui': args.gui,
+                   'tui': args.tui,
+                   'headless': args.headless,
+                   'gui_only': args.gui_only
+                   }
     if args.config:
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
 
         config_data['config'] = args.config
-
-    if args.gui:
-        config_data['gui'] = args.gui
-
-    if args.tui:
-        config_data['tui'] = args.tui
 
     return config_data
 
@@ -110,8 +122,8 @@ def conf_window(configuration, controller=None):
         main_window.show()
 
         app.exec_()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
 
 def main_win(configuration, controller):
@@ -138,11 +150,34 @@ def main_win(configuration, controller):
         logger.error(e)
 
 
-def main():
-    """Main function for the app. Handles creation and destruction of every element of the application."""
+def gui_only_mode(config_data):
+    logger.info('Running application in GUI-ONLY MODE.')
+    controller = Controller()
 
-    # Check and generate configuration
-    config_data = check_args(sys.argv)
+    app_configuration = Config(config_data['config'])
+
+    main_win(app_configuration, controller)
+
+
+def headless_mode(config_data):
+
+    logger.info('Running application in HEADLESS MODE. Press ESC to exit.')
+    controller = Controller(headless=True)
+
+    app_configuration = Config(config_data['config'])
+
+    environment.launch_env(app_configuration.current_world)
+
+    pilot = Pilot(app_configuration, controller, headless=True)
+    pilot.start()
+
+    with keyboard.Listener(on_press=on_press) as listener:
+        pilot.join()
+        listener.join()
+
+
+def desktop_mode(config_data):
+
     app_configuration = Config(config_data['config'])
 
     # Create controller of model-view
@@ -179,6 +214,10 @@ def main():
     else:
         pilot.join()
 
+    exit_gracefully(pilot)
+
+
+def exit_gracefully(pilot):
     # When window is closed or keypress for quit is detected, quit gracefully.
     logger.info('closing all processes...')
     pilot.kill_event.set()
@@ -186,6 +225,27 @@ def main():
     logger.info('DONE! Bye, bye :)')
 
 
+def main():
+    """ Main function for the app. Handles creation and destruction of every element of the application. """
+
+    # Check and generate configuration
+    config_data = check_args(sys.argv)
+
+    # Start the application in the desired mode
+    if config_data['headless']:
+        headless_mode(config_data)
+    elif config_data['gui_only']:
+        gui_only_mode(config_data)
+    else:
+        desktop_mode(config_data)
+
+
+def on_press(key):
+    if key == keyboard.Key.esc:
+        logger.info('Closing application...Bye Bye!')
+        environment.force_exit()
+
+
 if __name__ == '__main__':
-    main()
+    main()  
     sys.exit(0)

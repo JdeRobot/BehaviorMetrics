@@ -41,7 +41,7 @@ class Controller:
         recording {bool} -- Flag to determine if a rosbag is being recorded
     """
 
-    def __init__(self):
+    def __init__(self, headless=False):
         """ Constructor of the class. """
         pass
         self.__data_loc = threading.Lock()
@@ -49,6 +49,14 @@ class Controller:
         self.data = {}
         self.pose3D_data = None
         self.recording = False
+        self.headless = headless
+
+    def create_connection(self):
+        """ Create a python socket connection and bind it to the real robot to start sharing messages.
+
+        This class will manage all the data trasfer between the GUI and the real robot if launched with
+        headless mode."""
+        pass
 
     # GUI update
     def update_frame(self, frame_id, data):

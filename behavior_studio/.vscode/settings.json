@@ -1,0 +1,18 @@
+{
+    "python.pythonPath": "/home/fran/.virtualenvs/tfm_vane/bin/python",
+    "python.linting.enabled": true,
+    "files.exclude": {
+        "**/.git": false,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/*.py[cod]": true,
+        "**/__pycache__": true,
+        "ggui": true,
+        "qt_testing": true
+    },
+    "explorerExclude.backup": null,
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": false,
+}

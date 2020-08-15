@@ -4,7 +4,7 @@ Behaviors:
             Cameras:
                 Camera_0:
                     Name: 'camera_0'
-                    Topic: '/F1ROS/cameraL/image_raw'
+                    Topic: '/jetbot_camera/raw'
             Pose3D:
                 Pose3D_0:
                     Name: 'pose3d_0'
@@ -20,6 +20,9 @@ Behaviors:
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
+    Real:
+        Host: localhost
+        Port: 5555
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

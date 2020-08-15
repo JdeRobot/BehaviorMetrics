@@ -50,6 +50,24 @@ def launch_env(launch_file):
     time.sleep(5)
 
 
+def force_exit():
+
+    close_gazebo()
+
+    try:
+        ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
+    except subprocess.CalledProcessError as ce:
+        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
+        sys.exit(-1)
+
+    if ps_output.count('driver.py') > 0:
+        try:
+            subprocess.check_call(["pkill", "-9", "-f", "driver.py"])
+            logger.debug("Env: driver killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("Env: exception raised executing killall command for driver {}".format(ce))
+
+
 def close_gazebo():
     """Kill all the gazebo and ROS processes."""
     try:
