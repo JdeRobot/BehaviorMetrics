@@ -152,7 +152,9 @@ def main_win(configuration, controller):
 
 def gui_only_mode(config_data):
     logger.info('Running application in GUI-ONLY MODE.')
-    controller = Controller()
+    # uri = input("Enter the uri of the controller: ").strip()
+    from utils.controller_socket import Controller
+    controller = Controller()   # Pyro proxy apuntando a jetbot
 
     app_configuration = Config(config_data['config'])
 

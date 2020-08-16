@@ -28,6 +28,10 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
+# def launch_env(a):
+#     subprocess.Popen(["roscore"])
+
+
 def launch_env(launch_file):
     """Launch the environmet specified by the launch_file given in command line at launch time.
 

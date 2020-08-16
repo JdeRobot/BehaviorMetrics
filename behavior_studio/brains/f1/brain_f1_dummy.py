@@ -18,7 +18,7 @@ class Brain:
         """
         self.camera = sensors.get_camera('camera_0')
         # self.laser = sensors.get_laser('laser_0')
-        self.pose = sensors.get_pose3d('pose3d_0')
+        # self.pose = sensors.get_pose3d('pose3d_0')
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
 
@@ -42,7 +42,7 @@ class Brain:
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
-        self.update_pose(self.pose.getPose3d())
+        # self.update_pose(self.pose.getPose3d())
         v = 0
         w = 0.8
         self.motors.sendV(v)

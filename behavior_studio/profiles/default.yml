@@ -4,7 +4,7 @@ Behaviors:
             Cameras:
                 Camera_0:
                     Name: 'camera_0'
-                    Topic: '/jetbot_camera/raw'
+                    Topic: '/F1ROS/cameraL/image_raw'
             Pose3D:
                 Pose3D_0:
                     Name: 'pose3d_0'

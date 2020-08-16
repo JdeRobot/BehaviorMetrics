@@ -16,6 +16,8 @@ import threading
 import time
 from datetime import datetime
 
+import Pyro4
+
 from brains.brains_handler import Brains
 from robot.actuators import Actuators
 from robot.sensors import Sensors
@@ -27,7 +29,7 @@ __license__ = 'GPLv3'
 
 TIME_CYCLE = 60
 
-
+@Pyro4.expose
 class Pilot(threading.Thread):
     """This class handles the robot and its brain.
 
@@ -84,8 +86,8 @@ class Pilot(threading.Thread):
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
         self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
-        if not self.headless:
-            self.__wait_gazebo()
+        # if not self.headless:
+        #     self.__wait_gazebo()
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""

@@ -20,11 +20,10 @@ import shlex
 import subprocess
 import threading
 import socket
+import json
 import pickle
 import struct
-import json
 
-from enum import Enum
 import rospy
 from std_srvs.srv import Empty
 
@@ -33,27 +32,6 @@ from utils.logger import logger
 __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
-
-"""
-get_data            0x01
-initialize_robot    0x02
-reload_brain        0x03
-record_rosbag       0x04
-stop_record         0x05
-pause_gazebo        0x06
-unpause_gazebo      0x07
-reset_gazebo'       0x08
-"""
-
-OP_CODE = Enum('OP_CODE',
-               'get_data \
-                initialize_robot \
-                reload_brain \
-                record_rosbag \
-                stop_record \
-                pause_gazebo \
-                unpause_gazebo \
-                reset_gazebo')
 
 
 class Controller:
@@ -67,87 +45,13 @@ class Controller:
         recording {bool} -- Flag to determine if a rosbag is being recorded
     """
 
-    def __init__(self, headless=False):
+    def __init__(self):
         """ Constructor of the class. """
-        pass
-        self.__data_loc = threading.Lock()
-        self.__pose_loc = threading.Lock()
-        self.data = {}
-        self.pose3D_data = None
-        self.recording = False
-        self.headless = headless
-        if self.headless:
-            self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_address = ('localhost', 8888)
-            print('Starting server at {}:{}'.format(server_address[0], server_address[1]))
-
-            self.serversocket.bind(server_address)
-            self.serversocket.listen(1)
-            sck_thread = threading.Thread(target=self.start_listening)
-            sck_thread.start()
-
-    def start_listening(self):
-        while True:
-            print('Waiting for a connection...')
-            client_connection, client_address = self.serversocket.accept()
-            print('Succesfully connected to {}:{}'.format(client_address[0], client_address[1]))
-            data = b''
-            try:
-                while True:
-                    data += client_connection.recv(socket.MSG_WAITALL)
-                    if "##" in data:
-                        index = data.index('##')
-                        msg = data[:index]
-                        data = data[index+2:]
-                        # print('Message Received', msg)
-                        self.parse_msg(msg, client_connection)
-                    # if not check_alive(connection):
-                    #     break
-            finally:
-                print('Closing connection with {}:{}'.format(client_address[0], client_address[1]))
-                client_connection.close()
-
-    def send_response(self, data, connection):
-
-        compressed_data = pickle.dumps(data, 0)
-        size = len(compressed_data)
-
-        connection.sendall(struct.pack(">L", size) + compressed_data)
-
-    def parse_msg(self, msg, connection):
-        msg = json.loads(msg.decode('utf-8'))
-        try:
-            op = int(msg['op'], 16)
-            params = msg['params']
-        except Exception:
-            print('No supported operation', msg)
-
-        if op == OP_CODE.get_data.value:
-            response = self.get_data(params[0])
-            self.send_response(response, connection)
-        elif op == OP_CODE.initialize_robot.value:
-            self.initialize_robot()
-            response = b'200'
-        elif op == OP_CODE.reload_brain.value:
-            self.reload_brain(params[0])
-            response = b'200'
-        elif op == OP_CODE.record_rosbag.value:
-            response = b'200'
-        elif op == OP_CODE.stop_record.value:
-            response = b'200'
-        elif op == OP_CODE.pause_gazebo.value:
-            self.pause_gazebo_simulation()
-            response = b'200'
-        elif op == OP_CODE.unpause_gazebo.value:
-            self.unpause_gazebo_simulation()
-            response = b'200'
-        elif op == OP_CODE.reset_gazebo.value:
-            self.reset_gazebo_simulation()
-            response = b'200'
-        else:
-            print('Undefined operation')
-
-        
+        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = ('localhost', 8888)
+        print('Trying to connect to {}:{}'.format(server_address[0], server_address[1]))
+        self.clientsocket.connect(server_address)
+        print('Connection succesful!')
 
     def create_connection(self):
         """ Create a python socket connection and bind it to the real robot to start sharing messages.
@@ -183,14 +87,37 @@ class Controller:
         Returns:
             data -- Depending on the caller frame could be image data, laser data, etc.
         """
-        try:
-            with self.__data_loc:
-                data = self.data.get(frame_id, None)
-                # self.data[frame_id] = None
-        except Exception:
-            pass
+        info = {'op': '0x01', 'params': ['frame_0']}
+        data = json.dumps(info).encode('utf-8') + b'##'
+        self.clientsocket.sendall(data)
+        # print('Waiting for images...')
+        frame = self.receive_image()
 
-        return data
+        return frame
+
+    def receive_image(self):
+
+        data = b""
+        payload_size = struct.calcsize(">L")
+        print("payload_size: {}".format(payload_size))
+        # while True:
+        while len(data) < payload_size:
+            print("Recv: {}".format(len(data)))
+            data += self.clientsocket.recv(4096)
+
+        print("Done Recv: {}".format(len(data)))
+        packed_msg_size = data[:payload_size]
+        data = data[payload_size:]
+        msg_size = struct.unpack(">L", packed_msg_size)[0]
+        print("msg_size: {}".format(msg_size))
+        while len(data) < msg_size:
+            data += self.clientsocket.recv(4096)
+        frame_data = data[:msg_size]
+        data = data[msg_size:]
+
+        frame = pickle.loads(frame_data)
+        # frame=pickle.loads(frame_data, encoding="bytes")
+        return frame
 
     def update_pose3d(self, data):
         """Update the pose3D data retrieved from the robot
@@ -217,21 +144,25 @@ class Controller:
     # Simulation and dataset
 
     def reset_gazebo_simulation(self):
-        logger.info("Restarting simulation")
-        reset_physics = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        reset_physics()
+        info = {'op': '0x08', 'params': []}
+        data = json.dumps(info).encode('utf-8') + b'##'
+        self.clientsocket.sendall(data)
+        print('Waiting for images...')
+        # self.receive_image()
 
     def pause_gazebo_simulation(self):
-        logger.info("Pausing simulation")
-        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        pause_physics()
-        self.pilot.stop_event.set()
+        info = {'op': '0x06', 'params': []}
+        data = json.dumps(info).encode('utf-8') + b'##'
+        self.clientsocket.sendall(data)
+        print('Waiting for images...')
+        # self.receive_image()
 
     def unpause_gazebo_simulation(self):
-        logger.info("Resuming simulation")
-        # unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        # unpause_physics()
-        self.pilot.stop_event.clear()
+        info = {'op': '0x07', 'params': ['frame_0']}
+        data = json.dumps(info).encode('utf-8') + b'##'
+        self.clientsocket.sendall(data)
+        print('Waiting for images...')
+        # self.receive_image()
 
     def record_rosbag(self, topics, dataset_name):
         """Start the recording process of the dataset using rosbags
@@ -270,10 +201,11 @@ class Controller:
         Arguments:
             brain {srt} -- Brain to be reloadaed.
         """
-        logger.info("Reloading brain... {}".format(brain))
-        self.pause_pilot()
-        self.pilot.reload_brain(brain)
-        self.resume_pilot()
+        info = {'op': '0x03', 'params': [brain]}
+        data = json.dumps(info).encode('utf-8') + b'##'
+        self.clientsocket.sendall(data)
+        print('Waiting for images...')
+        # frame = self.receive_image()
 
     # Helper functions (connection with logic)
     def set_pilot(self, pilot):
