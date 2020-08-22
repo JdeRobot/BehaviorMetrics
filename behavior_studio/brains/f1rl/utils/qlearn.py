@@ -31,7 +31,8 @@ class QLearn:
         maxQ = max(q)
 
         if random.random() < self.epsilon:
-            minQ = min(q); mag = max(abs(minQ), abs(maxQ))
+            minQ = min(q)
+            mag = max(abs(minQ), abs(maxQ))
             # add random values to all the actions, recalculate maxQ
             q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))] 
             maxQ = max(q)
@@ -46,7 +47,7 @@ class QLearn:
             i = q.index(maxQ)
 
         action = self.actions[i]        
-        if return_q: # if they want it, give it!
+        if return_q:  # if they want it, give it!
             return action, q
         return action
 
