@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
 
 # Installing behavior studio
 RUN cd /root/ && \
-    git clone -b noetic-devel https://github.com/dcharrezt/BehaviorStudio && \
+    git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio && \
     cd BehaviorStudio && \
     pip3 install -r requirements.txt && \
     pip3 -V && python3 -V && \
