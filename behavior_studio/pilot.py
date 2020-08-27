@@ -68,13 +68,13 @@ class Pilot(threading.Thread):
 
         gazebo_ready = False
         self.stop_event.set()
-        while not gazebo_ready:
-            try:
-                self.controller.pause_gazebo_simulation()
-                gazebo_ready = True
-                self.stop_event.clear()
-            except Exception as ex:
-                print(ex)
+#         while not gazebo_ready:
+#             try:
+#                 self.controller.pause_gazebo_simulation()
+#                 gazebo_ready = True
+#                 self.stop_event.clear()
+#             except Exception as ex:
+#                 print(ex)
 
     def initialize_robot(self):
         """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
