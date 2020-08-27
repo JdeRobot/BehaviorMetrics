@@ -1,6 +1,9 @@
 import importlib
 import sys
 from abc import abstractmethod
+import subprocess
+import os
+
 
 """ TODO: fix neural brains """
 
@@ -26,12 +29,17 @@ class Brains(object):
         robot_type = path_split[-2]
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
-        if import_name in sys.modules:  # for reloading sake
-            del sys.modules[import_name]
-        module = importlib.import_module(import_name)
-
-        Brain = getattr(module, 'Brain')
-        self.active_brain = Brain(self.sensors, self.actuatrors, self)
+        
+        if robot_type == 'f1rl':
+            from utils import environment
+            environment.close_gazebo()
+            exec(open(self.brain_path).read())
+        else:
+            if import_name in sys.modules:  # for reloading sake
+                del sys.modules[import_name]
+            module = importlib.import_module(import_name)
+            Brain = getattr(module, 'Brain')
+            self.active_brain = Brain(self.sensors, self.actuatrors, self)
 
     def get_image(self, camera_name):
         camera = self.sensors.get_camera(camera_name)

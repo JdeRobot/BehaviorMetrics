@@ -1,7 +1,9 @@
 # Global variables
 
 import numpy as np
+from utils.configuration import Config
 
+app_configuration = Config('default.yml')
 
 debug_level = 0
 telemetry = False
@@ -11,8 +13,16 @@ my_board = True
 save_model = True
 load_model = False
 
-actions_set = "hard"  # test, simple, medium, hard
-gazebo_positions_set = "pista_simple"
+alpha = app_configuration.alpha
+gamma = app_configuration.gamma
+epsilon = app_configuration.epsilon
+total_episodes = app_configuration.total_episodes
+epsilon_discount = app_configuration.epsilon_discount
+
+actions_set = app_configuration.action_set  # test, simple, medium, hard
+gazebo_positions_set = app_configuration.gazebo_positions_set
+
+current_env = app_configuration.env
 
 # === ACTIONS SET ===
 # Deprecated?

@@ -98,6 +98,16 @@ class Config:
 
         self.dataset_in = config_data['Behaviors']['Dataset']['In']
         self.dataset_out = config_data['Behaviors']['Dataset']['Out']
+        
+        if self.robot_type == 'f1rl':
+            self.action_set = robot['Parameters']['action_set']
+            self.gazebo_positions_set = robot['Parameters']['gazebo_positions_set']
+            self.alpha = robot['Parameters']['alpha']
+            self.gamma = robot['Parameters']['gamma']
+            self.epsilon = robot['Parameters']['epsilon']
+            self.total_episodes = robot['Parameters']['total_episodes']
+            self.epsilon_discount = robot['Parameters']['epsilon_discount']
+            self.env = robot['Parameters']['env']
 
     def create_layout_from_cfg(self, cfg):
         """Creates the configuration for the layout of the sensors view panels specified from configuration file
