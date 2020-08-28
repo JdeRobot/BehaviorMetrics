@@ -230,6 +230,24 @@ Following this logic, you will see that the **default configuration** file will 
 
 {% include gallery id="gallery4" caption="" %}
 
+**Reinforcement Learning parameters**
+
+Optionally some parameters for reinforcement learning can be set up directly from the *yml* file below the type of the robot which in this example is *f1rl*.
+
+```yml
+BrainPath: 'brains/f1rl/train.py'
+Type: 'f1rl'
+Parameters:
+    action_set: 'simple'
+    gazebo_positions_set: 'pista_simple'
+    alpha: 0.2 
+    gamma: 0.9
+    epsilon: 0.99
+    total_episodes: 20000
+    epsilon_discount: 0.9986 
+    env: 'camera'
+```           
+
 ### Using the application
 
 Once the configuration file is created and the application has launched, you will see something like this (depending on your layout configuration. We assume you launched the default profile):
