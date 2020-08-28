@@ -56,11 +56,28 @@ This GUI is built using the Qt framework. It's composed of several components (c
 This part of the application is in a single module called *controller.py* and is responsible for the intercommunication between the model and the view. It is made in such a way that the model increases its performance without having to wait for the view to process the data.
 
 
+## Programming a custom brain
 
-## Programing a custom brain
+Adding a new brain should first create a python file within the `brain` folder, this new brain should be a Brain Class module with the following basic functions that work with the GUI. When using a the `yml` file the robot type must match the name of the brain folder.
 
-[WIP]
+**__init__**
 
+  this function should have as variables the:
+
+    - sensors ( Sensors instance of the robot ).
+    - actuators ( Actuators instance of the robot ).
+
+**update_frame**
+
+Updates the information to be shown in one of the GUI's frames.
+
+**update_pose**
+
+Updates the pose 3D information obtained from the robot.
+
+**execute**
+
+Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)
 
 ## Current Status
 

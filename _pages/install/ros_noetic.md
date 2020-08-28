@@ -130,6 +130,15 @@ pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
 	behavior_studio/ui/gui/resources/resources.qrc
 ```
 
+### Reinforcement Learning
+
+To use current reinforcement brain first some variables must be loaded to the environmet.
+
+```
+cd BehaviorStudio/gym-gazebo/
+bash load_env.sh 
+```
+
 From here you are to go to our [Quick Start guide!](https://github.com/JdeRobot/BehaviorStudio)
 
 ## Docker installation <a name="docker-installation"></a>
