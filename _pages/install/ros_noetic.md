@@ -36,16 +36,18 @@ gallery5:
 
 {% include gallery id="gallery" %}
 
-# Behavior Studio Docker
+Behavior Studio with ROS Noetic can be installed as usual in the machine or using Docker. 
+Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workflow is also provided.
+
 
 ## Table of Contents
 
-1. [Installing](#installation)
+1. [Ordinary Installation](#installation)
     1. [Requirements](#requisites)
     2. [Installing ROS Noetic](#noetic)
     3. [Installing Jderobot' dependencies](#dependencies)
     4. [Installing Behavior Studio](#behavior-studio)
-2. [Installing from Docker Image](#docker-installation)
+2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
         1. [VNC container viewer](#vnc)
         2. [Terminal in container](#term)
@@ -171,11 +173,11 @@ bash load_env.sh
 
 From here you are to go to our [Quick Start guide!](https://github.com/JdeRobot/BehaviorStudio)
 
-## Docker installation <a name="docker-installation"></a>
+## Installation using Docker <a name="docker-installation"></a>
 
 The docker installation guide is very clear and can be found in this [link](https://docs.docker.com/get-docker/) which is well documented.
 
-### Ubuntu
+### Download Docker in Ubuntu
 
 First remove older versions.
 
