@@ -100,17 +100,46 @@ sudo apt install python3.7
 virtualenv -p python3.7 .behavior-studio
 source .behavior-studio/bin/activate
 pip install empy
+sudo apt-get install python3.7-dev
 ```
 
-### Installing Jderobot's dependencies <a name="dependencies"></a>
+### Installing dependencies <a name="dependencies"></a>
+
+#### JdeRobot's Assets
 
 ```bash
 sudo apt-get install ros-noetic-jderobot-assets
 git clone https://github.com/JdeRobot/assets
+pip install catkin_pkg
 cd assets/jderobot_assets && mkdir build && cd build
 cmake .. && sudo make && sudo make install
 echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 source ~/.bashrc
+```
+
+#### JdeRobot's CustomRobots
+
+```bash
+git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots
+cd CustomRobots/f1 && mkdir build && cd build
+/bin/bash -c "source /opt/ros/noetic/setup.bash;
+cmake .. && make && make install;"
+```
+
+#### ROS additional package
+
+```bash
+git clone https://github.com/strasdat/Sophus
+cd Sophus && mkdir build && cd build
+cmake ../ && make && make install
+```
+
+#### Gym-gazebo
+
+```bash
+sudo apt-get install libbluetooth-dev libcwiid-dev libftdi-dev libspnav-dev libsdl-dev libsdl-image1.2-dev libusb-dev ros-noetic-octomap-msgs ros-noetic-geodesy ros-noetic-octomap-ros ros-noetic-control-toolbox ros-noetic-pluginlib	ros-noetic-trajectory-msgs ros-noetic-control-msgs ros-noetic-std-srvs ros-noetic-nodelet ros-noetic-urdf ros-noetic-rviz ros-noetic-kdl-conversions ros-noetic-eigen-conversions ros-noetic-tf2-sensor-msgs ros-noetic-pcl-ros ros-noetic-navigation
+cd BehaviorStudio/gym-gazebo/
+pip3 install -e .
 ```
 
 ### Installing Behavior Studio <a name="behavior-studio"></a>
@@ -120,6 +149,7 @@ This application depends on some third party libraries, most of them are include
 ```bash
 git clone https://github.com/JdeRobot/BehaviorStudio
 cd BehaviorStudio
+git checkout noetic-devel
 pip install -r requirements.txt
 ```
 
@@ -245,16 +275,18 @@ docker logs behavior-studio-noetic
 
 {% include gallery id="gallery2" %}
 
-Once you are in the notebook you can open up a terminal by clicking in Terminal.
+Go to that URL in the browser (outside VNC) and once you are in the notebook you can open up a terminal by clicking in Terminal.
 
 {% include gallery id="gallery3" %}
 
-A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, one the GUI is opened it will be displayed in the VNC window.
+A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, once the GUI is opened it will be displayed in the VNC window.
 
 ```bash
 cd BehaviorStudio/behavior_studio
-python3 driver.py -c -default -g
+python3 driver.py -c default.yml -g
 ```
+
+This command will open the Gazebo Simulation in the VNC window. You can also directly run the previous command inside VNC window in a terminal.
 
 {% include gallery id="gallery1" %}
 

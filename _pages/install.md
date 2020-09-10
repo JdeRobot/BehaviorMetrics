@@ -19,6 +19,8 @@ gallery:
 
 ---
 
+Choose the version you want to install clicking on the image:
+
 {% include gallery id="gallery" layout="half" %}
 
 
