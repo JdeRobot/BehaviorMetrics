@@ -281,7 +281,13 @@ Go to that URL in the browser (outside VNC) and once you are in the notebook you
 
 {% include gallery id="gallery3" %}
 
-A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, once the GUI is opened it will be displayed in the VNC window.
+A terminal window will open. Type 
+
+```bash
+bash
+``` 
+
+and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, once the GUI is opened it will be displayed in the VNC window.
 
 ```bash
 cd BehaviorStudio/behavior_studio
@@ -289,6 +295,12 @@ python3 driver.py -c default.yml -g
 ```
 
 This command will open the Gazebo Simulation in the VNC window. You can also directly run the previous command inside VNC window in a terminal.
+
+**IF THE PREVIOUS COMMAND FAILS** try the following and try again:
+
+```bash
+sudo apt-get update && sudo apt-get upgrade
+```
 
 {% include gallery id="gallery1" %}
 
