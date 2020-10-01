@@ -3,17 +3,9 @@ import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
-#MODEL_V = 'test_model_tf_keras_v.h5'
-#MODEL_W = 'test_model_tf_keras_w.h5'
-#MODEL_V = 'test_model_tf_keras_balanced_v.h5'
-#MODEL_W = 'test_model_tf_keras_balanced_w.h5'
-#MODEL_V = 'test_model_tf_keras_balanced_65_epochs_v.h5'
-#MODEL_W = 'test_model_tf_keras_balanced_65_epochs_w.h5'
-#MODEL_V = 'test_model_tf_keras_balanced_croppedv.h5'
-#MODEL_W = 'test_model_tf_keras_balanced_croppedw.h5'
-MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5'
-MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5'
 
+MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5' # CHANGE TO YOUR NET
+MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5' # CHANGE TO YOUR NET
 
 
 from os import path
@@ -53,27 +45,19 @@ class Brain:
             class 5 = moderate right
             class 6 = radically right
         """
-        # print('W -> ' + str(predicted_class))
         if predicted_class == 0:
-            #print('W -> radically left -> ' + str(predicted_class))
             self.motors.sendW(1.7)
         elif predicted_class == 1:
-            #print('W -> moderate left -> ' + str(predicted_class))
             self.motors.sendW(0.75)
         elif predicted_class == 2:
-            #print('W -> slightly left -> ' + str(predicted_class))
             self.motors.sendW(0.25)
         elif predicted_class == 3:
-            #print('W -> slight -> ' + str(predicted_class))
             self.motors.sendW(0)
         elif predicted_class == 4:
-            #print('W -> slightly right -> ' + str(predicted_class))
             self.motors.sendW(-0.25)
         elif predicted_class == 5:
-            #print('W -> moderate right -> ' + str(predicted_class))
             self.motors.sendW(-0.75)
         elif predicted_class == 6:
-            #print('W -> radically right -> ' + str(predicted_class))
             self.motors.sendW(-1.7)
             
             
@@ -91,21 +75,15 @@ class Brain:
         Arguments:
             predicted_class {int} -- Class predicted by the model in base of an input image
         """
-        # print('V -> ' + str(predicted_class))
         if predicted_class == 0:
-            #print('V -> slow -> ' + str(predicted_class))
-            self.motors.sendV(5)
+            self.motors.sendV(3)
         elif predicted_class == 1:
-            #print('V -> moderate -> ' + str(predicted_class))
-            self.motors.sendV(8)
+            self.motors.sendV(4)
         elif predicted_class == 2:
-            #print('V -> fast -> ' + str(predicted_class))
-            self.motors.sendV(10)
+            self.motors.sendV(5)
         elif predicted_class == 3:
-            #print('V -> very fast -> ' + str(predicted_class))
-            self.motors.sendV(13)
+            self.motors.sendV(6)
         elif predicted_class == 4:
-            print('V -> negative -> ' + str(predicted_class))
             self.motors.sendV(-0.6)
         
     def execute(self):
@@ -137,8 +115,6 @@ class Brain:
         if prediction_w[0] != '' and prediction_w[0] != '':
             self.calculate_v(prediction_v[0])
             self.calculate_w(prediction_w[0])
-            #self.motors.sendV(v)
-            #self.motors.sendW(w)
 
         self.update_frame('frame_0', image)
 
