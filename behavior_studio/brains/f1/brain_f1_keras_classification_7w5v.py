@@ -17,21 +17,11 @@ from os import path
 import tensorflow as tf
 import numpy as np
 
-#from behaviorlib.keraslib.keras_predict import KerasPredictor
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
-#SAVED_MODEL_V = 'model_smaller_vgg_5classes_biased_cropped_v.h5'
-#SAVED_MODEL_W = 'model_smaller_vgg_7classes_biased_cropped_w.h5'
-
-#SAVED_MODEL_V = 'test_model_tf_keras_balanced_croppedv.h5'
-#SAVED_MODEL_V = 'test_model_tf_keras_balanced_cropped_v.h5'
-#SAVED_MODEL_W = 'test_model_tf_keras_balanced_croppedw.h5'
-#SAVED_MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5'
-#SAVED_MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5'
-
-SAVED_MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5'
-SAVED_MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5'
+SAVED_MODEL_V = 'model_smaller_vgg_5classes_biased_cropped_v.h5'
+SAVED_MODEL_W = 'model_smaller_vgg_7classes_biased_cropped_w.h5'
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -138,8 +128,6 @@ class Brain:
         img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
         img = np.expand_dims(img, axis=0)
         
-        #prediction_v = self.net_v.predict(img, type='classification')
-        #prediction_w = self.net_w.predict(img, type='classification')
         prediction_v = self.net_v.predict_classes(img)
         prediction_w = self.net_w.predict_classes(img)
 
