@@ -1,17 +1,15 @@
 import time
 import datetime
 import pickle
-
 import gym
-from brains.f1rl.utils import liveplot
 import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
-from brains.f1rl.utils.qlearn import QLearn
 
 import brains.f1rl.utils.settings as settings
+from brains.f1rl.utils.qlearn import QLearn
 from brains.f1rl.utils.settings import actions_set
-
+from brains.f1rl.utils import liveplot
 
 class Brain:
     """Specific brain for the f1 robot with q learning."""
@@ -61,18 +59,18 @@ class Brain:
                 (render_episodes < episode):
             env.render(close=True)
             
-    def execute(self):
-        """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+#     def execute(self):
+#         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
-        self.update_pose(self.pose.getPose3d())
-        v = 0
-        w = 0.8
-        self.motors.sendV(v)
-        self.motors.sendW(w)
-        image = self.camera.getImage().data
-        self.update_frame('frame_0', image)
-        # laser_data = self.laser.getLaserData()
-        # self.update_frame('frame_0', laser_data)
+#         self.update_pose(self.pose.getPose3d())
+#         v = 0
+#         w = 0.8
+#         self.motors.sendV(v)
+#         self.motors.sendW(w)
+#         image = self.camera.getImage().data
+#         self.update_frame('frame_0', image)
+#         # laser_data = self.laser.getLaserData()
+#         # self.update_frame('frame_0', laser_data)
         
 
 
@@ -88,7 +86,7 @@ class Brain:
 
         print(qlearn.q)
 
-    def run_qlearn():
+    def execute(self):
         current_env = "laser"
         if current_env == "laser":
             env = gym.make('GazeboF1QlearnLaserEnv-v0')
@@ -191,3 +189,7 @@ class Brain:
         print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
         env.close()
+        
+# if __name__ == '__main__':
+print("amskdjaskdfjakj retesting damn it work  pls!")
+self.execute()

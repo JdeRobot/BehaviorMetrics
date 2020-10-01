@@ -107,22 +107,6 @@ class ParentWindow(QMainWindow):
 
         self.status_title.setText("Behavior Suite ")
 
-    #     self.animation_label = QLabel()
-    #     self.animation_label.setFixedSize(20, 20)
-    #     self.animation_label.setScaledContents(True)
-    #     self.movie = QMovie("/home/fran/load.gif")
-    #     self.animation_label.setMovie(self.movie)
-    #     self.status_bar.addPermanentWidget(self.animation_label)
-
-    # def start_load_animation(self):
-    #     # self.animation_label.show()
-    #     self.movie.start()
-    #     self.update()
-
-    # def stop_load_animation(self):
-    #     # self.animation_label.hide()
-    #     self.movie.stop()
-
     def recurring_timer(self):
         """Handles the statusbar clock update"""
         hour = datetime.datetime.now()
@@ -160,6 +144,7 @@ class ViewsController(QMainWindow):
         Keyword Arguments:
             controller {utils.controller.Controller} -- Controller of the application (default: {None})
         """
+        
         QMainWindow.__init__(self)
         self.parent = parent
         self.controller = controller
@@ -167,9 +152,6 @@ class ViewsController(QMainWindow):
         self.main_view = None
         self.thread_gui = ThreadGUI(self)
         self.thread_gui.daemon = True
-
-        # self.home_singal.connect(self.show_title)
-        # self.robot_select_signal.connect(self.show_robot_selection)
 
     def show_title(self):
         """Shows the title view"""
@@ -279,6 +261,9 @@ def delete_widgets_from(layout):
 
 
 if __name__ == '__main__':
+    
+    print(sys.argv)
+    
     app = QApplication(sys.argv)
 
     main_window = ParentWindow()
