@@ -1,4 +1,3 @@
-#from behaviorlib.keraslib.keras_predict import KerasPredictor
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 

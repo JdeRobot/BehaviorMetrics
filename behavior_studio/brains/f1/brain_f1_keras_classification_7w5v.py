@@ -46,9 +46,6 @@ class Brain:
             print("File "+SAVED_MODEL_V+" cannot be found in " + PRETRAINED_MODELS)
         if not path.exists(PRETRAINED_MODELS + SAVED_MODEL_W):
             print("File "+SAVED_MODEL_W+" cannot be found in " + PRETRAINED_MODELS)
-            
-        #self.net_v = KerasPredictor(PRETRAINED_MODELS + SAVED_MODEL_V)
-        #self.net_w = KerasPredictor(PRETRAINED_MODELS + SAVED_MODEL_W)
         
         self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + SAVED_MODEL_V)
         self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + SAVED_MODEL_W)
@@ -74,7 +71,6 @@ class Brain:
             class 3 = very fast
             class_4 = negative
         """
-        #print('V -> ' + str(predicted_class))
         if predicted_class == 0:
             self.motors.sendV(5)
         elif predicted_class == 1:
@@ -99,7 +95,6 @@ class Brain:
             class 5 = moderate right
             class 6 = radically right
         """
-        #print('W -> ' + str(predicted_class))
         if predicted_class == 0:
             self.motors.sendW(1.7)
         elif predicted_class == 1:
@@ -123,7 +118,6 @@ class Brain:
             self.cont += 1
 
         image = self.camera.getImage().data
-        #img = cv2.cvtColor(image[240:480, 0:640], cv2.COLOR_RGB2BGR)
         image = image[240:480, 0:640]
         img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
         img = np.expand_dims(img, axis=0)
