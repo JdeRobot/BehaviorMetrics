@@ -13,10 +13,13 @@
 
 """
 import cv2
+from os import path
+import tensorflow as tf
+import numpy as np
 
-from behaviorlib.keraslib.keras_predict import KerasPredictor
-from utils.constants import PRETRAINED_MODELS_DIR
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 SAVED_MODEL_V = 'model_smaller_vgg_5classes_biased_cropped_v.h5'
 SAVED_MODEL_W = 'model_smaller_vgg_7classes_biased_cropped_w.h5'
 
@@ -40,12 +43,13 @@ class Brain:
         self.cont = 0
 
         if not path.exists(PRETRAINED_MODELS + SAVED_MODEL_V):
-            print("File "+SAVED_MODEL_V+" cannot be found in " + PRETRAINED_MODELS_DIR)
+            print("File "+SAVED_MODEL_V+" cannot be found in " + PRETRAINED_MODELS)
         if not path.exists(PRETRAINED_MODELS + SAVED_MODEL_W):
-            print("File "+SAVED_MODEL_W+" cannot be found in " + PRETRAINED_MODELS_DIR)
-            
-        self.net_v = KerasPredictor(PRETRAINED_MODELS_DIR + SAVED_MODEL_V)
-        self.net_w = KerasPredictor(PRETRAINED_MODELS_DIR + SAVED_MODEL_W)
+            print("File "+SAVED_MODEL_W+" cannot be found in " + PRETRAINED_MODELS)
+        
+        self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + SAVED_MODEL_V)
+        self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + SAVED_MODEL_W)
+        
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -67,7 +71,6 @@ class Brain:
             class 3 = very fast
             class_4 = negative
         """
-
         if predicted_class == 0:
             self.motors.sendV(5)
         elif predicted_class == 1:
@@ -115,11 +118,15 @@ class Brain:
             self.cont += 1
 
         image = self.camera.getImage().data
-        img = cv2.cvtColor(image[240:480, 0:640], cv2.COLOR_RGB2BGR)
-        prediction_v = self.net_v.predict(img, type='classification')
-        prediction_w = self.net_w.predict(img, type='classification')
+        image = image[240:480, 0:640]
+        img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+        img = np.expand_dims(img, axis=0)
+        
+        prediction_v = self.net_v.predict_classes(img)
+        prediction_w = self.net_w.predict_classes(img)
 
-        if prediction_w != '' and prediction_w != '':
+        #if prediction_w != '' and prediction_w != '':
+        if prediction_w[0] != '' and prediction_w[0] != '':
             self.calculate_v(prediction_v)
             self.calculate_w(prediction_w)
 
