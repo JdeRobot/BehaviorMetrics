@@ -104,9 +104,7 @@ class Brain:
         image = image[240:480, 0:640]
         #print((int(image.shape[1] / 4), int(image.shape[0] / 4)))
         img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-        
-        
-        
+
         img = np.expand_dims(img, axis=0)
         prediction_v = self.net_v.predict_classes(img)
         prediction_w = self.net_w.predict_classes(img)
@@ -114,6 +112,7 @@ class Brain:
         if prediction_w[0] != '' and prediction_w[0] != '':
             self.calculate_v(prediction_v[0])
             self.calculate_w(prediction_w[0])
+
 
         self.update_frame('frame_0', image)
 
