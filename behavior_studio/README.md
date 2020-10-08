@@ -1,6 +1,9 @@
 <a href="https://mmg-ai.com/en/"><img src="https://jderobot.github.io/assets/images/logo.png" width="100 " align="right" /></a>
 
-# Behavior Studio Library
+# [DEPRECATED] Behavior Studio Library
+
+## **Please don't use this README since it's outdated. Checkout current [website](https://jderobot.github.io/BehaviorStudio/)**
+
 
 - [Usage](#usage)
 - [Dataset](#datasets)
