@@ -63,6 +63,6 @@ subject of the email, please.
 
 Emails:
 
-<sergiopaniegoblanco@gmail.com>
+* Sergio Paniego <sergiopaniegoblanco@gmail.com>
 
-<josemaria.plaza@gmail.com>
+* Jose Maria Cañas <josemaria.plaza@gmail.com>
