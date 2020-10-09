@@ -11,13 +11,17 @@
     of the F1 car. For that task it uses two different regression convolutional neural networks, one for v
     and another one for w
 """
-from behaviorlib.keraslib.keras_predict import KerasPredictor
+
+import tensorflow as tf
+import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR
-MODEL_PILOTNET_V = 'model_pilotnet_v.h5'
-MODEL_PILOTNET_W = 'model_pilotnet_w.h5'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+
+MODEL_PILOTNET_V = 'model_pilotnet_v.h5' # CHANGE TO YOUR NET
+MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
+
 
 from os import path
 
@@ -44,9 +48,9 @@ class Brain:
             print("File "+MODEL_PILOTNET_V+" cannot be found in " + PRETRAINED_MODELS)
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET_W):
             print("File "+MODEL_PILOTNET_W+" cannot be found in " + PRETRAINED_MODELS)
-        
-        self.net_v = KerasPredictor(PRETRAINED_MODELS + MODEL_PILOTNET_V)
-        self.net_w = KerasPredictor(PRETRAINED_MODELS + MODEL_PILOTNET_W)
+            
+        self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_PILOTNET_V)
+        self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_PILOTNET_W)
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -63,13 +67,24 @@ class Brain:
         if self.cont > 0:
             print("Runing...")
             self.cont += 1
-
+        
         image = self.camera.getImage().data
-        img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        # Normal image size -> (160, 120)
+        # Cropped image size -> (60, 160)
+        
+        # NORMAL IMAGE
+        #print((int(image.shape[1] / 4), int(image.shape[0] / 4)))
+        #img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+        
+        # CROPPED IMAGE
+        image = image[240:480, 0:640]
+        img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+        img = np.expand_dims(img, axis=0)
 
-        prediction_v = self.net_v.predict(img, type='regression')
-        prediction_w = self.net_w.predict(img, type='regression')
-
+        prediction_v = self.net_v.predict(img)
+        prediction_v = prediction_v * 0.5
+        prediction_w = self.net_w.predict(img)
+        
         if prediction_w != '' and prediction_w != '':
             self.motors.sendV(prediction_v)
             self.motors.sendW(prediction_w)
