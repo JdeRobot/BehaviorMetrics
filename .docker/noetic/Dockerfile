@@ -35,13 +35,6 @@ RUN cd /root/ && \
     pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
 	behavior_studio/ui/gui/resources/resources.qrc
 
-# Installing Jderobot-assets
-RUN git clone https://github.com/JdeRobot/assets && \
-    cd assets/jderobot_assets && mkdir build && cd build && \
-    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-    		  cmake .. && make && make install;" && \
-    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
-
 RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
     cd CustomRobots/f1 && mkdir build && cd build && \
     /bin/bash -c "source /opt/ros/noetic/setup.bash; \
