@@ -17,14 +17,10 @@ import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-#PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
-#MODEL_PILOTNET_V = 'model_pilotnet_v.h5'
-#MODEL_PILOTNET_W = 'model_pilotnet_w.h5'
-MODEL_PILOTNET_V = 'model_pilotnet_cropped_v.h5'
-MODEL_PILOTNET_W = 'model_pilotnet_cropped_w.h5'
-#MODEL_PILOTNET_V = 'model_deepestlstm_tinypilotnet_v.h5'
-#MODEL_PILOTNET_W = 'model_deepestlstm_tinypilotnet_w.h5'
+
+MODEL_PILOTNET_V = 'model_pilotnet_v.h5' # CHANGE TO YOUR NET
+MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
 
 
 from os import path
