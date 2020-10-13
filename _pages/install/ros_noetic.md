@@ -223,7 +223,9 @@ docker run hello-world
 
 ## Running Behavior Studio Containers <a name="starting-docker"></a>
 
-Open up a terminal a paste the following command
+Open up a terminal a paste the following command. Creating a volume is recommended so you can add models or datasets easily.
+To create the volume update `local_directory` to yur local directory where your datasets and models are located and `docker_directory` to the
+directory you want them to be stored inside the container.
 
 ### For CPU only
 
@@ -231,6 +233,7 @@ Open up a terminal a paste the following command
 docker run -dit --name behavior-studio-noetic \
 	-p 5900:5900 \
 	-p 8888:8888 \
+        -v [local_directory]:[docker_directory] \
 	jderobot/behavior-studio:noetic
 ```
 

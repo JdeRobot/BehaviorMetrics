@@ -1,5 +1,5 @@
 ---
-permalink: /status/
+permalink: /documentation/status/
 
 title: "Status of the project"
 
