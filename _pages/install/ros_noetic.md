@@ -237,13 +237,6 @@ docker run -dit --name behavior-studio-noetic \
 	jderobot/behavior-studio:noetic
 ```
 
-docker run -dit --name behavior-studio-noetic-volume-test
- -p 5900:5900 
- -p 8888:8888
-  -v /Users/sergiopaniegoblanco/test_volume_13_oct:/dir1
-   behavior-studio-noetic-test:1.0
-
-
 ### For GPU support (CUDA 10.1 Cudnn 7)
 
 Some extra packages are needed for Ubuntu 16.04/18.04/20.04, more about installation in [nvidia-docker docs](https://github.com/NVIDIA/nvidia-docker).
