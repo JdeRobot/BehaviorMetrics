@@ -14,7 +14,7 @@ main:
 docs:
   - title: Test your Network
     children:
-      - title: Check it out
+      - title: Quick Start
         url: /quick_start/
 
   - title: Installation
@@ -24,8 +24,8 @@ docs:
 
   - title: Documentation
     children:
-    - title: Requisites
-      url: //
     - title: Status
-      url: /status/
+      url: /documentation/status/
+    - title: Contributing
+      url: /documentation/contributing/
   
