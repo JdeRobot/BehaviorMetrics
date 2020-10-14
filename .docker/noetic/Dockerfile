@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 	apt-get install -y python3.7 python3.7-dev && \
 	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
 
-# Installing behavior studio
+# Installing Behavior Studio
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio && \
     cd BehaviorStudio && \
@@ -35,17 +35,12 @@ RUN cd /root/ && \
     pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
 	behavior_studio/ui/gui/resources/resources.qrc
 
-# Installing Jderobot-assets
-RUN git clone https://github.com/JdeRobot/assets && \
-    cd assets/jderobot_assets && mkdir build && cd build && \
-    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-    		  cmake .. && make && make install;" && \
-    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
-
+# Installing CustomRobots
 RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
     cd CustomRobots/f1 && mkdir build && cd build && \
     /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-		  cmake .. && make && make install;"
+		  cmake .. && make && make install;" && \
+    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
