@@ -23,6 +23,24 @@
         "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_monacolineROS.launch",
         "description": "Description",
         "model": "f1"
+      },
+      {
+        "name": "Nurburgring",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montreal",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_line.launch",
+        "description": "Description",
+        "model": "f1"
       }
     ],
     "f1rl": [
