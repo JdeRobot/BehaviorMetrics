@@ -12,17 +12,22 @@ main:
 
 # left side bar
 docs:
-  - title: Test your Network
+  - title: Quick Start
+    url: /quick_start/
     children:
-      - title: Quick Start
-        url: /quick_start/
+    - title: Brains zoo
+      url: quick_start/brains_zoo/
 
   - title: Installation
-    children: 
-    - title: How to install
-      url: /install/
+    url: /install/
+    children:
+      - title: ROS Noetic
+        url: /install/ros_noetic/
+      - title: ROS Melodic
+        url: /install/ros_melodic/
 
   - title: Documentation
+    url: /documentation/
     children:
     - title: Status
       url: /documentation/status/

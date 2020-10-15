@@ -80,7 +80,9 @@ gallery17:
     alt: ""
 ---
 
-First of all you need to install all the dependencies from the previous section.
+First of all you need to install Behavior Studio. If you haven't completed that step, please go to the [installation section](/install/).
+
+We additionally have some pretrained brains that you can use in Behavior Studio to illustrate how it works. Find them in the [brains zoo](/quick_start/brains_zoo/).
 
 To run the application with GUI (Graphic User Interface) just run:
 
