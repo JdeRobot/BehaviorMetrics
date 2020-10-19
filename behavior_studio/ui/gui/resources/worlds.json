@@ -23,6 +23,12 @@
         "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_line.launch",
         "description": "Description",
         "model": "f1"
+      },
+      {
+        "name": "Many curve",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch",
+        "description": "Description",
+        "model": "f1"
       }
     ],
     "f1rl": [
