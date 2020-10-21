@@ -84,6 +84,8 @@ First of all you need to install Behavior Studio. If you haven't completed that 
 
 We additionally have some pretrained brains that you can use in Behavior Studio to illustrate how it works. Find them in the [brains zoo](/quick_start/brains_zoo/).
 
+If you'd like to train your own brain, we provide you the [datasets](/quick_start/datasets).
+
 To run the application with GUI (Graphic User Interface) just run:
 
 ```bash
