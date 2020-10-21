@@ -17,6 +17,8 @@ docs:
     children:
     - title: Brains zoo
       url: quick_start/brains_zoo/
+    - title: Datasets
+      url: quick_start/datasets/
 
   - title: Installation
     url: /install/
