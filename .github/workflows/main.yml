@@ -24,4 +24,5 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: jderobot/behavior-studio
+          path: .docker/noetic/Dockerfile
           tag_with_ref: true
