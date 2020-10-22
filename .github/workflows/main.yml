@@ -26,6 +26,6 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2
         with:
-          repository: jderobot/behavior-studio
-          path: .docker/noetic/
-          tag_with_ref: true
+          push: true
+          tags: jderobot/behavior-studio:latest
+          file: .docker/noetic/Dockerfile
