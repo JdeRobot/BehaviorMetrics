@@ -187,4 +187,3 @@ class Controller:
     def initialize_robot(self):
         self.pause_pilot()
         self.pilot.initialize_robot()
-        self.resume_pilot()

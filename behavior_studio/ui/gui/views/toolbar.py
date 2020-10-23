@@ -587,6 +587,7 @@ class Toolbar(QWidget):
             
     def load_world(self):
         """Callback that handles world change"""
+
         world = self.world_combobox.currentText()
         txt = '<b><FONT COLOR = lightgreen>' + self.world_combobox.currentText().split('/')[-1] + '</b>'
         self.current_sim_label.setText('Current world: ' + txt)
