@@ -31,6 +31,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: jderobot/behavior-studio:latest
+          tags: jderobot/behavior-studio:noetic
           context: .docker/noetic/
           file: .docker/noetic/Dockerfile
