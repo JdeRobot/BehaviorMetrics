@@ -23,6 +23,8 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 # MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
 MODEL_PILOTNET_V = 'model_pilotnet_cropped_300_v.h5' # CHANGE TO YOUR NET
 MODEL_PILOTNET_W = 'model_pilotnet_cropped_300_w.h5' # CHANGE TO YOUR NET
+#MODEL_PILOTNET_V = 'model_tinypilotnet_cropped_v.h5' # CHANGE TO YOUR NET
+#MODEL_PILOTNET_W = 'model_tinypilotnet_cropped_w.h5' # CHANGE TO YOUR NET
 
 
 from os import path
@@ -84,7 +86,7 @@ class Brain:
         img = np.expand_dims(img, axis=0)
 
         prediction_v = self.net_v.predict(img)
-        # prediction_v = prediction_v * 0.5
+        prediction_v = prediction_v * 0.5
         prediction_w = self.net_w.predict(img)
         
         if prediction_w != '' and prediction_w != '':
