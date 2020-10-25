@@ -80,7 +80,7 @@ The models are available in the [following repository](http://wiki.jderobot.org/
 - Then you have to execute the application, which will incorporate your code:
 
     ```bash
-    python2 driver.py driver.yml
+    python3 driver.py driver.yml
     ```
 
 
