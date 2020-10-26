@@ -581,9 +581,10 @@ class Toolbar(QWidget):
 
             # save to configuration
             self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
-        except:
+        except Exception as ex:
             self.current_brain_label.setText(prev_label_text)
             print("Brain could not be loaded!.")
+            print(ex)
             
     def load_world(self):
         """Callback that handles world change"""

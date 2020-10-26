@@ -53,7 +53,6 @@ class Pilot(threading.Thread):
         self.controller = controller
         self.controller.set_pilot(self)
         self.configuration = configuration
-
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)

@@ -15,16 +15,21 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+import datetime
+import pickle
+from os import path
+import time
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
-MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
+# MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
+MODEL_PILOTNET = 'merged_model_tinypilotnet_cropped_300.h5'
 
+max_distance = 1
 
-from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -42,13 +47,21 @@ class Brain:
         """
         self.motors = actuators.get_motor('motors_0')
         self.camera = sensors.get_camera('camera_0')
+        #print('---- SENSORS ---')
+        #print(sensors)
+        self.pose3d = sensors.get_pose3d('pose3d_0')
+        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        self.previous = datetime.datetime.now()
+        self.start_time = datetime.datetime.now()
+        self.checkpoints = []
+        self.checkpoint_save = False
         self.handler = handler
         self.cont = 0
         
-        if not path.exists(PRETRAINED_MODELS + MODEL_LSTM):
+        if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET):
             print("File " + MODEL_LSTM + " cannot be found in " + PRETRAINED_MODELS)
             
-        self.net = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_LSTM)
+        self.net = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_PILOTNET)
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -67,6 +80,40 @@ class Brain:
             self.cont += 1
         
         image = self.camera.getImage().data
+        pose = self.pose3d.getPose3d()
+        
+        now = datetime.datetime.now()
+        if now - datetime.timedelta(seconds=3) > self.previous:
+            self.previous = datetime.datetime.now()
+            current_point = 0
+            current_point = np.array([pose.x, pose.y])
+            #self.checkpoints.append([len(self.checkpoints), current_point, datetime.datetime.now().strftime('%M:%S.%f')[-4]])
+            self.checkpoints.append([len(self.checkpoints), current_point])
+            print([len(self.checkpoints), current_point])
+            
+        if self.finish_line() and datetime.datetime.now() - datetime.timedelta(seconds=10) > self.start_time and not self.checkpoint_save:
+            self.checkpoint_save = True
+            print('Lap completed!')
+            timestr = time.strftime("%Y%m%d-%H%M%S")
+            file_name = timestr + '_lap_checkpoints.pkl'
+            file_dump = open(PRETRAINED_MODELS + file_name, 'wb')
+            pickle.dump(self.checkpoints, file_dump)
+            print("Saved in: {}".format(PRETRAINED_MODELS + file_name))
+            
+            '''
+            TODO:
+             * Save checkpoints. 
+             * Load checkpoints for other brains.
+             * Check lap time.
+             * Check percentage of lap completed.
+             * Check percentage of similarity to checkpoints. mean average error?
+             * Plot and save metrics
+             * ???
+            '''
+            
+            print('SAVE CHECKPOINT')
+            print('Lap time: ' + str(datetime.datetime.now() - self.start_time))
+        
         # Normal image size -> (160, 120)
         # Cropped image size -> (60, 160)
         
@@ -88,3 +135,17 @@ class Brain:
             self.motors.sendW(prediction_w)
 
         self.update_frame('frame_0', image)
+        
+        
+    def finish_line(self):
+        pose = self.pose3d.getPose3d()
+        current_point = np.array([pose.x, pose.y])
+
+        dist = (self.start_pose - current_point) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        # print(dist)
+        if dist < max_distance:
+            return True
+        return False
+
