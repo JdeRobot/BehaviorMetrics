@@ -83,34 +83,22 @@ class Brain:
         pose = self.pose3d.getPose3d()
         
         now = datetime.datetime.now()
-        if now - datetime.timedelta(seconds=3) > self.previous:
+        if now - datetime.timedelta(seconds=1) > self.previous:
             self.previous = datetime.datetime.now()
             current_point = 0
             current_point = np.array([pose.x, pose.y])
             #self.checkpoints.append([len(self.checkpoints), current_point, datetime.datetime.now().strftime('%M:%S.%f')[-4]])
-            self.checkpoints.append([len(self.checkpoints), current_point])
-            print([len(self.checkpoints), current_point])
+            self.checkpoints.append([len(self.checkpoints), current_point, str(datetime.datetime.now() - self.start_time)])
+            print([len(self.checkpoints), current_point, str(datetime.datetime.now() - self.start_time)])
             
         if self.finish_line() and datetime.datetime.now() - datetime.timedelta(seconds=10) > self.start_time and not self.checkpoint_save:
             self.checkpoint_save = True
             print('Lap completed!')
             timestr = time.strftime("%Y%m%d-%H%M%S")
-            file_name = timestr + '_lap_checkpoints.pkl'
+            file_name = MODEL_PILOTNET.split('.h5')[0] + '_' + timestr + '_lap_checkpoints.pkl'
             file_dump = open(PRETRAINED_MODELS + file_name, 'wb')
             pickle.dump(self.checkpoints, file_dump)
             print("Saved in: {}".format(PRETRAINED_MODELS + file_name))
-            
-            '''
-            TODO:
-             * Save checkpoints. 
-             * Load checkpoints for other brains.
-             * Check lap time.
-             * Check percentage of lap completed.
-             * Check percentage of similarity to checkpoints. mean average error?
-             * Plot and save metrics
-             * ???
-            '''
-            
             print('SAVE CHECKPOINT')
             print('Lap time: ' + str(datetime.datetime.now() - self.start_time))
         
