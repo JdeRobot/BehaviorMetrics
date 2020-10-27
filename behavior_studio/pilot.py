@@ -14,12 +14,16 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from brains.brains_handler import Brains
 from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
+
+import numpy as np
+import pickle
+
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -61,6 +65,14 @@ class Pilot(threading.Thread):
         self.actuators = None
         self.brains = None
         self.initialize_robot()
+        
+        self.pose3d = self.sensors.get_pose3d('pose3d_0')
+        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        self.previous = datetime.now()
+        self.checkpoints = []
+        self.checkpoint_save = False
+        self.max_distance = 1
+        
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -103,6 +115,7 @@ class Pilot(threading.Thread):
             if not self.stop_event.is_set():
                 try:
                     self.brains.active_brain.execute()
+                    self.update_metrics()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
@@ -149,3 +162,42 @@ class Pilot(threading.Thread):
             brain_path {str} -- Path to the brain module to load.
         """
         self.brains.load_brain(brain_path)
+        self.start_time = datetime.now()
+        print('START RECORDING CHECKPOINTS')
+        
+    def update_metrics(self):
+        #print('update metrics')
+        pose = self.pose3d.getPose3d()
+        
+        now = datetime.now()
+        if now - timedelta(seconds=1) > self.previous:
+            self.previous = datetime.now()
+            current_point = 0
+            current_point = np.array([pose.x, pose.y])
+            #self.checkpoints.append([len(self.checkpoints), current_point, datetime.datetime.now().strftime('%M:%S.%f')[-4]])
+            self.checkpoints.append([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
+            print([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
+            
+        if self.finish_line() and datetime.now() - timedelta(seconds=10) > self.start_time and not self.checkpoint_save:
+            self.checkpoint_save = True
+            print('Lap completed!')
+            timestr = time.strftime("%Y%m%d-%H%M%S")
+            file_name = timestr + '_lap_checkpoints.pkl'
+            file_dump = open(file_name, 'wb')
+            pickle.dump(self.checkpoints, file_dump)
+            print("Saved in: {}".format(file_name))
+            print('SAVE CHECKPOINT')
+            print('Lap time: ' + str(datetime.now() - self.start_time))
+            
+    def finish_line(self):
+        pose = self.pose3d.getPose3d()
+        current_point = np.array([pose.x, pose.y])
+
+        dist = (self.start_pose - current_point) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        # print(dist)
+        if dist < self.max_distance:
+            return True
+        return False
+        

@@ -55,6 +55,9 @@ class Brain:
         self.start_time = datetime.datetime.now()
         self.checkpoints = []
         self.checkpoint_save = False
+        
+        
+        
         self.handler = handler
         self.cont = 0
         
@@ -80,6 +83,7 @@ class Brain:
             self.cont += 1
         
         image = self.camera.getImage().data
+        '''
         pose = self.pose3d.getPose3d()
         
         now = datetime.datetime.now()
@@ -101,6 +105,7 @@ class Brain:
             print("Saved in: {}".format(PRETRAINED_MODELS + file_name))
             print('SAVE CHECKPOINT')
             print('Lap time: ' + str(datetime.datetime.now() - self.start_time))
+        '''
         
         # Normal image size -> (160, 120)
         # Cropped image size -> (60, 160)
