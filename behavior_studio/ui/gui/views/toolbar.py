@@ -323,9 +323,29 @@ class Toolbar(QWidget):
         stats_group = QGroupBox()
         # stats_group.setMinimumHeight(400)
         stats_group.setTitle('Stats')
-        stats_layout = QGridLayout()
+        self.stats_layout = QGridLayout()
+ 
+        self.stats_combobox = QComboBox()
+        self.stats_combobox.setEnabled(True)
+        stats_files = [file.split(".")[0] for file in os.listdir(constants.ROOT_PATH)
+                  if file.endswith('.pkl') and file.split(".")[0] != '__init__']
+        self.stats_combobox.addItem('')
+        self.stats_combobox.addItems(stats_files)
+        self.stats_combobox.setCurrentIndex(1)
+        self.stats_combobox.currentIndexChanged.connect(self.selection_change_brain)
+        
+        
+        self.confirm_stats = QPushButton('Load')
+        self.confirm_stats.setEnabled(True)
+        self.confirm_stats.clicked.connect(self.load_stats)
+        self.confirm_stats.setMaximumWidth(60)
 
-        stats_group.setLayout(stats_layout)
+        self.stats_layout.addWidget(self.stats_combobox, 0, 1, alignment=Qt.AlignLeft)
+        self.stats_layout.addWidget(self.confirm_stats, 2, 1, alignment=Qt.AlignRight)
+        stats_group.setLayout(self.stats_layout)
+        
+        
+        
         self.main_layout.addWidget(stats_group)
     
     def create_dataset_gb(self):
@@ -605,6 +625,36 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.current_world = world
+        
+    def load_stats(self):
+        
+        
+        stats_file = constants.ROOT_PATH + '/' + self.stats_combobox.currentText() + '.pkl'
+        import pickle
+        with open(stats_file, 'rb') as f:
+            data = pickle.load(f)
+            
+        for point in data:
+            print(point)
+    
+        print()
+            
+        print(data['world'])
+        print(data['brain_path'])
+        print(data['robot_type'])
+        for point in data['checkpoints']:
+            print(point)
+            
+        # stats_test = QLabel('Current brain: <b><FONT COLOR = lightgreen>STATS</b>')
+        stats_test = QLabel(data['world'])
+        #self.stats_layout.addWidget(stats_test, 1, 1, alignment=Qt.AlignLeft)
+        self.stats_layout.addWidget(stats_test)
+        for point in data['checkpoints']:
+            stats_test = QLabel(str(point))
+            self.stats_layout.addWidget(stats_test)
+            print(point)
+        
+    
 
     @staticmethod
     def open_close_simulator_gui():
