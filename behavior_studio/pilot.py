@@ -23,7 +23,7 @@ from utils.logger import logger
 
 import numpy as np
 import pickle
-
+import os
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -70,6 +70,7 @@ class Pilot(threading.Thread):
         self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
         self.previous = datetime.now()
         self.checkpoints = []
+        self.metrics = {}
         self.checkpoint_save = False
         self.max_distance = 1
         
@@ -162,11 +163,16 @@ class Pilot(threading.Thread):
             brain_path {str} -- Path to the brain module to load.
         """
         self.brains.load_brain(brain_path)
-        self.start_time = datetime.now()
-        print('START RECORDING CHECKPOINTS')
+        self.generate_metrics(brain_path)
         
+    def generate_metrics(self, brain_path):
+        current_world_head, current_world_tail = os.path.split(self.configuration.current_world)
+        current_brain_head, current_brain_tail = os.path.split(brain_path)
+        self.metrics['world'] = current_world_tail
+        self.metrics['brain_path'] = current_brain_tail
+        self.metrics['robot_type'] = self.configuration.robot_type
+
     def update_metrics(self):
-        #print('update metrics')
         pose = self.pose3d.getPose3d()
         
         now = datetime.now()
@@ -174,7 +180,6 @@ class Pilot(threading.Thread):
             self.previous = datetime.now()
             current_point = 0
             current_point = np.array([pose.x, pose.y])
-            #self.checkpoints.append([len(self.checkpoints), current_point, datetime.datetime.now().strftime('%M:%S.%f')[-4]])
             self.checkpoints.append([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
             print([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
             
@@ -184,7 +189,8 @@ class Pilot(threading.Thread):
             timestr = time.strftime("%Y%m%d-%H%M%S")
             file_name = timestr + '_lap_checkpoints.pkl'
             file_dump = open(file_name, 'wb')
-            pickle.dump(self.checkpoints, file_dump)
+            self.metrics['checkpoints'] = self.checkpoints
+            pickle.dump(self.metrics, file_dump)
             print("Saved in: {}".format(file_name))
             print('SAVE CHECKPOINT')
             print('Lap time: ' + str(datetime.now() - self.start_time))

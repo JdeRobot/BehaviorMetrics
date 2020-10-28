@@ -327,7 +327,7 @@ class Toolbar(QWidget):
 
         stats_group.setLayout(stats_layout)
         self.main_layout.addWidget(stats_group)
-
+    
     def create_dataset_gb(self):
         """Creates the dataset controls groupbox."""
         dataset_group = QGroupBox()
@@ -550,7 +550,8 @@ class Toolbar(QWidget):
         self.confirm_brain.setEnabled(True)
         self.brain_combobox.setStyleSheet('color: white')
         self.confirm_brain.setStyleSheet('color: white')
-
+        
+        self.controller.pause_pilot()
         self.controller.pause_gazebo_simulation()
 
     def resume_simulation(self):
@@ -563,8 +564,14 @@ class Toolbar(QWidget):
         self.confirm_brain.setEnabled(False)
         self.brain_combobox.setStyleSheet('color: grey')
         self.confirm_brain.setStyleSheet('color: grey')
-
-        # self.controller.reload_brain(brains_path + self.brain_combobox.currentText() + '.py')
+        brain = self.brain_combobox.currentText() + '.py'
+        
+        # load brain from controller
+        self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
+        self.controller.resume_pilot()
+        
+        # save to configuration
+        self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
         self.controller.unpause_gazebo_simulation()
 
     def load_brain(self):

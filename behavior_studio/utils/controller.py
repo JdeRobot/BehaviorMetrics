@@ -19,6 +19,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import subprocess
 import threading
+from datetime import datetime
 
 import rospy
 from std_srvs.srv import Empty
@@ -118,13 +119,19 @@ class Controller:
     def pause_gazebo_simulation(self):
         logger.info("Pausing simulation")
         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        pause_physics()
+        try:
+            pause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
         logger.info("Resuming simulation")
         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        unpause_physics()
+        try:
+            unpause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):
@@ -168,7 +175,6 @@ class Controller:
         
         self.pause_pilot()
         self.pilot.reload_brain(brain)
-        self.resume_pilot()
 
     # Helper functions (connection with logic)
 
@@ -182,6 +188,7 @@ class Controller:
         self.pilot.stop_event.set()
 
     def resume_pilot(self):
+        self.pilot.start_time = datetime.now()
         self.pilot.stop_event.clear()
 
     def initialize_robot(self):
