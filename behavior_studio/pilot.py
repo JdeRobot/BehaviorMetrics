@@ -72,7 +72,7 @@ class Pilot(threading.Thread):
         self.checkpoints = []
         self.metrics = {}
         self.checkpoint_save = False
-        self.max_distance = 1
+        self.max_distance = 0.5
         
 
     def __wait_gazebo(self):
@@ -176,12 +176,21 @@ class Pilot(threading.Thread):
         pose = self.pose3d.getPose3d()
         
         now = datetime.now()
-        if now - timedelta(seconds=1) > self.previous:
+        if now - timedelta(seconds=0.5) > self.previous:
             self.previous = datetime.now()
             current_point = 0
             current_point = np.array([pose.x, pose.y])
-            self.checkpoints.append([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
-            print([len(self.checkpoints), current_point, str(datetime.now() - self.start_time)])
+            self.checkpoints.append({
+                'x': pose.x,
+                'y': pose.y,
+                'z': pose.z,
+                'h': pose.h,
+                'yaw': pose.yaw,
+                'pitch': pose.pitch,
+                'roll': pose.roll,
+                'quaternion': pose.q,
+                'timestamp': pose.timeStamp,
+            })
             
         if self.finish_line() and datetime.now() - timedelta(seconds=10) > self.start_time and not self.checkpoint_save:
             self.checkpoint_save = True
@@ -192,7 +201,6 @@ class Pilot(threading.Thread):
             self.metrics['checkpoints'] = self.checkpoints
             pickle.dump(self.metrics, file_dump)
             print("Saved in: {}".format(file_name))
-            print('SAVE CHECKPOINT')
             print('Lap time: ' + str(datetime.now() - self.start_time))
             
     def finish_line(self):
