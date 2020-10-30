@@ -21,6 +21,8 @@ from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
 
+import numpy as np
+
 __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
@@ -53,7 +55,6 @@ class Pilot(threading.Thread):
         self.controller = controller
         self.controller.set_pilot(self)
         self.configuration = configuration
-
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
@@ -62,6 +63,15 @@ class Pilot(threading.Thread):
         self.actuators = None
         self.brains = None
         self.initialize_robot()
+        
+        self.pose3d = self.sensors.get_pose3d('pose3d_0')
+        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        self.previous = datetime.now()
+        self.checkpoints = []
+        self.metrics = {}
+        self.checkpoint_save = False
+        self.max_distance = 0.5
+        
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -104,6 +114,7 @@ class Pilot(threading.Thread):
             if not self.stop_event.is_set():
                 try:
                     self.brains.active_brain.execute()
+                    self.controller.update_metrics()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
@@ -150,3 +161,16 @@ class Pilot(threading.Thread):
             brain_path {str} -- Path to the brain module to load.
         """
         self.brains.load_brain(brain_path)
+            
+    def finish_line(self):
+        pose = self.pose3d.getPose3d()
+        current_point = np.array([pose.x, pose.y])
+
+        dist = (self.start_pose - current_point) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        # print(dist)
+        if dist < self.max_distance:
+            return True
+        return False
+        

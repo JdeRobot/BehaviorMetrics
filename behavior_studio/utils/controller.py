@@ -19,6 +19,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import subprocess
 import threading
+from datetime import datetime
 
 import rospy
 from std_srvs.srv import Empty
@@ -118,13 +119,19 @@ class Controller:
     def pause_gazebo_simulation(self):
         logger.info("Pausing simulation")
         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        pause_physics()
+        try:
+            pause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
         logger.info("Resuming simulation")
         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        unpause_physics()
+        try:
+            unpause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):
@@ -157,6 +164,62 @@ class Controller:
                 subprocess.Popen(command, stdout=out, stderr=err)
         else:
             logger.info("No bag recording")
+            
+            
+    def record_stats(self, stats_record_dir_path):
+        self.record_stats = True
+        self.start_time = datetime.now()
+        import os
+        current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
+        current_brain_head, current_brain_tail = os.path.split(self.pilot.brains.brain_path)
+        self.metrics = {}
+        self.metrics['world'] = current_world_tail
+        self.metrics['brain_path'] = current_brain_tail
+        self.metrics['robot_type'] = self.pilot.configuration.robot_type
+        self.stats_record_dir_path = stats_record_dir_path
+        
+    def stop_record_stats(self):
+        from datetime import datetime, timedelta
+        import numpy as np
+        import pickle
+        import time
+        self.record_stats = False
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        file_name = timestr + '_lap_checkpoints.pkl'
+        file_dump = open(self.stats_record_dir_path + '/' + file_name, 'wb')
+        self.metrics['checkpoints'] = self.pilot.checkpoints
+        pickle.dump(self.metrics, file_dump)
+        print("Saved in: {}".format(self.stats_record_dir_path + file_name))
+        
+    def update_metrics(self):
+        from datetime import datetime, timedelta
+        import numpy as np
+        import pickle
+        import time
+        
+        if self.record_stats:
+            pose = self.pilot.pose3d.getPose3d()
+
+            now = datetime.now()
+            if now - timedelta(seconds=0.5) > self.pilot.previous:
+                self.pilot.previous = datetime.now()
+                current_point = 0
+                current_point = np.array([pose.x, pose.y])
+                self.pilot.checkpoints.append({
+                    'x': pose.x,
+                    'y': pose.y,
+                    'z': pose.z,
+                    'h': pose.h,
+                    'yaw': pose.yaw,
+                    'pitch': pose.pitch,
+                    'roll': pose.roll,
+                    'quaternion': pose.q,
+                    'timestamp': pose.timeStamp,
+                })
+
+            if self.pilot.finish_line() and datetime.now() - timedelta(seconds=10) > self.start_time:
+                print('Lap completed!')
+    
 
     def reload_brain(self, brain):
         """Helper function to reload the current brain from the GUI.
@@ -168,7 +231,6 @@ class Controller:
         
         self.pause_pilot()
         self.pilot.reload_brain(brain)
-        self.resume_pilot()
 
     # Helper functions (connection with logic)
 
@@ -182,6 +244,8 @@ class Controller:
         self.pilot.stop_event.set()
 
     def resume_pilot(self):
+        self.start_time = datetime.now()
+        self.pilot.start_time = datetime.now()
         self.pilot.stop_event.clear()
 
     def initialize_robot(self):
