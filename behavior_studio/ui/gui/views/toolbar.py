@@ -243,6 +243,15 @@ class ClickableLabel(QLabel):
                     self.setPixmap(QPixmap(':/assets/play.png'))
                     self.active = False
                     self.parent.pause_simulation()
+            elif self.id == 'play_record_stats':
+                if not self.active:
+                    self.setPixmap(QPixmap(':/assets/pause.png'))
+                    self.active = True
+                    self.parent.start_recording_stats()
+                else:
+                    self.setPixmap(QPixmap(':/assets/play.png'))
+                    self.active = False
+                    self.parent.stop_recording_stats()
             elif self.id == 'reset':
                 self.parent.reset_simulation()
             elif self.id == 'gzcli':
@@ -321,30 +330,52 @@ class Toolbar(QWidget):
         The stat groupbox will show information of the application
         TODO: complete this groupbox"""
         stats_group = QGroupBox()
-        # stats_group.setMinimumHeight(400)
         stats_group.setTitle('Stats')
         self.stats_layout = QGridLayout()
  
+        stats_save_path_label = QLabel('Save path:  ')
+        self.stats_dir_selector_save = QLineEdit()
+        self.stats_dir_selector_save.setPlaceholderText('Select stats save path')
+        self.stats_dir_selector_save.setObjectName("stats_save")
+        self.stats_dir_selector_save.setReadOnly(True)
+
+        if self.configuration.stats_out:
+            self.stats_dir_selector_save.setText(self.configuration.stats_out)
+        selector_save_button = QPushButton('...')
+        selector_save_button.setMaximumSize(30, 30)
+        selector_save_button.clicked.connect(self.select_directory_dialog)
+        
         self.stats_combobox = QComboBox()
         self.stats_combobox.setEnabled(True)
-        stats_files = [file.split(".")[0] for file in os.listdir(constants.ROOT_PATH)
-                  if file.endswith('.pkl') and file.split(".")[0] != '__init__']
+        stats_files = [file.split(".")[0] for file in os.listdir(constants.ROOT_PATH) if file.endswith('.pkl') and file.split(".")[0] != '__init__']
         self.stats_combobox.addItem('')
         self.stats_combobox.addItems(stats_files)
         self.stats_combobox.setCurrentIndex(1)
         self.stats_combobox.currentIndexChanged.connect(self.selection_change_brain)
         
+        self.stats_hint_label = QLabel('Select a directory to save stats first!')
+        self.stats_hint_label.setStyleSheet('color: yellow; font-size: 12px; font-style: italic')
+        self.stats_hint_label.hide()
+        icons_layout = QHBoxLayout()
         
-        self.confirm_stats = QPushButton('Load')
-        self.confirm_stats.setEnabled(True)
-        self.confirm_stats.clicked.connect(self.load_stats)
-        self.confirm_stats.setMaximumWidth(60)
-
-        self.stats_layout.addWidget(self.stats_combobox, 0, 1, alignment=Qt.AlignLeft)
-        self.stats_layout.addWidget(self.confirm_stats, 2, 1, alignment=Qt.AlignRight)
+        self.recording_stats_animation_label = AnimatedLabel()
+        self.recording_stats_label = QLabel("Recording...")
+        self.recording_stats_label.setStyleSheet('color: yellow; font-weight: bold;')
+        self.recording_stats_animation_label.hide()
+        self.recording_stats_label.hide()
+        self.recording_stats_animation_label.setPixmap(QPixmap(':/assets/recording.png'))
+        self.start_pause_record_stats_label = ClickableLabel('play_record_stats', 50, QPixmap(':/assets/play.png'), parent=self)
+        self.start_pause_record_stats_label.setToolTip('Start/Stop recording stats')
+        
+        icons_layout.addWidget(self.recording_stats_animation_label, alignment=Qt.AlignBottom)
+        icons_layout.addWidget(self.recording_stats_label, alignment=Qt.AlignBottom)
+        icons_layout.addWidget(self.start_pause_record_stats_label, alignment=Qt.AlignBottom)
+        
+        self.stats_layout.addWidget(stats_save_path_label, 0, 0, 1, 1)
+        self.stats_layout.addWidget(self.stats_dir_selector_save, 0, 1, 1, 1)
+        self.stats_layout.addWidget(selector_save_button, 0, 2, 1, 1)
+        self.stats_layout.addLayout(icons_layout, 2, 0, 1, 3)
         stats_group.setLayout(self.stats_layout)
-        
-        
         
         self.main_layout.addWidget(stats_group)
     
@@ -365,7 +396,7 @@ class Toolbar(QWidget):
             self.file_selector_save.setText(self.configuration.dataset_in)
         selector_save_button = QPushButton('...')
         selector_save_button.setMaximumSize(30, 30)
-        selector_save_button.clicked.connect(self.saveFileDialog)
+        selector_save_button.clicked.connect(self.select_file_dialog)
         # selector_save_button.clicked.connect(lambda: self.selectFile(self.file_selector_save))
         selector_topics_button = QPushButton('Select Topics')
         selector_topics_button.clicked.connect(lambda: self.topics_popup.show_updated())
@@ -528,6 +559,30 @@ class Toolbar(QWidget):
         self.recording_animation_label.hide()
         self.recording_label.hide()
         self.controller.stop_record()
+        
+    def start_recording_stats(self):
+        """Callback that handles the recording initialization"""
+        print('start_recording_stats')
+        filename = self.stats_dir_selector_save.text()
+        if os.path.isdir(filename):
+            self.stats_hint_label.hide()
+            self.recording_stats_animation_label.start_animation()
+            self.recording_stats_label.show()
+            self.recording_stats_animation_label.show()
+            self.controller.record_stats(self.stats_dir_selector_save.text())
+        else:
+            self.stats_hint_label.setText('Select a directory to save stats first!')
+            self.stats_hint_label.show()
+            self.start_pause_record_label.active = False
+            self.start_pause_record_label.setPixmap(QPixmap(':/assets/play.png'))
+
+    def stop_recording_stats(self):
+        """Callback that handles recording stopping"""
+        print('stop_recording_stats')
+        self.recording_stats_animation_label.stop_animation()
+        self.recording_stats_animation_label.hide()
+        self.recording_stats_label.hide()
+        self.controller.stop_record_stats()
 
     def selection_change_brain(self, i):
         # print "Items in the list are :"
@@ -544,17 +599,24 @@ class Toolbar(QWidget):
         # print("Current index", i, "selection changed ", self.world_combobox.currentText())
         pass
 
-    def saveFileDialog(self):
+    def select_file_dialog(self):
         """Callback that will create the bag file where the dataset will be recorded"""
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        filename, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "Bag Files (*.bag)",
+        filename, _ = QFileDialog.getSaveFileName(self, "Select file", "", "",
                                                   options=options)
         if filename:
             if not filename.endswith(".bag"):
                 filename += ".bag"
             open(filename, 'w').close()
             self.file_selector_save.setText(filename)
+            
+    def select_directory_dialog(self):
+        """Callback that will select the dir where the stats will be recorded"""
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        directory = str(QFileDialog.getExistingDirectory(self, "Select directory"))
+        self.stats_dir_selector_save.setText(directory)
 
     def reset_simulation(self):
         """Callback that handles simulation resetting"""
@@ -625,36 +687,6 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.current_world = world
-        
-    def load_stats(self):
-        
-        
-        stats_file = constants.ROOT_PATH + '/' + self.stats_combobox.currentText() + '.pkl'
-        import pickle
-        with open(stats_file, 'rb') as f:
-            data = pickle.load(f)
-            
-        for point in data:
-            print(point)
-    
-        print()
-            
-        print(data['world'])
-        print(data['brain_path'])
-        print(data['robot_type'])
-        for point in data['checkpoints']:
-            print(point)
-            
-        # stats_test = QLabel('Current brain: <b><FONT COLOR = lightgreen>STATS</b>')
-        stats_test = QLabel(data['world'])
-        #self.stats_layout.addWidget(stats_test, 1, 1, alignment=Qt.AlignLeft)
-        self.stats_layout.addWidget(stats_test)
-        for point in data['checkpoints']:
-            stats_test = QLabel(str(point))
-            self.stats_layout.addWidget(stats_test)
-            print(point)
-        
-    
 
     @staticmethod
     def open_close_simulator_gui():

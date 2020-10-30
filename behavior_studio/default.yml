@@ -23,6 +23,8 @@ Behaviors:
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
+    Stats:
+        Out: './'
     Layout:
         Frame_0:
             Name: frame_0

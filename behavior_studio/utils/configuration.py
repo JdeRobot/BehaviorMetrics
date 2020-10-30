@@ -79,6 +79,8 @@ class Config:
 
         self.dataset_in = None
         self.dataset_out = None
+        
+        self.stats_out = None
 
     def initialize_configuration(self, config_data):
         """Initialize the configuration of the application based on a YAML profile file
@@ -98,6 +100,8 @@ class Config:
 
         self.dataset_in = config_data['Behaviors']['Dataset']['In']
         self.dataset_out = config_data['Behaviors']['Dataset']['Out']
+        
+        self.stats_out = config_data['Behaviors']['Stats']['Out']
         
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']

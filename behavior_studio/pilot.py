@@ -116,7 +116,7 @@ class Pilot(threading.Thread):
             if not self.stop_event.is_set():
                 try:
                     self.brains.active_brain.execute()
-                    self.update_metrics()
+                    self.controller.update_metrics()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
@@ -163,45 +163,6 @@ class Pilot(threading.Thread):
             brain_path {str} -- Path to the brain module to load.
         """
         self.brains.load_brain(brain_path)
-        self.generate_metrics(brain_path)
-        
-    def generate_metrics(self, brain_path):
-        current_world_head, current_world_tail = os.path.split(self.configuration.current_world)
-        current_brain_head, current_brain_tail = os.path.split(brain_path)
-        self.metrics['world'] = current_world_tail
-        self.metrics['brain_path'] = current_brain_tail
-        self.metrics['robot_type'] = self.configuration.robot_type
-
-    def update_metrics(self):
-        pose = self.pose3d.getPose3d()
-        
-        now = datetime.now()
-        if now - timedelta(seconds=0.5) > self.previous:
-            self.previous = datetime.now()
-            current_point = 0
-            current_point = np.array([pose.x, pose.y])
-            self.checkpoints.append({
-                'x': pose.x,
-                'y': pose.y,
-                'z': pose.z,
-                'h': pose.h,
-                'yaw': pose.yaw,
-                'pitch': pose.pitch,
-                'roll': pose.roll,
-                'quaternion': pose.q,
-                'timestamp': pose.timeStamp,
-            })
-            
-        if self.finish_line() and datetime.now() - timedelta(seconds=10) > self.start_time and not self.checkpoint_save:
-            self.checkpoint_save = True
-            print('Lap completed!')
-            timestr = time.strftime("%Y%m%d-%H%M%S")
-            file_name = timestr + '_lap_checkpoints.pkl'
-            file_dump = open(file_name, 'wb')
-            self.metrics['checkpoints'] = self.checkpoints
-            pickle.dump(self.metrics, file_dump)
-            print("Saved in: {}".format(file_name))
-            print('Lap time: ' + str(datetime.now() - self.start_time))
             
     def finish_line(self):
         pose = self.pose3d.getPose3d()
