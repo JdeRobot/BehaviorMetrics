@@ -177,7 +177,6 @@ class Controller:
         self.metrics['brain_path'] = current_brain_tail
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
         self.stats_record_dir_path = stats_record_dir_path
-        print(self.stats_record_dir_path)
         
     def stop_record_stats(self):
         from datetime import datetime, timedelta

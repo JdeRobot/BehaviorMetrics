@@ -14,7 +14,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from brains.brains_handler import Brains
 from robot.actuators import Actuators
@@ -22,8 +22,6 @@ from robot.sensors import Sensors
 from utils.logger import logger
 
 import numpy as np
-import pickle
-import os
 
 __author__ = 'fqez'
 __contributors__ = []
