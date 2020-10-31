@@ -211,7 +211,7 @@ class FrameConfig(QWidget):
         When all the settings are setted up, this button will hide the configuration view
         """
         self.hide()
-        self.parent.keep_ratio = self.aspect_ratio.isChecked
+        self.parent.keep_ratio = self.aspect_ratio.isChecked()
         self.parent.confirm.emit()
 
     def change_name(self, text):

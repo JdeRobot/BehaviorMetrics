@@ -105,19 +105,19 @@ class MainForm(npyscreen.FormMultiPage):
         }
         self.add_handlers(new_handlers)
 
-        self.name = "Welcome to Behavior Suite"
+        self.name = "Welcome to Behavior Studio"
         self.FIX_MINIMUM_SIZE_WHEN_CREATED = True
         commands_box = self.add(
             npyscreen.BoxTitle,
             max_width=35,
             max_height=14,
             name="Keyboard commands:",
-            scroll_exit = True,
+            scroll_exit=True,
             editable=False,
             color='VERYGOOD',
-            contained_widget_arguments = {
-                'color': "LABEL", 
-                'widgets_inherit_color': True,}
+            contained_widget_arguments={
+                'color': "LABEL",
+                'widgets_inherit_color': True}
             )
         commands_box.values = [
             "",

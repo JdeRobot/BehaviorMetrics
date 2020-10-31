@@ -105,7 +105,7 @@ class ParentWindow(QMainWindow):
         self.status_bar.addPermanentWidget(self.status_date)
         self.status_bar.addPermanentWidget(VLine())
 
-        self.status_title.setText("Behavior Suite ")
+        self.status_title.setText("Behavior Studio ")
 
     #     self.animation_label = QLabel()
     #     self.animation_label.setFixedSize(20, 20)

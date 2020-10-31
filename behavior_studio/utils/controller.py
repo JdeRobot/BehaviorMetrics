@@ -147,8 +147,6 @@ class Controller:
         else:
             print('Undefined operation')
 
-        
-
     def create_connection(self):
         """ Create a python socket connection and bind it to the real robot to start sharing messages.
 
@@ -229,8 +227,8 @@ class Controller:
 
     def unpause_gazebo_simulation(self):
         logger.info("Resuming simulation")
-        # unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        # unpause_physics()
+        unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+        unpause_physics()
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):

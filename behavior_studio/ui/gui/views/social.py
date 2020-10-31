@@ -57,7 +57,7 @@ class SocialMedia(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        github_label = self.create_button('https://github.com/jderobot/behaviorsuite', ':/assets/github.png')
+        github_label = self.create_button('https://github.com/jderobot/behaviorstudio', ':/assets/github.png')
         twitter_label = self.create_button('https://twitter.com/jderobot', ':/assets/twitter.png')
         youtube_label = self.create_button('https://www.youtube.com/channel/UCgmUgpircYAv_QhLQziHJOQ',
                                            ':/assets/youtube.png')

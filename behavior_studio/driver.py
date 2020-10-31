@@ -46,7 +46,7 @@ def check_args(argv):
 
     config_data = {}
 
-    parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
+    parser = argparse.ArgumentParser(description='Neural Behaviors Studio',
                                      epilog='Enjoy the program! :)')
 
     parser.add_argument('-c',

@@ -16,7 +16,7 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1/brain_f1_dummy.py'
+        BrainPath: 'brains/jetbot/brain_jetbot_regression.py'
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
@@ -33,13 +33,5 @@ Behaviors:
             Data: rgbimage
         Frame_1:
             Name: frame_1
-            Geometry: [0, 1, 1, 1]
-            Data: rgbimage
-        Frame_2:
-            Name: frame_2
-            Geometry: [0, 2, 1, 1]
-            Data: rgbimage
-        Frame_3:
-            Name: frame_3
-            Geometry: [0, 3, 3, 1]
+            Geometry: [0, 3, 1, 1]
             Data: rgbimage

@@ -61,7 +61,13 @@ class CameraWidget(QWidget):
 
         self.image_label.setPixmap(QPixmap(':/assets/logo_200.svg'))
         self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setScaledContents(True)
+
+        # if self.keep_ratio:
+        #     print('keeping away')
+        #     self.image_label.setScaledContents(False)
+        # else:
+        #     print('NOT keeping away')
+        self.image_label.setScaledContents(False)
 
         self.main_layout.addWidget(self.image_label)
         self.setLayout(self.main_layout)

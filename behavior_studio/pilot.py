@@ -87,7 +87,7 @@ class Pilot(threading.Thread):
         self.sensors = Sensors(self.configuration.sensors)
         self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
         # if not self.headless:
-        #     self.__wait_gazebo()
+        self.__wait_gazebo()
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
