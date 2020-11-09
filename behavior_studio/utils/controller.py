@@ -141,10 +141,10 @@ class Controller:
             topics {list} -- List of topics to be recorde
             dataset_name {str} -- Path of the resulting bag file
         """
+        
         if not self.recording:
             logger.info("Recording bag at: {}".format(dataset_name))
             self.recording = True
-            topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
             command = "rosbag record -O " + dataset_name + " " + " ".join(topics) + " __name:=behav_bag"
             command = shlex.split(command)
             with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
