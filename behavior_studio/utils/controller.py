@@ -167,6 +167,7 @@ class Controller:
             
             
     def record_stats(self, stats_record_dir_path):
+        logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.record_stats = True
         self.start_time = datetime.now()
         import os
@@ -178,7 +179,51 @@ class Controller:
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
         self.stats_record_dir_path = stats_record_dir_path
         
+        import time
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        file_name = timestr + '.bag'
+        
+        print('-- FILENAME --')
+        print('/root/BehaviorStudio/behavior_studio/' + file_name)
+        
+        topic = '/F1ROS/odom'
+        command = "rosbag record -O " + '/root/BehaviorStudio/behavior_studio/' + file_name + " " + topic + " __name:=behav_stats_bag"
+        print(command)
+        command = shlex.split(command)
+        with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+            subprocess.Popen(command, stdout=out, stderr=err)
+        
     def stop_record_stats(self):
+        logger.info("Stopping stats bag recording")
+        command = "rosnode kill /behav_stats_bag"
+        command = shlex.split(command)
+        with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+            subprocess.Popen(command, stdout=out, stderr=err)
+        
+        
+        checkpoints = []
+        print('--- Stop Record stats ---')
+        import rosbag
+        bag = rosbag.Bag('odom_bag.bag')
+        for topic, msg, t in bag.read_messages(topics=['/F1ROS/odom']):
+            #print(msg)
+            checkpoints.append(msg)
+            type(msg)
+        bag.close()
+        
+        from datetime import datetime, timedelta
+        import numpy as np
+        import pickle
+        import time
+        self.record_stats = False
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        file_name = timestr + '_lap_checkpoints.pkl'
+        file_dump = open(self.stats_record_dir_path + '/' + file_name, 'wb')
+        self.metrics['checkpoints'] = checkpoints
+        pickle.dump(self.metrics, file_dump)
+        print("Saved in: {}".format(self.stats_record_dir_path + file_name))
+        
+        '''
         from datetime import datetime, timedelta
         import numpy as np
         import pickle
@@ -190,6 +235,8 @@ class Controller:
         self.metrics['checkpoints'] = self.pilot.checkpoints
         pickle.dump(self.metrics, file_dump)
         print("Saved in: {}".format(self.stats_record_dir_path + file_name))
+        '''
+        
         
     def update_metrics(self):
         from datetime import datetime, timedelta
