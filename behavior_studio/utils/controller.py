@@ -26,6 +26,12 @@ from std_srvs.srv import Empty
 
 from utils.logger import logger
 
+import os
+import time
+import rosbag
+import json
+from std_msgs.msg import String
+
 __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
@@ -170,7 +176,6 @@ class Controller:
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.record_stats = True
         self.start_time = datetime.now()
-        import os
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
         current_brain_head, current_brain_tail = os.path.split(self.pilot.brains.brain_path)
         self.metrics = {}
@@ -178,14 +183,11 @@ class Controller:
         self.metrics['brain_path'] = current_brain_tail
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
         self.stats_record_dir_path = stats_record_dir_path
-        
-        import time
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
         
         topic = '/F1ROS/odom'
         command = "rosbag record -O " + self.stats_filename + " " + topic + " __name:=behav_stats_bag"
-        print(command)
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
@@ -196,46 +198,13 @@ class Controller:
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
-        
+
         checkpoints = []
-        import rosbag
-        import json
         metrics_str = json.dumps(self.metrics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
-            from std_msgs.msg import String
             metadata_msg = String(data=metrics_str)
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
-        
-        
-    def update_metrics(self):
-        from datetime import datetime, timedelta
-        import numpy as np
-        import pickle
-        import time
-        
-        if self.record_stats:
-            pose = self.pilot.pose3d.getPose3d()
-
-            now = datetime.now()
-            if now - timedelta(seconds=0.5) > self.pilot.previous:
-                self.pilot.previous = datetime.now()
-                current_point = 0
-                current_point = np.array([pose.x, pose.y])
-                self.pilot.checkpoints.append({
-                    'x': pose.x,
-                    'y': pose.y,
-                    'z': pose.z,
-                    'h': pose.h,
-                    'yaw': pose.yaw,
-                    'pitch': pose.pitch,
-                    'roll': pose.roll,
-                    'quaternion': pose.q,
-                    'timestamp': pose.timeStamp,
-                })
-
-            if self.pilot.finish_line() and datetime.now() - timedelta(seconds=10) > self.start_time:
-                print('Lap completed!')
     
 
     def reload_brain(self, brain):
