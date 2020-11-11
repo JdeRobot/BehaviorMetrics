@@ -31,14 +31,10 @@ import time
 import rosbag
 import json
 from std_msgs.msg import String
-import yaml
 import numpy as np
-import bagpy
 from bagpy import bagreader
 import pandas as pd
-import seaborn as sea
-
-
+import shutil
 
 
 __author__ = 'fqez'
@@ -208,26 +204,8 @@ class Controller:
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
         
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
         time.sleep(3)
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
-        print('------------')
         from threading import Thread
-
-        
         checkpoints = []
         metrics_str = json.dumps(self.metrics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
@@ -238,11 +216,15 @@ class Controller:
         thread = Thread(target = self.threaded_function)
         thread.start()
         thread.join()
+
+        self.lap_percentage_completed()
+        
+        shutil.rmtree(self.stats_filename.split('.bag')[0])
+        shutil.rmtree(self.pilot.configuration.stats_perfect_lap.split('.bag')[0])
+        
         
     def threaded_function(self):
-        print('--- PERFECT LAP ---')
         perfect_lap = self.pilot.configuration.stats_perfect_lap
-        print('--- COMPARE TO PERFECT LAP ---')
         time_start = time.clock()
         # INSTALL BAGPY PIP
 
@@ -254,7 +236,7 @@ class Controller:
 
         
         data_file = 'full-lap/F1ROS-odom.csv'
-        df_imu = pd.read_csv(data_file
+        df_imu = pd.read_csv(data_file)
         
         checkpoints = []
         for index, row in df_imu.iterrows():
@@ -263,12 +245,6 @@ class Controller:
         metadata_file = 'full-lap/metadata.csv'
         df_metatada = pd.read_csv(metadata_file)
         metadata = d = json.loads(df_metatada.iloc[0]['data'])
-        print('---- METADATA ----')
-        print(metadata)
-        print(metadata['world'])
-        print(metadata['brain_path'])
-        print(metadata['robot_type'])
-        
         
         # Find how many laps has the robot completed.
         start_point = checkpoints[0]
@@ -285,9 +261,10 @@ class Controller:
         # TIME TO COMPLETE LAP
         print('TIME TO COMPLETE LAP -> ' + str(lap_seconds) + ' s')
         # CIRCUIT LONGITUDE
-        print('LONGITUDE -> ' + str(self.circuit_diameter(data, checkpoints, lap_point)) + ' m')
+        self.circuit_diameter = self.circuit_completed_distance(checkpoints, lap_point)
+        print('LONGITUDE -> ' + str(self.circuit_diameter) + ' m')
         # AVERAGE SPEED
-        print('SPEED -> ' + str(self.circuit_diameter(data, checkpoints, lap_point)/lap_seconds) + ' m/s')
+        print('SPEED -> ' + str(self.circuit_completed_distance(checkpoints, lap_point)/lap_seconds) + ' m/s')
         
         
     def finish_line(self, point, start_point):
@@ -301,7 +278,7 @@ class Controller:
             return True
         return False
 
-    def circuit_diameter(self, data, checkpoints, lap_point):
+    def circuit_completed_distance(self, checkpoints, lap_point):
         previous_point = []
         diameter = 0
         for i, point in enumerate(checkpoints):
@@ -315,6 +292,31 @@ class Controller:
                 break
             previous_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
         return diameter
+    
+    def lap_percentage_completed(self):
+        b = bagreader(self.stats_filename)
+        csvfiles = []
+        for t in b.topics:
+            data = b.message_by_topic(t)
+            csvfiles.append(data)
+
+        
+        data_file = self.stats_filename.split('.bag')[0] + '/F1ROS-odom.csv'
+        df_imu = pd.read_csv(data_file)
+        
+        checkpoints = []
+        for index, row in df_imu.iterrows():
+            checkpoints.append(row)
+            
+        start_point = checkpoints[0]
+        end_point = checkpoints[len(checkpoints)-1]
+        completed_distance = self.circuit_completed_distance(checkpoints, end_point)
+        print('LONGITUDE COMPLETED-> ' + str(completed_distance) + ' m')
+        
+        percentage_completed = (completed_distance / self.circuit_diameter) * 100
+        print('PERCENTAGE COMPLETED -> ' + str(percentage_completed) + '%')
+        
+        return percentage_completed
 
     def reload_brain(self, brain):
         """Helper function to reload the current brain from the GUI.
