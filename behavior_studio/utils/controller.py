@@ -31,6 +31,15 @@ import time
 import rosbag
 import json
 from std_msgs.msg import String
+import yaml
+import numpy as np
+import bagpy
+from bagpy import bagreader
+import pandas as pd
+import seaborn as sea
+
+
+
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -198,14 +207,114 @@ class Controller:
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
+        
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        time.sleep(3)
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        print('------------')
+        from threading import Thread
 
+        
         checkpoints = []
         metrics_str = json.dumps(self.metrics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
             metadata_msg = String(data=metrics_str)
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
-    
+        
+        thread = Thread(target = self.threaded_function)
+        thread.start()
+        thread.join()
+        
+    def threaded_function(self):
+        print('--- PERFECT LAP ---')
+        perfect_lap = self.pilot.configuration.stats_perfect_lap
+        print('--- COMPARE TO PERFECT LAP ---')
+        time_start = time.clock()
+        # INSTALL BAGPY PIP
+
+        b = bagreader(perfect_lap)
+        csvfiles = []
+        for t in b.topics:
+            data = b.message_by_topic(t)
+            csvfiles.append(data)
+
+        
+        data_file = 'full-lap/F1ROS-odom.csv'
+        df_imu = pd.read_csv(data_file
+        
+        checkpoints = []
+        for index, row in df_imu.iterrows():
+            checkpoints.append(row)
+        
+        metadata_file = 'full-lap/metadata.csv'
+        df_metatada = pd.read_csv(metadata_file)
+        metadata = d = json.loads(df_metatada.iloc[0]['data'])
+        print('---- METADATA ----')
+        print(metadata)
+        print(metadata['world'])
+        print(metadata['brain_path'])
+        print(metadata['robot_type'])
+        
+        
+        # Find how many laps has the robot completed.
+        start_point = checkpoints[0]
+
+        for x, point in enumerate(checkpoints):
+            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.finish_line(point, start_point) :
+                lap_point = point
+
+
+        seconds_start = start_point['header.stamp.secs']
+        seconds_end = lap_point['header.stamp.secs']
+        lap_seconds = seconds_end - seconds_start
+
+        # TIME TO COMPLETE LAP
+        print('TIME TO COMPLETE LAP -> ' + str(lap_seconds) + ' s')
+        # CIRCUIT LONGITUDE
+        print('LONGITUDE -> ' + str(self.circuit_diameter(data, checkpoints, lap_point)) + ' m')
+        # AVERAGE SPEED
+        print('SPEED -> ' + str(self.circuit_diameter(data, checkpoints, lap_point)/lap_seconds) + ' m/s')
+        
+        
+    def finish_line(self, point, start_point):
+        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
+
+        dist = (start_point - current_point) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist < 0.5:
+            return True
+        return False
+
+    def circuit_diameter(self, data, checkpoints, lap_point):
+        previous_point = []
+        diameter = 0
+        for i, point in enumerate(checkpoints):
+            current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+            if i is not 0:
+                dist = (previous_point - current_point) ** 2
+                dist = np.sum(dist, axis=0)
+                dist = np.sqrt(dist)
+                diameter += dist
+            if point is lap_point:
+                break
+            previous_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        return diameter
 
     def reload_brain(self, brain):
         """Helper function to reload the current brain from the GUI.
