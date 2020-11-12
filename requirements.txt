@@ -28,3 +28,4 @@ six
 empy
 vcstool 
 scikit-image
+bagpy
