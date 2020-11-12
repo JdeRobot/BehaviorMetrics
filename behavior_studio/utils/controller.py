@@ -217,7 +217,7 @@ class Controller:
         thread.start()
         thread.join()
 
-        self.lap_percentage_completed()
+        self.statistics = self.lap_percentage_completed()
         
         shutil.rmtree(self.stats_filename.split('.bag')[0])
         shutil.rmtree(self.pilot.configuration.stats_perfect_lap.split('.bag')[0])
@@ -294,6 +294,7 @@ class Controller:
         return diameter
     
     def lap_percentage_completed(self):
+        statistics = {}
         b = bagreader(self.stats_filename)
         csvfiles = []
         for t in b.topics:
@@ -310,13 +311,37 @@ class Controller:
             
         start_point = checkpoints[0]
         end_point = checkpoints[len(checkpoints)-1]
-        completed_distance = self.circuit_completed_distance(checkpoints, end_point)
-        print('LONGITUDE COMPLETED-> ' + str(completed_distance) + ' m')
         
-        percentage_completed = (completed_distance / self.circuit_diameter) * 100
-        print('PERCENTAGE COMPLETED -> ' + str(percentage_completed) + '%')
+        statistics['completed_distance'] = self.circuit_completed_distance(checkpoints, end_point)
+        print('LONGITUDE COMPLETED -> ' + str(statistics['completed_distance']) + ' m')
         
-        return percentage_completed
+        statistics['percentage_completed'] = (statistics['completed_distance'] / self.circuit_diameter) * 100
+        print('PERCENTAGE COMPLETED -> ' + str(statistics['percentage_completed']) + '%')
+        
+        if statistics['percentage_completed'] > 100:
+            print('Number of laps completed -> ' + str(statistics['percentage_completed'] / 100))
+            
+            # Find how many laps has the robot completed.
+            start_point = checkpoints[0]
+
+            for x, point in enumerate(checkpoints):
+                if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.finish_line(point, start_point) :
+                    lap_point = point
+            
+            seconds_start = start_point['header.stamp.secs']
+            seconds_end = lap_point['header.stamp.secs']
+            statistics['lap_seconds'] = seconds_end - seconds_start
+
+            # TIME TO COMPLETE LAP
+            print('TIME TO COMPLETE LAP -> ' + str(statistics['lap_seconds']) + ' s')
+            # CIRCUIT LONGITUDE
+            statistics['circuit_diameter'] = self.circuit_completed_distance(checkpoints, lap_point)
+            print('LONGITUDE -> ' + str(statistics['circuit_diameter']) + ' m')
+            # AVERAGE SPEED
+            statistics['average_speed'] = self.circuit_completed_distance(checkpoints, lap_point)/statistics['lap_seconds']
+            print('SPEED -> ' + str(statistics['average_speed']) + ' m/s')
+        
+        return statistics
 
     def reload_brain(self, brain):
         """Helper function to reload the current brain from the GUI.
