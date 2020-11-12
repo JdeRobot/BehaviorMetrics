@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                              QFrame, QGraphicsOpacityEffect, QGridLayout,
                              QGroupBox, QHBoxLayout, QLabel, QLineEdit,
                              QPushButton, QScrollArea, QSpacerItem,
-                             QVBoxLayout, QWidget, QMainWindow)
+                             QVBoxLayout, QWidget)
 
 from ui.gui.views.stats_window import StatsWindow
 from ui.gui.views.logo import Logo

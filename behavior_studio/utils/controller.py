@@ -195,7 +195,7 @@ class Controller:
         command = "rosbag record -O " + self.stats_filename + " " + topic + " __name:=behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
-            subprocess.Popen(command, stdout=out, stderr=err)
+            self.proc = subprocess.Popen(command, stdout=out, stderr=err)
         
     def stop_record_stats(self):
         logger.info("Stopping stats bag recording")
@@ -203,9 +203,10 @@ class Controller:
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
-        
-        time.sleep(3)
-        from threading import Thread
+
+        while(os.path.isfile(self.stats_filename + '.active')):
+            pass
+
         checkpoints = []
         metrics_str = json.dumps(self.metrics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
@@ -213,58 +214,33 @@ class Controller:
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
         
-        thread = Thread(target = self.threaded_function)
-        thread.start()
-        thread.join()
-
+        self.read_perfect_lap_rosbag()
         self.statistics = self.lap_percentage_completed()
         
         shutil.rmtree(self.stats_filename.split('.bag')[0])
         shutil.rmtree(self.pilot.configuration.stats_perfect_lap.split('.bag')[0])
         
         
-    def threaded_function(self):
+    def read_perfect_lap_rosbag(self):
         perfect_lap = self.pilot.configuration.stats_perfect_lap
-        time_start = time.clock()
-        # INSTALL BAGPY PIP
-
-        b = bagreader(perfect_lap)
+        bag_reader = bagreader(perfect_lap)
         csvfiles = []
-        for t in b.topics:
-            data = b.message_by_topic(t)
+        for topic in bag_reader.topics:
+            data = bag_reader.message_by_topic(topic)
             csvfiles.append(data)
 
-        
         data_file = 'full-lap/F1ROS-odom.csv'
-        df_imu = pd.read_csv(data_file)
-        
+        dataframe_pose = pd.read_csv(data_file)
         checkpoints = []
-        for index, row in df_imu.iterrows():
+        for index, row in dataframe_pose.iterrows():
             checkpoints.append(row)
-        
-        metadata_file = 'full-lap/metadata.csv'
-        df_metatada = pd.read_csv(metadata_file)
-        metadata = d = json.loads(df_metatada.iloc[0]['data'])
-        
-        # Find how many laps has the robot completed.
-        start_point = checkpoints[0]
 
+        start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
             if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.finish_line(point, start_point) :
                 lap_point = point
 
-
-        seconds_start = start_point['header.stamp.secs']
-        seconds_end = lap_point['header.stamp.secs']
-        lap_seconds = seconds_end - seconds_start
-
-        # TIME TO COMPLETE LAP
-        print('TIME TO COMPLETE LAP -> ' + str(lap_seconds) + ' s')
-        # CIRCUIT LONGITUDE
         self.circuit_diameter = self.circuit_completed_distance(checkpoints, lap_point)
-        print('LONGITUDE -> ' + str(self.circuit_diameter) + ' m')
-        # AVERAGE SPEED
-        print('SPEED -> ' + str(self.circuit_completed_distance(checkpoints, lap_point)/lap_seconds) + ' m/s')
         
         
     def finish_line(self, point, start_point):
@@ -295,35 +271,24 @@ class Controller:
     
     def lap_percentage_completed(self):
         statistics = {}
-        b = bagreader(self.stats_filename)
+        bag_reader = bagreader(self.stats_filename)
         csvfiles = []
-        for t in b.topics:
-            data = b.message_by_topic(t)
+        for topic in bag_reader.topics:
+            data = bag_reader.message_by_topic(topic)
             csvfiles.append(data)
-
         
         data_file = self.stats_filename.split('.bag')[0] + '/F1ROS-odom.csv'
-        df_imu = pd.read_csv(data_file)
-        
+        dataframe_pose = pd.read_csv(data_file)
         checkpoints = []
-        for index, row in df_imu.iterrows():
+        for index, row in dataframe_pose.iterrows():
             checkpoints.append(row)
             
         start_point = checkpoints[0]
         end_point = checkpoints[len(checkpoints)-1]
-        
         statistics['completed_distance'] = self.circuit_completed_distance(checkpoints, end_point)
-        print('LONGITUDE COMPLETED -> ' + str(statistics['completed_distance']) + ' m')
-        
-        statistics['percentage_completed'] = (statistics['completed_distance'] / self.circuit_diameter) * 100
-        print('PERCENTAGE COMPLETED -> ' + str(statistics['percentage_completed']) + '%')
-        
+        statistics['percentage_completed'] = (statistics['completed_distance'] / self.circuit_diameter) * 100      
         if statistics['percentage_completed'] > 100:
-            print('Number of laps completed -> ' + str(statistics['percentage_completed'] / 100))
-            
-            # Find how many laps has the robot completed.
             start_point = checkpoints[0]
-
             for x, point in enumerate(checkpoints):
                 if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.finish_line(point, start_point) :
                     lap_point = point
@@ -331,15 +296,8 @@ class Controller:
             seconds_start = start_point['header.stamp.secs']
             seconds_end = lap_point['header.stamp.secs']
             statistics['lap_seconds'] = seconds_end - seconds_start
-
-            # TIME TO COMPLETE LAP
-            print('TIME TO COMPLETE LAP -> ' + str(statistics['lap_seconds']) + ' s')
-            # CIRCUIT LONGITUDE
             statistics['circuit_diameter'] = self.circuit_completed_distance(checkpoints, lap_point)
-            print('LONGITUDE -> ' + str(statistics['circuit_diameter']) + ' m')
-            # AVERAGE SPEED
             statistics['average_speed'] = self.circuit_completed_distance(checkpoints, lap_point)/statistics['lap_seconds']
-            print('SPEED -> ' + str(statistics['average_speed']) + ' m/s')
         
         return statistics
 
