@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                              QPushButton, QScrollArea, QSpacerItem,
                              QVBoxLayout, QWidget, QMainWindow)
 
+from ui.gui.views.stats_window import StatsWindow
 from ui.gui.views.logo import Logo
 from ui.gui.views.social import SocialMedia
 from utils import constants, environment
@@ -693,32 +694,3 @@ class Toolbar(QWidget):
         else:
             environment.close_gzclient()
 
-class StatsWindow(QMainWindow):
-    def __init__(self, parent=None, controller=None):
-        super(Second, self).__init__(parent)
-        
-        
-        self.controller = controller
-        self.layout = QVBoxLayout()
-        self.percentage_completed_label = QLabel("Percentage completed -> " + str(self.controller.statistics['percentage_completed']) + "%")
-        self.layout.addWidget(self.percentage_completed_label)
-        self.completed_distance_label = QLabel("Completed distance -> " + str(self.controller.statistics['completed_distance']) + "%")
-        self.layout.addWidget(self.completed_distance_label)
-        if 'lap_seconds' in self.controller.statistics:
-            self.lap_seconds_label = QLabel("Lap seconds -> " + str(self.controller.statistics['lap_seconds']) + "%")
-            self.layout.addWidget(self.lap_seconds_label)
-            self.average_speed_label = QLabel("Average speed -> " + str(self.controller.statistics['average_speed']) + "%")
-            self.layout.addWidget(self.average_speed_label)
-            self.circuit_diameter_label = QLabel("Circuit diameter -> " + str(self.controller.statistics['circuit_diameter']) + "%")
-            self.layout.addWidget(self.circuit_diameter_label)
-            
-        self.setWindowTitle("Statistics")
-        self.setLayout(self.layout)
-        
-        
-        wid = QWidget(self)
-        self.setCentralWidget(wid)
-        #layout = QtGui.QVBoxLayout()
-        wid.setLayout(self.layout)
-        
-        print(self.controller.statistics)
