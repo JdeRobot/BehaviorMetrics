@@ -333,6 +333,19 @@ class Toolbar(QWidget):
         stats_group = QGroupBox()
         stats_group.setTitle('Stats')
         stats_layout = QGridLayout()
+        
+        gt_stats_path_label = QLabel('Ground truth checkpoints:  ')
+        self.gt_stats_dir_selector_save = QLineEdit()
+        self.gt_stats_dir_selector_save.setPlaceholderText('Select ground truth file')
+        self.gt_stats_dir_selector_save.setObjectName("ground_truth_stats_save")
+        self.gt_stats_dir_selector_save.setReadOnly(True)
+
+        if self.configuration.stats_out:
+            self.gt_stats_dir_selector_save.setText(self.configuration.stats_perfect_lap)
+        gt_stats_dir_selector_button = QPushButton('...')
+        gt_stats_dir_selector_button.setMaximumSize(30, 30)
+        gt_stats_dir_selector_button.clicked.connect(self.select_gt_file_dialog)
+        
  
         stats_save_path_label = QLabel('Save path:  ')
         self.stats_dir_selector_save = QLineEdit()
@@ -372,9 +385,14 @@ class Toolbar(QWidget):
         icons_layout.addWidget(self.recording_stats_label, alignment=Qt.AlignBottom)
         icons_layout.addWidget(self.start_pause_record_stats_label, alignment=Qt.AlignBottom)
         
-        stats_layout.addWidget(stats_save_path_label, 0, 0, 1, 1)
-        stats_layout.addWidget(self.stats_dir_selector_save, 0, 1, 1, 1)
-        stats_layout.addWidget(stats_dir_selector_button, 0, 2, 1, 1)
+        stats_layout.addWidget(gt_stats_path_label, 0, 0, 1, 1)
+        stats_layout.addWidget(self.gt_stats_dir_selector_save, 0, 1, 1, 1)
+        stats_layout.addWidget(gt_stats_dir_selector_button, 0, 2, 1, 1)
+
+        
+        stats_layout.addWidget(stats_save_path_label, 1, 0, 1, 1)
+        stats_layout.addWidget(self.stats_dir_selector_save, 1, 1, 1, 1)
+        stats_layout.addWidget(stats_dir_selector_button, 1, 2, 1, 1)
         stats_layout.addLayout(icons_layout, 2, 0, 1, 3)
         stats_group.setLayout(stats_layout)
         
@@ -397,7 +415,7 @@ class Toolbar(QWidget):
             self.dataset_file_selector_save.setText(self.configuration.dataset_in)
         dataset_file_selector_button = QPushButton('...')
         dataset_file_selector_button.setMaximumSize(30, 30)
-        dataset_file_selector_button.clicked.connect(self.select_file_dialog)
+        dataset_file_selector_button.clicked.connect(self.select_dataset_file_dialog)
         dataset_topics_selector_button = QPushButton('Select Topics')
         dataset_topics_selector_button.clicked.connect(lambda: self.topics_popup.show_updated())
         self.dataset_hint_label = QLabel('Select a .bag file to save dataset first!')
@@ -558,13 +576,14 @@ class Toolbar(QWidget):
     def start_recording_stats(self):
         """Callback that handles the recording initialization"""
         print('start_recording_stats')
-        filename = self.stats_dir_selector_save.text()
-        if os.path.isdir(filename):
+        dirname = self.stats_dir_selector_save.text()
+        filename = self.gt_stats_dir_selector_save.text()
+        if os.path.isdir(dirname) and os.path.isfile(filename) and filename.endswith(".bag"):
             self.stats_hint_label.hide()
             self.recording_stats_animation_label.start_animation()
             self.recording_stats_label.show()
             self.recording_stats_animation_label.show()
-            self.controller.record_stats(self.stats_dir_selector_save.text())
+            self.controller.record_stats(filename, dirname)
         else:
             self.stats_hint_label.setText('Select a directory to save stats first!')
             self.stats_hint_label.show()
@@ -597,7 +616,7 @@ class Toolbar(QWidget):
         # print("Current index", i, "selection changed ", self.world_combobox.currentText())
         pass
 
-    def select_file_dialog(self):
+    def select_dataset_file_dialog(self):
         """Callback that will create the bag file where the dataset will be recorded"""
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -608,6 +627,18 @@ class Toolbar(QWidget):
                 filename += ".bag"
             open(filename, 'w').close()
             self.dataset_file_selector_save.setText(filename)
+            
+    def select_gt_file_dialog(self):
+        """Callback that will create the bag file where the dataset will be recorded"""
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getSaveFileName(self, "Select file", "", "",
+                                                  options=options)
+        if filename:
+            if not filename.endswith(".bag"):
+                filename += ".bag"
+            open(filename, 'w').close()
+            self.gt_stats_dir_selector_save.setText(filename)
             
     def select_directory_dialog(self):
         """Callback that will select the dir where the stats will be recorded"""

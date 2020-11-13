@@ -177,7 +177,7 @@ class Controller:
             logger.info("No bag recording")
             
             
-    def record_stats(self, stats_record_dir_path):
+    def record_stats(self, perfect_lap_filename, stats_record_dir_path):
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.record_stats = True
         self.start_time = datetime.now()
@@ -187,6 +187,7 @@ class Controller:
         self.metrics['world'] = current_world_tail
         self.metrics['brain_path'] = current_brain_tail
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
+        self.perfect_lap_filename = perfect_lap_filename
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
@@ -204,6 +205,7 @@ class Controller:
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
 
+        # Wait for rosbag file to be closed. Otherwise it causes error
         while(os.path.isfile(self.stats_filename + '.active')):
             pass
 
@@ -222,8 +224,7 @@ class Controller:
         
         
     def read_perfect_lap_rosbag(self):
-        perfect_lap = self.pilot.configuration.stats_perfect_lap
-        bag_reader = bagreader(perfect_lap)
+        bag_reader = bagreader(self.perfect_lap_filename)
         csvfiles = []
         for topic in bag_reader.topics:
             data = bag_reader.message_by_topic(topic)
@@ -237,13 +238,13 @@ class Controller:
 
         start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.finish_line(point, start_point) :
+            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and self.is_finish_line(point, start_point) :
                 lap_point = point
 
-        self.circuit_diameter = self.circuit_completed_distance(checkpoints, lap_point)
+        self.circuit_diameter = self.circuit__distance_completed(checkpoints, lap_point)
         
         
-    def finish_line(self, point, start_point):
+    def is_finish_line(self, point, start_point):
         current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
         start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
 
@@ -254,7 +255,7 @@ class Controller:
             return True
         return False
 
-    def circuit_completed_distance(self, checkpoints, lap_point):
+    def circuit__distance_completed(self, checkpoints, lap_point):
         previous_point = []
         diameter = 0
         for i, point in enumerate(checkpoints):
@@ -285,7 +286,7 @@ class Controller:
             
         start_point = checkpoints[0]
         end_point = checkpoints[len(checkpoints)-1]
-        statistics['completed_distance'] = self.circuit_completed_distance(checkpoints, end_point)
+        statistics['completed_distance'] = self.circuit__distance_completed(checkpoints, end_point)
         statistics['percentage_completed'] = (statistics['completed_distance'] / self.circuit_diameter) * 100      
         if statistics['percentage_completed'] > 100:
             start_point = checkpoints[0]
