@@ -114,7 +114,6 @@ class Pilot(threading.Thread):
             if not self.stop_event.is_set():
                 try:
                     self.brains.active_brain.execute()
-                    self.controller.update_metrics()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)

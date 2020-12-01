@@ -25,6 +25,7 @@ Behaviors:
         Out: ''
     Stats:
         Out: './'
+        PerfectLap: 'full-lap.bag'
     Layout:
         Frame_0:
             Name: frame_0

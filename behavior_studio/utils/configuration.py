@@ -102,6 +102,7 @@ class Config:
         self.dataset_out = config_data['Behaviors']['Dataset']['Out']
         
         self.stats_out = config_data['Behaviors']['Stats']['Out']
+        self.stats_perfect_lap = config_data['Behaviors']['Stats']['PerfectLap']
         
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']
