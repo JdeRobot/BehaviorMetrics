@@ -95,7 +95,7 @@ For this solution, the **code developed in the robotics course of the Official M
 
 An excerpt of the solution can be seen in the following gif:
 
-<img src="./docs/imgs/piloto_esplicito.gif" alt="piloto_esplicito" style="zoom:40%;" />
+<img src="../docs/assets/images/piloto_esplicito.gif" alt="piloto_esplicito" style="zoom:40%;" />
 
 
 
@@ -103,7 +103,7 @@ An excerpt of the solution can be seen in the following gif:
 
 The solution using **classification networks** leaves a somewhat slower solution than the manual solution but equally useful. A piece of the solution can be seen in the following gif.
 
-<img src="./docs/imgs/piloto_neuronal.gif" alt="piloto_neuronal" style="zoom:40%;" />
+<img src="./docs/assets/images/piloto_neuronal.gif" alt="piloto_neuronal" style="zoom:40%;" />
 
 Depending on the type of network you want to run (normal or cropped) you have to change the size of the images entering the network in the `ckassification_network.py` file.
 
