@@ -27,6 +27,9 @@ from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
 
+
+import subprocess
+
 __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
@@ -41,7 +44,6 @@ def check_args(argv):
     Returns:
         dict -- dictionary with the detected configuration.
     """
-
     config_data = {}
 
     parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
@@ -67,10 +69,16 @@ def check_args(argv):
                        action='store_true',
                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
+    
+    group.add_argument('-s',
+                       '--script',
+                       action='store_true',
+                       help='{}Run Behavior Studio as script{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None, 'tui': None}
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None}
     if args.config:
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
@@ -82,6 +90,9 @@ def check_args(argv):
 
     if args.tui:
         config_data['tui'] = args.tui
+        
+    if args.script:
+        config_data['script'] = args.script
 
     return config_data
 
@@ -147,15 +158,30 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
-
+    
     # If there's no config, configure the app through the GUI
     if app_configuration.empty and config_data['gui']:
         conf_window(app_configuration)
-
+        
     # Launch the simulation
-    if app_configuration.current_world:
+    if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
+    else:
+        close_gazebo()
+        try:
+            with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
+                subprocess.Popen(["roscore"])
+                subprocess.Popen(["gzserver", "--verbose", app_configuration.current_world], stdout=out, stderr=err)
+                logger.info("GazeboEnv: launching gzserver.")
+        except OSError as oe:
+            logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
+            close_gazebo()
+            sys.exit(-1)
+
+        # give gazebo some time to initialize
+        import time
+        time.sleep(5)
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
@@ -172,12 +198,22 @@ def main():
     pilot.daemon = True
     pilot.start()
     logger.info('Executing app')
-
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
         main_win(app_configuration, controller)
-    else:
-        pilot.join()
+    #else:
+        #pilot.join()
+
+    from utils import constants
+    brains_path = constants.ROOT_PATH + '/brains/'
+    controller.reload_brain(brains_path + app_configuration.robot_type + '/brain_f1_opencv.py')
+    controller.resume_pilot()
+    controller.unpause_gazebo_simulation()
+    perfect_lap_filename = "./full-lap.bag"
+    stats_record_dir_path = "./"
+    #controller.record_stats(perfect_lap_filename, stats_record_dir_path)
+    time.sleep(20)
+    #controller.stop_record_stats()
 
     # When window is closed or keypress for quit is detected, quit gracefully.
     logger.info('closing all processes...')
@@ -185,6 +221,50 @@ def main():
     environment.close_gazebo()
     logger.info('DONE! Bye, bye :)')
 
+    
+def close_gazebo():
+    """Kill all the gazebo and ROS processes."""
+    try:
+        ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
+    except subprocess.CalledProcessError as ce:
+        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
+        sys.exit(-1)
+
+    if ps_output.count('gzclient') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "gzclient"])
+            logger.debug("GazeboEnv: gzclient killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
+
+    if ps_output.count('gzserver') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "gzserver"])
+            logger.debug("GazeboEnv: gzserver killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for gzserver {}".format(ce))
+
+    if ps_output.count('rosmaster') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "rosmaster"])
+            logger.debug("GazeboEnv: rosmaster killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for rosmaster {}".format(ce))
+
+    if ps_output.count('roscore') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "roscore"])
+            logger.debug("GazeboEnv: roscore killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for roscore {}".format(ce))
+
+    if ps_output.count('px4') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "px4"])
+            logger.debug("GazeboEnv: px4 killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))    
+    
 
 if __name__ == '__main__':
     main()
