@@ -27,8 +27,8 @@ from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
 
-
 import subprocess
+import xml.etree.ElementTree as ET
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -169,10 +169,16 @@ def main():
         environment.launch_env(app_configuration.current_world)
     else:
         close_gazebo()
+        tree = ET.parse(app_configuration.current_world)
+        root = tree.getroot()
+        for child in root[0]:
+            if child.attrib['name'] == 'gui':
+                child.attrib['value'] = 'false'
+            
+        tree.write('tmp_circuit.launch')
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                subprocess.Popen(["roscore"])
-                subprocess.Popen(["gzserver", "--verbose", app_configuration.current_world], stdout=out, stderr=err)
+                subprocess.Popen(["roslaunch", 'tmp_circuit.launch'], stdout=out, stderr=err)
                 logger.info("GazeboEnv: launching gzserver.")
         except OSError as oe:
             logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
@@ -192,7 +198,7 @@ def main():
             t = TUI(controller)
             ttui = threading.Thread(target=t.run)
             ttui.start()
-
+    
     # Launch control
     pilot = Pilot(app_configuration, controller)
     pilot.daemon = True
@@ -201,19 +207,21 @@ def main():
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
         main_win(app_configuration, controller)
-    #else:
-        #pilot.join()
-
-    from utils import constants
-    brains_path = constants.ROOT_PATH + '/brains/'
-    controller.reload_brain(brains_path + app_configuration.robot_type + '/brain_f1_opencv.py')
-    controller.resume_pilot()
-    controller.unpause_gazebo_simulation()
-    perfect_lap_filename = "./full-lap.bag"
-    stats_record_dir_path = "./"
-    #controller.record_stats(perfect_lap_filename, stats_record_dir_path)
-    time.sleep(20)
-    #controller.stop_record_stats()
+    elif config_data['script']:
+        from utils import constants
+        brains_path = constants.ROOT_PATH + '/brains/'
+        #controller.reload_brain(brains_path + app_configuration.robot_type + '/brain_f1_opencv.py')
+        controller.reload_brain(brains_path + app_configuration.robot_type + '/brains_f1_keras_lstm_merged.py')
+        controller.resume_pilot()
+        controller.unpause_gazebo_simulation()
+        perfect_lap_filename = "./full-lap.bag"
+        stats_record_dir_path = "./"
+        controller.record_stats(perfect_lap_filename, stats_record_dir_path)
+        time.sleep(20)
+        controller.stop_record_stats()
+        os.remove('tmp_circuit.launch')
+    else:
+        pilot.join()
 
     # When window is closed or keypress for quit is detected, quit gracefully.
     logger.info('closing all processes...')
@@ -264,7 +272,6 @@ def close_gazebo():
             logger.debug("GazeboEnv: px4 killed.")
         except subprocess.CalledProcessError as ce:
             logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))    
-    
 
 if __name__ == '__main__':
     main()

@@ -81,12 +81,15 @@ class Brain:
         # red_lower=(0,255,171)
         red_lower = (0, 255, 15)
         # kernel = np.ones((8, 8), np.uint8)
+        
+        
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
 
         image_cropped = image[230:, :, :]
         image_blur = cv2.GaussianBlur(image_cropped, (27, 27), 0)
+        
         image_hsv = cv2.cvtColor(image_blur, cv2.COLOR_RGB2HSV)
         image_mask = cv2.inRange(image_hsv, red_lower, red_upper)
         # image_eroded = cv2.erode(image_mask, kernel, iterations=3)
