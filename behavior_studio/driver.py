@@ -208,15 +208,10 @@ def main():
     if config_data['gui']:
         main_win(app_configuration, controller)
     elif config_data['script']:
-        from utils import constants
-        brains_path = constants.ROOT_PATH + '/brains/'
-        #controller.reload_brain(brains_path + app_configuration.robot_type + '/brain_f1_opencv.py')
-        controller.reload_brain(brains_path + app_configuration.robot_type + '/brains_f1_keras_lstm_merged.py')
+        controller.reload_brain(app_configuration.brain_path)
         controller.resume_pilot()
         controller.unpause_gazebo_simulation()
-        perfect_lap_filename = "./full-lap.bag"
-        stats_record_dir_path = "./"
-        controller.record_stats(perfect_lap_filename, stats_record_dir_path)
+        controller.record_stats(app_configuration.stats_perfect_lap, app_configuration.stats_out)
         time.sleep(20)
         controller.stop_record_stats()
         os.remove('tmp_circuit.launch')
