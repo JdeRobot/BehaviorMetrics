@@ -21,11 +21,14 @@ import threading
 
 from pilot import Pilot
 from ui.tui.main_view import TUI
-from utils import environment
+from utils import environment, script_manager
 from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
+
+# import utils.script_manager
+import time
 
 import subprocess
 import xml.etree.ElementTree as ET
@@ -168,26 +171,7 @@ def main():
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
     else:
-        close_gazebo()
-        tree = ET.parse(app_configuration.current_world)
-        root = tree.getroot()
-        for child in root[0]:
-            if child.attrib['name'] == 'gui':
-                child.attrib['value'] = 'false'
-            
-        tree.write('tmp_circuit.launch')
-        try:
-            with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                subprocess.Popen(["roslaunch", 'tmp_circuit.launch'], stdout=out, stderr=err)
-                logger.info("GazeboEnv: launching gzserver.")
-        except OSError as oe:
-            logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
-            close_gazebo()
-            sys.exit(-1)
-
-        # give gazebo some time to initialize
-        import time
-        time.sleep(5)
+        script_manager.launch_gazebo_no_gui(app_configuration)
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
@@ -208,13 +192,7 @@ def main():
     if config_data['gui']:
         main_win(app_configuration, controller)
     elif config_data['script']:
-        controller.reload_brain(app_configuration.brain_path)
-        controller.resume_pilot()
-        controller.unpause_gazebo_simulation()
-        controller.record_stats(app_configuration.stats_perfect_lap, app_configuration.stats_out)
-        time.sleep(20)
-        controller.stop_record_stats()
-        os.remove('tmp_circuit.launch')
+        script_manager.run_brains_worlds(app_configuration, controller)
     else:
         pilot.join()
 
@@ -224,49 +202,6 @@ def main():
     environment.close_gazebo()
     logger.info('DONE! Bye, bye :)')
 
-    
-def close_gazebo():
-    """Kill all the gazebo and ROS processes."""
-    try:
-        ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
-    except subprocess.CalledProcessError as ce:
-        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
-        sys.exit(-1)
-
-    if ps_output.count('gzclient') > 0:
-        try:
-            subprocess.check_call(["killall", "-9", "gzclient"])
-            logger.debug("GazeboEnv: gzclient killed.")
-        except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
-
-    if ps_output.count('gzserver') > 0:
-        try:
-            subprocess.check_call(["killall", "-9", "gzserver"])
-            logger.debug("GazeboEnv: gzserver killed.")
-        except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for gzserver {}".format(ce))
-
-    if ps_output.count('rosmaster') > 0:
-        try:
-            subprocess.check_call(["killall", "-9", "rosmaster"])
-            logger.debug("GazeboEnv: rosmaster killed.")
-        except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for rosmaster {}".format(ce))
-
-    if ps_output.count('roscore') > 0:
-        try:
-            subprocess.check_call(["killall", "-9", "roscore"])
-            logger.debug("GazeboEnv: roscore killed.")
-        except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for roscore {}".format(ce))
-
-    if ps_output.count('px4') > 0:
-        try:
-            subprocess.check_call(["killall", "-9", "px4"])
-            logger.debug("GazeboEnv: px4 killed.")
-        except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))    
 
 if __name__ == '__main__':
     main()

@@ -176,7 +176,6 @@ class Controller:
             
     def record_stats(self, perfect_lap_filename, stats_record_dir_path):
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
-        self.record_stats = True
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
         current_brain_head, current_brain_tail = os.path.split(self.pilot.brains.brain_path)
