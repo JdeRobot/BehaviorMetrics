@@ -45,7 +45,7 @@ class Pilot(threading.Thread):
         brains {brains.brains_handler.Brains} -- Brains controller instance
     """
 
-    def __init__(self, configuration, controller):
+    def __init__(self, configuration, controller, brain_path):
         """Constructor of the pilot class
 
         Arguments:
@@ -59,6 +59,7 @@ class Pilot(threading.Thread):
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
+        self.brain_path = brain_path
         self.sensors = None
         self.actuators = None
         self.brains = None
@@ -90,7 +91,7 @@ class Pilot(threading.Thread):
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
-        self.brains = Brains(self.sensors, self.actuators, self.configuration.brain_path, self.controller)
+        self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
         self.__wait_gazebo()
 
     def stop_interfaces(self):

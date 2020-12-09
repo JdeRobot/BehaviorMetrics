@@ -170,8 +170,8 @@ def main():
     if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
-    else:
-        script_manager.launch_gazebo_no_gui(app_configuration)
+    # else:
+        # script_manager.launch_gazebo_no_gui(app_configuration)
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
@@ -182,17 +182,23 @@ def main():
             t = TUI(controller)
             ttui = threading.Thread(target=t.run)
             ttui.start()
-    
-    # Launch control
-    pilot = Pilot(app_configuration, controller)
-    pilot.daemon = True
-    pilot.start()
-    logger.info('Executing app')
+          
+    if not config_data['script']:
+        # Launch control
+        pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+        pilot.daemon = True
+        pilot.start()
+        logger.info('Executing app')
+    else:
+        script_manager.run_brains_worlds(app_configuration, controller)
+        logger.info('closing all processes...')
+        environment.close_gazebo()
+        logger.info('DONE! Bye, bye :)')
+        return
+        
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
         main_win(app_configuration, controller)
-    elif config_data['script']:
-        script_manager.run_brains_worlds(app_configuration, controller)
     else:
         pilot.join()
 
