@@ -32,7 +32,8 @@ import rosbag
 import json
 from std_msgs.msg import String
 
-from .metrics import Metrics
+# from .metrics import Metrics
+from utils import metrics
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -212,7 +213,6 @@ class Controller:
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
         
-        metrics = Metrics()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
 

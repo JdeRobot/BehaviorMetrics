@@ -63,4 +63,7 @@ def run_brains_worlds(app_configuration, controller):
             controller.record_stats(app_configuration.stats_perfect_lap, app_configuration.stats_out)
             time.sleep(20)
             controller.stop_record_stats()
+            print(controller.lap_statistics)
         os.remove('tmp_circuit.launch')
+        
+    
