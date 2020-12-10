@@ -18,10 +18,7 @@ class Brains(object):
         self.brain_path = brain_path
         try:
             if brain_path:
-                if type(brain_path) == str:
-                    self.load_brain(brain_path)
-                else:
-                    self.load_brain(brain_path[0])
+                self.load_brain(brain_path)
         except AttributeError as e:
             print('Invalid brain path: {}\n[ERROR] {}'.format(brain_path, e))
             exit(1)

@@ -27,11 +27,6 @@ from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
 
-# import utils.script_manager
-import time
-
-import subprocess
-import xml.etree.ElementTree as ET
 
 __author__ = 'fqez'
 __contributors__ = []

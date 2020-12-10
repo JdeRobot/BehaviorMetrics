@@ -30,7 +30,7 @@ def launch_gazebo_no_gui_worlds(current_world):
 
 
 def run_brains_worlds(app_configuration, controller):
-    for world in app_configuration.current_world:
+    for i, world in enumerate(app_configuration.current_world):
         launch_gazebo_no_gui_worlds(world)
         for brain in app_configuration.brain_path:
             logger.info('Executing brain')
@@ -40,8 +40,8 @@ def run_brains_worlds(app_configuration, controller):
             controller.pilot.configuration.current_world = world
             controller.resume_pilot()
             controller.unpause_gazebo_simulation()
-            controller.record_stats(app_configuration.stats_perfect_lap, app_configuration.stats_out)
-            time.sleep(20)
+            controller.record_stats(app_configuration.stats_perfect_lap[i], app_configuration.stats_out)
+            time.sleep(app_configuration.experiment_timeout)
             controller.stop_record_stats()
             print(controller.lap_statistics)
             controller.pause_pilot()
