@@ -32,28 +32,21 @@ def launch_gazebo_no_gui_worlds(current_world):
 def run_brains_worlds(app_configuration, controller):
     for world in app_configuration.current_world:
         launch_gazebo_no_gui_worlds(world)
-        # controller.pilot.configuration.current_world = world
         for brain in app_configuration.brain_path:
             logger.info('Executing brain')
             pilot = Pilot(app_configuration, controller, brain)
             pilot.daemon = True
             controller.pilot.start()
             controller.pilot.configuration.current_world = world
-            # controller.reload_brain(brain)
-            # controller.pilot.brains.brain_path = brain
-            # controller.pilot.start()
             controller.resume_pilot()
             controller.unpause_gazebo_simulation()
             controller.record_stats(app_configuration.stats_perfect_lap, app_configuration.stats_out)
             time.sleep(20)
             controller.stop_record_stats()
             print(controller.lap_statistics)
-            # controller.pilot.kill()
             controller.pause_pilot()
             controller.stop_pilot()
             pilot.stop_interfaces()
             pilot.kill()
-            # controller.reset_gazebo_simulation()
-            # self.configuration.current_world = world
         os.remove('tmp_circuit.launch')
         
