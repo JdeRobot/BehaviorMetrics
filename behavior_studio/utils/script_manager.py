@@ -27,7 +27,7 @@ from utils.logger import logger
 from pilot import Pilot
 
     
-def launch_gazebo_no_gui_worlds(current_world):
+def launch_gazebo_no_gui(current_world):
     environment.close_gazebo()
     tree = ET.parse(current_world)
     root = tree.getroot()
@@ -50,14 +50,15 @@ def launch_gazebo_no_gui_worlds(current_world):
 
 
 def run_brains_worlds(app_configuration, controller):
-    launch_gazebo_no_gui_worlds(app_configuration.current_world[0])
+    # Start Behavior Studio app
+    launch_gazebo_no_gui(app_configuration.current_world[0])
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
     for i, world in enumerate(app_configuration.current_world):
-        for x, brain in enumerate(app_configuration.brain_path):
+        for brain in app_configuration.brain_path:
             # 1. Load world
-            launch_gazebo_no_gui_worlds(world)
+            launch_gazebo_no_gui(world)
             controller.initialize_robot()
             controller.pilot.configuration.current_world = world
             logger.info('Executing brain')
