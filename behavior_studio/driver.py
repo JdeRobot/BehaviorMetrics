@@ -21,11 +21,12 @@ import threading
 
 from pilot import Pilot
 from ui.tui.main_view import TUI
-from utils import environment
+from utils import environment, script_manager
 from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
+
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -41,7 +42,6 @@ def check_args(argv):
     Returns:
         dict -- dictionary with the detected configuration.
     """
-
     config_data = {}
 
     parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
@@ -67,10 +67,16 @@ def check_args(argv):
                        action='store_true',
                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
+    
+    group.add_argument('-s',
+                       '--script',
+                       action='store_true',
+                       help='{}Run Behavior Studio as script{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None, 'tui': None}
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None}
     if args.config:
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
@@ -82,6 +88,9 @@ def check_args(argv):
 
     if args.tui:
         config_data['tui'] = args.tui
+        
+    if args.script:
+        config_data['script'] = args.script
 
     return config_data
 
@@ -147,15 +156,17 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
-
+    
     # If there's no config, configure the app through the GUI
     if app_configuration.empty and config_data['gui']:
         conf_window(app_configuration)
-
+        
     # Launch the simulation
-    if app_configuration.current_world:
+    if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
+    # else:
+        # script_manager.launch_gazebo_no_gui(app_configuration)
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
@@ -166,13 +177,20 @@ def main():
             t = TUI(controller)
             ttui = threading.Thread(target=t.run)
             ttui.start()
-
-    # Launch control
-    pilot = Pilot(app_configuration, controller)
-    pilot.daemon = True
-    pilot.start()
-    logger.info('Executing app')
-
+          
+    if not config_data['script']:
+        # Launch control
+        pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+        pilot.daemon = True
+        pilot.start()
+        logger.info('Executing app')
+    else:
+        script_manager.run_brains_worlds(app_configuration, controller)
+        logger.info('closing all processes...')
+        environment.close_gazebo()
+        logger.info('DONE! Bye, bye :)')
+        return
+        
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
         main_win(app_configuration, controller)

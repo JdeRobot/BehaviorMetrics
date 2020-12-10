@@ -47,16 +47,13 @@ class PublisherMotors:
         self.maxV = maxV
         self.v = v
         self.w = w
-
         self.topic = topic
         self.data = CMDVel()
         self.pub = self.pub = rospy.Publisher(self.topic, Twist, queue_size=1)
         rospy.init_node("FollowLineF1")
         self.lock = threading.Lock()
-
         self.kill_event = threading.Event()
         self.thread = ThreadPublisher(self, self.kill_event)
-
         self.thread.daemon = True
         self.start()
 

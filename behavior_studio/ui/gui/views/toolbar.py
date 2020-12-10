@@ -575,7 +575,6 @@ class Toolbar(QWidget):
         
     def start_recording_stats(self):
         """Callback that handles the recording initialization"""
-        print('start_recording_stats')
         dirname = self.stats_dir_selector_save.text()
         filename = self.gt_stats_dir_selector_save.text()
         if os.path.isdir(dirname) and os.path.isfile(filename) and filename.endswith(".bag"):
@@ -592,7 +591,6 @@ class Toolbar(QWidget):
 
     def stop_recording_stats(self):
         """Callback that handles recording stopping"""
-        print('stop_recording_stats')
         self.recording_stats_animation_label.stop_animation()
         self.recording_stats_animation_label.hide()
         self.recording_stats_label.hide()
