@@ -13,8 +13,7 @@ def launch_gazebo_no_gui_worlds(current_world):
     root = tree.getroot()
     for child in root[0]:
         if child.attrib['name'] == 'gui':
-            # child.attrib['value'] = 'false'
-            child.attrib['value'] = 'true'
+            child.attrib['value'] = 'false'
 
     tree.write('tmp_circuit.launch')
     try:
