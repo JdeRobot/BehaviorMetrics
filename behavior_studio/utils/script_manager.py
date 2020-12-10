@@ -13,7 +13,8 @@ def launch_gazebo_no_gui_worlds(current_world):
     root = tree.getroot()
     for child in root[0]:
         if child.attrib['name'] == 'gui':
-            child.attrib['value'] = 'false'
+            # child.attrib['value'] = 'false'
+            child.attrib['value'] = 'true'
 
     tree.write('tmp_circuit.launch')
     try:
@@ -26,27 +27,32 @@ def launch_gazebo_no_gui_worlds(current_world):
         sys.exit(-1)
     
     # give gazebo some time to initialize
-    time.sleep(10)
+    time.sleep(5)
 
 
 def run_brains_worlds(app_configuration, controller):
+    launch_gazebo_no_gui_worlds(app_configuration.current_world[0])
+    pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
+    pilot.daemon = True
+    controller.pilot.start()
     for i, world in enumerate(app_configuration.current_world):
-        launch_gazebo_no_gui_worlds(world)
-        for brain in app_configuration.brain_path:
-            logger.info('Executing brain')
-            pilot = Pilot(app_configuration, controller, brain)
-            pilot.daemon = True
-            controller.pilot.start()
+        for x, brain in enumerate(app_configuration.brain_path):
+            # 1. Load world
+            launch_gazebo_no_gui_worlds(world)
+            controller.initialize_robot()
             controller.pilot.configuration.current_world = world
+            logger.info('Executing brain')
+            # 2. Play
+            controller.reload_brain(brain)
             controller.resume_pilot()
+            controller.pilot.configuration.brain_path = app_configuration.brain_path
             controller.unpause_gazebo_simulation()
             controller.record_stats(app_configuration.stats_perfect_lap[i], app_configuration.stats_out)
             time.sleep(app_configuration.experiment_timeout)
             controller.stop_record_stats()
-            print(controller.lap_statistics)
+            # 3. Stop
             controller.pause_pilot()
-            controller.stop_pilot()
-            pilot.stop_interfaces()
-            pilot.kill()
+            controller.pause_gazebo_simulation()
+            print(controller.lap_statistics)
         os.remove('tmp_circuit.launch')
         

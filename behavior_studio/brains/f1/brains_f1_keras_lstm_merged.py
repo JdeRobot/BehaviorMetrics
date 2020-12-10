@@ -75,16 +75,19 @@ class Brain:
         #img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
         
         # CROPPED IMAGE
-        image = image[240:480, 0:640]
-        img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-        img = np.expand_dims(img, axis=0)
+        try:
+            image = image[240:480, 0:640]
+            img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+            img = np.expand_dims(img, axis=0)
 
-        prediction = self.net.predict(img)
-        prediction_v = prediction[0][0] * 0.5
-        prediction_w = prediction[0][1]
-        
-        if prediction_w != '' and prediction_w != '':
-            self.motors.sendV(prediction_v)
-            self.motors.sendW(prediction_w)
+            prediction = self.net.predict(img)
+            prediction_v = prediction[0][0] * 0.5
+            prediction_w = prediction[0][1]
+
+            if prediction_w != '' and prediction_w != '':
+                self.motors.sendV(prediction_v)
+                self.motors.sendW(prediction_w)
+        except:
+            pass
 
         self.update_frame('frame_0', image)
