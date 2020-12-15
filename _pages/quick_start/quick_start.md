@@ -101,7 +101,7 @@ python driver.py -c default.yml -t
 To run the application as an script to run several worlds/brains at the same time  run:
 
 ```bash
-python driver.py -c default.yml -s
+python driver.py -c default-multiple.yml -s
 ```
 
 
