@@ -98,6 +98,12 @@ To run the application with TUI (Terminal User Interface) just run:
 python driver.py -c default.yml -t
 ```
 
+To run the application as an script to run several worlds/brains at the same time  run:
+
+```bash
+python driver.py -c default.yml -s
+```
+
 
 ## How to use
 
@@ -127,6 +133,7 @@ The program allows the following arguments:
 * `-c <profile>` or `--config <profile>`: this argument is mandatory and specifies the path of the configuration file for the application.
 * `-g` or `--gui`: this argument is optional and enables the GUI launching. If not specified, it will show the TUI (terminal user interface).
 * `-t` or `--tui`: this argument is optional and enables the TUI.
+* `-s` or `--script`: this argument is optional and enables the scriptable application.
 
 For more information run `help driver.py` in a terminal.
 
