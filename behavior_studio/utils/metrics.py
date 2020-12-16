@@ -55,8 +55,9 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
         csvfiles.append(data)
-
-    data_file = 'full-lap/F1ROS-odom.csv'
+    
+    ground_truth_file_split = ground_truth_lap_file.split('.bag')[0]
+    data_file = ground_truth_file_split + '/F1ROS-odom.csv'
     dataframe_pose = pd.read_csv(data_file)
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
