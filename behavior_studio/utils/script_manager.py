@@ -74,29 +74,25 @@ def run_brains_worlds(app_configuration, controller):
             controller.record_stats(app_configuration.stats_perfect_lap[i], app_configuration.stats_out)
 
             time_start = rospy.get_time()
-
-            
             perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag('lap-simple-circuit.bag')
             point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
             
-            
             while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not metrics.is_finish_line(point, perfect_lap_checkpoints[0])) or rospy.get_time() - time_start < 10:
-                rospy.sleep(0.1)
+                rospy.sleep(0.5)
                 point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-
             
-            print('--------------')
-            print('--- END TIME ----------------')
+            logger.info('--------------')
+            logger.info('--- END TIME ----------------')
             time_end = rospy.get_time()
-            print(time_end - time_start)
+            logger.info(time_end - time_start)
             controller.stop_record_stats()
             # 3. Stop
             controller.pause_pilot()
             controller.pause_gazebo_simulation()
-            print('--- BRAIN ---')
-            print(brain)
-            print('--- STATS ---')
-            print(controller.lap_statistics)
-            print('--------------')
+            logger.info('--- BRAIN ---')
+            logger.info(brain)
+            logger.info('--- STATS ---')
+            logger.info(controller.lap_statistics)
+            logger.info('--------------')
         os.remove('tmp_circuit.launch')
         
