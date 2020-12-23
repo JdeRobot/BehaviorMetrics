@@ -21,10 +21,14 @@ import shutil
 
 from datetime import datetime
 from bagpy import bagreader
+from utils.logger import logger
 
 
 def is_finish_line(point, start_point):
-    current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+    try:
+        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+    except IndexError:
+        current_point = point
     start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
 
     dist = (start_point - current_point) ** 2
@@ -55,8 +59,9 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
         csvfiles.append(data)
-
-    data_file = 'full-lap/F1ROS-odom.csv'
+    
+    ground_truth_file_split = ground_truth_lap_file.split('.bag')[0]
+    data_file = ground_truth_file_split + '/F1ROS-odom.csv'
     dataframe_pose = pd.read_csv(data_file)
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
@@ -93,16 +98,19 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100      
     lap_statistics = get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     if lap_statistics['percentage_completed'] > 100:
+        lap_point = 0
         start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
             if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
                 lap_point = point
-
-        seconds_start = start_point['header.stamp.secs']
-        seconds_end = lap_point['header.stamp.secs']
-        lap_statistics['lap_seconds'] = seconds_end - seconds_start
-        lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
-        lap_statistics['average_speed'] = circuit_distance_completed(checkpoints, lap_point)/lap_statistics['lap_seconds']
+        if type(lap_point) is not int:
+            seconds_start = start_point['header.stamp.secs']
+            seconds_end = lap_point['header.stamp.secs']
+            lap_statistics['lap_seconds'] = seconds_end - seconds_start
+            lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
+            lap_statistics['average_speed'] = circuit_distance_completed(checkpoints, lap_point)/lap_statistics['lap_seconds']
+        else:
+            logger.info('Lap seems completed but lap point wasn\'t found')
 
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics

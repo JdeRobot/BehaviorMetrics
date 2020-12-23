@@ -18,15 +18,15 @@ Behaviors:
                     MaxW: 0.3
         BrainPath: ['brains/f1/brains_f1_keras_lstm_merged.py', 'brains/f1/brain_f1_opencv.py']
         Type: 'f1'
-    ExperimentTimeout: 10
+    ExperimentTimeout: 100
     Simulation:
-        World: ['/opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
+        World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: ['full-lap.bag', 'full-lap.bag']
+        PerfectLap: ['lap-simple-circuit.bag', 'lap-simple-circuit.bag']
     Layout:
         Frame_0:
             Name: frame_0

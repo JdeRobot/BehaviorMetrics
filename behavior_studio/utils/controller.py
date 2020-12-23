@@ -32,7 +32,6 @@ import rosbag
 import json
 from std_msgs.msg import String
 
-# from .metrics import Metrics
 from utils import metrics
 
 __author__ = 'fqez'

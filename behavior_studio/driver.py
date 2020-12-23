@@ -165,8 +165,6 @@ def main():
     if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         environment.launch_env(app_configuration.current_world)
-    # else:
-        # script_manager.launch_gazebo_no_gui(app_configuration)
 
     if config_data['tui']:
         rows, columns = os.popen('stty size', 'r').read().split()
