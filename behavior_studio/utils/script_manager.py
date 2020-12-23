@@ -65,6 +65,7 @@ def run_brains_worlds(app_configuration, controller):
             launch_gazebo_no_gui(world)
             controller.initialize_robot()
             controller.pilot.configuration.current_world = world
+            controller.pilot.brains.brain_path = brain
             logger.info('Executing brain')
             # 2. Play
             controller.reload_brain(brain)
@@ -77,9 +78,12 @@ def run_brains_worlds(app_configuration, controller):
             perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag('lap-simple-circuit.bag')
             point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
             
-            while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not metrics.is_finish_line(point, perfect_lap_checkpoints[0])) or rospy.get_time() - time_start < 10:
-                rospy.sleep(0.5)
+            finish_line = False
+            while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not finish_line) or rospy.get_time() - time_start < 10:
+                rospy.sleep(10)
                 point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+                if metrics.is_finish_line(point, perfect_lap_checkpoints[0]):
+                    finish_line = True
             
             logger.info('--------------')
             logger.info('--- END TIME ----------------')
