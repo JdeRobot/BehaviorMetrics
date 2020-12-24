@@ -51,8 +51,14 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
     random_index = random.randint(0,len(perfect_lap_checkpoints))
     random_point = perfect_lap_checkpoints[random_index]
-    random_start_point = np.array([random_point['pose.pose.position.x'], random_point['pose.pose.position.y'] , random_point['pose.pose.position.z'], random_point['pose.pose.orientation.x'], random_point['pose.pose.orientation.y'], random_point['pose.pose.orientation.z']])
-
+    
+    random_orientation = random.randint(0, 1)
+    if random_orientation == 1:
+        orientation_z = -random_point['pose.pose.orientation.z']
+    else:
+        orientation_z = random_point['pose.pose.orientation.z']
+        
+    random_start_point = np.array([random_point['pose.pose.position.x'], random_point['pose.pose.position.y'] , random_point['pose.pose.position.z'], random_point['pose.pose.orientation.x'], random_point['pose.pose.orientation.y'], orientation_z])
     for child_1 in root[0]:
         if child_1.tag == 'include':
             next = False
