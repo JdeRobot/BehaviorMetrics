@@ -22,6 +22,8 @@ import xml.etree.ElementTree as ET
 import time
 import os
 import rospy
+import sys
+import random
 
 import numpy as np
 
@@ -31,15 +33,37 @@ from utils.logger import logger
 from pilot import Pilot
 
     
-def launch_gazebo_no_gui(current_world):
+def launch_gazebo_no_gui(current_world, stats_perfect_lap):
     environment.close_gazebo()
     tree = ET.parse(current_world)
     root = tree.getroot()
     for child in root[0]:
         if child.attrib['name'] == 'gui':
             child.attrib['value'] = 'false'
+        if child.attrib['name'] == 'world_name':
+            world_name = child.attrib['value']
+            child.attrib['value'] = os.getcwd() + '/tmp_world.launch'
 
     tree.write('tmp_circuit.launch')
+    tree = ET.parse(os.path.dirname(os.path.dirname(current_world)) + '/worlds/' + world_name)
+    root = tree.getroot()
+    
+    perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
+    random_index = random.randint(0,len(perfect_lap_checkpoints))
+    random_point = perfect_lap_checkpoints[random_index]
+    random_start_point = np.array([random_point['pose.pose.position.x'], random_point['pose.pose.position.y'] , random_point['pose.pose.position.z'], random_point['pose.pose.orientation.x'], random_point['pose.pose.orientation.y'], random_point['pose.pose.orientation.z']])
+
+    for child_1 in root[0]:
+        if child_1.tag == 'include':
+            next = False
+            for child_2 in child_1:
+                if next:
+                    child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(random_start_point[4]) + " " + str(random_start_point[5])
+                    next = False
+                elif child_2.text == 'model://f1_renault':
+                    next = True
+                    
+    tree.write('tmp_world.launch')
     try:
         with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(["roslaunch", 'tmp_circuit.launch'], stdout=out, stderr=err)
@@ -55,14 +79,14 @@ def launch_gazebo_no_gui(current_world):
 
 def run_brains_worlds(app_configuration, controller):
     # Start Behavior Studio app
-    launch_gazebo_no_gui(app_configuration.current_world[0])
+    launch_gazebo_no_gui(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0])
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
     for i, world in enumerate(app_configuration.current_world):
         for brain in app_configuration.brain_path:
             # 1. Load world
-            launch_gazebo_no_gui(world)
+            launch_gazebo_no_gui(world, app_configuration.stats_perfect_lap[i])
             controller.initialize_robot()
             controller.pilot.configuration.current_world = world
             controller.pilot.brains.brain_path = brain
@@ -104,6 +128,7 @@ def run_brains_worlds(app_configuration, controller):
             logger.info(controller.lap_statistics)
             logger.info('--------------')
         os.remove('tmp_circuit.launch')
+        os.remove('tmp_world.launch')
         
         
 def is_trapped(old_point, new_point):
