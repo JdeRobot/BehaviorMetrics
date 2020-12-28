@@ -22,7 +22,6 @@ import xml.etree.ElementTree as ET
 import time
 import os
 import rospy
-import sys
 import random
 
 import numpy as np
