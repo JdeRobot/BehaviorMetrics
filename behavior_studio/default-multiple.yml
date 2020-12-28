@@ -16,9 +16,11 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: ['brains/f1/brains_f1_keras_lstm_merged.py', 'brains/f1/brain_f1_opencv.py']
+        BrainPath: ['brains/f1/brain_f1_keras_regression_merged.py', 'brains/f1/brain_f1_keras_regression.py']
         Type: 'f1'
-    ExperimentTimeout: 100
+    Experiment:
+        Timeout: 200
+        Repetitions: 2
     Simulation:
         World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
     Dataset:
@@ -26,7 +28,7 @@ Behaviors:
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: ['lap-simple-circuit.bag', 'lap-simple-circuit.bag']
+        PerfectLap: ['lap-simple-circuit.bag', 'lap-many-curves.bag']
     Layout:
         Frame_0:
             Name: frame_0
