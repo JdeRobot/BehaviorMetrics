@@ -106,8 +106,9 @@ class Config:
         self.stats_out = config_data['Behaviors']['Stats']['Out']
         self.stats_perfect_lap = config_data['Behaviors']['Stats']['PerfectLap']
         
-        if 'ExperimentTimeout' in config_data['Behaviors']:
-            self.experiment_timeout = config_data['Behaviors']['ExperimentTimeout']
+        if 'Experiment' in config_data['Behaviors']:
+            self.experiment_timeout = config_data['Behaviors']['Experiment']['Timeout']
+            self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']

@@ -89,50 +89,51 @@ def run_brains_worlds(app_configuration, controller):
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
-    for i, world in enumerate(app_configuration.current_world):
+    for world_counter, world in enumerate(app_configuration.current_world):
         for brain in app_configuration.brain_path:
-            # 1. Load world
-            launch_gazebo_no_gui(world, app_configuration.stats_perfect_lap[i])
-            controller.initialize_robot()
-            controller.pilot.configuration.current_world = world
-            controller.pilot.brains.brain_path = brain
-            logger.info('Executing brain')
-            # 2. Play
-            controller.reload_brain(brain)
-            controller.resume_pilot()
-            controller.pilot.configuration.brain_path = app_configuration.brain_path
-            controller.unpause_gazebo_simulation()
-            controller.record_stats(app_configuration.stats_perfect_lap[i], app_configuration.stats_out)
+            for repetition_counter in range(0, app_configuration.experiment_repetitions):
+                # 1. Load world
+                launch_gazebo_no_gui(world, app_configuration.stats_perfect_lap[world_counter])
+                controller.initialize_robot()
+                controller.pilot.configuration.current_world = world
+                controller.pilot.brains.brain_path = brain
+                logger.info('Executing brain')
+                # 2. Play
+                controller.reload_brain(brain)
+                controller.resume_pilot()
+                controller.pilot.configuration.brain_path = app_configuration.brain_path
+                controller.unpause_gazebo_simulation()
+                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out)
 
-            time_start = rospy.get_time()
-            perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag('lap-simple-circuit.bag')
-            new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-            
-            is_finished = False
-            while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not is_finished) or rospy.get_time() - time_start < 10:
-                rospy.sleep(10)
-                old_point = new_point
+                time_start = rospy.get_time()
+                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag('lap-simple-circuit.bag')
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-                
-                if is_trapped(old_point, new_point):
-                    is_finished = True
-                    
-                if metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
-                    is_finished = True
-            
-            logger.info('--------------')
-            logger.info('--- END TIME ----------------')
-            time_end = rospy.get_time()
-            logger.info(time_end - time_start)
-            controller.stop_record_stats()
-            # 3. Stop
-            controller.pause_pilot()
-            controller.pause_gazebo_simulation()
-            logger.info('--- BRAIN ---')
-            logger.info(brain)
-            logger.info('--- STATS ---')
-            logger.info(controller.lap_statistics)
-            logger.info('--------------')
+
+                is_finished = False
+                while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not is_finished) or rospy.get_time() - time_start < 10:
+                    rospy.sleep(10)
+                    old_point = new_point
+                    new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+
+                    if is_trapped(old_point, new_point):
+                        is_finished = True
+
+                    if metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
+                        is_finished = True
+
+                logger.info('--------------')
+                logger.info('--- END TIME ----------------')
+                time_end = rospy.get_time()
+                logger.info(time_end - time_start)
+                controller.stop_record_stats()
+                # 3. Stop
+                controller.pause_pilot()
+                controller.pause_gazebo_simulation()
+                logger.info('--- BRAIN ---')
+                logger.info(brain)
+                logger.info('--- STATS ---')
+                logger.info(controller.lap_statistics)
+                logger.info('--------------')
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')
         
