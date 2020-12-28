@@ -106,7 +106,7 @@ def run_brains_worlds(app_configuration, controller):
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out)
 
                 time_start = rospy.get_time()
-                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag('lap-simple-circuit.bag')
+                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
 
                 is_finished = False
@@ -114,13 +114,15 @@ def run_brains_worlds(app_configuration, controller):
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-
                     if is_trapped(old_point, new_point):
                         is_finished = True
 
                     if metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
                         is_finished = True
 
+                logger.info('--------------')
+                logger.info('--------------')
+                logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--- END TIME ----------------')
                 time_end = rospy.get_time()
@@ -129,10 +131,15 @@ def run_brains_worlds(app_configuration, controller):
                 # 3. Stop
                 controller.pause_pilot()
                 controller.pause_gazebo_simulation()
+                logger.info('--- WORLD ---')
+                logger.info(world)
                 logger.info('--- BRAIN ---')
                 logger.info(brain)
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
+                logger.info('--------------')
+                logger.info('--------------')
+                logger.info('--------------')
                 logger.info('--------------')
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')
