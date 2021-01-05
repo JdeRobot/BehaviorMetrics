@@ -1,3 +1,4 @@
+![Publish Docker image](https://github.com/JdeRobot/BehaviorStudio/workflows/Publish%20Docker%20image/badge.svg)
 # Behavior Studio
 
 This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:

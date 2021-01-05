@@ -23,6 +23,7 @@ import time
 import os
 import rospy
 import random
+import sys
 
 import numpy as np
 
@@ -57,7 +58,8 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
     else:
         orientation_z = random_point['pose.pose.orientation.z']
         
-    random_start_point = np.array([random_point['pose.pose.position.x'], random_point['pose.pose.position.y'] , random_point['pose.pose.position.z'], random_point['pose.pose.orientation.x'], random_point['pose.pose.orientation.y'], orientation_z])
+    random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3) , round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)*2.22])
+    
     for child_1 in root[0]:
         if child_1.tag == 'include':
             next = False
@@ -90,7 +92,8 @@ def run_brains_worlds(app_configuration, controller):
     controller.pilot.start()
     for world_counter, world in enumerate(app_configuration.current_world):
         for brain in app_configuration.brain_path:
-            for repetition_counter in range(0, app_configuration.experiment_repetitions):
+            repetition_counter = 0
+            while repetition_counter < app_configuration.experiment_repetitions:
                 # 1. Load world
                 launch_gazebo_no_gui(world, app_configuration.stats_perfect_lap[world_counter])
                 controller.initialize_robot()
@@ -109,7 +112,7 @@ def run_brains_worlds(app_configuration, controller):
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
 
                 is_finished = False
-                while (rospy.get_time() - time_start < app_configuration.experiment_timeout and not is_finished) or rospy.get_time() - time_start < 10:
+                while (rospy.get_time() - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or rospy.get_time() - time_start < 10:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
@@ -136,6 +139,11 @@ def run_brains_worlds(app_configuration, controller):
                 logger.info(brain)
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
+                if controller.lap_statistics['percentage_completed'] < 3:
+                    logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
+                    os.remove(controller.stats_filename)
+                else:
+                    repetition_counter += 1
                 logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--------------')
