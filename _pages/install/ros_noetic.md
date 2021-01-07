@@ -91,7 +91,7 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Installing Python 3.7
+### Installing Python 3.7 and creating a virtualenv
 
 It is recommended to use virtual environment for Behavior Studio.
 
@@ -99,6 +99,8 @@ It is recommended to use virtual environment for Behavior Studio.
 sudo apt install software-properties-common python3-pip python3-virtualenv
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install python3.7
+
+# Create virtualenv
 virtualenv -p python3.7 .behavior-studio
 source .behavior-studio/bin/activate
 pip install empy
@@ -107,18 +109,6 @@ sudo apt-get install python3.7-dev
 
 ### Installing dependencies <a name="dependencies"></a>
 
-#### JdeRobot's Assets
-
-```bash
-sudo apt-get install ros-noetic-jderobot-assets
-git clone https://github.com/JdeRobot/assets
-pip install catkin_pkg
-cd assets/jderobot_assets && mkdir build && cd build
-cmake .. && sudo make && sudo make install
-echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
-source ~/.bashrc
-```
-
 #### JdeRobot's CustomRobots
 
 ```bash
@@ -126,6 +116,7 @@ git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots
 cd CustomRobots/f1 && mkdir build && cd build
 /bin/bash -c "source /opt/ros/noetic/setup.bash;
 cmake .. && make && make install;"
+echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 ```
 
 #### ROS additional package
@@ -149,10 +140,9 @@ pip3 install -e .
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
 
 ```bash
-git clone https://github.com/JdeRobot/BehaviorStudio
+git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio
 cd BehaviorStudio
-git checkout noetic-devel
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 If you are going to use the GUI you need to create the resources file for the application. 
@@ -171,7 +161,7 @@ cd BehaviorStudio/gym-gazebo/
 bash load_env.sh 
 ```
 
-From here you are to go to our [Quick Start guide!](https://github.com/JdeRobot/BehaviorStudio)
+From here you are to good to go to the [quick start guide!](../quick_start/)
 
 ## Installation using Docker <a name="docker-installation"></a>
 
