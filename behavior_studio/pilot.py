@@ -108,15 +108,22 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
+        stopped_brain_stats = False
         while (not self.kill_event.is_set()):
             start_time = datetime.now()
             if not self.stop_event.is_set():
+                stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-
+            else:
+                if stopped_brain_stats:
+                    logger.info('----- MEAN INFERENCE TIME -----')
+                    stopped_brain_stats = False
+                    logger.info(sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times))
+                    logger.info('-------------------')
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             elapsed = time.time() - ss
@@ -129,7 +136,8 @@ class Pilot(threading.Thread):
 
             if (ms < TIME_CYCLE):
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-        logger.debug('Pilot: pilot killed.')
+        
+        logger.info('Pilot: pilot killed.')
 
     def stop(self):
         """Pause the main loop"""

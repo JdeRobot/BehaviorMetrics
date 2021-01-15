@@ -1,7 +1,7 @@
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5' # CHANGE TO YOUR NET
 MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5' # CHANGE TO YOUR NET

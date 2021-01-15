@@ -16,8 +16,9 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+import time
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 
 # MODEL_PILOTNET = 'model_pilotnet_cropped_300.h5' # CHANGE TO YOUR NET
@@ -47,6 +48,7 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
+        self.inference_times = []
         
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET):
             print("File "+MODEL_PILOTNET + " cannot be found in " + PRETRAINED_MODELS)
@@ -64,11 +66,8 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+        self.cont += 1
 
-        if self.cont > 0:
-            print("Runing...")
-            self.cont += 1
-        
         image = self.camera.getImage().data
         # Normal image size -> (160, 120)
         # Cropped image size -> (60, 160)
@@ -83,9 +82,10 @@ class Brain:
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
             img = np.expand_dims(img, axis=0)
 
+            start_time = time.time()
             prediction = self.net.predict(img)
-            # print(prediction)
-            #prediction_v = prediction[0][0] * 0.5
+            self.inference_times.append(time.time() - start_time)
+            # prediction_v = prediction[0][0] * 0.5
             # prediction_v = prediction[0][0] * 0.4
             prediction_v = prediction[0][0] * 0.5
             prediction_w = prediction[0][1]

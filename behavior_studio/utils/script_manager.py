@@ -118,7 +118,6 @@ def run_brains_worlds(app_configuration, controller):
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
                     if is_trapped(old_point, new_point):
                         is_finished = True
-
                     if metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
                         is_finished = True
 

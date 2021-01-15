@@ -16,8 +16,10 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+import time
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 # MODEL_PILOTNET_V = 'model_pilotnet_v.h5' # CHANGE TO YOUR NET
 # MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
@@ -84,10 +86,12 @@ class Brain:
         image = image[240:480, 0:640]
         img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
         img = np.expand_dims(img, axis=0)
-
+        
+        start_time = time.time()
         prediction_v = self.net_v.predict(img)
         prediction_v = prediction_v * 0.5
         prediction_w = self.net_w.predict(img)
+        print("--- %s seconds ---" % (time.time() - start_time))
         
         if prediction_w != '' and prediction_w != '':
             self.motors.sendV(prediction_v)
