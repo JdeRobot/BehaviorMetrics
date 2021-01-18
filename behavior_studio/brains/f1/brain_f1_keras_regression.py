@@ -17,9 +17,10 @@ import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
+from os import path
 
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 # MODEL_PILOTNET_V = 'model_pilotnet_v.h5' # CHANGE TO YOUR NET
 # MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
@@ -28,8 +29,6 @@ MODEL_PILOTNET_W = 'model_pilotnet_cropped_300_w.h5' # CHANGE TO YOUR NET
 #MODEL_PILOTNET_V = 'model_tinypilotnet_cropped_v.h5' # CHANGE TO YOUR NET
 #MODEL_PILOTNET_W = 'model_tinypilotnet_cropped_w.h5' # CHANGE TO YOUR NET
 
-
-from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -49,6 +48,7 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
+        self.inference_times = []
         
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET_V):
             print("File "+MODEL_PILOTNET_V+" cannot be found in " + PRETRAINED_MODELS)
@@ -69,10 +69,7 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
-
-        if self.cont > 0:
-            print("Runing...")
-            self.cont += 1
+        self.cont += 1
         
         image = self.camera.getImage().data
         # Normal image size -> (160, 120)
@@ -91,7 +88,7 @@ class Brain:
         prediction_v = self.net_v.predict(img)
         prediction_v = prediction_v * 0.5
         prediction_w = self.net_w.predict(img)
-        print("--- %s seconds ---" % (time.time() - start_time))
+        self.inference_times.append(time.time() - start_time)
         
         if prediction_w != '' and prediction_w != '':
             self.motors.sendV(prediction_v)

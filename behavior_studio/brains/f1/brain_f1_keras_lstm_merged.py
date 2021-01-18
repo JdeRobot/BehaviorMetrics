@@ -18,12 +18,12 @@ import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
 MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
-MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
+#MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
 
 
 from os import path

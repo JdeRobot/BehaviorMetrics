@@ -18,7 +18,7 @@ import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 
 # MODEL_PILOTNET = 'model_pilotnet_cropped_300.h5' # CHANGE TO YOUR NET
