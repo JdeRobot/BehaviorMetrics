@@ -109,23 +109,39 @@ class Pilot(threading.Thread):
         it = 0
         ss = time.time()
         stopped_brain_stats = False
+        succesful_iteration = False
+        brain_iterations_time = []
         while (not self.kill_event.is_set()):
             start_time = datetime.now()
             if not self.stop_event.is_set():
                 stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
+                    succesful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
+                    succesful_iteration = False
             else:
                 if stopped_brain_stats:
-                    logger.info('----- MEAN INFERENCE TIME -----')
                     stopped_brain_stats = False
+                    succesful_iteration = False
+                    logger.info('----- MEAN INFERENCE TIME -----')
                     logger.info(sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times))
                     logger.info('-------------------')
+                    logger.info('----- MEAN ITERATION TIME -----')
+                    logger.info(sum(brain_iterations_time) / len(brain_iterations_time))
+                    #print(brain_iterations_time)
+                    logger.info('-------------------')
+                    mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+                    mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time)
+                    brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+            if succesful_iteration:
+                brain_iterations_time.append(ms/1000)
+            # print('--- iteration time --- ' + str(ms) + ' ms -----')
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1

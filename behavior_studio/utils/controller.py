@@ -214,6 +214,16 @@ class Controller:
         
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
+        logger.info("END ---- > Stopping stats bag recording")
+        
+    def save_time_stats(self, mean_iteration_time, mean_inference_time):
+        time_stats = {'mean_iteration_time': mean_iteration_time, 'mean_inference_time': mean_inference_time}
+        metrics_str = json.dumps(time_stats)
+        with rosbag.Bag(self.stats_filename, 'a') as bag:
+            metadata_msg = String(data=metrics_str)
+            bag.write('/time_stats', metadata_msg, rospy.Time(bag.get_end_time()))
+        bag.close()
+        
 
     def reload_brain(self, brain):
         """Helper function to reload the current brain from the GUI.
