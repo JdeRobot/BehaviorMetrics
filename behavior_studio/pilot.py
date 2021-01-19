@@ -126,20 +126,27 @@ class Pilot(threading.Thread):
                 if stopped_brain_stats:
                     stopped_brain_stats = False
                     succesful_iteration = False
-                    logger.info('----- MEAN INFERENCE TIME -----')
-                    #print(self.brains.active_brain.inference_times)
-                    self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-                    #print(self.brains.active_brain.inference_times)
-                    mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-                    frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
-                    logger.info(mean_inference_time)
-                    logger.info(frame_rate)
-                    logger.info('-------------------')
+                    try:
+                        logger.info('----- MEAN INFERENCE TIME -----')
+                        #print(self.brains.active_brain.inference_times)
+                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
+                        #print(self.brains.active_brain.inference_times)
+                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+                        frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+                        gpu_inferencing = self.brains.active_brain.gpu_inferencing
+                        logger.info(mean_inference_time)
+                        logger.info(frame_rate)
+                        logger.info('-------------------')
+                    except:
+                        mean_inference_time = 0
+                        frame_rate = 0
+                        gpu_inferencing = False
+                        logger.info('No inference brain')
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
-                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, self.brains.active_brain.gpu_inferencing)
+                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
