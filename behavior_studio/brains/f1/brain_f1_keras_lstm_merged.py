@@ -19,12 +19,12 @@ from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
 import os
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
 MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
-MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
+#MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
 
 
 from os import path
@@ -49,10 +49,6 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         #os.environ['CUDA_VISIBLE_DEVICES'] = ''
-        if tf.test.gpu_device_name():
-            print('------------------------------------- GPU found ------------------------------------- ')
-        else:
-            print("------------------------------------- No GPU found ------------------------------------- ")    
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_LSTM):
