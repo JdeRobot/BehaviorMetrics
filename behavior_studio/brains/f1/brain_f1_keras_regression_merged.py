@@ -15,7 +15,11 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+import time
+import os
+
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
@@ -26,8 +30,6 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 # MODEL_PILOTNET = 'merged_model_tinypilotnet_cropped_100.h5'
 MODEL_PILOTNET = 'merged_model_tinypilotnet_cropped_300.h5'
 
-
-from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -47,9 +49,15 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
+        self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+
         
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET):
             print("File "+MODEL_PILOTNET + " cannot be found in " + PRETRAINED_MODELS)
+        
+        
             
         self.net = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_PILOTNET)
 
@@ -64,11 +72,8 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+        self.cont += 1
 
-        if self.cont > 0:
-            print("Runing...")
-            self.cont += 1
-        
         image = self.camera.getImage().data
         # Normal image size -> (160, 120)
         # Cropped image size -> (60, 160)
@@ -83,9 +88,10 @@ class Brain:
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
             img = np.expand_dims(img, axis=0)
 
+            start_time = time.time()
             prediction = self.net.predict(img)
-            # print(prediction)
-            #prediction_v = prediction[0][0] * 0.5
+            self.inference_times.append(time.time() - start_time)
+            # prediction_v = prediction[0][0] * 0.5
             # prediction_v = prediction[0][0] * 0.4
             prediction_v = prediction[0][0] * 0.5
             prediction_w = prediction[0][1]

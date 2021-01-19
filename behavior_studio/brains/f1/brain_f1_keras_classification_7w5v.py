@@ -1,15 +1,17 @@
+
+import tensorflow as tf
+import numpy as np
+import time
 import cv2
+import os
+
+from os import path
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5' # CHANGE TO YOUR NET
 MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5' # CHANGE TO YOUR NET
-
-
-from os import path
-import tensorflow as tf
-import numpy as np
 
 
 class Brain:
@@ -19,6 +21,9 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
+        self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_V):
             print("File " + MODEL_V + " cannot be found in " + PRETRAINED_MODELS)
@@ -27,6 +32,8 @@ class Brain:
             
         self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_V)
         self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_W)
+        
+        
         
     def update_frame(self, frame_id, data):
         self.handler.update_frame(frame_id, data)
@@ -87,10 +94,7 @@ class Brain:
         
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
-        
-        if self.cont > 0:
-            print("Runing...")
-            self.cont += 1
+        self.cont += 1
         
         image = self.camera.getImage().data
         # Normal image size -> (160, 120)
@@ -106,8 +110,10 @@ class Brain:
         img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
 
         img = np.expand_dims(img, axis=0)
+        start_time = time.time()
         prediction_v = self.net_v.predict_classes(img)
         prediction_w = self.net_w.predict_classes(img)
+        self.inference_times.append(time.time() - start_time)
 
         if prediction_w[0] != '' and prediction_w[0] != '':
             self.calculate_v(prediction_v[0])

@@ -27,7 +27,7 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 60
+TIME_CYCLE = 0
 
 
 class Pilot(threading.Thread):
@@ -108,28 +108,59 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
+        stopped_brain_stats = False
+        succesful_iteration = False
+        brain_iterations_time = []
         while (not self.kill_event.is_set()):
             start_time = datetime.now()
             if not self.stop_event.is_set():
+                stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
+                    succesful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-
+                    succesful_iteration = False
+            else:
+                if stopped_brain_stats:
+                    stopped_brain_stats = False
+                    succesful_iteration = False
+                    try:
+                        logger.info('----- MEAN INFERENCE TIME -----')
+                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
+                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+                        frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+                        gpu_inferencing = self.brains.active_brain.gpu_inferencing
+                        logger.info(mean_inference_time)
+                        logger.info(frame_rate)
+                        logger.info('-------------------')
+                    except:
+                        mean_inference_time = 0
+                        frame_rate = 0
+                        gpu_inferencing = False
+                        logger.info('No inference brain')
+                    logger.info('----- MEAN ITERATION TIME -----')
+                    mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+                    logger.info(mean_iteration_time)
+                    logger.info('-------------------')
+                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                    brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+            if succesful_iteration:
+                brain_iterations_time.append(ms/1000)
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1
             else:
                 ss = time.time()
-                # print(it)
                 it = 0
 
             if (ms < TIME_CYCLE):
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-        logger.debug('Pilot: pilot killed.')
+        
+        logger.info('Pilot: pilot killed.')
 
     def stop(self):
         """Pause the main loop"""

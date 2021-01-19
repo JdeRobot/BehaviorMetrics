@@ -15,16 +15,19 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+import time
+import os
+
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
 MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
+#MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
 
-
-from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -44,6 +47,9 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
         self.cont = 0
+        self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_LSTM):
             print("File " + MODEL_LSTM + " cannot be found in " + PRETRAINED_MODELS)
@@ -61,10 +67,7 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
-
-        if self.cont > 0:
-            print("Runing...")
-            self.cont += 1
+        self.cont += 1
         
         image = self.camera.getImage().data
         # Normal image size -> (160, 120)
@@ -79,9 +82,13 @@ class Brain:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
             img = np.expand_dims(img, axis=0)
-
+            
+            start_time = time.time()
             prediction = self.net.predict(img)
+            #print(time.time() - start_time)
+            self.inference_times.append(time.time() - start_time)
             prediction_v = prediction[0][0] * 0.5
+            #prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]
 
             if prediction_w != '' and prediction_w != '':
