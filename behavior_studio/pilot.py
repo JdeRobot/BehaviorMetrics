@@ -27,7 +27,7 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 60
+TIME_CYCLE = 0
 
 
 class Pilot(threading.Thread):
@@ -127,17 +127,19 @@ class Pilot(threading.Thread):
                     stopped_brain_stats = False
                     succesful_iteration = False
                     logger.info('----- MEAN INFERENCE TIME -----')
-                    logger.info(sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times))
-                    logger.info(len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times))
                     #print(self.brains.active_brain.inference_times)
+                    self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
+                    #print(self.brains.active_brain.inference_times)
+                    mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+                    frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+                    logger.info(mean_inference_time)
+                    logger.info(frame_rate)
                     logger.info('-------------------')
                     logger.info('----- MEAN ITERATION TIME -----')
-                    logger.info(sum(brain_iterations_time) / len(brain_iterations_time))
-                    #print(brain_iterations_time)
-                    logger.info('-------------------')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
-                    mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time)
+                    logger.info(mean_iteration_time)
+                    logger.info('-------------------')
+                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate)
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
