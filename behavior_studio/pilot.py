@@ -128,6 +128,8 @@ class Pilot(threading.Thread):
                     succesful_iteration = False
                     logger.info('----- MEAN INFERENCE TIME -----')
                     logger.info(sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times))
+                    logger.info(len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times))
+                    #print(self.brains.active_brain.inference_times)
                     logger.info('-------------------')
                     logger.info('----- MEAN ITERATION TIME -----')
                     logger.info(sum(brain_iterations_time) / len(brain_iterations_time))
