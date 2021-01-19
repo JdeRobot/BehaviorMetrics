@@ -103,7 +103,7 @@ def run_brains_worlds(app_configuration, controller):
                 # 2. Play
                 controller.reload_brain(brain)
                 controller.resume_pilot()
-                controller.pilot.configuration.brain_path = app_configuration.brain_path
+                controller.pilot.configuration.brain_path = brain
                 controller.unpause_gazebo_simulation()
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out)
 

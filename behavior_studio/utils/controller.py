@@ -178,7 +178,7 @@ class Controller:
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
-        current_brain_head, current_brain_tail = os.path.split(self.pilot.brains.brain_path)
+        current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
         self.metrics = {}
         self.metrics['world'] = current_world_tail
         self.metrics['brain_path'] = current_brain_tail
