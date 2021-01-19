@@ -128,9 +128,7 @@ class Pilot(threading.Thread):
                     succesful_iteration = False
                     try:
                         logger.info('----- MEAN INFERENCE TIME -----')
-                        #print(self.brains.active_brain.inference_times)
                         self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-                        #print(self.brains.active_brain.inference_times)
                         mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
                         frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
                         gpu_inferencing = self.brains.active_brain.gpu_inferencing
@@ -152,13 +150,11 @@ class Pilot(threading.Thread):
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             if succesful_iteration:
                 brain_iterations_time.append(ms/1000)
-            # print('--- iteration time --- ' + str(ms) + ' ms -----')
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1
             else:
                 ss = time.time()
-                # print(it)
                 it = 0
 
             if (ms < TIME_CYCLE):
