@@ -17,13 +17,14 @@ import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
+import os
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
 # MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
 MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
-#MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
+MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
 
 
 from os import path
@@ -47,6 +48,12 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        if tf.test.gpu_device_name():
+            print('------------------------------------- GPU found ------------------------------------- ')
+        else:
+            print("------------------------------------- No GPU found ------------------------------------- ")    
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_LSTM):
             print("File " + MODEL_LSTM + " cannot be found in " + PRETRAINED_MODELS)
@@ -82,6 +89,7 @@ class Brain:
             
             start_time = time.time()
             prediction = self.net.predict(img)
+            #print(time.time() - start_time)
             self.inference_times.append(time.time() - start_time)
             prediction_v = prediction[0][0] * 0.5
             #prediction_v = prediction[0][0]

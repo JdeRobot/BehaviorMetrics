@@ -17,8 +17,9 @@ import numpy as np
 import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
+import os
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 
 # MODEL_PILOTNET = 'model_pilotnet_cropped_300.h5' # CHANGE TO YOUR NET
@@ -49,9 +50,18 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        if tf.test.gpu_device_name():
+            print('------------------------------------- GPU found ------------------------------------- ')
+        else:
+            print("------------------------------------- No GPU found ------------------------------------- ")    
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+
         
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET):
             print("File "+MODEL_PILOTNET + " cannot be found in " + PRETRAINED_MODELS)
+        
+        
             
         self.net = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_PILOTNET)
 

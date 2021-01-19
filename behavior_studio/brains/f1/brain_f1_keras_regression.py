@@ -18,9 +18,10 @@ import cv2
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
 from os import path
+import os 
 
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 # MODEL_PILOTNET_V = 'model_pilotnet_v.h5' # CHANGE TO YOUR NET
 # MODEL_PILOTNET_W = 'model_pilotnet_w.h5' # CHANGE TO YOUR NET
@@ -49,6 +50,12 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        if tf.test.gpu_device_name():
+            print('------------------------------------- GPU found ------------------------------------- ')
+        else:
+            print("------------------------------------- No GPU found ------------------------------------- ")    
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_PILOTNET_V):
             print("File "+MODEL_PILOTNET_V+" cannot be found in " + PRETRAINED_MODELS)

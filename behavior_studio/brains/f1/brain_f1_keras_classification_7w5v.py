@@ -3,9 +3,10 @@ import tensorflow as tf
 import numpy as np
 import time
 import cv2
+import os
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 MODEL_V = 'test_model_tf_keras_cropped_biased_v.h5' # CHANGE TO YOUR NET
 MODEL_W = 'test_model_tf_keras_cropped_biased_w.h5' # CHANGE TO YOUR NET
@@ -19,6 +20,12 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
+        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        if tf.test.gpu_device_name():
+            print('------------------------------------- GPU found ------------------------------------- ')
+        else:
+            print("------------------------------------- No GPU found ------------------------------------- ")    
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
         if not path.exists(PRETRAINED_MODELS + MODEL_V):
             print("File " + MODEL_V + " cannot be found in " + PRETRAINED_MODELS)
@@ -27,6 +34,8 @@ class Brain:
             
         self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_V)
         self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_W)
+        
+        
         
     def update_frame(self, frame_id, data):
         self.handler.update_frame(frame_id, data)
