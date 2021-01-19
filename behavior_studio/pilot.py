@@ -139,7 +139,7 @@ class Pilot(threading.Thread):
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
-                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate)
+                    self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, self.brains.active_brain.gpu_inferencing)
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
