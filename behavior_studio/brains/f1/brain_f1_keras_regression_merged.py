@@ -15,9 +15,11 @@
 import tensorflow as tf
 import numpy as np
 import cv2
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
 import os
+
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
@@ -28,8 +30,6 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 # MODEL_PILOTNET = 'merged_model_tinypilotnet_cropped_100.h5'
 MODEL_PILOTNET = 'merged_model_tinypilotnet_cropped_300.h5'
 
-
-from os import path
 
 class Brain:
     """Specific brain for the f1 robot. See header."""

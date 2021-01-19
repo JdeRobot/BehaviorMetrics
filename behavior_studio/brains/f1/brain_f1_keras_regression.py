@@ -15,11 +15,11 @@
 import tensorflow as tf
 import numpy as np
 import cv2
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 import time
-from os import path
 import os 
 
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
