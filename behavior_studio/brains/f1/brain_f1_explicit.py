@@ -14,7 +14,7 @@ class Brain(threading.Thread):
         self.handler = handler
 
         self.x_middle_left_above = 0
-        self.desviation_left = 0
+        self.deviation_left = 0
         self.lock = threading.Lock()
         
     def update_frame(self, frame_id, data):
@@ -26,9 +26,9 @@ class Brain(threading.Thread):
         """
         self.handler.update_frame(frame_id, data)
 
-    def check_center(self, positionx):
-        if (len(positionx[0]) > 1):
-            x_middle = (positionx[0][0] + positionx[0][len(positionx[0]) - 1]) / 2
+    def check_center(self, position_x):
+        if (len(position_x[0]) > 1):
+            x_middle = (position_x[0][0] + position_x[0][len(position_x[0]) - 1]) / 2
             not_found = False
         else:
             # The center of the line is in position 326
@@ -37,46 +37,46 @@ class Brain(threading.Thread):
         return x_middle, not_found
 
 
-    def exception_case(self, x_middle_left_middle, desviation):
+    def exception_case(self, x_middle_left_middle, deviation):
         dif = x_middle_left_middle - self.x_middle_left_above
 
         if (abs(dif) < 80):
-            rotation = -(0.008 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.008 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 130):
-            rotation = -(0.0075 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0075 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 190):
-            rotation = -(0.007 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.007 * deviation + 0.0005 * (deviation - self.deviation_left))
         else:
-            rotation = -(0.0065 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0065 * deviation + 0.0005 * (deviation - self.deviation_left))
 
         speed = 5
         return speed, rotation
 
 
-    def straight_case(self, desviation, dif):
+    def straight_case(self, deviation, dif):
         if (abs(dif) < 35):
-            rotation = -(0.0054 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0054 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 13
         elif (abs(dif) < 90):
-            rotation = -(0.0052 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0052 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 11
         else:
-            rotation = -(0.0049 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0049 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 9
 
         return speed, rotation
 
-    def curve_case(self, desviation, dif):
+    def curve_case(self, deviation, dif):
         if (abs(dif) < 50):
-            rotation = -(0.01 * desviation + 0.0006 * (desviation - self.desviation_left))
+            rotation = -(0.01 * deviation + 0.0006 * (deviation - self.deviation_left))
         if (abs(dif) < 80):
-            rotation = -(0.0092 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0092 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 130):
-            rotation = -(0.0087 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0087 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 190):
-            rotation = -(0.008 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.008 * deviation + 0.0005 * (deviation - self.deviation_left))
         else:
-            rotation = -(0.0075 * desviation + 0.0005 * (desviation - self.desviation_left))
+            rotation = -(0.0075 * deviation + 0.0005 * (deviation - self.deviation_left))
 
         speed = 5
         return speed, rotation
@@ -128,9 +128,9 @@ class Brain(threading.Thread):
         columns = size[1]
 
         # We look for the position on the x axis of the pixels that have value 1 in different positions and
-        position_x_down = np.where(image_mask[249, :])
-        position_x_middle = np.where(image_mask [124, :])
-        position_x_above = np.where(image_mask[62, :])        
+        position_x_down = np.where(image_mask[points[3][1], :])
+        position_x_middle = np.where(image_mask [points[1][1], :])
+        position_x_above = np.where(image_mask[points[2][1], :])        
         
         # We see that white pixels have been located and we look if the center is located
         # In this way we can know if the car has left the circuit
@@ -140,24 +140,24 @@ class Brain(threading.Thread):
         # We look if white pixels of the row above are located
         if (len(position_x_above[0]) > 1):
             self.x_middle_left_above = (position_x_above[0][0] + position_x_above[0][len(position_x_above[0]) - 1]) / 2
-            # We look at the deviation from the central position. The center of the line is in position 326
-            desviation = self.x_middle_left_above - 326
+            # We look at the deviation from the central position. The center of the line is in position cols/2
+            deviation = self.x_middle_left_above - (cols/2)
 
             # If the row below has been lost we have a different case, which we treat as an exception
             if not_found_down == True:
-                speed, rotation = self.exception_case(x_middle_left_middle, desviation)
+                speed, rotation = self.exception_case(x_middle_left_middle, deviation)
             else:
                 # We check is formula 1 is in curve or straight
                 dif = x_middle_left_down - self.x_middle_left_above
                 x = float(((-dif) * (310 - 350))) / float(260-350) + x_middle_left_down
 
                 if abs(x - x_middle_left_middle) < 2:
-                    speed, rotation = self.straight_case(desviation, dif)
+                    speed, rotation = self.straight_case(deviation, dif)
                 else:
-                    speed, rotation = self.curve_case(desviation, dif)
+                    speed, rotation = self.curve_case(deviation, dif)
 
-            # We update the desviation
-            self.desviation_left = desviation
+            # We update the deviation
+            self.deviation_left = deviation
         else:
             # If the formula 1 leaves the red line, the line is searched
             if self.x_middle_left_above > (columns/2):
