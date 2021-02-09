@@ -6,7 +6,7 @@ import time
 import cv2
 
 
-class Brain(threading.Thread):
+class Brain:
 
     def __init__(self, sensors, actuators, handler):
         self.camera = sensors.get_camera('camera_0')
