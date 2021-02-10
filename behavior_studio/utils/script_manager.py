@@ -101,8 +101,8 @@ def run_brains_worlds(app_configuration, controller):
                 controller.pilot.brains.brain_path = brain
                 logger.info('Executing brain')
                 # 2. Play
-                if app_configuration.experiment_models:
-                    controller.reload_brain(brain, model=app_configuration.experiment_models[brain_counter])
+                if hasattr(app_configuration, 'experiment_model'):
+                    controller.reload_brain(brain, model=app_configuration.experiment_model[brain_counter])
                 else:
                     controller.reload_brain(brain)
                 controller.resume_pilot()
@@ -139,12 +139,12 @@ def run_brains_worlds(app_configuration, controller):
                 logger.info(world)
                 logger.info('--- BRAIN ---')
                 logger.info(brain)
-                if app_configuration.experiment_models:
+                if hasattr(app_configuration, 'experiment_model'):
                     logger.info('--- MODEL ---')
-                    logger.info(app_configuration.experiment_models[brain_counter])
+                    logger.info(app_configuration.experiment_model[brain_counter])
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
-                if controller.lap_statistics['percentage_completed'] < 3:
+                if controller.lap_statistics['percentage_completed'] < 0:
                     logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
                     os.remove(controller.stats_filename)
                 else:

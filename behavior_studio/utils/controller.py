@@ -186,10 +186,14 @@ class Controller:
         self.metrics['world'] = current_world_tail
         self.metrics['brain_path'] = current_brain_tail
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
-        if self.pilot.configuration.experiment_name:
+        if hasattr(self.pilot.configuration, 'experiment_model'):
+            if brain_counter is not None:
+                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+            else:
+                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model
+        if hasattr(self.pilot.configuration, 'experiment_name'):
             self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
-            self.metrics['experiment_model'] = self.pilot.configuration.experiment_models[brain_counter]
             self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             self.metrics['experiment_repetition'] = repetition_counter
             

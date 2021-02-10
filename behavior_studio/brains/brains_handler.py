@@ -10,12 +10,14 @@ import os
 
 class Brains(object):
 
-    def __init__(self, sensors, actuatrors, brain_path, controller):
+    def __init__(self, sensors, actuatrors, brain_path, controller, model=None):
 
         self.sensors = sensors
         self.actuatrors = actuatrors
         self.controller = controller
         self.brain_path = brain_path
+        if model:
+            self.model = model
         try:
             if brain_path:
                 self.load_brain(brain_path)
@@ -39,8 +41,10 @@ class Brains(object):
                 del sys.modules[import_name]
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
-            if model:
+            if model: 
                 self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self)
+            elif hasattr(self, 'model'):
+                self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self)
             else: 
                 self.active_brain = Brain(self.sensors, self.actuatrors, handler=self)
 
