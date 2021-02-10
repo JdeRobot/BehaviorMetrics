@@ -23,7 +23,7 @@ class Brains(object):
             print('Invalid brain path: {}\n[ERROR] {}'.format(brain_path, e))
             exit(1)
 
-    def load_brain(self, path):
+    def load_brain(self, path, model=None):
 
         path_split = path.split("/")
         robot_type = path_split[-2]
@@ -39,7 +39,10 @@ class Brains(object):
                 del sys.modules[import_name]
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
-            self.active_brain = Brain(self.sensors, self.actuatrors, self)
+            if model:
+                self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self)
+            else: 
+                self.active_brain = Brain(self.sensors, self.actuatrors, handler=self)
 
     def get_image(self, camera_name):
         camera = self.sensors.get_camera(camera_name)

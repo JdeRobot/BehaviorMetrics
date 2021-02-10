@@ -174,15 +174,25 @@ class Controller:
             logger.info("No bag recording")
             
             
-    def record_stats(self, perfect_lap_filename, stats_record_dir_path):
+    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
-        current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
+        if brain_counter is not None:
+            current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
+        else:
+            current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
         self.metrics = {}
         self.metrics['world'] = current_world_tail
         self.metrics['brain_path'] = current_brain_tail
         self.metrics['robot_type'] = self.pilot.configuration.robot_type
+        if self.pilot.configuration.experiment_name:
+            self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
+            self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
+            self.metrics['experiment_model'] = self.pilot.configuration.experiment_models[brain_counter]
+            self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            self.metrics['experiment_repetition'] = repetition_counter
+            
         self.perfect_lap_filename = perfect_lap_filename
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -210,8 +220,7 @@ class Controller:
         with rosbag.Bag(self.stats_filename, 'a') as bag:
             metadata_msg = String(data=metrics_str)
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
-        bag.close()
-        
+        bag.close()        
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
         logger.info("END ---- > Stopping stats bag recording")
@@ -225,7 +234,7 @@ class Controller:
         bag.close()
         
 
-    def reload_brain(self, brain):
+    def reload_brain(self, brain, model=None):
         """Helper function to reload the current brain from the GUI.
 
         Arguments:
@@ -234,7 +243,7 @@ class Controller:
         logger.info("Reloading brain... {}".format(brain))
         
         self.pause_pilot()
-        self.pilot.reload_brain(brain)
+        self.pilot.reload_brain(brain, model)
 
     # Helper functions (connection with logic)
 
