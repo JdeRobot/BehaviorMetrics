@@ -16,7 +16,8 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1/brain_f1_opencv.py'
+        BrainPath: 'brains/f1/brain_f1_keras.py'
+        Model: 'model_deepest_lstm_cropped_250_norm_max_pooling.h5'
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch

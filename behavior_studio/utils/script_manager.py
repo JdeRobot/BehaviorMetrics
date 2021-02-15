@@ -91,7 +91,7 @@ def run_brains_worlds(app_configuration, controller):
     pilot.daemon = True
     controller.pilot.start()
     for world_counter, world in enumerate(app_configuration.current_world):
-        for brain in app_configuration.brain_path:
+        for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
                 # 1. Load world
@@ -101,11 +101,13 @@ def run_brains_worlds(app_configuration, controller):
                 controller.pilot.brains.brain_path = brain
                 logger.info('Executing brain')
                 # 2. Play
-                controller.reload_brain(brain)
+                if hasattr(app_configuration, 'experiment_model'):
+                    controller.reload_brain(brain, model=app_configuration.experiment_model[brain_counter])
+                else:
+                    controller.reload_brain(brain)
                 controller.resume_pilot()
-                controller.pilot.configuration.brain_path = brain
                 controller.unpause_gazebo_simulation()
-                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out)
+                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
 
                 time_start = rospy.get_time()
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
@@ -136,6 +138,9 @@ def run_brains_worlds(app_configuration, controller):
                 logger.info(world)
                 logger.info('--- BRAIN ---')
                 logger.info(brain)
+                if hasattr(app_configuration, 'experiment_model'):
+                    logger.info('--- MODEL ---')
+                    logger.info(app_configuration.experiment_model[brain_counter])
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
                 if controller.lap_statistics['percentage_completed'] < 3:
