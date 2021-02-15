@@ -65,7 +65,7 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
             next = False
             for child_2 in child_1:
                 if next:
-                    # child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(random_start_point[4]) + " " + str(random_start_point[5])
+                    child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(random_start_point[4]) + " " + str(random_start_point[5])
                     next = False
                 elif child_2.text == 'model://f1_renault':
                     next = True
