@@ -148,7 +148,10 @@ class Pilot(threading.Thread):
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
                     if hasattr(self.controller, 'stats_filename'):
-                        self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                        try:
+                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                        except:
+                            logger.info('Empty ROS bag')
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0

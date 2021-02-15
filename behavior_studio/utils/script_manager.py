@@ -106,7 +106,6 @@ def run_brains_worlds(app_configuration, controller):
                 else:
                     controller.reload_brain(brain)
                 controller.resume_pilot()
-                # controller.pilot.configuration.brain_path = brain
                 controller.unpause_gazebo_simulation()
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
 
@@ -144,7 +143,7 @@ def run_brains_worlds(app_configuration, controller):
                     logger.info(app_configuration.experiment_model[brain_counter])
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
-                if controller.lap_statistics['percentage_completed'] < 0:
+                if controller.lap_statistics['percentage_completed'] < 3:
                     logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
                     os.remove(controller.stats_filename)
                 else:
