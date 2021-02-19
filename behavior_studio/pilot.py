@@ -91,7 +91,10 @@ class Pilot(threading.Thread):
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
-        self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
+        if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
+            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
+        else:
+            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
         self.__wait_gazebo()
 
     def stop_interfaces(self):
@@ -145,7 +148,10 @@ class Pilot(threading.Thread):
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
                     if hasattr(self.controller, 'stats_filename'):
-                        self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                        try:
+                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                        except:
+                            logger.info('Empty ROS bag')
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
@@ -182,7 +188,7 @@ class Pilot(threading.Thread):
         self.actuators.kill()
         self.kill_event.set()
 
-    def reload_brain(self, brain_path):
+    def reload_brain(self, brain_path, model=None):
         """Reload a brain specified by brain_path
 
         This function is useful if one wants to change the environment of the robot (simulated world).
@@ -190,7 +196,7 @@ class Pilot(threading.Thread):
         Arguments:
             brain_path {str} -- Path to the brain module to load.
         """
-        self.brains.load_brain(brain_path)
+        self.brains.load_brain(brain_path, model=model)
             
     def finish_line(self):
         pose = self.pose3d.getPose3d()

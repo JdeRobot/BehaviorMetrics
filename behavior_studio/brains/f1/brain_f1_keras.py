@@ -71,18 +71,16 @@ class Brain:
             img = np.expand_dims(img, axis=0)
             start_time = time.time()
             prediction = self.net.predict(img)
-            print(prediction)
             self.inference_times.append(time.time() - start_time)
             ###prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]*13
             prediction_w = prediction[0][1]*3
-
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+
         except Exception as err:
             print(err)
-            pass
         
         self.update_frame('frame_0', image)
 
