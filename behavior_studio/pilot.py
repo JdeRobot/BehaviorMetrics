@@ -135,6 +135,7 @@ class Pilot(threading.Thread):
                         mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
                         frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
                         gpu_inferencing = self.brains.active_brain.gpu_inferencing
+                        first_image = self.brains.active_brain.first_image
                         logger.info(mean_inference_time)
                         logger.info(frame_rate)
                         logger.info('-------------------')
@@ -142,6 +143,7 @@ class Pilot(threading.Thread):
                         mean_inference_time = 0
                         frame_rate = 0
                         gpu_inferencing = False
+                        first_image = 0
                         logger.info('No inference brain')
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
@@ -149,7 +151,7 @@ class Pilot(threading.Thread):
                     logger.info('-------------------')
                     if hasattr(self.controller, 'stats_filename'):
                         try:
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing)
+                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image)
                         except:
                             logger.info('Empty ROS bag')
                     brain_iterations_time = [] 

@@ -60,10 +60,14 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+         
         self.cont += 1
         
         image = self.camera.getImage().data
         #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        
+        if self.cont == 1:
+            self.first_image = image
 
         try:
             image = image[240:480, 0:640]
