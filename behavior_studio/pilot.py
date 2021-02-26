@@ -149,7 +149,10 @@ class Pilot(threading.Thread):
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
-                    if hasattr(self.controller, 'stats_filename'):
+                    if hasattr(self.controller, 'stats_filename') and self.controller.lap_statistics['percentage_completed'] > 30:
+                        print('llega!!!!!!')
+                        print(self.controller.lap_statistics['percentage_completed'])
+                        print('llega!!!!!!')
                         try:
                             self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image)
                         except:
