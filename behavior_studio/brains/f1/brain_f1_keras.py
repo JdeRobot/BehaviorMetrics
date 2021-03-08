@@ -76,7 +76,7 @@ class Brain:
             start_time = time.time()
             prediction = self.net.predict(img)
             self.inference_times.append(time.time() - start_time)
-            ###prediction_v = prediction[0][0]*6.5
+            # prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]*13
             prediction_w = prediction[0][1]*3
             if prediction_w != '' and prediction_w != '':
