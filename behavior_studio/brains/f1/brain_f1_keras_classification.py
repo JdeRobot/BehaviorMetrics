@@ -65,6 +65,17 @@ class Brain:
             * moderate -> 4
             * fast -> 5
             * very fast -> 6
+            
+            
+            * slow -> 3
+            * moderate -> 5
+            * fast -> 7
+            * very fast -> 13
+            
+            * slow -> 3
+            * moderate -> 6
+            * fast -> 10
+            * very fast -> 13
             === W ===
             * radically left -> 1.7
             * moderate left -> 0.75
@@ -105,87 +116,120 @@ class Brain:
             self.motors.sendW(-1.7)
         elif prediction == 7:
             # V -> moderate W -> radically_left
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(1.7)
         elif prediction == 8:
             # V -> moderate W -> moderately_left
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(0.75)
         elif prediction == 9:
             # V -> moderate W -> slightly_left
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(0.25)
         elif prediction == 10:
             # V -> moderate W -> slight
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(0)
         elif prediction == 11:
             # V -> moderate W -> slightly_right
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(-0.25)
         elif prediction == 12:
             # V -> moderate W -> moderately_right
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(-0.75)
         elif prediction == 13:
             # V -> moderate W -> radically_right
-            self.motors.sendV(4)
+            # self.motors.sendV(4)
+            # self.motors.sendV(5)
+            self.motors.sendV(6)
             self.motors.sendW(-1.7)
         elif prediction == 14:
             # V -> fast W -> radically_left
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            # self.motors.sendV(7)
+            self.motors.sendV(10)
             self.motors.sendW(1.7)
         elif prediction == 15:
             # V -> fast W -> moderately_left
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            # self.motors.sendV(7)
+            self.motors.sendV(10)
             self.motors.sendW(0.75)
         elif prediction == 16:
             # V -> fast W -> slightly_left
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            # self.motors.sendV(7)
+            self.motors.sendV(10)
             self.motors.sendW(0.25)
         elif prediction == 17:
             # V -> fast W -> slight
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            # self.motors.sendV(7)
+            self.motors.sendV(10)
             self.motors.sendW(0)
         elif prediction == 18:
             # V -> fast W -> slightly_right
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            # self.motors.sendV(7)
+            self.motors.sendV(10)
             self.motors.sendW(-0.25)
         elif prediction == 19:
             # V -> fast W -> moderately_right
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            self.motors.sendV(7)
             self.motors.sendW(-0.75)
         elif prediction == 20:
             # V -> fast W -> radically_right
-            self.motors.sendV(5)
+            # self.motors.sendV(5)
+            self.motors.sendV(7)
             self.motors.sendW(-1.7)
         elif prediction == 21:
             # V -> very_fast W -> radically_left
-            self.motors.sendV(5)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(1.7)
         elif prediction == 22:
             # V -> very_fast W -> moderately_left
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(0.75)
         elif prediction == 23:
             # V -> very_fast W -> slightly_left
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(0.25)
         elif prediction == 24:
             # V -> very_fast W -> slight
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(0)
         elif prediction == 25:
             # V -> very_fast W -> slightly_right
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(-0.25)
         elif prediction == 26:
             # V -> very_fast W -> moderately_right
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(-0.75)
         elif prediction == 27:
             # V -> very_fast W -> radically_right
-            self.motors.sendV(6)
+            # self.motors.sendV(6)
+            self.motors.sendV(13)
             self.motors.sendW(-1.7)
 
     def execute(self):
