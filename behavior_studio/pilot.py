@@ -20,6 +20,7 @@ from brains.brains_handler import Brains
 from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
+from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
 
 import numpy as np
 
@@ -149,7 +150,7 @@ class Pilot(threading.Thread):
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
-                    if hasattr(self.controller, 'stats_filename'):
+                    if hasattr(self.controller, 'stats_filename') and self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                         try:
                             self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image)
                         except:

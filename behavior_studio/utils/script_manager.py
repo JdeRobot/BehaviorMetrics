@@ -30,7 +30,9 @@ import numpy as np
 from utils import metrics
 from utils import environment
 from utils.logger import logger
+from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
 from pilot import Pilot
+
 
     
 def launch_gazebo_no_gui(current_world, stats_perfect_lap):
@@ -143,7 +145,7 @@ def run_brains_worlds(app_configuration, controller):
                     logger.info(app_configuration.experiment_model[brain_counter])
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
-                if controller.lap_statistics['percentage_completed'] < 3:
+                if controller.lap_statistics['percentage_completed'] < MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                     logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
                     os.remove(controller.stats_filename)
                 else:
