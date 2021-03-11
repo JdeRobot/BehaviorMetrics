@@ -29,3 +29,6 @@ empy
 vcstool 
 scikit-image
 bagpy
+pycryptodomex
+pyinstaller
+pyinstaller-hooks-contrib
