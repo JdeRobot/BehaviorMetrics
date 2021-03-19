@@ -20,7 +20,7 @@ kiwisolver==1.2
 defusedxml
 scikit-image
 netifaces==0.10.9
-Pillow==7.2.0
+Pillow>=8.1.1
 pyglet==1.5.0
 gym
 requests>=2.0
