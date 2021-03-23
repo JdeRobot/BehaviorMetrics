@@ -5,6 +5,11 @@ import threading
 import time
 import cv2
 
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
+import json
+
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
 class Brain:
 
@@ -15,6 +20,8 @@ class Brain:
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
+        self.iteration = 0
+        self.json_data = []
         self.lock = threading.Lock()
         
     def update_frame(self, frame_id, data):
@@ -96,6 +103,8 @@ class Brain:
             time.sleep(3)
             
         self.update_frame('frame_0', image)
+        cv2.imwrite(PRETRAINED_MODELS + 'montmelo_data/' + str(self.iteration) + '.jpg', image) 
+        self.iteration += 1
         
         try:
             image_cropped = image[230:, :, :]
@@ -171,6 +180,9 @@ class Brain:
 
             self.motors.sendV(speed)   
             self.motors.sendW(rotation)
+            self.json_data.append({'v': speed, 'w': rotation})
+            with open(PRETRAINED_MODELS + 'montmelo_data/data.json', 'w') as outfile:
+                json.dump(self.json_data, outfile)
             
         except Exception as err:
             print(err)

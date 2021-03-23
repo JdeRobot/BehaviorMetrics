@@ -2,14 +2,11 @@
     Robot: F1
     Framework: keras
     Number of networks: 1
-    Network type: LSTM
+    Network type: None
     Predicionts:
         linear speed(v)
         angular speed(w)
 
-    This brain uses LSTM networks based on Keras framework to predict the linear and angular velocity
-    of the F1 car. For that task it uses two different LSTM convolutional neural networks, one for v
-    and another one for w
 """
 
 import tensorflow as tf
@@ -23,16 +20,10 @@ from os import path
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 
-# MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_25.h5' # CHANGE TO YOUR NET
-# MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_50.h5'
-MODEL_LSTM = 'model_lstm_tinypilotnet_cropped_150.h5'
-#MODEL_LSTM = 'model_lstm_cropped_1_test.h5'
-
-
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
-    def __init__(self, sensors, actuators, handler=None):
+    def __init__(self, sensors, actuators, model=None, handler=None):
         """Constructor of the class.
 
         Arguments:
@@ -48,13 +39,15 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        #os.environ['CUDA_VISIBLE_DEVICES'] = ''
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
-        if not path.exists(PRETRAINED_MODELS + MODEL_LSTM):
-            print("File " + MODEL_LSTM + " cannot be found in " + PRETRAINED_MODELS)
-            
-        self.net = tf.keras.models.load_model(PRETRAINED_MODELS + MODEL_LSTM)
+        if model:
+            if not path.exists(PRETRAINED_MODELS + model):
+                print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
+
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+        else: 
+            print("Brain not loaded")
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -67,34 +60,51 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+         
         self.cont += 1
         
         image = self.camera.getImage().data
-        # Normal image size -> (160, 120)
-        # Cropped image size -> (60, 160)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
         
-        # NORMAL IMAGE
-        #print((int(image.shape[1] / 4), int(image.shape[0] / 4)))
-        #img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-        
-        # CROPPED IMAGE
+        if self.cont == 1:
+            self.first_image = image
+
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-            img = np.expand_dims(img, axis=0)
+            # img = np.expand_dims(img, axis=0)
             
-            start_time = time.time()
-            prediction = self.net.predict(img)
-            #print(time.time() - start_time)
-            self.inference_times.append(time.time() - start_time)
-            prediction_v = prediction[0][0] * 0.5
-            #prediction_v = prediction[0][0]
-            prediction_w = prediction[0][1]
+            #red_low   = (40,0,0)
+            #red_low = (155,25,0)
+            #red_up   = (255,0,0)
+            #red_up = (179,255,255)
+            #mask = cv2.inRange(img, red_low, red_up)
+            
+            #img_points = [img[0][79], img[14][79], img[29][79], img[44][79], img[59][79]]
 
+            lower = np.array([0,150,170])
+            upper = np.array([0, 255, 255])
+            mask = cv2.inRange(img, lower, upper)
+            
+            img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
+            #print(img[14])
+            #print(mask[14])
+            
+            img_points = np.expand_dims(img_points, axis=0)
+            start_time = time.time()
+            prediction = self.net.predict(img_points)
+            self.inference_times.append(time.time() - start_time)
+            prediction_v = prediction[0][0]*13
+            prediction_w = prediction[0][1]*3
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
-        except:
-            pass
+                #self.motors.sendV(0)
+                #self.motors.sendW(0)
 
-        self.update_frame('frame_0', image)
+        except Exception as err:
+            print(err)
+        
+        self.update_frame('frame_0', img)
+        # self.update_frame('frame_0', mask)

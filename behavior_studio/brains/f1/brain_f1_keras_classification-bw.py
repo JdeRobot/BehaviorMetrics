@@ -197,14 +197,17 @@ class Brain:
         self.cont += 1
         
         image = self.camera.getImage().data
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
         
         if self.cont == 1:
             self.first_image = image
 
         try:
             image = image[240:480, 0:640]
-            img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+            #img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+            img = cv2.resize(image, (32, 32))
             img = np.expand_dims(img, axis=0)
+            img = img.reshape(-1, 32, 32, 1)
             start_time = time.time()
             prediction = self.net.predict_classes(img)
             self.calculate_v_w(prediction[0])
