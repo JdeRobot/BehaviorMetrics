@@ -106,5 +106,5 @@ class Brain:
         except Exception as err:
             print(err)
         
-        #self.update_frame('frame_0', img)
-        self.update_frame('frame_0', mask)
+        self.update_frame('frame_0', img)
+        # self.update_frame('frame_0', mask)

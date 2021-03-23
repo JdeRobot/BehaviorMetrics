@@ -32,7 +32,11 @@ class Brains(object):
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
         
+        print(robot_type)
+        
         if robot_type == 'f1rl':
+            print('entra')
+            print(self.brain_path)
             from utils import environment
             environment.close_gazebo()
             exec(open(self.brain_path).read())
