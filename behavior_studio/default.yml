@@ -28,7 +28,7 @@ Behaviors:
             epsilon_discount: 0.9986 
             env: 'camera'
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch
+        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
