@@ -31,6 +31,7 @@ class Brains(object):
         robot_type = path_split[-2]
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
+
         
         if robot_type == 'f1rl':
             from utils import environment
