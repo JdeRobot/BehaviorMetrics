@@ -35,14 +35,10 @@ def save_model(qlearn):
     pickle.dump(qlearn.q, file)
 
 # if __name__ == '__main__':
-print('TITLE:')
 print(settings.title)
-print('DESCRIPTION:')
 print(settings.description)
 
 current_env = settings.current_env
-print('CURRENT ENV:')
-print(current_env)
 if current_env == "laser":
     env = gym.make('GazeboF1QlearnLaserEnv-v0')
 elif current_env == "camera":
@@ -55,7 +51,6 @@ outdir = './logs/f1_qlearn_gym_experiments/'
 stats = {}  # epoch: steps
 
 
-print('here!')
 env = gym.wrappers.Monitor(env, outdir, force=True)
 plotter = liveplot.LivePlot(outdir)
 last_time_steps = np.ndarray(0)
@@ -63,9 +58,7 @@ actions = range(env.action_space.n)
 stimate_step_per_lap = 4000
 lap_completed = False
 
-print('here 2!')
 qlearn = QLearn(actions=actions, alpha=0.2, gamma=0.9, epsilon=0.99)
-print('here 3!')
 
 if settings.load_model:
     exit(1)
