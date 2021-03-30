@@ -17,7 +17,7 @@ fi
 #else
 #  bash -c 'sed "s,GYM_GAZEBO_WORLD_CIRCUIT=[^;]*,'GYM_GAZEBO_WORLD_CIRCUIT=`pwd`/../assets/worlds/f1_1_simplecircuit.world'," -i ~/.bashrc'
 #fi
-bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT_F1="`pwd`/../assets/worlds/f1_1_simplecircuit.world >> ~/.bashrc'
+bash -c 'echo "export GYM_GAZEBO_WORLD_CIRCUIT_F1="`pwd`/../assets/worlds/simple_circuit.world >> ~/.bashrc'
 #export GYM_GAZEBO_WORLD_CIRCUIT_F1=`pwd`/../assets/worlds/f1_1_simplecircuit.world
 echo 'Formula 1 env variables loaded succesfully'
  

@@ -31,11 +31,14 @@ def save_model(qlearn):
     date = datetime.now()
     format = date.strftime("%Y%m%d_%H%M%S")
     file_name = "_qlearn_model_e_{}_a_{}_g_{}".format(qlearn.epsilon, qlearn.alpha, qlearn.gamma)
+    if os.path.isdir('brains/f1rl/logs') is False:
+        os.mkdir('brains/f1rl/logs')
+    if os.path.isdir('brains/f1rl/logs/qlearn_models/') is False:
+        os.mkdir('brains/f1rl/logs/qlearn_models/')
     file = open("brains/f1rl/logs/qlearn_models/" + format + file_name + '.pkl', 'wb')
     pickle.dump(qlearn.q, file)
 
 # if __name__ == '__main__':
-
 print(settings.title)
 print(settings.description)
 
@@ -50,6 +53,7 @@ else:
 
 outdir = './logs/f1_qlearn_gym_experiments/'
 stats = {}  # epoch: steps
+
 
 env = gym.wrappers.Monitor(env, outdir, force=True)
 plotter = liveplot.LivePlot(outdir)

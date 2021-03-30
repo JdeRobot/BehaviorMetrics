@@ -49,8 +49,14 @@ class Actuators:
             topic = actuator_config[elem]['Topic']
             vmax = actuator_config[elem]['MaxV']
             wmax = actuator_config[elem]['MaxW']
-            if actuator_type == 'motor':
-                actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
+            
+            if 'RL' in actuator_config[elem]:
+                if actuator_config[elem]['RL'] == False:
+                    if actuator_type == 'motor':
+                        actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
+            else:
+                if actuator_type == 'motor':
+                        actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
         return actuator_dict
 
     def __get_actuator(self, actuator_name, actuator_type):

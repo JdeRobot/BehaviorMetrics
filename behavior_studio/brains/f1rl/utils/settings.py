@@ -3,7 +3,7 @@
 import numpy as np
 from utils.configuration import Config
 
-app_configuration = Config('default.yml')
+app_configuration = Config('default-rl.yml')
 
 debug_level = 0
 telemetry = False
