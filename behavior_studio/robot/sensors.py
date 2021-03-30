@@ -57,7 +57,6 @@ class Sensors:
     def __create_sensor(self, sensor_config, sensor_type):
         """Fill the sensor dictionary with instances of the sensor_type and sensor_config"""
         sensor_dict = {}
-
         for elem in sensor_config:
             name = sensor_config[elem]['Name']
             topic = sensor_config[elem]['Topic']

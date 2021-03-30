@@ -79,6 +79,10 @@ class Config:
 
         self.dataset_in = None
         self.dataset_out = None
+        
+        self.stats_out = None
+        
+        self.experiment_timeouts = None
 
     def initialize_configuration(self, config_data):
         """Initialize the configuration of the application based on a YAML profile file
@@ -98,6 +102,18 @@ class Config:
 
         self.dataset_in = config_data['Behaviors']['Dataset']['In']
         self.dataset_out = config_data['Behaviors']['Dataset']['Out']
+        
+        self.stats_out = config_data['Behaviors']['Stats']['Out']
+        self.stats_perfect_lap = config_data['Behaviors']['Stats']['PerfectLap']
+        
+        if 'Model' in config_data['Behaviors']['Robot']:
+            self.experiment_model = config_data['Behaviors']['Robot']['Model']
+                
+        if 'Experiment' in config_data['Behaviors']:
+            self.experiment_name = config_data['Behaviors']['Experiment']['Name']
+            self.experiment_description = config_data['Behaviors']['Experiment']['Description']
+            self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
+            self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']

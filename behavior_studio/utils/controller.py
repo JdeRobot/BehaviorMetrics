@@ -19,11 +19,20 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import subprocess
 import threading
+from datetime import datetime
 
 import rospy
 from std_srvs.srv import Empty
 
 from utils.logger import logger
+
+import os
+import time
+import rosbag
+import json
+from std_msgs.msg import String
+
+from utils import metrics
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -118,13 +127,19 @@ class Controller:
     def pause_gazebo_simulation(self):
         logger.info("Pausing simulation")
         pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        pause_physics()
+        try:
+            pause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.set()
 
     def unpause_gazebo_simulation(self):
         logger.info("Resuming simulation")
         unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        unpause_physics()
+        try:
+            unpause_physics()
+        except Exception as ex:
+            print(ex)
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):
@@ -134,10 +149,10 @@ class Controller:
             topics {list} -- List of topics to be recorde
             dataset_name {str} -- Path of the resulting bag file
         """
+        
         if not self.recording:
             logger.info("Recording bag at: {}".format(dataset_name))
             self.recording = True
-            topics = ['/F1ROS/cmd_vel', '/F1ROS/cameraL/image_raw']
             command = "rosbag record -O " + dataset_name + " " + " ".join(topics) + " __name:=behav_bag"
             command = shlex.split(command)
             with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
@@ -157,8 +172,73 @@ class Controller:
                 subprocess.Popen(command, stdout=out, stderr=err)
         else:
             logger.info("No bag recording")
+            
+            
+    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
+        logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
+        self.start_time = datetime.now()
+        current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
+        if brain_counter is not None:
+            current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
+        else:
+            current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
+        self.metrics = {}
+        self.metrics['world'] = current_world_tail
+        self.metrics['brain_path'] = current_brain_tail
+        self.metrics['robot_type'] = self.pilot.configuration.robot_type
+        if hasattr(self.pilot.configuration, 'experiment_model'):
+            if brain_counter is not None:
+                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+            else:
+                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model
+        if hasattr(self.pilot.configuration, 'experiment_name'):
+            self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
+            self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
+            self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            self.metrics['experiment_repetition'] = repetition_counter
+            
+        self.perfect_lap_filename = perfect_lap_filename
+        self.stats_record_dir_path = stats_record_dir_path
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        self.stats_filename = timestr + '.bag'
+        
+        topic = '/F1ROS/odom'
+        command = "rosbag record -O " + self.stats_filename + " " + topic + " __name:=behav_stats_bag"
+        command = shlex.split(command)
+        with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+            self.proc = subprocess.Popen(command, stdout=out, stderr=err)
+        
+    def stop_record_stats(self):
+        logger.info("Stopping stats bag recording")
+        command = "rosnode kill /behav_stats_bag"
+        command = shlex.split(command)
+        with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
+            subprocess.Popen(command, stdout=out, stderr=err)
 
-    def reload_brain(self, brain):
+        # Wait for rosbag file to be closed. Otherwise it causes error
+        while(os.path.isfile(self.stats_filename + '.active')):
+            pass
+
+        checkpoints = []
+        metrics_str = json.dumps(self.metrics)
+        with rosbag.Bag(self.stats_filename, 'a') as bag:
+            metadata_msg = String(data=metrics_str)
+            bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
+        bag.close()        
+        perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
+        self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
+        logger.info("END ---- > Stopping stats bag recording")
+        
+    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
+        time_stats = {'mean_iteration_time': mean_iteration_time, 'mean_inference_time': mean_inference_time, 'frame_rate': frame_rate, 'gpu_inferencing': gpu_inferencing, 'first_image': first_image.tolist()}
+        metrics_str = json.dumps(time_stats)
+        with rosbag.Bag(self.stats_filename, 'a') as bag:
+            metadata_msg = String(data=metrics_str)
+            bag.write('/time_stats', metadata_msg, rospy.Time(bag.get_end_time()))
+        bag.close()
+        
+
+    def reload_brain(self, brain, model=None):
         """Helper function to reload the current brain from the GUI.
 
         Arguments:
@@ -167,8 +247,7 @@ class Controller:
         logger.info("Reloading brain... {}".format(brain))
         
         self.pause_pilot()
-        self.pilot.reload_brain(brain)
-        self.resume_pilot()
+        self.pilot.reload_brain(brain, model)
 
     # Helper functions (connection with logic)
 
@@ -182,9 +261,10 @@ class Controller:
         self.pilot.stop_event.set()
 
     def resume_pilot(self):
+        self.start_time = datetime.now()
+        self.pilot.start_time = datetime.now()
         self.pilot.stop_event.clear()
 
     def initialize_robot(self):
         self.pause_pilot()
         self.pilot.initialize_robot()
-        self.resume_pilot()

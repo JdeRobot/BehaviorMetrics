@@ -44,15 +44,13 @@ class Actuators:
         """Fill the motors dictionary with instances of the motors to control the robot"""
 
         actuator_dict = {}
-
         for elem in actuator_config:
             name = actuator_config[elem]['Name']
             topic = actuator_config[elem]['Topic']
             vmax = actuator_config[elem]['MaxV']
             wmax = actuator_config[elem]['MaxW']
-#             if actuator_type == 'motor':
-#                 actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
-
+            if actuator_type == 'motor':
+                actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
         return actuator_dict
 
     def __get_actuator(self, actuator_name, actuator_type):

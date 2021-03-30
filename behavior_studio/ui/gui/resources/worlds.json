@@ -7,20 +7,26 @@
         "model": "f1"
       },
       {
-        "name": "Simple circuit obstacles",
-        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_monacolineROS.launch",
-        "description": "Description",
-        "model": "f1_laser"
-      },
-      {
         "name": "Nurburgring",
-        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_nurburgrinlineROS.launch",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch",
         "description": "Description",
         "model": "f1"
       },
       {
-        "name": "Monaco",
-        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_monacolineROS.launch",
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montreal",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Many curve",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch",
         "description": "Description",
         "model": "f1"
       }

@@ -16,22 +16,17 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1rl/train.py'
-        Type: 'f1rl'
-        Parameters:
-            action_set: 'hard'
-            gazebo_positions_set: 'pista_simple'
-            alpha: 0.2 
-            gamma: 0.9
-            epsilon: 0.99
-            total_episodes: 20000
-            epsilon_discount: 0.9986 
-            env: 'camera'
+        BrainPath: 'brains/f1/brain_f1_keras.py'
+        Model: 'model_deepest_lstm_cropped_250_norm_max_pooling.h5'
+        Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: 'lap-simple-circuit.bag'
     Layout:
         Frame_0:
             Name: frame_0
@@ -40,4 +35,12 @@ Behaviors:
         Frame_1:
             Name: frame_1
             Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [0, 3, 3, 1]
             Data: rgbimage

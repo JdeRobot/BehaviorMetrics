@@ -49,7 +49,6 @@ class Image:
 class ListenerCamera:
 
     def __init__(self, topic):
-
         self.topic = topic
         self.data = Image()
         self.sub = None
@@ -59,7 +58,6 @@ class ListenerCamera:
         self.start()
 
     def __callback(self, img):
-
         image = imageMsg2Image(img, self.bridge)
 
         self.lock.acquire()
