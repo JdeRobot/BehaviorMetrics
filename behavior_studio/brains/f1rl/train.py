@@ -63,7 +63,9 @@ actions = range(env.action_space.n)
 stimate_step_per_lap = 4000
 lap_completed = False
 
+print('here 2!')
 qlearn = QLearn(actions=actions, alpha=0.2, gamma=0.9, epsilon=0.99)
+print('here 3!')
 
 if settings.load_model:
     exit(1)
