@@ -9,7 +9,7 @@ tf-nightly==2.4.0.dev20201012
 pynput==1.6.8
 opencv_python==4.2.0.34
 environs==8.0.0
-PyYAML==5.3.1
+PyYAML==5.4
 rospkg==1.2.9
 pathlib==1.0.1
 jderobot-jderobottypes==1.0.0
