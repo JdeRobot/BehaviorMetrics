@@ -73,34 +73,46 @@ class Brain:
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-            # img = np.expand_dims(img, axis=0)
-            
-            #red_low   = (40,0,0)
-            #red_low = (155,25,0)
-            #red_up   = (255,0,0)
-            #red_up = (179,255,255)
-            #mask = cv2.inRange(img, red_low, red_up)
-            
-            #img_points = [img[0][79], img[14][79], img[29][79], img[44][79], img[59][79]]
 
             lower = np.array([0,150,170])
             upper = np.array([0, 255, 255])
             mask = cv2.inRange(img, lower, upper)
             
             img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
-            #print(img[14])
-            #print(mask[14])
             
-            img_points = np.expand_dims(img_points, axis=0)
+            
+            new_img_points = []
+            for img_point in img_points:
+                mask_points = []
+                for x, point in enumerate(img_point):
+                    if point == 255:
+                        mask_points.append(x)
+                if len(mask_points) > 0:
+                    new_img_points.append(mask_points[len(mask_points)//2])
+                else:
+                    new_img_points.append(-1)
+            img_points = new_img_points
+            new_img = []
+            for x in img_points:
+                x = (x - 0) / 255 * 1 + 0
+                new_img.append(x)
+            #print(new_img)
+            
+            img_points = np.expand_dims(new_img, axis=0)
             start_time = time.time()
             prediction = self.net.predict(img_points)
+            #print(prediction)
             self.inference_times.append(time.time() - start_time)
-            prediction_v = prediction[0][0]*13
+            
+            if prediction[0][0] > 0:
+                prediction_v = prediction[0][0]*13
+            else:
+                prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]*3
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
-                #self.motors.sendV(0)
+                #self.motors.sendV(1)
                 #self.motors.sendW(0)
 
         except Exception as err:
