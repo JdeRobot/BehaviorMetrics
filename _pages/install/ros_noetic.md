@@ -262,7 +262,7 @@ You will need to authenticate, the current password is **jderobot**, although it
 
 ### Using terminal in container <a name="term"></a>
 
-The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double clock on the last URL to open Jupyter.
+The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double click on the last URL to open Jupyter.
 
 ```bash
 docker logs behavior-studio-noetic
