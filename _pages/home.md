@@ -46,11 +46,11 @@ This project aims to have a platform for evaluating and testing complex behavior
 
 * Loading a simulated environment for different scenarios where you can evaluate complex robots behaviors.
 * Generating datasets to train your models to be tested later.
-* Evaluate the performance of your models comparing them against a other models.
+* Evaluate the performance of your models by comparing them against other models.
 * Change the scenarios/models (called brains) on the go.
 * Live view of sensor readings.
 
-The algorithms that command the robots are called **brains**, and there is where the neural logic (behaviors) is at.
+The algorithms that command the robots are called **brains**, and that is where the neural logic (behaviors) is at.
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" />
 
