@@ -44,9 +44,8 @@ RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
-    echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
-
-RUN git clone https://github.com/strasdat/Sophus && \
+    echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc && \
+    git clone https://github.com/strasdat/Sophus && \
 	cd Sophus && mkdir build && cd build && \
 	cmake ../ && make && make install
 
