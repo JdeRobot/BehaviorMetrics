@@ -6,7 +6,7 @@ name: Publish Docker image
 # events but only for the noetic-devel branch
 on:
   push:
-    branches: [ noetic-devel ]
+    branches: [ noetic-devel, issue-152 ]
   pull_request:
     branches: [ noetic-devel ]
 
@@ -34,3 +34,24 @@ jobs:
           tags: jderobot/behavior-studio:noetic
           context: .docker/noetic/
           file: .docker/noetic/Dockerfile
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: jderobot/behavior-studio:noetic-10.1-cudnn7
+          context: .docker/noetic/
+          file: .docker/noetic/Dockerfile-gpu
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: jderobot/behavior-studio:noetic-cuda11
+          context: .docker/noetic/
+          file: .docker/noetic/Dockerfile-cuda11
+          
+          
+          
+          
+          
+          
+          
