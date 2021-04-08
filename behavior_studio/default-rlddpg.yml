@@ -14,19 +14,19 @@ Behaviors:
                 Motors_0:
                     Name: 'motors_0'
                     Topic: '/F1ROS/cmd_vel'
-                    MaxV: 12
-                    MaxW: 1.5
+                    MaxV: 3
+                    MaxW: 0.3
                     RL: True
-        BrainPath: 'brains/f1rl/sampleTest.py'
+        BrainPath: 'brains/f1rl/trainContinuous.py'
         Type: 'f1rl'
+        Action: 'continuous'
         Parameters:
-            action_set: 'hard'
             gazebo_positions_set: 'pista_simple'
-            alpha: 0.2 
+            tau: 0.2 
             gamma: 0.9
-            epsilon: 0.99
+            epsilon_decay: 0.98
+            hidden_size: 0.99
             total_episodes: 20000
-            epsilon_discount: 0.9986 
             env: 'camera'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch

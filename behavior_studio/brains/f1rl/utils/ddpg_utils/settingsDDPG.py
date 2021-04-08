@@ -10,12 +10,14 @@ telemetry = False
 telemetry_mask = False
 plotter_graphic = True
 my_board = True
-save_model = True
+save_model = False
 load_model = False
 
 tau = app_configuration.tau
 gamma = app_configuration.gamma
+epsdecay = app_configuration.epsilon_decay
 hidden_size = app_configuration.hidden_size
+batch_size = 64
 total_episodes = app_configuration.total_episodes
 
 gazebo_positions_set = app_configuration.gazebo_positions_set

@@ -7,8 +7,8 @@ import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
 from brains.f1rl.utils.ddpg import DDPGAgent
-import brains.f1rl.utils.settingsDDPG as settings
-
+import brains.f1rl.utils.ddpg_utils.settingsDDPG as settings
+import tensorflow as tf
 
 def render():
     render_skip = 0  # Skip first X episodes.
@@ -43,18 +43,10 @@ def save_model(agent):
 print(settings.title)
 print(settings.description)
 
-current_env = settings.current_env
-if current_env == "laser":
-    env = gym.make('GazeboF1QlearnLaserEnv-v0')
-elif current_env == "camera":
-    env = gym.make('GazeboF1QlearnCameraEnvContinuous-v0')
-else:
-    print("NO correct env selected")
-
+env = gym.make('GazeboF1CameraEnvDDPG-v0')
 
 outdir = './logs/f1_ddpg_gym_experiments/'
 stats = {}  # epoch: steps
-
 
 env = gym.wrappers.Monitor(env, outdir, force=True)
 plotter = liveplot.LivePlot(outdir)
@@ -62,21 +54,34 @@ last_time_steps = np.ndarray(0)
 stimate_step_per_lap = 4000
 lap_completed = False
 
-agent = DDPGAgent(env, settings.hidden_size, settings.gamma, settings.tau)
+sess = tf.Session()
 
-if settings.load_model:
-    exit(1)
+agent = DDPGAgent(sess=sess,
+                state_dim=(32,32),
+                action_dim=2,
+                training_batch=settings.batch_size,
+                epsilon_decay=settings.epsdecay,
+                gamma=settings.gamma,
+                tau=settings.tau)
 
-    qlearn_file = open('logs/qlearn_models/20200826_154342_qlearn_model_e_0.988614_a_0.2_g_0.9.pkl', 'rb')
-    model = pickle.load(qlearn_file)
-    print("Number of (action, state): {}".format(len(model)))
-    qlearn.q = model
-    qlearn.alpha = settings.alpha
-    qlearn.gamma = settings.gamma
-    qlearn.epsilon = settings.epsilon
-    highest_reward = 4000
-else:
-    highest_reward = 0
+sess.run(tf.global_variables_initializer())
+
+agent._hard_update()
+
+#if settings.load_model:
+#    exit(1)
+#
+#    qlearn_file = open('logs/qlearn_models/20200826_154342_qlearn_model_e_0.988614_a_0.2_g_0.9.pkl', 'rb')
+#    model = pickle.load(qlearn_file)
+#    print("Number of (action, state): {}".format(len(model)))
+#    qlearn.q = model
+#    qlearn.alpha = settings.alpha
+#    qlearn.gamma = settings.gamma
+#    qlearn.epsilon = settings.epsilon
+#    highest_reward = 4000
+#else:
+    
+highest_reward = 0
 
 total_episodes = settings.total_episodes
 
@@ -84,17 +89,46 @@ start_time = time.time()
 
 print(settings.lets_go)
 
+max_action = [12., 1.5]
+min_action = [2., -1.5]
+
 for episode in range(total_episodes):
     done = False
     lap_completed = False
     cumulated_reward = 0  # Should going forward give more reward then L/R z?
     observation = env.reset()
 
-    state = observation
+    state, _ = observation
 
     for step in range(20000):
 
+        action = agent.predict(state)
+
+        mod_action = action
         
+        for itr in range(len(action)):
+            mod_action[itr] = min_action[itr] + 0.5*(max_action[itr] - min_action[itr])*(action[itr]+1)
+
+        # Execute the action and get feedback
+        nextState, reward, done, info = env.step(mod_action)
+        cumulated_reward += reward
+
+        agent.memorize(state, action, reward, done, nextState)
+
+        agent.train()
+
+        if highest_reward < cumulated_reward:
+            highest_reward = cumulated_reward
+
+        env._flush(force=True)
+
+        if not done:
+            state = nextState
+        else:
+            last_time_steps = np.append(last_time_steps, [int(step + 1)])
+            stats[episode] = step
+            break
+     
 
         if stimate_step_per_lap > 4000 and not lap_completed:
             print("LAP COMPLETED!!")

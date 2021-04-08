@@ -160,7 +160,7 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         min_lin_speed = 2
         max_lin_speed = 12
 
-        action_space = spaces.Box([min_lin_speed, min_ang_speed], [max_lin_speed, max_ang_speed])
+        action_space = spaces.Box(np.array([min_lin_speed, min_ang_speed]),np.array([max_lin_speed, max_ang_speed]))
 
         return action_space
 
@@ -391,7 +391,7 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        observation = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+        observation = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
         
         # info = [vel_cmd.linear.x, vel_cmd.angular.z, error_1, error_2, error_3]
         # OpenAI standard return: observation, reward, done, info
@@ -430,9 +430,8 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        print(cv_image.shape)
 
-        state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
+        state = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
         
         return state, pos
 

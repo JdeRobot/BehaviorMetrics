@@ -19,6 +19,7 @@ Behaviors:
                     RL: True
         BrainPath: 'brains/f1rl/train.py'
         Type: 'f1rl'
+        Action: 'discrete'
         Parameters:
             action_set: 'hard'
             gazebo_positions_set: 'pista_simple'
