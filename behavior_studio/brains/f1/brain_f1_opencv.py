@@ -11,7 +11,7 @@ error = 0
 integral = 0
 v = 0
 w = 0
-current = 'recta'
+current = 'straight'
 time_cycle = 80
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -54,12 +54,12 @@ class Brain:
         l1 = self.collinear3(points[0][1], points[0][0], points[1][1], points[1][0], points[2][1], points[2][0])
         if l1 > TH:
             buf[0] = 0
-            current = 'curva'
+            current = 'curve'
         else:
             buf = np.roll(buf, 1)
             buf[0] = 1
             if np.all(buf == 1):
-                current = 'recta'
+                current = 'straight'
         return (l1, l2)
 
     def getPoint(self, index, img):
@@ -118,7 +118,7 @@ class Brain:
 
         l, l2 = self.detect(points)
 
-        if current == 'recta':
+        if current == 'straight':
             kp = 0.001
             kd = 0.004
             ki = 0
