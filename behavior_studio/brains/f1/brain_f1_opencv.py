@@ -79,7 +79,8 @@ class Brain:
         global w
         red_upper = (179, 255, 255)
         # red_lower=(0,255,171)
-        red_lower = (0, 255, 15)
+        # red_lower = (0, 255, 15)
+        red_lower = (0, 110, 15)
         # kernel = np.ones((8, 8), np.uint8)
         
         
