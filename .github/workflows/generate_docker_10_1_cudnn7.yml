@@ -6,7 +6,7 @@ name: Publish 10.1-cudnn7 Docker image
 # events but only for the noetic-devel branch
 on:
   push:
-    branches: [ noetic-devel ]
+    branches: [ noetic-devel, issue-152 ]
   pull_request:
     branches: [ noetic-devel ]
 
