@@ -1,5 +1,5 @@
 ![Publish Docker image](https://github.com/JdeRobot/BehaviorStudio/workflows/Publish%20Docker%20image/badge.svg)
-# Behavior Studio
+# Behavior Metrics
 
 This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
 - Using classification networks.
@@ -7,7 +7,7 @@ This project presents different approaches to the follow-the-line exercise but u
 - Using reinforcement learning.
 - Solution for real robots.
 
-For more information about the project you can consult the [website of Behavior Studio](https://jderobot.github.io/BehaviorStudio/). 
+For more information about the project you can consult the [website of Behavior Metrics](https://jderobot.github.io/BehaviorStudio/). 
 
 ### Contributing to the project
 
