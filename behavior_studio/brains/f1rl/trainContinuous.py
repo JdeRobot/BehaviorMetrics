@@ -6,9 +6,8 @@ from brains.f1rl.utils import liveplot
 import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
-from brains.f1rl.utils.ddpg import DDPGAgent
+# from brains.f1rl.utils.ddpg import DDPGAgent
 import brains.f1rl.utils.ddpg_utils.settingsDDPG as settings
-import tensorflow as tf
 
 def render():
     render_skip = 0  # Skip first X episodes.
@@ -54,20 +53,6 @@ last_time_steps = np.ndarray(0)
 stimate_step_per_lap = 4000
 lap_completed = False
 
-sess = tf.Session()
-
-agent = DDPGAgent(sess=sess,
-                state_dim=(32,32),
-                action_dim=2,
-                training_batch=settings.batch_size,
-                epsilon_decay=settings.epsdecay,
-                gamma=settings.gamma,
-                tau=settings.tau)
-
-sess.run(tf.global_variables_initializer())
-
-agent._hard_update()
-
 #if settings.load_model:
 #    exit(1)
 #
@@ -96,13 +81,11 @@ for episode in range(total_episodes):
     done = False
     lap_completed = False
     cumulated_reward = 0  # Should going forward give more reward then L/R z?
-    observation = env.reset()
-
-    state, _ = observation
+    state = env.reset()
 
     for step in range(20000):
 
-        action = agent.predict(state)
+        action = 2*np.random.rand(2)-1
 
         mod_action = action
         
@@ -112,10 +95,6 @@ for episode in range(total_episodes):
         # Execute the action and get feedback
         nextState, reward, done, info = env.step(mod_action)
         cumulated_reward += reward
-
-        agent.memorize(state, action, reward, done, nextState)
-
-        agent.train()
 
         if highest_reward < cumulated_reward:
             highest_reward = cumulated_reward

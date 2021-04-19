@@ -168,7 +168,7 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def show_telemetry(self, img, point_1, point_2, point_3, action, reward):
+    def show_telemetry(self, img, vel_cmd, point_1, point_2, point_3, action, reward):
         # Puntos centrales de la imagen (verde)
         cv2.line(img, (320, x_row[0]), (320, x_row[0]), (255, 255, 0), thickness=5)
         cv2.line(img, (320, x_row[1]), (320, x_row[1]), (255, 255, 0), thickness=5)
@@ -178,8 +178,8 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         cv2.line(img, (center_image, x_row[1]), (int(point_2), x_row[1]), (255, 255, 255), thickness=2)
         cv2.line(img, (center_image, x_row[2]), (int(point_3), x_row[2]), (255, 255, 255), thickness=2)
         # Telemetry
-        cv2.putText(img, str("action1: {} action2: {}".format(action[0], action[1])), (18, 280), font, 0.4, (255, 255, 255), 1)
-        cv2.putText(img, str("w ang: {}".format(w_angular)), (18, 300), font, 0.4, (255, 255, 255), 1)
+        cv2.putText(img, str("action1: {}, action2: {}".format(action[0], action[1])), (18, 280), font, 0.4, (255, 255, 255), 1)
+        cv2.putText(img, str("l_vel: {}, w_ang: {}".format(vel_cmd.linear.x, vel_cmd.angular.z)), (18, 300), font, 0.4, (255, 255, 255), 1)
         cv2.putText(img, str("reward: {}".format(reward)), (18, 320), font, 0.4, (255, 255, 255), 1)
         cv2.putText(img, str("err1: {}".format(center_image - point_1)), (18, 340), font, 0.4, (255, 255, 255), 1)
         cv2.putText(img, str("err2: {}".format(center_image - point_2)), (18, 360), font, 0.4, (255, 255, 255), 1)
@@ -387,15 +387,19 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
 
         # == TELEMETRY ==
         if telemetry:
-            self.show_telemetry(f1_image_camera.data, point_1, point_2, point_3, action, reward)
+            self.show_telemetry(f1_image_camera.data, vel_cmd, point_1, point_2, point_3, action, reward)
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
         observation = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
         
-        # info = [vel_cmd.linear.x, vel_cmd.angular.z, error_1, error_2, error_3]
+        vehicle_state = [vel_cmd.linear.x, vel_cmd.angular.z] 
+        info = {'error_1': error_1, 'error_2': error_2, 'error_3': error_3}
+
+        stacked_obs = {'image':observation, 'state':vehicle_state}
+        
         # OpenAI standard return: observation, reward, done, info
-        return observation, reward, done, {}
+        return stacked_obs, reward, done, {}
 
         # test STACK 4
         # cv_image = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
@@ -432,8 +436,10 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
 
         state = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
-        
-        return state, pos
+
+        stacked_obs = {'image': state, 'state':[0., 0.]}
+
+        return stacked_obs
 
         # test STACK 4
         # self.s_t = np.stack((cv_image, cv_image, cv_image, cv_image), axis=0)
