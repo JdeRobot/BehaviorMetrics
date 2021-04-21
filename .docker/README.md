@@ -121,7 +121,7 @@ Once you are in the notebook you can open up a terminal by clicking in Terminal.
 A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Metrics, one the GUI is opened it will be displayed in the VNC window.
 
 ```bash
-cd BehaviorStudio/behavior_studio
+cd BehaviorMetrics/behavior_studio
 python3 driver.py -c -default -g
 ```
 
@@ -148,6 +148,6 @@ docker restart behavior-metrics-noetic
 First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
 
 ```bash
-cd BehaviorStudio/.docker/noetic/
+cd BehaviorMetrics/.docker/noetic/
 docker build -t any-tag-you-want .
 ```

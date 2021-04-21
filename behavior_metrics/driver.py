@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Main module of the BehaviorStudio application.
+""" Main module of the BehaviorMetrics application.
 
 This module is the responsible for initializing and destroying all the elements of the application when it is launched.
 

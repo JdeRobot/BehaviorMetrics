@@ -28,8 +28,8 @@ RUN apt-get update && apt-get install -y \
 
 # Installing Behavior Studio
 RUN cd /root/ && \
-    git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio && \
-    cd BehaviorStudio && \
+    git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
+    cd BehaviorMetrics && \
     pip3 install -r requirements.txt && \
     pip3 -V && python3 -V && \
     pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
@@ -74,7 +74,7 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
 	ros-noetic-navigation && \
-    cd root/BehaviorStudio/gym-gazebo/ && \
+    cd root/BehaviorMetrics/gym-gazebo/ && \
     pip3 install -e . && \	
     apt-get upgrade -y && \
 #    ./load_env.sh && \

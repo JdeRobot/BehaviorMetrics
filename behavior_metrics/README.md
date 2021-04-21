@@ -2,7 +2,7 @@
 
 # [DEPRECATED] Behavior Studio Library
 
-## **Please don't use this README since it's outdated. Checkout current [website](https://jderobot.github.io/BehaviorStudio/)**
+## **Please don't use this README since it's outdated. Checkout current [website](https://jderobot.github.io/BehaviorMetrics/)**
 
 
 - [Usage](#usage)

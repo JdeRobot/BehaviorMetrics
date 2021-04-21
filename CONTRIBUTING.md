@@ -19,16 +19,16 @@ Please report any unacceptable behavior to any of [the maintainers](#i-have-a-qu
 
 <a name="#prerequisites"></a>
 ## Prerequisites before contributing
-In order to contribute to JdeRobot projects, please read carefully the project README.md/[webpage](https://jderobot.github.io/BehaviorStudio/) before 
+In order to contribute to JdeRobot projects, please read carefully the project README.md/[webpage](https://jderobot.github.io/BehaviorMetrics/) before 
 starting contributing to understand the purpose of the project and where you can contribute.
 
 <a name="#how-to-contribute"></a>
 ## How can I contribute?
 Any JdeRobot project follows the same workflow when contributing.
 
-* **Find a problem or possible improvement for the project:** First of all, check that the feature/bug is not listed in the current [open issues](https://github.com/JdeRobot/BehaviorStudio/issues).
+* **Find a problem or possible improvement for the project:** First of all, check that the feature/bug is not listed in the current [open issues](https://github.com/JdeRobot/BehaviorMetrics/issues).
 
-* **Create an issue:** [Create an issue](https://github.com/JdeRobot/BehaviorStudio/issues/new) in the project with the problem/improvement you will
+* **Create an issue:** [Create an issue](https://github.com/JdeRobot/BehaviorMetrics/issues/new) in the project with the problem/improvement you will
 address. In this issue, explain carefully what you will be updating and how this changes will impact the project.
  Provide any complementary information to explain it (code samples, screenshots ...). You should information about:
   * Expected behavior
