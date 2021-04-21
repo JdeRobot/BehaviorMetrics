@@ -48,7 +48,7 @@ The two following points are different depending on the permissions you have to 
  write a good description of the changes made and refer to the issue solved to make things easier to the maintainers. Include any additional resource that would be interesting (references, screenshots...). Link the PR with the issue.
 
 * **Testing and merging pull requests**
-One of Behavior Studio's maintainers will review your code. Reviewer could ask you to modify your pull request.
+One of Behavior Metrics' maintainers will review your code. Reviewer could ask you to modify your pull request.
  Please provide timely response for reviewers (within weeks, not months), otherwise you submission could be postponed or even rejected.
  
 * **[If you have write permission] Don't accept your own pull requests:** Wait for a project maintainer to accept the changes you made.

@@ -1,6 +1,6 @@
 <a href="https://mmg-ai.com/en/"><img src="https://jderobot.github.io/assets/images/logo.png" width="100 " align="right" /></a>
 
-# [DEPRECATED] Behavior Studio Library
+# [DEPRECATED] Behavior Metrics Library
 
 ## **Please don't use this README since it's outdated. Checkout current [website](https://jderobot.github.io/BehaviorMetrics/)**
 
