@@ -1,9 +1,6 @@
 FROM jderobot/ubuntu:ros-noetic-cuda11-devel
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-# GET SPACE LEFT ON DEVICE
-RUN sudo df -h
 	
 RUN apt-get update && apt-get install -y \
 	cmake \
