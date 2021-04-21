@@ -36,7 +36,7 @@ gallery5:
 
 {% include gallery id="gallery" %}
 
-Behavior Studio with ROS Noetic can be installed as usual in the machine or using Docker. 
+Behavior Metrics with ROS Noetic can be installed as usual in the machine or using Docker. 
 Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workflow is also provided.
 
 
@@ -46,7 +46,7 @@ Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workfl
     1. [Requirements](#requisites)
     2. [Installing ROS Noetic](#noetic)
     3. [Installing Jderobot' dependencies](#dependencies)
-    4. [Installing Behavior Studio](#behavior-studio)
+    4. [Installing Behavior Metrics](#behavior-studio)
 2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
         1. [VNC container viewer](#vnc)
@@ -93,7 +93,7 @@ source ~/.bashrc
 
 ### Installing Python 3.7 and creating a virtualenv
 
-It is recommended to use virtual environment for Behavior Studio.
+It is recommended to use virtual environment for Behavior Metrics.
 
 ```bash
 sudo apt install software-properties-common python3-pip python3-virtualenv
@@ -131,17 +131,17 @@ cmake ../ && make && make install
 
 ```bash
 sudo apt-get install libbluetooth-dev libcwiid-dev libftdi-dev libspnav-dev libsdl-dev libsdl-image1.2-dev libusb-dev ros-noetic-octomap-msgs ros-noetic-geodesy ros-noetic-octomap-ros ros-noetic-control-toolbox ros-noetic-pluginlib	ros-noetic-trajectory-msgs ros-noetic-control-msgs ros-noetic-std-srvs ros-noetic-nodelet ros-noetic-urdf ros-noetic-rviz ros-noetic-kdl-conversions ros-noetic-eigen-conversions ros-noetic-tf2-sensor-msgs ros-noetic-pcl-ros ros-noetic-navigation
-cd BehaviorStudio/gym-gazebo/
+cd BehaviorMetrics/gym-gazebo/
 pip3 install -e .
 ```
 
-### Installing Behavior Studio <a name="behavior-studio"></a>
+### Installing Behavior Metrics <a name="behavior-studio"></a>
 
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
 
 ```bash
-git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio
-cd BehaviorStudio
+git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics
+cd BehaviorMetrics
 pip3 install -r requirements.txt
 ```
 
@@ -157,7 +157,7 @@ pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
 To use current reinforcement brain first some variables must be loaded to the environmet.
 
 ```
-cd BehaviorStudio/gym-gazebo/
+cd BehaviorMetrics/gym-gazebo/
 bash load_env.sh 
 ```
 
@@ -211,7 +211,7 @@ Test your installation
 docker run hello-world
 ```
 
-## Running Behavior Studio Containers <a name="starting-docker"></a>
+## Running Behavior Metrics Containers <a name="starting-docker"></a>
 
 Open up a terminal a paste the following command. Creating a volume is recommended so you can add models or datasets easily.
 To create the volume update `local_directory` to yur local directory where your datasets and models are located and `docker_directory` to the
@@ -280,10 +280,10 @@ A terminal window will open. Type
 bash
 ``` 
 
-and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, once the GUI is opened it will be displayed in the VNC window.
+and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Metrics, once the GUI is opened it will be displayed in the VNC window.
 
 ```bash
-cd BehaviorStudio/behavior_studio
+cd BehaviorMetrics/behavior_studio
 python3 driver.py -c default.yml -g
 ```
 
@@ -318,6 +318,6 @@ docker restart behavior-studio-noetic
 First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
 
 ```bash
-cd BehaviorStudio/.docker/noetic/
+cd BehaviorMetrics/.docker/noetic/
 docker build -t any-tag-you-want .
 ```

@@ -11,7 +11,7 @@ sidebar:
   nav: "docs"
 ---
 
-We have some pretrained brains that you can use directly in Behavior Studio.
+We have some pretrained brains that you can use directly in Behavior Metrics.
 
 
 

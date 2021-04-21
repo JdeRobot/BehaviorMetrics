@@ -40,7 +40,7 @@ youTube_id: ID7qaEcIu4k
 
 **We are always open for new contributions from outside developers. If you want to contribute to this project, please visit the [CONTRIBUTING guide](/documentation/contributing/)**
 
-Behavior Suite is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
+Behavior Metrics is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
 
 This project aims to have a platform for evaluating and testing complex behaviors for different robots using machine learning and deep learning algorithms. This application provides different functionalities such as:
 
@@ -62,4 +62,4 @@ This project presents different approaches to the follow-the-line exercise but u
 * Solution for real robots.
 
 
-You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorSuite).
+You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorMetrics).

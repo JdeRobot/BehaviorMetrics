@@ -16,14 +16,14 @@ minimal_mistakes_skin    : "air"
 
 # Site Settings
 #locale                   : "en-US"
-title                    : "Behavior Studio"
+title                    : "Behavior Metrics"
 title_separator          : "-"
 subtitle                 : "Autonomous driving network comparison tool"
 name                     : "JdeRobot"
 description              : "Programming Robot Intelligence"
-url                      : https://github.com/JdeRobot/BehaviorStudio
+url                      : https://github.com/JdeRobot/BehaviorMetrics
 baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : JdeRobot/BehaviorStudio
+repository               : JdeRobot/BehaviorMetrics
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : /assets/images/peloto.png
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
@@ -166,7 +166,7 @@ footer:
       url: "https://twitter.com/jderobot"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/JdeRobot/BehaviorStudio"
+      url: "https://github.com/JdeRobot/BehaviorMetrics"
     #- label: "GitLab"
     #  icon: "fab fa-fw fa-gitlab"
     #  url:
