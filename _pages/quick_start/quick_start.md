@@ -80,9 +80,9 @@ gallery17:
     alt: ""
 ---
 
-First of all you need to install Behavior Studio. If you haven't completed that step, please go to the [installation section](/install/).
+First of all you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](/install/).
 
-We additionally have some pretrained brains that you can use in Behavior Studio to illustrate how it works. Find them in the [brains zoo](/quick_start/brains_zoo/).
+We additionally have some pretrained brains that you can use in Behavior Metrics to illustrate how it works. Find them in the [brains zoo](/quick_start/brains_zoo/).
 
 If you'd like to train your own brain, we provide you with the [datasets](/quick_start/datasets).
 
