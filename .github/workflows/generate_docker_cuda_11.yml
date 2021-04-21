@@ -7,8 +7,6 @@ name: Publish cuda 11 Docker image
 on:
   push:
     branches: [ noetic-devel, issue-152 ]
-  pull_request:
-    branches: [ noetic-devel ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
