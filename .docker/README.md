@@ -1,4 +1,4 @@
-# Behavior Studio Docker
+# Behavior Metrics Docker
 
 ## Table of Contents
 
@@ -58,17 +58,17 @@ Test your installation
 docker run hello-world
 ```
 
-## Running Behavior Studio Containers <a name="starting-docker"></a>
+## Running Behavior Metrics Containers <a name="starting-docker"></a>
 
 Open up a terminal a paste the following command
 
 ### For CPU only
 
 ```bash
-docker run -dit --name behavior-studio-noetic \
+docker run -dit --name behavior-metrics-noetic \
 	-p 5900:5900 \
 	-p 8888:8888 \
-	jderobot/behavior-studio:noetic
+	jderobot/behavior-metrics:noetic
 ```
 
 ### For GPU support (CUDA 10.1 Cudnn 7)
@@ -86,10 +86,10 @@ sudo systemctl restart docker
 The flag `--gpus` is added along with the correct image that contains cuda drivers.
 
 ```bash
-docker run --gpus all -dit --name behavior-studio-noetic \
+docker run --gpus all -dit --name behavior-metrics-noetic \
         -p 5900:5900 \
         -p 8888:8888 \
-        jderobot/behavior-studio:noetic-10.1-cudnn7
+        jderobot/behavior-metrics:noetic-10.1-cudnn7
 ```
 
 ### Using VNC to visualize container <a name="vnc"></a>
@@ -109,7 +109,7 @@ You will need to authenticate, the current password is **jderobot**, although it
 The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double clock on the last URL to open Jupyter.
 
 ```bash
-docker logs behavior-studio-noetic
+docker logs behavior-metrics-noetic
 ```
 
 ![jupyter](imgs/jupyter.png?raw=true "Jupyter")
@@ -118,29 +118,29 @@ Once you are in the notebook you can open up a terminal by clicking in Terminal.
 
 ![terminal](imgs/terminal.png?raw=true "Terminal")
 
-A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Studio, one the GUI is opened it will be displayed in the VNC window.
+A terminal window will open and type `bash` and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Metrics, one the GUI is opened it will be displayed in the VNC window.
 
 ```bash
-cd BehaviorStudio/behavior_studio
+cd BehaviorMetrics/behavior_metrics
 python3 driver.py -c -default -g
 ```
 
-![behavior-studio](imgs/behavior-studio.png?raw=true "Behavior Studio")
+![behavior-metrics](imgs/behavior-metrics.png?raw=true "Behavior Metrics")
 
 ### Stopping container <a name="stop"></a>
 
-`behavior-studio-noetic` should be replaced with the name of your container.
+`behavior-metrics-noetic` should be replaced with the name of your container.
 
 ```bash
-docker stop behavior-studio-noetic
+docker stop behavior-metrics-noetic
 ```
 
 ### Resuming container <a name="resume"></a>
 
-`behavior-studio-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
+`behavior-metrics-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
 
 ```bash
-docker restart behavior-studio-noetic
+docker restart behavior-metrics-noetic
 ```
 
 ## Building the latest container <a name="building"></a>
@@ -148,6 +148,6 @@ docker restart behavior-studio-noetic
 First go to the folder where the `Dockerfile` is, then use docker use docker built command with the desired name tag.
 
 ```bash
-cd BehaviorStudio/.docker/noetic/
+cd BehaviorMetrics/.docker/noetic/
 docker build -t any-tag-you-want .
 ```

@@ -26,14 +26,14 @@ RUN apt-get update && apt-get install -y \
 	apt-get install -y python3.7 python3.7-dev && \
 	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
 
-# Installing Behavior Studio
+# Installing Behavior Metrics
 RUN cd /root/ && \
-    git clone -b noetic-devel https://github.com/JdeRobot/BehaviorStudio && \
-    cd BehaviorStudio && \
+    git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
+    cd BehaviorMetrics && \
     pip3 install -r requirements.txt && \
     pip3 -V && python3 -V && \
-    pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
-	behavior_studio/ui/gui/resources/resources.qrc
+    pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
+	behavior_metrics/ui/gui/resources/resources.qrc
 
 # Installing CustomRobots
 RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
@@ -74,7 +74,7 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
 	ros-noetic-navigation && \
-    cd root/BehaviorStudio/gym-gazebo/ && \
+    cd root/BehaviorMetrics/gym-gazebo/ && \
     pip3 install -e . && \	
 #    ./load_env.sh && \
     apt-get upgrade -y && \
