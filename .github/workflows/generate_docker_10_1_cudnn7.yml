@@ -6,7 +6,7 @@ name: Publish 10.1-cudnn7 Docker image
 # events but only for the noetic-devel branch
 on:
   push:
-    branches: [ noetic-devel, issue-152 ]
+    branches: [ noetic-devel ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
