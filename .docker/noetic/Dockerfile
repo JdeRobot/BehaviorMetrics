@@ -32,8 +32,8 @@ RUN cd /root/ && \
     cd BehaviorMetrics && \
     pip3 install -r requirements.txt && \
     pip3 -V && python3 -V && \
-    pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
-	behavior_studio/ui/gui/resources/resources.qrc
+    pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
+	behavior_metrics/ui/gui/resources/resources.qrc
 
 # Installing CustomRobots
 RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
