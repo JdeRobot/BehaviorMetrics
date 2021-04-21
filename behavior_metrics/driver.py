@@ -71,7 +71,7 @@ def check_args(argv):
     group.add_argument('-s',
                        '--script',
                        action='store_true',
-                       help='{}Run Behavior Studio as script{}'.format(
+                       help='{}Run Behavior Metrics as script{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()

@@ -1,4 +1,4 @@
-# Contributing to Behavior Studio
+# Contributing to Behavior Metrics
 
 Thanks for your interest on contributing!
 

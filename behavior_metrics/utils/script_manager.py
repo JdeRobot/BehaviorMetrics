@@ -87,7 +87,7 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
 
 
 def run_brains_worlds(app_configuration, controller):
-    # Start Behavior Studio app
+    # Start Behavior Metrics app
     launch_gazebo_no_gui(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0])
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
