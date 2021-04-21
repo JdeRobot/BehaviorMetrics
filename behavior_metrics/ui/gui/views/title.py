@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" This module contains the initial window of the application with the BehaviorStudio and JdeRobot Logos
+""" This module contains the initial window of the application with the BehaviorMetrics and JdeRobot Logos
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
