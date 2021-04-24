@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Main module of the BehaviorStudio application.
+""" Main module of the BehaviorMetrics application.
 
 This module is the responsible for initializing and destroying all the elements of the application when it is launched.
 
@@ -71,7 +71,7 @@ def check_args(argv):
     group.add_argument('-s',
                        '--script',
                        action='store_true',
-                       help='{}Run Behavior Studio as script{}'.format(
+                       help='{}Run Behavior Metrics as script{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
