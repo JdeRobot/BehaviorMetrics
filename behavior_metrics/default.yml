@@ -19,7 +19,6 @@ Behaviors:
                     
         BrainPath: 'brains/f1/brain_f1_explicit.py'
         Type: 'f1'
-        Action: None
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
