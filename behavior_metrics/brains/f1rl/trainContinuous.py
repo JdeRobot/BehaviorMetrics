@@ -42,7 +42,7 @@ def save_model(agent):
 print(settings.title)
 print(settings.description)
 
-env = gym.make('GazeboF1CameraEnvDDPG-v0')
+env = gym.make('GazeboF1LaserEnvDDPG-v0')
 
 outdir = './logs/f1_ddpg_gym_experiments/'
 stats = {}  # epoch: steps
@@ -74,8 +74,8 @@ start_time = time.time()
 
 print(settings.lets_go)
 
-max_action = [12., 1.5]
-min_action = [2., -1.5]
+max_action = [12., 2]
+min_action = [2., -2]
 
 for episode in range(total_episodes):
     done = False
