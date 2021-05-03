@@ -29,3 +29,4 @@ vcstool==0.2.14
 scikit-image==0.17.2
 bagpy==0.4.2
 pycryptodomex==3.9.9
+torch==1.8.1
