@@ -1,13 +1,16 @@
 import time
 from datetime import datetime
 import pickle
+import torch
+from torch.utils.tensorboard import SummaryWriter
 import gym
 from brains.f1rl.utils import liveplot
 import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
-# from brains.f1rl.utils.ddpg import DDPGAgent
+from brains.f1rl.utils.ddpg import DDPG
 import brains.f1rl.utils.ddpg_utils.settingsDDPG as settings
+from PIL import Image
 
 def render():
     render_skip = 0  # Skip first X episodes.
@@ -20,32 +23,24 @@ def render():
             (render_episodes < episode):
         env.render(close=True)
 
-def save_model(agent):
-    # Tabular RL: Tabular Q-learning basically stores the policy (Q-values) of  the agent into a matrix of shape
-    # (S x A), where s are all states, a are all the possible actions. After the environment is solved, just save this
-    # matrix as a csv file. I have a quick implementation of this on my GitHub under Reinforcement Learning.
-    from datetime import datetime
-    import pickle
-    date = datetime.now()
-    format = date.strftime("%Y%m%d_%H%M%S")
-    file_name = "_ddpg_model_g_{}_t_{}_h_{}".format(agent.gamma, agent.tau, agent.hidden_size)
-    if os.path.isdir('brains/f1rl/logs') is False:
-        os.mkdir('brains/f1rl/logs')
-    if os.path.isdir('brains/f1rl/logs/ddpg_models/') is False:
-        os.mkdir('brains/f1rl/logs/ddpg_models/')
-    file_actor = open("brains/f1rl/logs/ddpg_models/" + format + file_name + '_actor.pkl', 'wb')
-    file_critic = open("brains/f1rl/logs/ddpg_models/" + format + file_name + '_critic.pkl', 'wb')
-    pickle.dump(agent.get_actor_weights(), file_actor)
-    pickle.dump(agent.get_critic_weights(), file_critic)
-
 # if __name__ == '__main__':
 print(settings.title)
 print(settings.description)
 
-env = gym.make('GazeboF1LaserEnvDDPG-v0')
+current_env = settings.current_env
+if current_env == "laser":
+    env_id = "GazeboF1LaserEnvDDPG-v0"
+    env = gym.make('GazeboF1LaserEnvDDPG-v0')
+elif current_env == "camera":
+    env_id = "GazeboF1CameraEnvDDPG-v0"
+    env = gym.make('GazeboF1CameraEnvDDPG-v0')
+else:
+    print("NO correct env selected")
 
 outdir = './logs/f1_ddpg_gym_experiments/'
-stats = {}  # epoch: steps
+
+if not os.path.exists(outdir):
+    os.makedirs(outdir+'images/')
 
 env = gym.wrappers.Monitor(env, outdir, force=True)
 plotter = liveplot.LivePlot(outdir)
@@ -53,18 +48,12 @@ last_time_steps = np.ndarray(0)
 stimate_step_per_lap = 4000
 lap_completed = False
 
-#if settings.load_model:
-#    exit(1)
-#
-#    qlearn_file = open('logs/qlearn_models/20200826_154342_qlearn_model_e_0.988614_a_0.2_g_0.9.pkl', 'rb')
-#    model = pickle.load(qlearn_file)
-#    print("Number of (action, state): {}".format(len(model)))
-#    qlearn.q = model
-#    qlearn.alpha = settings.alpha
-#    qlearn.gamma = settings.gamma
-#    qlearn.epsilon = settings.epsilon
-#    highest_reward = 4000
-#else:
+if settings.load_model:
+    save_path = outdir+'model/'
+    model_path = save_path
+else:
+    save_path = outdir+'model/'
+    model_path = None
     
 highest_reward = 0
 
@@ -72,65 +61,122 @@ total_episodes = settings.total_episodes
 
 start_time = time.time()
 
+seed = 123
+save_iter = int(total_episodes/20)
+render = False
+writer = SummaryWriter(outdir)
+env.seed(seed)
+
+ddpg = DDPG(env_id,
+            32,
+            2,
+            render=False,
+            num_process=1,
+            memory_size=1000000,
+            lr_p=1e-3,
+            lr_v=1e-3,
+            gamma=0.99,
+            polyak=0.995,
+            explore_size=2000,
+            step_per_iter=1000,
+            batch_size=256,
+            min_update_step=1000,
+            update_step=50,
+            action_noise=0.1,
+            seed=seed)
+
 print(settings.lets_go)
 
 max_action = [12., 2]
 min_action = [2., -2]
 
 for episode in range(total_episodes):
-    done = False
+
+    global_steps = (episode - 1) * ddpg.step_per_iter
+    log = dict()
+    num_steps = 0
+    num_episodes = 0
+    total_reward = 0
+    min_episode_reward = float('inf')
+    max_episode_reward = float('-inf')
     lap_completed = False
     cumulated_reward = 0  # Should going forward give more reward then L/R z?
-    state = env.reset()
 
-    for step in range(20000):
+    while num_steps < ddpg.step_per_iter:
+        state = env.reset()
+        # state = self.running_state(state)
+        episode_reward = 0
 
-        action = 2*np.random.rand(2)-1
+        for t in range(1000):
 
-        mod_action = action
-        
-        for itr in range(len(action)):
-            mod_action[itr] = min_action[itr] + 0.5*(max_action[itr] - min_action[itr])*(action[itr]+1)
+            if global_steps < ddpg.explore_size:  # explore
+                action = env.action_space.sample()
+            else:  # action with noise
+                action = ddpg.choose_action(state, ddpg.action_noise)
 
-        # Execute the action and get feedback
-        nextState, reward, done, info = env.step(mod_action)
-        cumulated_reward += reward
+            mod_action = action
 
-        if highest_reward < cumulated_reward:
-            highest_reward = cumulated_reward
+            for itr in range(len(action)):
+                mod_action[itr] = min_action[itr] + 0.5*(max_action[itr] - min_action[itr])*(action[itr]+1)
+            
+            next_state, reward, done, info  = env.step(action)
+            # next_state = self.running_state(next_state)
+            mask = 0 if done else 1
+            # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
+            ddpg.memory.push(state, action, reward, next_state, mask, None)
 
-        env._flush(force=True)
+            # print("Points:", info['points'])
+            # print("Errors:", info['errors'])
+            # observation_image = Image.fromarray(info['image'].reshape(32,32))
+            # observation_image.save(outdir+'/images/obs'+str(episode)+str(t)+'.jpg')
+            
+            episode_reward += reward
+            cumulated_reward += reward
+            global_steps += 1
+            num_steps += 1
 
-        if not done:
-            state = nextState
-        else:
-            last_time_steps = np.append(last_time_steps, [int(step + 1)])
-            stats[episode] = step
-            break
-     
+            if global_steps >= ddpg.min_update_step and global_steps % ddpg.update_step == 0:
+                for _ in range(ddpg.update_step):
+                    batch = ddpg.memory.sample(
+                        ddpg.batch_size)  # random sample batch
+                    ddpg.update(batch)
 
-        if stimate_step_per_lap > 4000 and not lap_completed:
-            print("LAP COMPLETED!!")
-            lap_completed = True
+            if done or num_steps >= ddpg.step_per_iter:
+                if highest_reward < cumulated_reward:
+                    highest_reward = cumulated_reward
+                break
 
-    if episode % 100 == 0 and settings.plotter_graphic:
-        plotter.plot_steps_vs_epoch(stats)
+            state = next_state
 
-    if episode % 1000 == 0 and settings.save_model:
-        print("\nSaving model . . .\n")
-        save_model(agent)
+            if num_steps  > 4000 and not lap_completed:
+                print("LAP COMPLETED!!")
+                lap_completed = True
 
-    m, s = divmod(int(time.time() - start_time), 60)
-    h, m = divmod(m, 60)
-    print ("EP: " + str(episode + 1) + " - Reward: " + str(
-        cumulated_reward) + " - Time: %d:%02d:%02d" % (h, m, s) + " - steps: " + str(step))
+        num_episodes += 1
+        total_reward += episode_reward
+        min_episode_reward = min(episode_reward, min_episode_reward)
+        max_episode_reward = max(episode_reward, max_episode_reward)
 
-print ("\n|" + str(total_episodes) + "|" + str(agent.gamma) + "|" + str(agent.tau) + "|" + str(highest_reward) + "| PICTURE |")
+    log['num_steps'] = num_steps
+    log['num_episodes'] = num_episodes
+    log['total_reward'] = total_reward
+    log['avg_reward'] = total_reward / num_episodes
+    log['max_episode_reward'] = max_episode_reward
+    log['min_episode_reward'] = min_episode_reward
 
-l = last_time_steps.tolist()
-l.sort()
+    print(f"Iter: {episode}, num steps: {log['num_steps']}, total reward: {log['total_reward']: .4f}, "
+            f"min reward: {log['min_episode_reward']: .4f}, max reward: {log['max_episode_reward']: .4f}, "
+            f"average reward: {log['avg_reward']: .4f}")
 
-print("Overall score: {:0.2f}".format(last_time_steps.mean()))
-print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
+    # record reward information
+    writer.add_scalar("total reward", log['total_reward'], episode)
+    writer.add_scalar("average reward", log['avg_reward'], episode)
+    writer.add_scalar("min reward", log['min_episode_reward'], episode)
+    writer.add_scalar("max reward", log['max_episode_reward'], episode)
+    writer.add_scalar("num steps", log['num_steps'], episode)
 
+    if episode % save_iter == 0:
+        ddpg.save(save_path)
+
+    torch.cuda.empty_cache()
 env.close()

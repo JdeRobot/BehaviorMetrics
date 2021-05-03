@@ -380,10 +380,12 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         error_1, error_2, error_3 = self.calculate_error(point_1, point_2, point_3)
 
         # == REWARD ==
-        if not done:
-            reward = self.calculate_reward(error_1, error_2, error_3)
-        else:
-            reward = -200
+        #if not done:
+        #    reward = self.calculate_reward(error_1, error_2, error_3)
+        #else:
+        #    reward = -200
+
+        reward = self.calculate_reward(error_1, error_2, error_3)
 
         # == TELEMETRY ==
         if telemetry:
@@ -391,15 +393,18 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
 
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
-        observation = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
+        observation = cv_image.reshape(1, cv_image.shape[0], cv_image.shape[1])
         
         vehicle_state = [vel_cmd.linear.x, vel_cmd.angular.z] 
         info = {'error_1': error_1, 'error_2': error_2, 'error_3': error_3}
 
-        stacked_obs = {'image':observation, 'state':vehicle_state}
+        stacked_obs = {'image':observation,
+                'state':vehicle_state, 
+                'points': [point_1, point_2, point_3],
+                'errors': [error_1, error_2, error_3]}
         
         # OpenAI standard return: observation, reward, done, info
-        return stacked_obs, reward, done, {}
+        return observation, reward, done, stacked_obs
 
         # test STACK 4
         # cv_image = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
@@ -435,11 +440,11 @@ class GazeboF1CameraEnvDDPG(gazebo_env.GazeboEnv):
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
 
-        state = cv_image.reshape(cv_image.shape[0], cv_image.shape[1])
+        state = cv_image.reshape(1, cv_image.shape[0], cv_image.shape[1])
 
         stacked_obs = {'image': state, 'state':[0., 0.]}
 
-        return stacked_obs
+        return state
 
         # test STACK 4
         # self.s_t = np.stack((cv_image, cv_image, cv_image, cv_image), axis=0)

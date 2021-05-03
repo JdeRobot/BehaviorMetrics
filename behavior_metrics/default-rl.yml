@@ -28,7 +28,7 @@ Behaviors:
             epsilon: 0.99
             total_episodes: 20000
             epsilon_discount: 0.9986 
-            env: 'laser'
+            env: 'camera'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
