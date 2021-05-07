@@ -14,8 +14,6 @@ from distutils.dir_util import copy_tree
 import gym
 import gym_gazebo
 import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 from gym import logger, wrappers
 from keras import backend as K
 
@@ -66,9 +64,6 @@ episode_durations = []
 ####################################################################################################################
 # MAIN PROGRAM
 ####################################################################################################################
-print('---NAME---')
-print(__name__)
-print('-----------')
 #if __name__ == '__main__':
 
 #REMEMBER!: turtlebot_cnn_setup.bash must be executed.
