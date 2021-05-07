@@ -47,7 +47,7 @@ RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc && \
     git clone https://github.com/fmtlib/fmt.git && \
         cd fmt && git checkout 5.3.0 && mkdir build && cd build && \
-        cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . && cmake --build . --target install && cd ../.. && \
+        cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . && cmake --build . --target install && cd && \
     git clone https://github.com/strasdat/Sophus && \
 	cd Sophus && mkdir build && cd build && \
 	cmake ../ && make && make install
