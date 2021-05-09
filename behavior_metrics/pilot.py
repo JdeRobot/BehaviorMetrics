@@ -28,7 +28,7 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 0
+TIME_CYCLE = 50
 
 
 class Pilot(threading.Thread):

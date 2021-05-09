@@ -15,7 +15,8 @@ from keras.models import Sequential, load_model
 from keras.optimizers import SGD, Adam, RMSprop
 from keras.regularizers import l2
 
-from utils import memory
+#from utils import memory
+from . import memory
 
 
 class DeepQ:
@@ -56,12 +57,12 @@ class DeepQ:
     def createModel(self):
         # Network structure must be directly changed here.
         model = Sequential()
-        model.add(Convolution2D(16, (3,3), strides=(2,2), input_shape=(self.img_channels, self.img_rows, self.img_cols)))
+        model.add(Convolution2D(16, kernel_size=(3,3), strides=(2,2), padding="same", data_format="channels_last", input_shape=(self.img_rows, self.img_cols, self.img_channels)))
         model.add(Activation('relu'))
         model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(16, (3,3), strides=(2,2)))
+        model.add(Convolution2D(16, kernel_size=(3,3), data_format="channels_last", strides=(2,2)))
         model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2)))
+        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2), data_format="channels_last"))
         model.add(Flatten())
         model.add(Dense(256))
         model.add(Activation('relu'))
@@ -70,6 +71,7 @@ class DeepQ:
         #model.compile(loss='mse',optimizer=adam)
         model.compile(RMSprop(lr=self.learningRate), 'MSE')
         model.summary()
+        
 
         return model
 
