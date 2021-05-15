@@ -1,4 +1,6 @@
-![Publish Docker image](https://github.com/JdeRobot/BehaviorMetrics/workflows/Publish%20Docker%20image/badge.svg)
+[![Publish Docker image](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/main.yml/badge.svg)](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/main.yml)
+[![Publish 10.1-cudnn7 Docker image](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/generate_docker_10_1_cudnn7.yml/badge.svg)](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/generate_docker_10_1_cudnn7.yml)
+[![Publish cuda 11 Docker image](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/generate_docker_cuda_11.yml/badge.svg)](https://github.com/JdeRobot/BehaviorMetrics/actions/workflows/generate_docker_cuda_11.yml)
 # Behavior Metrics
 
 This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
