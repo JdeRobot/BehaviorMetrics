@@ -25,121 +25,132 @@ def render():
         env.render(close=True)
 
 
-def save_model():
+def save_model(qlearn):
     # Tabular RL: Tabular Q-learning basically stores the policy (Q-values) of  the agent into a matrix of shape
     # (S x A), where s are all states, a are all the possible actions. After the environment is solved, just save this
     # matrix as a csv file. I have a quick implementation of this on my GitHub under Reinforcement Learning.
-    date = datetime.datetime.now()
+    from datetime import datetime
+    import pickle
+    date = datetime.now()
     format = date.strftime("%Y%m%d_%H%M%S")
     file_name = "_qlearn_model_e_{}_a_{}_g_{}".format(qlearn.epsilon, qlearn.alpha, qlearn.gamma)
-    file = open("logs/qlearn_models/" + format + file_name + '.pkl', 'wb')
+    if os.path.isdir('brains/f1rl/logs') is False:
+        os.mkdir('brains/f1rl/logs')
+    if os.path.isdir('brains/f1rl/logs/qlearn_models/') is False:
+        os.mkdir('brains/f1rl/logs/qlearn_models/')
+    file = open("brains/f1rl/logs/qlearn_models/" + format + file_name + '.pkl', 'wb')
     pickle.dump(qlearn.q, file)
 
     print(qlearn.q)
-    
-def run_qlearn():
-    current_env = "laser"
-    if current_env == "laser":
-        env = gym.make('GazeboF1QlearnLaserEnv-v0')
-    elif current_env == "camera":
-        env = gym.make('GazeboF1QlearnCameraEnv-v0')
-    else:
-        print("NO correct env selected")
 
-    outdir = './logs/f1_qlearn_gym_experiments/'
+print(settings.title)
+print(settings.description)
+# def run_qlearn():
+current_env = settings.current_env
+if current_env == "laser":
+    env = gym.make('GazeboF1QlearnLaserEnv-v0')
+elif current_env == "camera":
+    env = gym.make('GazeboF1QlearnCameraEnv-v0')
+else:
+    print("NO correct env selected")
 
-    env = gym.wrappers.Monitor(env, outdir, force=True)
-    plotter = liveplot.LivePlot(outdir)
+outdir = './logs/f1_qlearn_gym_experiments/'
+stats = {}  # epoch: steps
 
-    last_time_steps = np.ndarray(0)
+env = gym.wrappers.Monitor(env, outdir, force=True)
+plotter = liveplot.LivePlot(outdir)
 
-    actions = range(len(env.action_space))
-    qlearn = QLearn(actions=actions, alpha=0.2, gamma=0.9, epsilon=0.99)
+last_time_steps = np.ndarray(0)
+actions = range(env.action_space.n)
+stimate_step_per_lap = 4000
+lap_completed = False
+qlearn = QLearn(actions=actions, alpha=0.2, gamma=0.9, epsilon=0.99)
 
-    if settings.load_model:
-        exit(1)
-        qlearn_file = open('logs/qlearn_models/20200628_LASER_5ACTS_155827qlearn_model_e_0.243550191511_a_0.2_g_0.9.pkl', 'rb')
-        model = pickle.load(qlearn_file)
-        print("Number of (action, state): {}".format(len(model)))
-        qlearn.q = model
-        qlearn.alpha = 0.2
-        qlearn.gamma = 0.9
-        qlearn.epsilon = 0.6
-        highest_reward = 4000
-    else:
-        highest_reward = 0
-        initial_epsilon = qlearn.epsilon
+if settings.load_model:
+    exit(1)
+    qlearn_file = open('logs/qlearn_models/20200628_LASER_5ACTS_155827qlearn_model_e_0.243550191511_a_0.2_g_0.9.pkl', 'rb')
+    model = pickle.load(qlearn_file)
+    print("Number of (action, state): {}".format(len(model)))
+    qlearn.q = model
+    qlearn.alpha = settings.alpha
+    qlearn.gamma = settings.gamma
+    qlearn.epsilon = settings.epsilon
+    highest_reward = 4000
+else:
+    highest_reward = 0
+    initial_epsilon = qlearn.epsilon
 
-    total_episodes = 20000
-    epsilon_discount = 0.9986  # Default 0.9986
+total_episodes = settings.total_episodes
+epsilon_discount = settings.epsilon_discount  # Default 0.9986
 
-    start_time = time.time()
-    for episode in range(total_episodes):
+start_time = time.time()
+for episode in range(total_episodes):
 
-        done = False
-        cumulated_reward = 0  # Should going forward give more reward then L/R z?
-        
-        observation = env.reset()
+    done = False
+    cumulated_reward = 0  # Should going forward give more reward then L/R z?
 
-        if qlearn.epsilon > 0.05:
-            qlearn.epsilon *= epsilon_discount
+    observation = env.reset()
 
-        # render()  # defined above, not env.render()
+    if qlearn.epsilon > 0.05:
+        qlearn.epsilon *= epsilon_discount
 
-        state = ''.join(map(str, observation))
+    # render()  # defined above, not env.render()
 
-        for step in range(20000):
+    state = ''.join(map(str, observation))
 
-            # Pick an action based on the current state
-            action = qlearn.selectAction(state)
+    for step in range(20000):
 
-            # Execute the action and get feedback
-            observation, reward, done, info = env.step(action)
-            cumulated_reward += reward
+        # Pick an action based on the current state
+        action = qlearn.selectAction(state)
 
-            if highest_reward < cumulated_reward:
-                highest_reward = cumulated_reward
+        # Execute the action and get feedback
+        observation, reward, done, info = env.step(action)
+        cumulated_reward += reward
 
-            nextState = ''.join(map(str, observation))
+        if highest_reward < cumulated_reward:
+            highest_reward = cumulated_reward
+
+        nextState = ''.join(map(str, observation))
 #             print(nextState)
 
-            qlearn.learn(state, action, reward, nextState)
+        qlearn.learn(state, action, reward, nextState)
 
-            env._flush(force=True)
+        env._flush(force=True)
 
-            if not done:
-                state = nextState
-            else:
-                last_time_steps = np.append(last_time_steps, [int(step + 1)])
-                break
+        if not done:
+            state = nextState
+        else:
+            last_time_steps = np.append(last_time_steps, [int(step + 1)])
+            stats[episode] = step
+            break
 
-            if step > 3000:
-                print("\n\nLAP COMPLETED!!\n\n")
+        if stimate_step_per_lap > 4000 and not lap_completed:
+            print("LAP COMPLETED!!")
+            lap_completed = True
+            
+    if episode % 100 == 0 and settings.plotter_graphic:
+        plotter.plot_steps_vs_epoch(stats)
+    if episode % 1000 == 0 and settings.save_model:
+        print("\nSaving model . . .\n")
+        save_model(qlearn)
 
-            # print("Obser: {} - Rew: {}".format(observation, reward))
+    m, s = divmod(int(time.time() - start_time), 60)
+    h, m = divmod(m, 60)
+    print ("EP: " + str(episode + 1) + " - epsilon: " + str(round(qlearn.epsilon, 2)) + "] - Reward: " + str(
+        cumulated_reward) + " - Time: %d:%02d:%02d" % (h, m, s) + " - steps: " + str(step))
 
-        if episode % 100 == 0:
-            plotter.plot(env)
-            if settings.save_model:
-                print("\nSaving model . . .\n")
-                save_model()
+print ("\n|" + str(total_episodes) + "|" + str(qlearn.alpha) + "|" + str(qlearn.gamma) + "|" + str(
+    initial_epsilon) + "*" + str(epsilon_discount) + "|" + str(highest_reward) + "| PICTURE |")
 
-        m, s = divmod(int(time.time() - start_time), 60)
-        h, m = divmod(m, 60)
-        print ("EP: " + str(episode + 1) + " - epsilon: " + str(round(qlearn.epsilon, 2)) + "] - Reward: " + str(
-            cumulated_reward) + " - Time: %d:%02d:%02d" % (h, m, s) + " - steps: " + str(step))
+l = last_time_steps.tolist()
+l.sort()
 
-    print ("\n|" + str(total_episodes) + "|" + str(qlearn.alpha) + "|" + str(qlearn.gamma) + "|" + str(
-        initial_epsilon) + "*" + str(epsilon_discount) + "|" + str(highest_reward) + "| PICTURE |")
+# print("Parameters: a="+str)
+print("Overall score: {:0.2f}".format(last_time_steps.mean()))
+print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
-    l = last_time_steps.tolist()
-    l.sort()
+env.close()
 
-    # print("Parameters: a="+str)
-    print("Overall score: {:0.2f}".format(last_time_steps.mean()))
-    print("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
-
-    env.close()
-
-if __name__ == '__main__':
-    run_qlearn()
+run_qlearn()
+#if __name__ == '__main__':
+#    run_qlearn()
