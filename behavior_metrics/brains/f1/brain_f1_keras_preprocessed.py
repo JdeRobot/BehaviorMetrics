@@ -87,16 +87,47 @@ class Brain:
             upper = np.array([0, 255, 255])
             mask = cv2.inRange(img, lower, upper)
             
-            img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
+            img_points = [mask[0], mask[19], mask[39], mask[59]]
+            # img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
+            # img_points = [mask[0], mask[4], mask[9], mask[14], mask[19], mask[24], mask[29], mask[34], mask[39], mask[44], mask[49], mask[54], mask[59]]
+            
+            new_img_points = []
+            # Get center point from line where the mask 
+            for img_point in img_points:
+                mask_points = []
+                for x, point in enumerate(img_point):
+                    if point == 255:
+                        mask_points.append(x)
+                if len(mask_points) > 0:
+                    new_img_points.append(mask_points[len(mask_points)//2])
+                else:
+                    #new_img_points.append(-1)
+                    new_img_points.append(0)
+                    
+            img_points = new_img_points
+            
+            new_img = []
+            for x in img_points:
+                x = (x - 0) / 160 * 1 + 0
+                new_img.append(x)
+                
+            img_points = new_img
+            
+            # print(img_points)
+            
             #print(img[14])
             #print(mask[14])
             
             img_points = np.expand_dims(img_points, axis=0)
             start_time = time.time()
             prediction = self.net.predict(img_points)
+            print('prediciton time ' + str(time.time() - start_time))
             self.inference_times.append(time.time() - start_time)
-            prediction_v = prediction[0][0]*13
+            prediction_v = prediction[0][0]*.5
+            #prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]*3
+            #prediction_w = prediction[0][1]
+            #print(str(prediction_v) + " - " + str(prediction_w))
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
