@@ -14,11 +14,10 @@ from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 from sensor_msgs.msg import LaserScan
 
-from agents.f1.settings import actions
 from agents.f1.settings import gazebo_positions
 
 
-class GazeboF1QlearnLaserEnv(gazebo_env.GazeboEnv):
+class GazeboF1LaserEnvDDPG(gazebo_env.GazeboEnv):
 
     def __init__(self):
         # Launch the simulation with the given launchfile name
@@ -28,7 +27,7 @@ class GazeboF1QlearnLaserEnv(gazebo_env.GazeboEnv):
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        self.action_space = spaces.Discrete(len(actions.keys()))  # F, L, R
+        self.action_space = self._generate_continuous_action_space()  # spaces.Discrete(5)  # F, L, R
         self.reward_range = (-np.inf, np.inf)
         self.position = None
         self._seed()
@@ -90,6 +89,18 @@ class GazeboF1QlearnLaserEnv(gazebo_env.GazeboEnv):
         return pos_number
 
     @staticmethod
+    def _generate_continuous_action_space():
+
+        min_ang_speed = -2.0
+        max_ang_speed = 2.0
+        min_lin_speed = 2
+        max_lin_speed = 12
+
+        action_space = spaces.Box(np.array([min_lin_speed, min_ang_speed]),np.array([max_lin_speed, max_ang_speed]))
+
+        return action_space
+
+    @staticmethod
     def discrete_observation(data, new_ranges):
 
         discrete_ranges = []
@@ -136,13 +147,13 @@ class GazeboF1QlearnLaserEnv(gazebo_env.GazeboEnv):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def step(self, actions):
 
         self._gazebo_unpause()
 
         vel_cmd = Twist()
-        vel_cmd.linear.x = actions[action][0]
-        vel_cmd.angular.z = actions[action][1]
+        vel_cmd.linear.x = actions[0]
+        vel_cmd.angular.z = actions[1]
         self.vel_pub.publish(vel_cmd)
 
         laser_data = None

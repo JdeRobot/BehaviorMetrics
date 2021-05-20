@@ -26,6 +26,20 @@ register(
     # More arguments here
 )
 
+# F1 DDPG CAMERA
+register(
+    id='GazeboF1CameraEnvDDPG-v0',
+    entry_point='gym_gazebo.envs.f1:GazeboF1CameraEnvDDPG',
+    # More arguments here
+)
+
+# F1 DDPG LASER
+register(
+    id='GazeboF1LaserEnvDDPG-v0',
+    entry_point='gym_gazebo.envs.f1:GazeboF1LaserEnvDDPG',
+    # More arguments here
+)
+
 # Turtlebot envs
 register(
     id='GazeboMazeTurtlebotLidar-v0',
