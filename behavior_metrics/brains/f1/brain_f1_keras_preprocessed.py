@@ -74,7 +74,6 @@ class Brain:
             upper = np.array([0, 255, 255])
             mask = cv2.inRange(img, lower, upper)
             
-<<<<<<< HEAD:behavior_metrics/brains/f1/brain_f1_keras_preprocessed.py
             img_points = [mask[0], mask[19], mask[39], mask[59]]
             # img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
             # img_points = [mask[0], mask[4], mask[9], mask[14], mask[19], mask[24], mask[29], mask[34], mask[39], mask[44], mask[49], mask[54], mask[59]]
@@ -105,9 +104,7 @@ class Brain:
             
             #print(img[14])
             #print(mask[14])
-=======
-            img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
->>>>>>> 388561173a5332cb1bc41c84991464bff12c243e:behavior_metrics/brains/f1/brain_f1_keras_preprocessed-5lines.py
+
             
             img_points = np.expand_dims(img_points, axis=0)
             start_time = time.time()
