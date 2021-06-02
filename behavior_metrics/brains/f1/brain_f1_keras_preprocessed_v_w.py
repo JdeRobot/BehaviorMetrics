@@ -6,6 +6,7 @@
     Predicionts:
         linear speed(v)
         angular speed(w)
+
 """
 
 import tensorflow as tf
@@ -24,9 +25,11 @@ class Brain:
 
     def __init__(self, sensors, actuators, model=None, handler=None):
         """Constructor of the class.
+
         Arguments:
             sensors {robot.sensors.Sensors} -- Sensors instance of the robot
             actuators {robot.actuators.Actuators} -- Actuators instance of the robot
+
         Keyword Arguments:
             handler {brains.brain_handler.Brains} -- Handler of the current brain. Communication with the controller
             (default: {None})
@@ -38,16 +41,26 @@ class Brain:
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         
+        print('MODELS in: ----')
+        print(model)
+        
         if model:
-            if not path.exists(PRETRAINED_MODELS + model):
-                print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
+            print('------1------')
+            if not path.exists(PRETRAINED_MODELS + model[0]) or not path.exists(PRETRAINED_MODELS + model[1]):
+                print("File " + model[0] + " cannot be found in " + PRETRAINED_MODELS)
+                print("File " + model[1] + " cannot be found in " + PRETRAINED_MODELS)
 
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + model[0])
+            self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + model[1])
+            print('----- BRAINS LOADED!!!!!! --------')
+            print(model[0])
+            print(model[1])
         else: 
             print("Brain not loaded")
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
+
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
@@ -69,16 +82,23 @@ class Brain:
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+            # img = np.expand_dims(img, axis=0)
+            
+            #red_low   = (40,0,0)
+            #red_low = (155,25,0)
+            #red_up   = (255,0,0)
+            #red_up = (179,255,255)
+            #mask = cv2.inRange(img, red_low, red_up)
+            
+            #img_points = [img[0][79], img[14][79], img[29][79], img[44][79], img[59][79]]
 
-            lower = np.array([0,150,170])
+            
+            lower = np.array([0,150,70])
             upper = np.array([0, 255, 255])
             mask = cv2.inRange(img, lower, upper)
             
-<<<<<<< HEAD:behavior_metrics/brains/f1/brain_f1_keras_preprocessed.py
-            img_points = [mask[0], mask[19], mask[39], mask[59]]
-            # img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
-            # img_points = [mask[0], mask[4], mask[9], mask[14], mask[19], mask[24], mask[29], mask[34], mask[39], mask[44], mask[49], mask[54], mask[59]]
-            
+            img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
+
             new_img_points = []
             # Get center point from line where the mask 
             for img_point in img_points:
@@ -91,7 +111,7 @@ class Brain:
                 else:
                     #new_img_points.append(-1)
                     new_img_points.append(0)
-                    
+
             img_points = new_img_points
             
             new_img = []
@@ -100,25 +120,23 @@ class Brain:
                 new_img.append(x)
                 
             img_points = new_img
+
+            #print(img_points)
             
-            # print(img_points)
             
             #print(img[14])
             #print(mask[14])
-=======
-            img_points = [mask[0], mask[14], mask[29], mask[44], mask[59]]
->>>>>>> 388561173a5332cb1bc41c84991464bff12c243e:behavior_metrics/brains/f1/brain_f1_keras_preprocessed-5lines.py
             
             img_points = np.expand_dims(img_points, axis=0)
             start_time = time.time()
-            prediction = self.net.predict(img_points)
-            print('prediciton time ' + str(time.time() - start_time))
+            prediction_v = self.net_v.predict(img_points)
+            prediction_w = self.net_w.predict(img_points)
+            print(str(prediction_v) + " - " + str(prediction_w))
             self.inference_times.append(time.time() - start_time)
-            prediction_v = prediction[0][0]*.5
-            #prediction_v = prediction[0][0]
-            prediction_w = prediction[0][1]*3
-            #prediction_w = prediction[0][1]
-            #print(str(prediction_v) + " - " + str(prediction_w))
+            #prediction_v = prediction_v*0.5
+            #prediction_v = prediction_v*0.8
+            prediction_v = prediction_v*6.5
+            prediction_w = prediction_w*3
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
@@ -129,3 +147,4 @@ class Brain:
             print(err)
         
         self.update_frame('frame_0', img)
+        # self.update_frame('frame_0', mask)
