@@ -2,6 +2,8 @@ FROM jderobot/ubuntu:ros-noetic
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
+
 RUN apt-get update && apt-get install -y \
         cmake \
         icewm \
