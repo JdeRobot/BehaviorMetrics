@@ -92,9 +92,7 @@ class Pilot(threading.Thread):
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
-        if hasattr(self.configuration, 'experiment_model'):
-            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
-        elif hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
+        if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
         else:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
