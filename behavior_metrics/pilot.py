@@ -170,7 +170,6 @@ class Pilot(threading.Thread):
 
             if (ms < TIME_CYCLE):
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-            logger.info('BRAIN iteration -> ' + str(ms))
         
         logger.info('Pilot: pilot killed.')
 
