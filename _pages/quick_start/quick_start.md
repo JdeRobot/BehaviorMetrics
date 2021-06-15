@@ -34,6 +34,10 @@ gallery6:
   - url: /assets/images/toolbar.png
     image_path: /assets/images/toolbar.png
     alt: ""
+gallery6.1:
+  - url: /assets/images/stats.png
+    image_path: /assets/images/stats.png
+    alt: ""
 gallery7:
   - url: /assets/images/dataset.png
     image_path: /assets/images/dataset.png
@@ -271,11 +275,23 @@ You will see 2 different sections, one on the left: **the toolbar**, and another
 
 You have all the tools needed for controlling the whole application, simulation and control of the application. For usability sake, this section is subdivided in 4 different subsections: **stats, dataset, brains** and **simulation**.
 
-{% include gallery id="gallery6" caption="" %}
+{% include gallery id="gallery6" caption="" width: 200px;%}
 
 **Stats**
 
-[WIP]
+
+You can save metrics from the brain with the stats functionality. For saving, press play while the brain is running and 
+press again to finish. After that, a general view of the stats should appear. For further detail, run the `show_plots.py` script:
+
+```
+    python3 show_plots.py -b [bag_name].bag -b [bag_name].bag
+``` 
+
+This script will load further information related with the execution.
+
+
+{% include gallery id="gallery6.1" caption=""%}
+
 
 **Dataset**
 
