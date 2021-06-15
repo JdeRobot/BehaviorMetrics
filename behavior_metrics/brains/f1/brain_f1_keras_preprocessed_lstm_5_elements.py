@@ -6,6 +6,7 @@
     Predicionts:
         linear speed(v)
         angular speed(w)
+
 """
 
 import tensorflow as tf
@@ -24,9 +25,11 @@ class Brain:
 
     def __init__(self, sensors, actuators, model=None, handler=None):
         """Constructor of the class.
+
         Arguments:
             sensors {robot.sensors.Sensors} -- Sensors instance of the robot
             actuators {robot.actuators.Actuators} -- Actuators instance of the robot
+
         Keyword Arguments:
             handler {brains.brain_handler.Brains} -- Handler of the current brain. Communication with the controller
             (default: {None})
@@ -37,7 +40,8 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
-        
+        self.previous_images = np.zeros((25, 13))
+
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -48,6 +52,7 @@ class Brain:
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
+
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
@@ -69,13 +74,12 @@ class Brain:
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-
             lower = np.array([0,150,170])
             upper = np.array([0, 255, 255])
             mask = cv2.inRange(img, lower, upper)
-            
-            img_points = [mask[0], mask[19], mask[39], mask[59]]
 
+            img_points = [mask[0], mask[4], mask[9], mask[14], mask[19], mask[24], mask[29], mask[34], mask[39], mask[44], mask[49], mask[54], mask[59]]
+            
             new_img_points = []
             # Get center point from line where the mask 
             for img_point in img_points:
@@ -96,12 +100,23 @@ class Brain:
                 new_img.append(x)
                 
             img_points = new_img
+
+            # LIFO structure
+            # Remove 1st
+            # Move all instances 1 position to the right
+            # Add at the end the new one
             
+            self.previous_images = self.previous_images[0:24:]
             img_points = np.expand_dims(img_points, axis=0)
+            self.previous_images = np.insert(self.previous_images, 0, img_points, axis=0)
+            img_points = np.expand_dims(self.previous_images, axis=0)
+            print(img_points.shape)
+
+                
             start_time = time.time()
             prediction = self.net.predict(img_points)
-            print('prediciton time ' + str(time.time() - start_time))
             self.inference_times.append(time.time() - start_time)
+            print(str(prediction[0][0]) + " - " + str(prediction[0][1]))
             prediction_v = prediction[0][0]*13
             prediction_w = prediction[0][1]*3
             if prediction_w != '' and prediction_w != '':
@@ -110,5 +125,4 @@ class Brain:
 
         except Exception as err:
             print(err)
-        
         self.update_frame('frame_0', img)
