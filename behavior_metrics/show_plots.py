@@ -1,4 +1,3 @@
-import sys
 import json
 import yaml
 import rosbag
@@ -6,14 +5,12 @@ import sys
 import argparse
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from utils import metrics
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QGridLayout
 from matplotlib.figure import Figure
-from matplotlib import animation
 from utils.colors import Colors
 
 
@@ -135,8 +132,6 @@ def read_bags(bags):
     return bags_checkpoints, bags_metadata, time_stats, first_image
 
 
-#####
-
 def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image):
     experiments_statistics = []
     world_completed = {}
@@ -145,10 +140,8 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image)
         x_points = []
         y_points = []
 
-        experiment_statistics = {}
-        experiment_statistics['world'] = bags_metadata[x]['world']
-        experiment_statistics['brain_path'] = bags_metadata[x]['brain_path']
-        experiment_statistics['robot_type'] = bags_metadata[x]['robot_type']
+        experiment_statistics = {'world': bags_metadata[x]['world'], 'brain_path': bags_metadata[x]['brain_path'],
+                                 'robot_type': bags_metadata[x]['robot_type']}
         if bags_metadata[x]['world'] == 'simple_circuit.launch':
             perfect_lap_path = 'lap-simple-circuit.bag'
         elif bags_metadata[x]['world'] == 'many_curves.launch':
@@ -185,8 +178,6 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image)
 
 
 def main():
-    config_data = {}
-
     parser = argparse.ArgumentParser(description='Show plots', epilog='Enjoy the program! :)')
 
     parser.add_argument('-b',
