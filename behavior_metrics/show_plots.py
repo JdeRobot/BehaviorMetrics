@@ -17,16 +17,6 @@ from matplotlib import animation
 from utils.colors import Colors
 
 
-
-
-# bags = []
-
-#bag_1 = '20210528-143935.bag'
-#bag_2 = '20210611-144225.bag'
-#bags.append(bag_1)
-#bags.append(bag_2)
-
-
 class MetricsWindow(QtWidgets.QMainWindow):
     def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_statistics, circuit_diameter):
         super().__init__()
@@ -192,13 +182,6 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image)
         app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_stats[x], lap_statistics, circuit_diameter)
         app.show()
         qapp.exec_()
-
-        #except Exception as err:
-        #    print('error in bag')
-        #    print(err)
-    
-    print(world_completed) 
-    print(experiments_statistics)
 
 
 def main():
