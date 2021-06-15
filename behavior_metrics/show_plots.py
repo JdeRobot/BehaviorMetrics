@@ -6,7 +6,7 @@ import rosbag
 
 bags = []
 
-bag_1 = '20210608-171026.bag'
+bag_1 = '20210528-143935.bag'
 bags.append(bag_1)
 
 bags_checkpoints = []
@@ -159,8 +159,8 @@ import sys
 import numpy as np
 
 from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.backend_qt5agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton
 
 from matplotlib.figure import Figure
 from matplotlib import animation
@@ -179,24 +179,19 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.addToolBar(NavigationToolbar(self.canvas, self))
 
         self.setup()
+        
+        label=QLabel('Text related to the plot 1')
+        layout.addWidget(label)
+        label=QLabel('Text related to the plot 2')
+        layout.addWidget(label)
+        label=QLabel('Text related to the plot 3')
+        layout.addWidget(label)
+        label=QLabel('Text related to the plot 4')
+        layout.addWidget(label)
 
     def setup(self):
         self.ax = self.fig.subplots()
-        self.ax.set_aspect('equal')
-        #self.ax.grid(True, linestyle = '-', color = '0.10')
-        #self.ax.set_xlim([-15, 15])
-        #self.ax.set_ylim([-15, 15])
-
-        #self.scat = self.ax.scatter([0,0], [0,4],  zorder=3)
         self.scat = self.ax.scatter(x_points, y_points,  zorder=3)
-        self.scat.set_alpha(0.8)
-
-        #self.anim = animation.FuncAnimation(self.fig, self.update, frames = 720, interval = 10)
-
-
-    #def update(self, i):
-        #self.scat.set_offsets(([np.cos(np.radians(i))*7.5, np.sin(np.radians(i))*7.5], [np.cos(np.radians(i/2))*9, np.sin(np.radians(i/2))*9]))
-
 
 
 if __name__ == "__main__":
@@ -204,55 +199,3 @@ if __name__ == "__main__":
     app = ApplicationWindow()
     app.show()
     qapp.exec_()
-
-
-
-import sys
-import numpy
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton
-
-class Canvas(FigureCanvas):
-    def __init__(self, parent):
-        #print(x_points)
-        #print(y_points)
-        #fig, self.ax = plt.subplots(figsize=(3, 2), dpi=200)
-        fig, self.ax = plt.scatter([1,2], [3,4])
-        super().__init__(fig)
-        self.setParent(parent)
-        
-class AppDemo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.resize(1000, 700)
-        chart = Canvas(self) 
-         
-        layout = QVBoxLayout()
-        
-        layout.addWidget(chart)
-        
-        label=QLabel('Text related to the plot')
-        label.resize(1000, 1000)
-        layout.addWidget(label)
-        
-        label_2=QLabel('Text related to the plot')
-        label_2.resize(1000, 1000)
-        layout.addWidget(label_2)
-        
-        label_3=QLabel('Text related to the plot')
-        label_3.resize(1000, 1000)
-        layout.addWidget(label_3)
-        
-        self.setLayout(layout)
-        
-app = QApplication(sys.argv)
-demo = AppDemo()
-demo.show()
-
-print('************ END 1 *************')
-
-sys.exit(app.exec_())
-
-
-print('************ END *************')
