@@ -2,14 +2,92 @@ import sys
 import json
 import yaml
 import rosbag
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
+from utils import metrics
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QGridLayout
+from matplotlib.figure import Figure
+from matplotlib import animation
+
+
+class MetricsWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self._main = QtWidgets.QWidget()
+        self.setCentralWidget(self._main)
+        self.layout = QtWidgets.QGridLayout(self._main)
+        self.setWindowTitle("Metrics for: " + bag_file)
+        
+        self.setup_plot()
+        self.setup_image()
+        self.add_labels()
+        
+
+    def setup_plot(self):
+        self.fig_plot = Figure()
+        self.canvas_plot = FigureCanvas(self.fig_plot)
+        self.layout.addWidget(self.canvas_plot, 0, 0)
+        self.addToolBar(NavigationToolbar(self.canvas_plot, self))
+        self.ax_plot = self.fig_plot.subplots()
+        self.scat_plot = self.ax_plot.scatter(x_points, y_points, zorder=3)
+        
+    def setup_image(self):
+        self.fig_image = Figure()
+        self.canvas_image = FigureCanvas(self.fig_image)
+        self.layout.addWidget(self.canvas_image, 0, 1)
+        self.addToolBar(NavigationToolbar(self.canvas_image, self))
+        
+        self.ax_image = self.fig_image.subplots()
+        self.ax_image.imshow(first_image)
+        self.ax_image.set_axis_off()
+        
+    def add_labels(self):
+        label_world=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">World: </span>' + bags_metadata[x]['world'])
+        self.layout.addWidget(label_world)
+        label_brain_path=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Brain path: </span>' + bags_metadata[x]['brain_path'])
+        self.layout.addWidget(label_brain_path)
+        label_robot_type=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + bags_metadata[x]['robot_type'])
+        self.layout.addWidget(label_robot_type)
+        
+        label_mean_iteration_time=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean iteration time: </span>' + str(time_stats_metadata['mean_iteration_time']))
+        self.layout.addWidget(label_mean_iteration_time)
+        label_mean_inference_time=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(time_stats_metadata['mean_inference_time']))
+        self.layout.addWidget(label_mean_inference_time)
+        label_gpu_inferencing=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(time_stats_metadata['gpu_inferencing']))
+        self.layout.addWidget(label_gpu_inferencing)
+        label_frame_rate=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(time_stats_metadata['frame_rate']))
+        self.layout.addWidget(label_frame_rate)
+        
+        label_circuit_diameter=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(circuit_diameter))
+        self.layout.addWidget(label_circuit_diameter)
+        label_completed_distance=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(lap_statistics['completed_distance']))
+        self.layout.addWidget(label_completed_distance)
+        label_percentage_completed=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(lap_statistics['percentage_completed']))
+        self.layout.addWidget(label_percentage_completed)
+        label_orientation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Orientation MAE: </span>' + str(lap_statistics['orientation_mae']))
+        self.layout.addWidget(label_orientation_mae)
+        label_orientation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Orientation total ERROR: </span>' + str(lap_statistics['orientation_total_err']))
+        self.layout.addWidget(label_orientation_total_err)
+        
+        if 'lap_seconds' in lap_statistics:
+            label_lap_seconds=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(lap_statistics['lap_seconds']))
+            self.layout.addWidget(label_lap_seconds)
+            label_circuit_diameter=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(lap_statistics['circuit_diameter']))
+            self.layout.addWidget(label_circuit_diameter)
+            label_average_speed=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(lap_statistics['average_speed']))
+            self.layout.addWidget(label_average_speed)
 
 
 bags = []
 
 bag_1 = '20210528-143935.bag'
+bag_2 = '20210611-144225.bag'
 bags.append(bag_1)
+bags.append(bag_2)
 
 bags_checkpoints = []
 bags_metadata = []
@@ -39,9 +117,7 @@ for bag_file in bags:
             h = json.dumps(y,indent=4)
             data = json.loads(h)
             time_stats_metadata = json.loads(data['data'])
-            a_new = np.array(time_stats_metadata['first_image'])
-            #plt.imshow(a_new)
-            #plt.show()
+            first_image = np.array(time_stats_metadata['first_image'])
 
             time_stats.append(time_stats_metadata)
 
@@ -58,33 +134,13 @@ print('CORRECT BAGS : ' + str(correct_bags))
 #####
 
 
-
-#import numpy as np
-#import matplotlib.pyplot as plt
-from utils import metrics
-
 experiments_statistics = []
 world_completed = {}
 
 for x, checkpoints in enumerate(bags_checkpoints):
-    #try:
-    print('------- ' + str(x) + ' -----')
-    #try:
     x_points = []
     y_points = []
-    print('-------------------------------------------')
-    print(bags_metadata[x])
-    print('WORLD -> ' + bags_metadata[x]['world'])
-    print('BRAIN PATH -> ' + bags_metadata[x]['brain_path'])
-    print('ROBOT TYPE -> ' + bags_metadata[x]['robot_type'])
-    #try:
-        #print('MEAN ITERATION TIME ->' + str(time_stats[x]['mean_iteration_time']))
-        #print('MEAN INFERENCE TIME ->' + str(time_stats[x]['mean_inference_time']))
-        #print('FRAME RATE ->' + str(time_stats[x]['frame_rate']))
-        #print('GPU INFERENCING ->' + str(time_stats[x]['gpu_inferencing']))
-    #except Exception as err:
-        #print(err)
-    
+
     experiment_statistics = {}
     experiment_statistics['world'] = bags_metadata[x]['world']
     experiment_statistics['brain_path'] = bags_metadata[x]['brain_path']
@@ -97,12 +153,9 @@ for x, checkpoints in enumerate(bags_checkpoints):
         perfect_lap_path = 'lap-montmelo.bag'
 
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
-    #print('CIRCUIT DIAMETER -> ' + str(circuit_diameter))
     lap_statistics = metrics.lap_percentage_completed(bags[x], perfect_lap_checkpoints, circuit_diameter)
     experiment_statistics['lap_statistics'] = lap_statistics
     experiments_statistics.append(experiment_statistics)
-    #print('COMPLETED DISTANCE -> ' + str(lap_statistics['completed_distance']))
-    #print('PERCENTAGE COMPLETED -> ' + str(lap_statistics['percentage_completed']))
     if lap_statistics['percentage_completed'] > 100:
         if bags_metadata[x]['world'] in world_completed and bags_metadata[x]['brain_path'] in world_completed[bags_metadata[x]['world']]:
             world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] + 1
@@ -111,9 +164,6 @@ for x, checkpoints in enumerate(bags_checkpoints):
         else:
             world_completed[bags_metadata[x]['world']] = {} 
             world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = 1
-    #print('ORIENTATION MAE -> ' + str(lap_statistics['orientation_mae']))
-    #print('ORIENTATION TOTAL ERROR -> ' + str(lap_statistics['orientation_total_err']))
-    #print(lap_statistics)
     if 'lap_seconds' in lap_statistics:
         print('LAP SECONDS -> ' + str(lap_statistics['lap_seconds']))
         print('CIRCUIT DIAMETER -> ' + str(lap_statistics['circuit_diameter']))
@@ -123,91 +173,15 @@ for x, checkpoints in enumerate(bags_checkpoints):
         point_yml = yaml.load(str(point), Loader=yaml.FullLoader)
         x_points.append(point_yml['pose']['pose']['position']['x'])
         y_points.append(point_yml['pose']['pose']['position']['y'])
-
+        
+    qapp = QtWidgets.QApplication(sys.argv)
+    app = MetricsWindow()
+    app.show()
+    qapp.exec_()
+    
     #except Exception as err:
     #    print('error in bag')
     #    print(err)
     
 print(world_completed) 
 print(experiments_statistics)
-
-
-
-print('************ PYQT5 *************')
-
-
-import sys
-import numpy as np
-
-from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QGridLayout
-
-from matplotlib.figure import Figure
-from matplotlib import animation
-
-class ApplicationWindow(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self._main = QtWidgets.QWidget()
-        self.setCentralWidget(self._main)
-        layout = QtWidgets.QGridLayout(self._main)
-
-        self.fig = Figure(figsize=(15, 15))
-        self.canvas = FigureCanvas(self.fig)
-        layout.addWidget(self.canvas, 0, 0)
-        self.addToolBar(NavigationToolbar(self.canvas, self))
-
-        self.setup()
-        
-        self.fig_2 = Figure()
-        self.canvas_2 = FigureCanvas(self.fig_2)
-        layout.addWidget(self.canvas_2, 0, 1)
-        self.addToolBar(NavigationToolbar(self.canvas_2, self))
-        
-        self.setup_image()
-        
-        
-        label=QLabel('World -> ' + bags_metadata[x]['world'])
-        layout.addWidget(label)
-        label=QLabel('Brain path -> ' + bags_metadata[x]['brain_path'])
-        layout.addWidget(label)
-        label=QLabel('Robot type -> ' + bags_metadata[x]['robot_type'])
-        layout.addWidget(label)
-        
-        label=QLabel('Mean iteration time -> ' + str(time_stats_metadata['mean_iteration_time']))
-        layout.addWidget(label)
-        label=QLabel('Mean inference time -> ' + str(time_stats_metadata['mean_inference_time']))
-        layout.addWidget(label)
-        label=QLabel('GPU inferencing -> ' + str(time_stats_metadata['gpu_inferencing']))
-        layout.addWidget(label)
-        label=QLabel('Frame rate -> ' + str(time_stats_metadata['frame_rate']))
-        layout.addWidget(label)
-        
-        label=QLabel('Circuit diameter -> ' + str(circuit_diameter))
-        layout.addWidget(label)
-        label=QLabel('Completed distance -> ' + str(lap_statistics['completed_distance']))
-        layout.addWidget(label)
-        label=QLabel('Percentage completed -> ' + str(lap_statistics['percentage_completed']))
-        layout.addWidget(label)
-        label=QLabel('Orientation MAE -> ' + str(lap_statistics['orientation_mae']))
-        layout.addWidget(label)
-        label=QLabel('Orientation total ERROR -> ' + str(lap_statistics['orientation_total_err']))
-        layout.addWidget(label)
-
-    def setup(self):
-        self.ax_2 = self.fig.subplots()
-        self.scat = self.ax_2.scatter(x_points, y_points, zorder=3)
-        
-    def setup_image(self):
-        self.ax = self.fig_2.subplots()
-        self.ax.imshow(a_new)
-        self.ax.set_axis_off()
-
-
-if __name__ == "__main__":
-    qapp = QtWidgets.QApplication(sys.argv)
-    app = ApplicationWindow()
-    app.show()
-    qapp.exec_()
-
