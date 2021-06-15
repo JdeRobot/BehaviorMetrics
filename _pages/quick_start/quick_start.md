@@ -275,9 +275,11 @@ You will see 2 different sections, one on the left: **the toolbar**, and another
 
 You have all the tools needed for controlling the whole application, simulation and control of the application. For usability sake, this section is subdivided in 4 different subsections: **stats, dataset, brains** and **simulation**.
 
-{% include gallery id="gallery6" caption="" width: 200px;%}
+{% include gallery id="gallery6" caption=""%}
 
 **Stats**
+
+{% include gallery id="gallery6.1" caption=""%}
 
 
 You can save metrics from the brain with the stats functionality. For saving, press play while the brain is running and 
@@ -288,9 +290,6 @@ press again to finish. After that, a general view of the stats should appear. Fo
 ``` 
 
 This script will load further information related with the execution.
-
-
-{% include gallery id="gallery6.1" caption=""%}
 
 
 **Dataset**
