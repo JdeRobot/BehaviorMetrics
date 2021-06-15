@@ -41,12 +41,7 @@ class Brain:
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         self.previous_images = np.zeros((2, 13))
-        #model = '20210505-140353_lstm.h5'
         if model:
-            print('_____---MODEL----____')
-            print('_____---MODEL----____')
-            print('_____---MODEL----____')
-            print('_____---MODEL----____')
             print(model)
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -79,15 +74,6 @@ class Brain:
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-            # img = np.expand_dims(img, axis=0)
-            
-            #red_low   = (40,0,0)
-            #red_low = (155,25,0)
-            #red_up   = (255,0,0)
-            #red_up = (179,255,255)
-            #mask = cv2.inRange(img, red_low, red_up)
-            
-            #img_points = [img[0][79], img[14][79], img[29][79], img[44][79], img[59][79]]
 
             lower = np.array([0,150,170])
             upper = np.array([0, 255, 255])
@@ -116,54 +102,28 @@ class Brain:
                 new_img.append(x)
                 
             img_points = new_img
-            #print(img_points)
-            
+
             # LIFO structure
             # Remove 1st
             # Move all instances 1 position to the right
             # Add at the end the new one
-            #print('----1----')
-            #print(self.previous_images)
             self.previous_images = self.previous_images[1:2:]
-            #print('----2----')
-            #print(self.previous_images)
-            #print('-----3----')
             img_points = np.expand_dims(img_points, axis=0)
-            #print(type(img_points))
-            #print(img_points)
-            #print('-----4----')
             self.previous_images = np.append(self.previous_images, img_points, axis=0)
-            # self.previous_images.concatenate(img_points)
-            #print(self.previous_images.shape)
-            #print(self.previous_images)
-            #print('-----5----')
             
             print(len(self.previous_images))
             print(self.previous_images)
-           
-            
-            #img_points = np.expand_dims(img_points, axis=0)
+
             img_points = np.expand_dims(self.previous_images, axis=0)
-            #print(img_points)
             start_time = time.time()
-            # prediction = self.net.predict(img_points)
             prediction = self.net.predict(img_points)
-            # sprint('prediciton time ' + str(time.time() - start_time))
             self.inference_times.append(time.time() - start_time)
-            #print(str(prediction[0][0]) + " - " + str(prediction[0][1]))
             prediction_v = prediction[0][0]*13
-            #prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]*3
-            #prediction_w = prediction[0][1]
-            #print(str(prediction_v) + " - " + str(prediction_w))
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
-                #self.motors.sendV(0)
-                #self.motors.sendW(0)
 
         except Exception as err:
             print(err)
-        #fdasfdasfdas
         self.update_frame('frame_0', img)
-        # self.update_frame('frame_0', mask)

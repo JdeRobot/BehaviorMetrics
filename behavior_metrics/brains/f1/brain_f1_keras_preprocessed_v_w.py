@@ -40,21 +40,14 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
-        
-        print('MODELS in: ----')
-        print(model)
-        
+
         if model:
-            print('------1------')
             if not path.exists(PRETRAINED_MODELS + model[0]) or not path.exists(PRETRAINED_MODELS + model[1]):
                 print("File " + model[0] + " cannot be found in " + PRETRAINED_MODELS)
                 print("File " + model[1] + " cannot be found in " + PRETRAINED_MODELS)
 
             self.net_v = tf.keras.models.load_model(PRETRAINED_MODELS + model[0])
             self.net_w = tf.keras.models.load_model(PRETRAINED_MODELS + model[1])
-            print('----- BRAINS LOADED!!!!!! --------')
-            print(model[0])
-            print(model[1])
         else: 
             print("Brain not loaded")
 
@@ -82,16 +75,6 @@ class Brain:
         try:
             image = image[240:480, 0:640]
             img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
-            # img = np.expand_dims(img, axis=0)
-            
-            #red_low   = (40,0,0)
-            #red_low = (155,25,0)
-            #red_up   = (255,0,0)
-            #red_up = (179,255,255)
-            #mask = cv2.inRange(img, red_low, red_up)
-            
-            #img_points = [img[0][79], img[14][79], img[29][79], img[44][79], img[59][79]]
-
             
             lower = np.array([0,150,70])
             upper = np.array([0, 255, 255])
@@ -120,12 +103,6 @@ class Brain:
                 new_img.append(x)
                 
             img_points = new_img
-
-            #print(img_points)
-            
-            
-            #print(img[14])
-            #print(mask[14])
             
             img_points = np.expand_dims(img_points, axis=0)
             start_time = time.time()
@@ -133,18 +110,13 @@ class Brain:
             prediction_w = self.net_w.predict(img_points)
             print(str(prediction_v) + " - " + str(prediction_w))
             self.inference_times.append(time.time() - start_time)
-            #prediction_v = prediction_v*0.5
-            #prediction_v = prediction_v*0.8
-            prediction_v = prediction_v*6.5
+            prediction_v = prediction_v*13
             prediction_w = prediction_w*3
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
-                #self.motors.sendV(0)
-                #self.motors.sendW(0)
 
         except Exception as err:
             print(err)
         
         self.update_frame('frame_0', img)
-        # self.update_frame('frame_0', mask)
