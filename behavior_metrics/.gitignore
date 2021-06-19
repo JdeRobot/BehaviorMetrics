@@ -111,3 +111,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom directories
+bags_analysis/
