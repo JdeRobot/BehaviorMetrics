@@ -25,7 +25,7 @@ Behaviors:
         Timeout: 30
         Repetitions: 2
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch'
+        World: '/usr/local/gazebo/launch/many_curves.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

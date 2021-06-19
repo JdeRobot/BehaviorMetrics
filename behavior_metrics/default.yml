@@ -20,7 +20,7 @@ Behaviors:
         BrainPath: 'brains/f1/brain_f1_explicit.py'
         Type: 'f1'
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+        World: /usr/local/gazebo/launch/simple_circuit.launch #/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
