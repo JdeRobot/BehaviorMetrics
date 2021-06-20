@@ -124,28 +124,28 @@ if __name__=="__main__":
 
         for key in all_data[world].keys():
 
-            labels = []
-            for it in range(len(all_data[world][key])):
-                labels.append('Run_'+str(it+1))
-
             if key == 'image':
                 images = all_data[world][key]['first_images']
                 all_path_x = all_data[world][key]['path_x']
                 all_path_y = all_data[world][key]['path_y']
                 for it in range(len(images)):
-                    cv2.imwrite(directory+'/'+'first_images/' + labels[it] +'.png', images[it])
+                    cv2.imwrite(directory+'/'+'first_images/Run_' + str(it+1) +'.png', images[it])
 
                     fig = plt.figure(figsize = (10, 5))
                     plt.scatter(all_path_x[it], all_path_y[it], zorder=3)
                     plt.ylabel(key)
                     plt.title('Path followed in "{}" circuit'.format(world))
-                    plt.savefig(directory+'/'+'path_followed/' + labels[it] + '.png')
+                    plt.savefig(directory+'/'+'path_followed/Run_' + str(it+1) +'.png')
+                    plt.close()
                 
             else:
                 plotData = all_data[world][key]
-                
+                labels = []
+                for it in range(len(plotData)):
+                    labels.append('Run_'+str(it+1))
                 fig = plt.figure(figsize = (10, 5))
                 plt.bar(labels, plotData, color ='maroon', width = 0.4)
                 plt.ylabel(key)
                 plt.title('Performance in "{}" circuit with metric "{}"'.format(world, key))
                 plt.savefig(directory+'/'+'performances/' + key + '.png')
+                plt.close()
