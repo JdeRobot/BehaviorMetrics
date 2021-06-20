@@ -23,7 +23,9 @@ from datetime import datetime
 
 import rospy
 from std_srvs.srv import Empty
-
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
 from utils.logger import logger
 
 import os
@@ -58,6 +60,7 @@ class Controller:
         self.data = {}
         self.pose3D_data = None
         self.recording = False
+        self.cvbridge = CvBridge()
 
     # GUI update
     def update_frame(self, frame_id, data):
@@ -230,11 +233,22 @@ class Controller:
         logger.info("END ---- > Stopping stats bag recording")
         
     def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
-        time_stats = {'mean_iteration_time': mean_iteration_time, 'mean_inference_time': mean_inference_time, 'frame_rate': frame_rate, 'gpu_inferencing': gpu_inferencing, 'first_image': first_image.tolist()}
+        time_stats = {'mean_iteration_time': mean_iteration_time, 
+                    'mean_inference_time': mean_inference_time, 
+                    'frame_rate': frame_rate, 
+                    'gpu_inferencing': gpu_inferencing}
         metrics_str = json.dumps(time_stats)
+        stats_str = json.dumps(self.lap_statistics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
             metadata_msg = String(data=metrics_str)
+            lap_stats_msg = String(data=stats_str)
             bag.write('/time_stats', metadata_msg, rospy.Time(bag.get_end_time()))
+            bag.write('/lap_stats', lap_stats_msg, rospy.Time(bag.get_end_time()))
+            if first_image is not None and first_image.shape == (480, 640, 3):
+                rospy.loginfo('Image received and sent to /first_image')
+                bag.write('/first_image', self.cvbridge.cv2_to_imgmsg(first_image), rospy.Time(bag.get_end_time()))
+            else:
+                rospy.loginfo('Error: Image Broken and /first_image Skipped: {}'.format(first_image))
         bag.close()
         
 
