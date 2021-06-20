@@ -6,6 +6,8 @@
 *resources.py
 **/logs
 **.bag
+bag_analysis/
+core
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
