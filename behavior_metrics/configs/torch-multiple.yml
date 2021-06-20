@@ -16,22 +16,25 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: ['brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py']
-        Model: ['model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt']
+        BrainPath: ['brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py']
+        Model: ['model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt']
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
         Description: "Experiment description"
-        Timeout: [30, 30]
-        Repetitions: 2
+        Timeout: [30, 30, 30, 30, 30]
+        Repetitions: 3
     Simulation:
-        World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
+        World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch',
+                /opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch', /opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch', 
+                /opt/jderobot/share/jderobot/gazebo/launch/montreal_line.launch']
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: ['./perfect_bags/lap-simple-circuit.bag', './perfect_bags/lap-many-curves.bag']
+        PerfectLap: ['./perfect_bags/lap-simple-circuit.bag', './perfect_bags/lap-many-curves.bag', './perfect_bags/lap-nurburgring.bag',
+                    './perfect_bags/lap-montmelo.bag.bag', './perfect_bags/lap-montreal.bag']
     Layout:
         Frame_0:
             Name: frame_0
