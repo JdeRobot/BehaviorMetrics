@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python driver.py -c ./configs/torch-multiple.yml -s &&
+python driver.py -c $1 -s &&
 rm -rf bag_analysis &&
 mkdir bag_analysis &&
 mkdir bag_analysis/bags && 
