@@ -3,7 +3,8 @@ import yaml
 import rosbag
 import sys
 import argparse
-
+import cv2
+from cv_bridge import CvBridge
 import numpy as np
 
 from utils import metrics
@@ -13,6 +14,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushBut
 from matplotlib.figure import Figure
 from utils.colors import Colors
 
+bridge = CvBridge()
 
 class MetricsWindow(QtWidgets.QMainWindow):
     def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_statistics, circuit_diameter):
@@ -93,6 +95,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
 def read_bags(bags):
     bags_checkpoints = []
     bags_metadata = []
+    bags_lapdata = []
     time_stats = []
     correct_bags = 0
     for bag_file in bags:
@@ -111,15 +114,26 @@ def read_bags(bags):
                 data = json.loads(h)
                 metadata = json.loads(data['data'])
                 bags_metadata.append(metadata)
+
+            for topic, point, t in bag.read_messages(topics=['/lap_stats']):
+
+                y = yaml.load(str(point), Loader=yaml.FullLoader)
+                h = json.dumps(y,indent=4)
+                data = json.loads(h)
+                lapdata = json.loads(data['data'])
+                bags_lapdata.append(lapdata)
+
             for topic, point, t in bag.read_messages(topics=['/time_stats']):
 
                 y = yaml.load(str(point), Loader=yaml.FullLoader)
                 h = json.dumps(y,indent=4)
                 data = json.loads(h)
                 time_stats_metadata = json.loads(data['data'])
-                first_image = np.array(time_stats_metadata['first_image'])
-
+                # first_image = np.array(time_stats_metadata['first_image'])
                 time_stats.append(time_stats_metadata)
+
+            for topic, point, t in bag.read_messages(topics=['/first_image']):
+                first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
 
             bag.close()
             correct_bags += 1
@@ -129,10 +143,10 @@ def read_bags(bags):
 
     print('Correct bags: ' + str(correct_bags))
     
-    return bags_checkpoints, bags_metadata, time_stats, first_image
+    return bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image
 
 
-def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image):
+def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image):
     experiments_statistics = []
     world_completed = {}
 
@@ -150,7 +164,7 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, time_stats, first_image)
             perfect_lap_path = 'lap-montmelo.bag'
 
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
-        lap_statistics = metrics.lap_percentage_completed(bags[x], perfect_lap_checkpoints, circuit_diameter)
+        lap_statistics = bags_lapdata[x]
         experiment_statistics['lap_statistics'] = lap_statistics
         experiments_statistics.append(experiment_statistics)
         if lap_statistics['percentage_completed'] > 100:
@@ -193,8 +207,8 @@ def main():
     if args.bags:
         config_data['bags'] = args.bags
     
-    bags_checkpoints, bags_metadata, time_stats, first_image = read_bags(config_data['bags']) 
-    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, time_stats, first_image)
+    bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image = read_bags(config_data['bags'])
+    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image)
     
 if __name__ == "__main__":
     print('Number of arguments:', len(sys.argv), 'arguments.')
