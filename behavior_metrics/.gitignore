@@ -8,6 +8,8 @@
 **.bag
 bag_analysis/
 core
+tmp_*
+
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
