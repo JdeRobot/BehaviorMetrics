@@ -44,7 +44,8 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.device = torch.device("cpu")
-        
+        self.gpu_inferencing = torch.cuda.is_available()
+        self.first_image = None
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
                                     ])
@@ -74,8 +75,10 @@ class Brain:
         image = self.camera.getImage().data
         #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
-        if self.cont == 1:
+        if self.cont == 1 and image.shape == (480, 640, 3):
             self.first_image = image
+        else:
+            self.cont = 0
 
         try:
             image = image[240:480, 0:640]
