@@ -26,7 +26,7 @@ from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
-
+from utils.random_initializer import tmp_random_initializer
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -74,9 +74,15 @@ def check_args(argv):
                        help='{}Run Behavior Metrics as script{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
 
+    parser.add_argument('-r',
+                       '--random',
+                       action='store_true',
+                       help='{}Run Behavior Metrics F1 with random spawning{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
+
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None}
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False}
     if args.config:
         if not os.path.isfile(args.config):
             parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
@@ -91,6 +97,9 @@ def check_args(argv):
         
     if args.script:
         config_data['script'] = args.script
+
+    if args.random:
+        config_data['random'] = args.random
 
     return config_data
 
@@ -164,6 +173,9 @@ def main():
     # Launch the simulation
     if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
+        if config_data['random']:
+            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, gui=True)
+            app_configuration.current_world = 'tmp_circuit.launch'
         environment.launch_env(app_configuration.current_world)
 
     if config_data['tui']:
@@ -183,7 +195,7 @@ def main():
         pilot.start()
         logger.info('Executing app')
     else:
-        script_manager.run_brains_worlds(app_configuration, controller)
+        script_manager.run_brains_worlds(app_configuration, controller, random_init=config_data['random'])
         logger.info('closing all processes...')
         environment.close_gazebo()
         logger.info('DONE! Bye, bye :)')

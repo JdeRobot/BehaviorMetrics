@@ -35,7 +35,7 @@ from pilot import Pilot
 
 
     
-def launch_gazebo_no_gui(current_world, stats_perfect_lap):
+def launch_gazebo_no_gui(current_world, stats_perfect_lap, random_init=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
     root = tree.getroot()
@@ -51,13 +51,19 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
     root = tree.getroot()
     
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
-    random_index = random.randint(0,len(perfect_lap_checkpoints))
-    random_point = perfect_lap_checkpoints[random_index]
+
+    if random_init:
+        random_index = random.randint(0,len(perfect_lap_checkpoints))
+        random_point = perfect_lap_checkpoints[random_index]
     
-    random_orientation = random.randint(0, 1)
-    if random_orientation == 1:
-        orientation_z = -random_point['pose.pose.orientation.z']
+        random_orientation = random.randint(0, 1)
+        if random_orientation == 1:
+            orientation_z = -random_point['pose.pose.orientation.z']
+        else:
+            orientation_z = random_point['pose.pose.orientation.z']
+        
     else:
+        random_point = perfect_lap_checkpoints[0]
         orientation_z = random_point['pose.pose.orientation.z']
         
     random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3) , round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)*2.22])
@@ -86,9 +92,9 @@ def launch_gazebo_no_gui(current_world, stats_perfect_lap):
     time.sleep(5)
 
 
-def run_brains_worlds(app_configuration, controller):
+def run_brains_worlds(app_configuration, controller, random_init=False):
     # Start Behavior Metrics app
-    launch_gazebo_no_gui(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0])
+    launch_gazebo_no_gui(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], random_init=random_init)
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
