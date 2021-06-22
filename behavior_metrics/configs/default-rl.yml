@@ -16,22 +16,26 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1/brain_f1_torch.py'
-        Model: 'model_pilotnet_torch.ckpt'
-        Type: 'f1'
-    Experiment:
-        Name: "Experiment name"
-        Description: "Experiment description"
-        Timeout: 30
-        Repetitions: 2
+                    RL: True
+        BrainPath: 'brains/f1rl/train.py'
+        Type: 'f1rl'
+        Parameters:
+            action_set: 'hard'
+            gazebo_positions_set: 'pista_simple'
+            alpha: 0.2 
+            gamma: 0.9
+            epsilon: 0.99
+            total_episodes: 20000
+            epsilon_discount: 0.9986 
+            env: 'camera'
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch'
+        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: 'lap-many-curves.bag'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
     Layout:
         Frame_0:
             Name: frame_0

@@ -6,6 +6,7 @@
 *resources.py
 **/logs
 **.bag
+bag_analysis/
 core
 
 ### Python ###
