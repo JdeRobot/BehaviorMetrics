@@ -5,7 +5,7 @@
 ### project related
 *resources.py
 **/logs
-#**.bag
+**.bag
 bag_analysis/
 core
 
