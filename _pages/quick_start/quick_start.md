@@ -93,19 +93,19 @@ If you'd like to train your own brain, we provide you with the [datasets](/quick
 To run the application with GUI (Graphic User Interface) just run:
 
 ```bash
-python driver.py -c default.yml -g
+python driver.py -c ./configs/default.yml -g
 ```
 
 To run the application with TUI (Terminal User Interface) just run:
 
 ```bash
-python driver.py -c default.yml -t
+python driver.py -c ./configs/default.yml -t
 ```
 
 To run the application as an script to run several worlds/brains at the same time  run:
 
 ```bash
-python driver.py -c default-multiple.yml -s
+python driver.py -c ./configs/default-multiple.yml -s
 ```
 
 
@@ -122,7 +122,7 @@ pyrcc5 -o ui/gui/resources/resources.py ui/gui/resources/resources.qrc
 To launch the application just run the python script as follows:
 
 ```bash
-python driver.py -c default.yml -g
+python driver.py -c ./configs/default.yml -g
 ```
 
 This command will launch the application with the default configuration:
@@ -138,11 +138,9 @@ The program allows the following arguments:
 * `-g` or `--gui`: this argument is optional and enables the GUI launching. If not specified, it will show the TUI (terminal user interface).
 * `-t` or `--tui`: this argument is optional and enables the TUI.
 * `-s` or `--script`: this argument is optional and enables the scriptable application.
+* `-r` or `--random`: this argument is optional and enables initialization of the Formula-1 car at random positions on the circuit with random orientation.
 
 For more information run `help driver.py` in a terminal.
-
-
-
 
 
 ### Building your configuration file
@@ -291,6 +289,30 @@ press again to finish. After that, a general view of the stats should appear. Fo
 
 This script will load further information related with the execution.
 
+**Visualizing Brain Performances**
+
+The `behavior_metrics/show_plots.py` file uses the QtWindow to generate it runtime on the DISPLAY. So, the new script setup as found in `behavior_metrics/scripts/analyze_brain.bash` eases the overall process by first collecting the ROS bags with the confg file provided and then generates all the analysis plots. The argument for the analysis is the config file suitable for using with the `script` mode.
+
+```
+    bash scripts/analyze_brain.bash ./configs/default-multiple.yml
+``` 
+
+Finally, this saves everything at `behavior_metrics/bag_analysis/bag_analysis_plots/` directory sorted according to the different circuits. The current formulation of the saving plots analysis creates the following directory structure:
+
+```
+behavior_metrics/bag_analysis
+	+-- bag_analysis_plots/
+	|	+-- circuit_name/ 						
+	|   	+-- performances   
+	|   	|   +-- completed_distance.png
+	|   	|   +-- percentage_completed.png
+	|   	|   +-- lap_seconds.png	
+	|   	|   +-- circuit_diameter.png 		
+	|			|   +-- average_speed.png 
+	|   	+-- first_images/			
+	|		  +-- path_followed/ 					
+	+-- bags/ 
+```
 
 **Dataset**
 
