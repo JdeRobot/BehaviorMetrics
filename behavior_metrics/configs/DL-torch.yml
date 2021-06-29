@@ -25,13 +25,13 @@ Behaviors:
         Timeout: 30
         Repetitions: 2
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch'
+        World: '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: './perfect_bags/lap-many-curves.bag'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
     Layout:
         Frame_0:
             Name: frame_0
