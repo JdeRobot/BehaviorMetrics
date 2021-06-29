@@ -73,7 +73,7 @@ class Brain:
         self.cont += 1
         
         image = self.camera.getImage().data
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
         if self.cont == 1 and image.shape == (480, 640, 3):
             self.first_image = image
@@ -91,6 +91,7 @@ class Brain:
                 image = FLOAT(image).to(self.device)
                 prediction = self.net(image).numpy()
             self.inference_times.append(time.time() - start_time)
+            # prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]
             if prediction_w != '' and prediction_w != '':
