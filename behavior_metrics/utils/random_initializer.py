@@ -32,7 +32,7 @@ from utils import metrics
 from utils import environment
 from utils.logger import logger
     
-def tmp_random_initializer(current_world, stats_perfect_lap, gui=False, launch=False):
+def tmp_random_initializer(current_world, stats_perfect_lap, randomize=False, gui=False, launch=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
     root = tree.getroot()
@@ -51,16 +51,24 @@ def tmp_random_initializer(current_world, stats_perfect_lap, gui=False, launch=F
     root = tree.getroot()
     
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
-    random_index = random.randint(0,len(perfect_lap_checkpoints))
-    random_point = perfect_lap_checkpoints[random_index]
-    
-    random_orientation = random.randint(0, 1)
-    if random_orientation == 1:
-        orientation_z = -random_point['pose.pose.orientation.z']
-    else:
-        orientation_z = random_point['pose.pose.orientation.z']
+
+    if randomize:
+        random_index = random.randint(0,int(len(perfect_lap_checkpoints)/2))
+        random_point = perfect_lap_checkpoints[random_index]
         
-    random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3) , round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)*2.22])
+        random_orientation = random.randint(0, 1)
+        if random_orientation == 1:
+            orientation_z = random_point['pose.pose.orientation.z'] + np.random.normal(0, 0.1)
+        else:
+            orientation_z = random_point['pose.pose.orientation.z']
+    else:
+        random_index = 0
+        random_point = perfect_lap_checkpoints[random_index]
+        orientation_z = random_point['pose.pose.orientation.z']
+    
+    random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3) ,
+                                round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), 
+                                round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
     
     for child_1 in root[0]:
         if child_1.tag == 'include':

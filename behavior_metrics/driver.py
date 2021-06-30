@@ -174,7 +174,7 @@ def main():
     if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         if config_data['random']:
-            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, gui=True)
+            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, randomize=True, gui=True, launch=False)
             app_configuration.current_world = 'tmp_circuit.launch'
         environment.launch_env(app_configuration.current_world)
 
@@ -195,7 +195,7 @@ def main():
         pilot.start()
         logger.info('Executing app')
     else:
-        script_manager.run_brains_worlds(app_configuration, controller, random_init=config_data['random'])
+        script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
         logger.info('closing all processes...')
         environment.close_gazebo()
         logger.info('DONE! Bye, bye :)')
