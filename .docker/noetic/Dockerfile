@@ -42,6 +42,9 @@ RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
     cd CustomRobots/f1 && mkdir build && cd build && \
     /bin/bash -c "source /opt/ros/noetic/setup.bash; \
 		  cmake .. && make && make install;" && \
+    cd ../../drone && mkdir build && cd build && \
+    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+		  cmake .. && make && make install;" && \
     echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
