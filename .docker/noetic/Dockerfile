@@ -8,11 +8,22 @@ RUN apt-get update && apt-get install -y \
         cmake \
         icewm \
         git \
+        zip \
+        qtcreator \
         psmisc \
+        build-essential \
+        genromfs \
+        ninja-build \
+        exiftool \
         python3-setuptools \
         python3-pip \
+        python3-dev \
+        python-is-python3 \
         python3-rviz \
         python3-opengl \
+        python3-catkin-tools \
+        python3-osrf-pycommon \
+        python3-rosdep \
         pyqt5-dev-tools \
         tmux \
         vim \
@@ -43,6 +54,13 @@ RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
     /bin/bash -c "source /opt/ros/noetic/setup.bash; \
 		  cmake .. && make && make install;" && \
     echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
+
+# Installing DroneAssets
+RUN cd /root/ && \
+    git clone -b noetic-devel https://github.com/JdeRobot/drones && \
+    cd drones/drone_circuit_assets && mkdir build && cd build && \
+    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+		  cmake .. && make && make install;"
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
@@ -78,12 +96,69 @@ RUN apt-get update && apt-get install -y \
 	ros-noetic-eigen-conversions   \
 	ros-noetic-tf2-sensor-msgs     \
 	ros-noetic-pcl-ros \
-	ros-noetic-navigation && \
+	ros-noetic-navigation \
+    ros-noetic-mavros \
+    ros-noetic-mavros-extras && \
     cd root/BehaviorMetrics/gym-gazebo/ && \
     pip3 install -e . && \	
 #    ./load_env.sh && \
     apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
+
+RUN cd /root/ && \
+    wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh && \
+    chmod +x install_geographiclib_datasets.sh && \
+    sudo ./install_geographiclib_datasets.sh && \
+    rm ./install_geographiclib_datasets.sh
+
+RUN cd /root/ && \
+    mkdir /root/repos && cd /root/repos && \
+    git clone --recursive https://github.com/PX4/PX4-Autopilot.git -b v1.11.3 && \
+    cd /root/repos/PX4-Autopilot/Tools/setup/ && \
+    bash ubuntu.sh --no-nuttx --no-sim-tools
+
+RUN apt-get install -y \
+    libgstreamer1.0-dev \
+    gstreamer1.0-plugins-bad
+
+RUN cd /root/ && \
+    cd /root/repos/PX4-Autopilot && \
+    DONT_RUN=1 make px4_sitl gazebo
+
+RUN echo 'export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
+    echo 'export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo/models' >> /root/.bashrc && \
+    echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
+    echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
+    echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> ~/root/.bashrc && \
+    source /root/.bashrc
+
+RUN mkdir -p /root/catkin_ws/src && cd /root/catkin_ws && \
+    catkin init && \
+    echo 'export ROS_WORKSPACE=~/catkin_ws' >> /root/.bashrc && \
+    source /root/.bashrc && \
+    cd /root/repos && \
+    git clone https://github.com/JdeRobot/drones.git -b noetic-devel && \
+    roscd && cd src && \
+    ln -s /root/repos/drones/drone_wrapper . && \
+    ln -s /root/repos/drones/drone_assets . && \
+    ln -s /root/repos/drones/rqt_drone_teleop .
+
+RUN roscd && \
+    rm /etc/ros/rosdep/sources.list.d/20-default.list && \
+    sudo rosdep init && \
+    rosdep update && \
+    roscd && catkin build
+
+RUN roscd && \
+    echo 'source '$PWD'/devel/setup.bash' >> /root/.bashrc  && \
+    echo 'export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:/usr/share/gazebo-11' >> /root/.bashrc  && \
+    echo 'export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/repos/drones/drone_assets/models' >> /root/.bashrc  && \
+    echo 'export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
+    echo 'export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo/models' >> /root/.bashrc && \
+    echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
+    echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
+    echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> ~/root/.bashrc && \
+    source /root/.bashrc
 
 COPY ./vnc_startup.sh /
 
