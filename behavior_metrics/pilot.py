@@ -92,9 +92,7 @@ class Pilot(threading.Thread):
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
-        if hasattr(self.configuration, 'experiment_model'):
-            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
-        elif hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
+        if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
         else:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
@@ -143,21 +141,25 @@ class Pilot(threading.Thread):
                         logger.info(mean_inference_time)
                         logger.info(frame_rate)
                         logger.info('-------------------')
-                    except:
+                    except Exception as e:
+                        logger.error(e)
                         mean_inference_time = 0
                         frame_rate = 0
                         gpu_inferencing = False
-                        first_image = 0
+                        first_image = None
                         logger.info('No inference brain')
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
+                    logger.info(hasattr(self.controller, 'stats_filename'))
                     if hasattr(self.controller, 'stats_filename') and self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                         try:
+                            logger.info('Entering Stats into Bag')
                             self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image)
-                        except:
+                        except Exception as e:
                             logger.info('Empty ROS bag')
+                            logger.error(e)
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0

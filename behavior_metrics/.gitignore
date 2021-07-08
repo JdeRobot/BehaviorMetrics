@@ -6,6 +6,10 @@
 *resources.py
 **/logs
 **.bag
+bag_analysis/
+core
+tmp_*
+
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -111,3 +115,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom directories
+bags_analysis/
