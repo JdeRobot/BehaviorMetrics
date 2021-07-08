@@ -15,5 +15,5 @@ Robot:
                 Topic: '/F1ROS/cmd_vel'
                 MaxV: 3
                 MaxW: 0.3
-    BrainPath: 'brains/f1/brain_f1_opencv.py'
+    BrainPath: 'brains/f1/brain_f1_onnx_frivas.py'
     Type: 'formula1'
