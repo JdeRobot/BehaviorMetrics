@@ -55,13 +55,6 @@ RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
 		  cmake .. && make && make install;" && \
     echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
-# Installing DroneAssets
-RUN cd /root/ && \
-    git clone -b noetic-devel https://github.com/JdeRobot/drones && \
-    cd drones/drone_circuit_assets && mkdir build && cd build && \
-    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-		  cmake .. && make && make install;"
-
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
     echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc && \
@@ -138,7 +131,11 @@ RUN mkdir -p /root/catkin_ws/src && cd /root/catkin_ws && \
     source /root/.bashrc && \
     cd /root/repos && \
     git clone https://github.com/JdeRobot/drones.git -b noetic-devel && \
-    roscd && cd src && \
+    cd drones/drone_circuit_assets && mkdir build && cd build && \
+    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+		  cmake .. && make && make install;"
+
+RUN roscd && cd src && \
     ln -s /root/repos/drones/drone_wrapper . && \
     ln -s /root/repos/drones/drone_assets . && \
     ln -s /root/repos/drones/rqt_drone_teleop .
