@@ -123,39 +123,41 @@ RUN echo 'export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:~/repos/PX4-Autopilot/bu
     echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> /root/.bashrc && \
-    source /root/.bashrc
+    /bin/bash -c ". /opt/ros/noetic/setup.bash; source ~/.bashrc;"
 
-RUN mkdir -p /root/catkin_ws/src && cd /root/catkin_ws && \
-    catkin init && \
-    echo 'export ROS_WORKSPACE=~/catkin_ws' >> /root/.bashrc && \
-    source /root/.bashrc && \
-    cd /root/repos && \
-    git clone https://github.com/JdeRobot/drones.git -b noetic-devel && \
-    cd drones/drone_circuit_assets && mkdir build && cd build && \
+## Install jderobot_drones source
+RUN rm -rf /catkin_ws
+RUN mkdir -p /catkin_ws/src
+RUN cd /catkin_ws && catkin init
+RUN echo 'export ROS_WORKSPACE=/catkin_ws' >> ~/.bashrc
+
+RUN git clone https://github.com/JdeRobot/drones.git && cd drones && git checkout noetic-devel
+RUN cd /catkin_ws/src && ln -s /drones/drone_wrapper .
+RUN cd /catkin_ws/src && ln -s /drones/drone_assets . && \
+    ln -s /drones/rqt_drone_teleop .
+
+RUN cd /catkin_ws && \
+    rm /etc/ros/rosdep/sources.list.d/20-default.list && \
+    sudo rosdep init 
+
+RUN rosdep update && rosdep install --from-paths . --ignore-src --rosdistro noetic -y
+
+RUN /bin/bash -c '. /opt/ros/noetic/setup.bash; cd /catkin_ws; catkin build'
+
+RUN cd /drones/drone_circuit_assets && mkdir build && cd build && \
     /bin/bash -c "source /opt/ros/noetic/setup.bash; \
 		  cmake .. && make && make install;"
 
-RUN roscd && cd src && \
-    ln -s /root/repos/drones/drone_wrapper . && \
-    ln -s /root/repos/drones/drone_assets . && \
-    ln -s /root/repos/drones/rqt_drone_teleop .
-
-RUN roscd && \
-    rm /etc/ros/rosdep/sources.list.d/20-default.list && \
-    sudo rosdep init && \
-    rosdep update && \
-    roscd && catkin build
-
-RUN roscd && \
+RUN cd /catkin_ws/ && \
     echo 'source '$PWD'/devel/setup.bash' >> /root/.bashrc  && \
     echo 'export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:/usr/share/gazebo-11' >> /root/.bashrc  && \
-    echo 'export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/repos/drones/drone_assets/models' >> /root/.bashrc  && \
+    echo 'export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:/drones/drone_assets/models' >> /root/.bashrc  && \
     echo 'export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
     echo 'export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo/models' >> /root/.bashrc && \
     echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> /root/.bashrc && \
-    source /root/.bashrc
+    /bin/bash -c ". /opt/ros/noetic/setup.bash; source ~/.bashrc;"
 
 COPY ./vnc_startup.sh /
 
