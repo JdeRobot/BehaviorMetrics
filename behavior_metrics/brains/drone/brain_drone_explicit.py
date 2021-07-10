@@ -7,7 +7,14 @@ import threading
 import time
 import cv2
 
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from os import path
+import json
+
+# SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
+
 TARGET_HEIGHT = 1
+TARGET_LANE_WIDTH = 0.05
 
 class Brain:
 
@@ -15,12 +22,15 @@ class Brain:
         self.drone = DroneWrapper()
         self.handler = handler
         # self.drone.takeoff()
+        self.takeoff = False
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
         self.iteration = 0
-        #self.json_data = []
+        self.initial_height_reached = False
+        self.json_data = []
         self.lock = threading.Lock()
+        self.last_lane_width = 0.5
 
     def update_frame(self, frame_id, data):
         self.handler.update_frame(frame_id, data)
@@ -93,10 +103,9 @@ class Brain:
 
     def execute(self):
 
-        self.iteration += 1
-
-        if self.iteration == 1:
+        if self.iteration == 0 and not self.takeoff:
             self.drone.takeoff()
+            self.takeoff = True
 
         img_frontal = self.drone.get_frontal_image()
         img_ventral = self.drone.get_ventral_image()
@@ -107,7 +116,7 @@ class Brain:
             
         self.update_frame('frame_0', img_frontal)
         self.update_frame('frame_1', img_ventral)
-
+        
         image = img_frontal
         
         try:
@@ -121,6 +130,15 @@ class Brain:
             
             rows, cols = image_mask.shape
             rows = rows - 1     # para evitar desbordamiento
+
+            height_mask = image_mask[9:,:]/255
+            white_region = np.where(height_mask[0,:]==1)[0]
+
+            if white_region.shape[0] > 0:
+                lane_width = (white_region[-1] - white_region[0])/cols
+                self.last_lane_width = lane_width
+            else:
+                lane_width = self.last_lane_width
 
             alt = 0
             ff = cv2.reduce(image_mask, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32S)
@@ -162,6 +180,7 @@ class Brain:
                 # If the row below has been lost we have a different case, which we treat as an exception
                 if not_found_down == True:
                     speed, rotation = self.exception_case(x_middle_left_middle, deviation)
+                    lane_width = 0
                 else:
                     # We check is formula 1 is in curve or straight
                     dif = x_middle_left_down - self.x_middle_left_above
@@ -181,17 +200,22 @@ class Brain:
                 else:
                     rotation = 1
                 speed = -0.6
+                lane_width = 0
 
-            height = self.drone.get_position()[2]
-
-            if abs(height - TARGET_HEIGHT) > 0.2:
+            if abs(self.getPose3d()[2] - TARGET_HEIGHT) > 0.2:
                 speed = 0
                 rotation = 0
 
             curr_vel_z = self.drone.get_velocity()[2]
-            speed_z = (TARGET_HEIGHT - height) - 0.3*curr_vel_z
+            speed_z = 2*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
 
-            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, speed_z, rotation)
+            # self.json_data.append({'iter': self.iteration, 'v': speed, 'w': rotation, 'vz': speed_z})
+            # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
+            #     json.dump(self.json_data, outfile)
+
+            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, np.clip(speed_z,-1,1), rotation)
+
+            self.iteration += 1
             
         except Exception as err:
             print(err)
