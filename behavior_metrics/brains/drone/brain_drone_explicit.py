@@ -14,7 +14,7 @@ import json
 # SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
 TARGET_HEIGHT = 1
-TARGET_LANE_WIDTH = 0.05
+TARGET_LANE_WIDTH = 0.04
 
 class Brain:
 
@@ -106,6 +106,7 @@ class Brain:
         if self.iteration == 0 and not self.takeoff:
             self.drone.takeoff()
             self.takeoff = True
+            self.initial_flight_done = False
 
         img_frontal = self.drone.get_frontal_image()
         img_ventral = self.drone.get_ventral_image()
@@ -180,7 +181,7 @@ class Brain:
                 # If the row below has been lost we have a different case, which we treat as an exception
                 if not_found_down == True:
                     speed, rotation = self.exception_case(x_middle_left_middle, deviation)
-                    lane_width = 0
+                    lane_width = self.last_lane_width
                 else:
                     # We check is formula 1 is in curve or straight
                     dif = x_middle_left_down - self.x_middle_left_above
@@ -200,14 +201,21 @@ class Brain:
                 else:
                     rotation = 1
                 speed = -0.6
-                lane_width = 0
+                lane_width = self.last_lane_width
 
-            if abs(self.getPose3d()[2] - TARGET_HEIGHT) > 0.2:
+            pitch = self.drone.get_pitch()
+
+            if abs(self.getPose3d()[2] - TARGET_HEIGHT) > 0.2 or not self.initial_flight_done:
                 speed = 0
                 rotation = 0
+                curr_vel_z = self.drone.get_velocity()[2]
+                speed_z = -(self.getPose3d()[2] - TARGET_HEIGHT) - 0.3*curr_vel_z
+                self.initial_flight_done = True
+            else:
+                curr_vel_z = self.drone.get_velocity()[2]
+                speed_z = -2*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
 
-            curr_vel_z = self.drone.get_velocity()[2]
-            speed_z = 2*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
+            print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
             # self.json_data.append({'iter': self.iteration, 'v': speed, 'w': rotation, 'vz': speed_z})
             # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
