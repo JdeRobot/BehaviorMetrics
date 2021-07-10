@@ -133,8 +133,8 @@ RUN echo 'export ROS_WORKSPACE=/catkin_ws' >> ~/.bashrc
 
 RUN git clone https://github.com/JdeRobot/drones.git && cd drones && git checkout noetic-devel
 RUN cd /catkin_ws/src && ln -s /drones/drone_wrapper .
-RUN cd /catkin_ws/src && ln -s /drones/drone_assets . && \
-    ln -s /drones/rqt_drone_teleop .
+RUN cd /catkin_ws/src && ln -s /drones/drone_assets .
+RUN cd /catkin_ws/src && ln -s /drones/rqt_drone_teleop .
 
 RUN cd /catkin_ws && \
     rm /etc/ros/rosdep/sources.list.d/20-default.list && \
@@ -157,7 +157,7 @@ RUN cd /catkin_ws/ && \
     echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> /root/.bashrc && \
-    /bin/bash -c ". /opt/ros/noetic/setup.bash; source ~/.bashrc;"
+    /bin/bash -c ". source ~/.bashrc;"
 
 COPY ./vnc_startup.sh /
 

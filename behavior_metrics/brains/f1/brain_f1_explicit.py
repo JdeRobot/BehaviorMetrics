@@ -13,10 +13,10 @@ import cv2
 
 class Brain:
 
-    def __init__(self): #, sensors, actuators, handler):
-        # self.camera = sensors.get_camera('camera_0')
-        # self.motors = actuators.get_motor('motors_0')
-        # self.handler = handler
+    def __init__(self, sensors, actuators, handler):
+        self.camera = sensors.get_camera('camera_0')
+        self.motors = actuators.get_motor('motors_0')
+        self.handler = handler
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -24,14 +24,14 @@ class Brain:
         #self.json_data = []
         self.lock = threading.Lock()
         
-    # def update_frame(self, frame_id, data):
-    #     """Update the information to be shown in one of the GUI's frames.
+    def update_frame(self, frame_id, data):
+        """Update the information to be shown in one of the GUI's frames.
 
-    #     Arguments:
-    #         frame_id {str} -- Id of the frame that will represent the data
-    #         data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
-    #     """
-    #     self.handler.update_frame(frame_id, data)
+        Arguments:
+            frame_id {str} -- Id of the frame that will represent the data
+            data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
+        """
+        self.handler.update_frame(frame_id, data)
 
     def check_center(self, position_x):
         if (len(position_x[0]) > 1):
@@ -97,14 +97,14 @@ class Brain:
         return int(mid)
 
 
-    def execute(self, image):
-        # image = self.camera.getImage().data
+    def execute(self):
+        image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
             
-        # self.update_frame('frame_0', image)
-        # cv2.imwrite(PRETRAINED_MODELS + 'montmelo_data/' + str(self.iteration) + '.jpg', image) 
-        # self.iteration += 1
+        self.update_frame('frame_0', image)
+        #cv2.imwrite(PRETRAINED_MODELS + 'montmelo_data/' + str(self.iteration) + '.jpg', image) 
+        #self.iteration += 1
         
         try:
             image_cropped = image[230:, :, :]
@@ -178,10 +178,11 @@ class Brain:
                     rotation = 1
                 speed = -0.6
 
-            # self.motors.sendV(speed)   
-            # self.motors.sendW(rotation)
-            
-            return speed, rotation
+            self.motors.sendV(speed)   
+            self.motors.sendW(rotation)
+            #self.json_data.append({'v': speed, 'w': rotation})
+            #with open(PRETRAINED_MODELS + 'montmelo_data/data.json', 'w') as outfile:
+                #json.dump(self.json_data, outfile)
             
         except Exception as err:
             print(err)
