@@ -203,7 +203,7 @@ class Brain:
                     rotation = -1
                 else:
                     rotation = 1
-                speed = -0.6
+                speed = 0.1
                 lane_width = 0.5
 
             pitch = self.drone.get_pitch()
@@ -216,9 +216,10 @@ class Brain:
                 self.initial_flight_done = True
             else:
                 curr_vel_z = self.drone.get_velocity()[2]
-                speed_z = -3*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
+                speed_z = -3*(TARGET_LANE_WIDTH - lane_width) - 0.2*curr_vel_z
 
-            print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
+            # print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(
+            #     self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
             # self.json_data.append({'iter': self.iteration, 'v': speed, 'w': rotation, 'vz': speed_z})
             # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
