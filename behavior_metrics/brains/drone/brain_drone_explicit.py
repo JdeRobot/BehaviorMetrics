@@ -132,7 +132,10 @@ class Brain:
             rows, cols = image_mask.shape
             rows = rows - 1     # para evitar desbordamiento
 
-            height_mask = image_mask[9:,:]/255
+            lower_red_height = np.array([0,50,200])
+            upper_red_height = np.array([180,255,255])
+            height_mask_image = cv2.inRange(image_hsv, lower_red_height, upper_red_height)
+            height_mask = height_mask_image[9:,:]/255
             white_region = np.where(height_mask[0,:]==1)[0]
 
             if white_region.shape[0] > 0:
@@ -181,7 +184,7 @@ class Brain:
                 # If the row below has been lost we have a different case, which we treat as an exception
                 if not_found_down == True:
                     speed, rotation = self.exception_case(x_middle_left_middle, deviation)
-                    lane_width = self.last_lane_width
+                    lane_width = 0.5 #self.last_lane_width
                 else:
                     # We check is formula 1 is in curve or straight
                     dif = x_middle_left_down - self.x_middle_left_above
@@ -201,7 +204,7 @@ class Brain:
                 else:
                     rotation = 1
                 speed = -0.6
-                lane_width = self.last_lane_width
+                lane_width = 0.5
 
             pitch = self.drone.get_pitch()
 
@@ -213,7 +216,7 @@ class Brain:
                 self.initial_flight_done = True
             else:
                 curr_vel_z = self.drone.get_velocity()[2]
-                speed_z = -2*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
+                speed_z = -3*(TARGET_LANE_WIDTH - lane_width) - 0.3*curr_vel_z
 
             print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
@@ -221,7 +224,7 @@ class Brain:
             # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
             #     json.dump(self.json_data, outfile)
 
-            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, np.clip(speed_z,-1,1), rotation)
+            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, np.clip(speed_z,-2,2), rotation)
 
             self.iteration += 1
             
