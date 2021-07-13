@@ -93,8 +93,8 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-mavros \
     ros-noetic-mavros-extras && \
     cd root/BehaviorMetrics/gym-gazebo/ && \
-    pip3 install -e . && \	
-#    ./load_env.sh && \
+    pip3 install -e . && \
+    pip3 install rospkg --upgrade && \
     apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
@@ -136,11 +136,11 @@ RUN cd /catkin_ws/src && ln -s /drones/drone_wrapper .
 RUN cd /catkin_ws/src && ln -s /drones/drone_assets .
 RUN cd /catkin_ws/src && ln -s /drones/rqt_drone_teleop .
 
-RUN cd /catkin_ws && \
+RUN /bin/bash -c '. /opt/ros/noetic/setup.bash' && cd /catkin_ws && \
     rm /etc/ros/rosdep/sources.list.d/20-default.list && \
     sudo rosdep init 
 
-RUN rosdep update && rosdep install --from-paths . --ignore-src --rosdistro noetic -y
+# RUN rosdep update && rosdep install --from-paths . --ignore-src --rosdistro noetic -y
 
 RUN /bin/bash -c '. /opt/ros/noetic/setup.bash; cd /catkin_ws; catkin build'
 
@@ -157,7 +157,7 @@ RUN cd /catkin_ws/ && \
     echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/repos/PX4-Autopilot/build/px4_sitl_default/build_gazebo' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot' >> /root/.bashrc && \
     echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/repos/PX4-Autopilot/Tools/sitl_gazebo' >> /root/.bashrc && \
-    /bin/bash -c ". source ~/.bashrc;"
+    /bin/bash -c ". ~/.bashrc;"
 
 COPY ./vnc_startup.sh /
 
