@@ -42,12 +42,15 @@ class Brains(object):
                 del sys.modules[import_name]
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
-            if model: 
-                self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self)
-            elif hasattr(self, 'model'):
-                self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self)
-            else: 
-                self.active_brain = Brain(self.sensors, self.actuatrors, handler=self)
+            if robot_type == 'drone':
+                self.active_brain = Brain(handler=self)
+            else:
+                if model: 
+                    self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self)
+                elif hasattr(self, 'model'):
+                    self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self)
+                else: 
+                    self.active_brain = Brain(self.sensors, self.actuatrors, handler=self)
 
     def get_image(self, camera_name):
         camera = self.sensors.get_camera(camera_name)

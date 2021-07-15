@@ -61,12 +61,17 @@ class Pilot(threading.Thread):
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
         self.brain_path = brain_path
+        self.robot_type = self.brain_path.split("/")[-2]
         self.sensors = None
         self.actuators = None
         self.brains = None
         self.initialize_robot()
-        self.pose3d = self.sensors.get_pose3d('pose3d_0')
-        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        if self.robot_type == 'drone':
+            self.pose3d = self.brains.active_brain.getPose3d()
+            self.start_pose = np.array([self.pose3d[0], self.pose3d[1]])
+        else:
+            self.pose3d = self.sensors.get_pose3d('pose3d_0')
+            self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
         self.previous = datetime.now()
         self.checkpoints = []
         self.metrics = {}
@@ -90,8 +95,9 @@ class Pilot(threading.Thread):
     def initialize_robot(self):
         """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
         self.stop_interfaces()
-        self.actuators = Actuators(self.configuration.actuators)
-        self.sensors = Sensors(self.configuration.sensors)
+        if self.robot_type != 'drone':
+            self.actuators = Actuators(self.configuration.actuators)
+            self.sensors = Sensors(self.configuration.sensors)
         if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
         else:
