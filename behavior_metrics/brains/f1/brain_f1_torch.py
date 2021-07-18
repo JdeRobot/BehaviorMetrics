@@ -81,7 +81,7 @@ class Brain:
             self.cont = 0
 
         try:
-            #image = image[240:480, 0:640]
+            image = image[240:480, 0:640]
             show_image = image
             img = cv2.resize(image, (int(200), int(66)))
             img = Image.fromarray(img)

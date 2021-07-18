@@ -6,12 +6,12 @@ import numpy as np
 import threading
 import time
 import cv2
-
+from collections import deque
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 import json
 
-# SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
+SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
 TARGET_HEIGHT = 1
 TARGET_LANE_WIDTH = 0.04
@@ -23,6 +23,8 @@ class Brain:
         self.handler = handler
         # self.drone.takeoff()
         self.takeoff = False
+
+        self.speed_history = deque([0]*100, maxlen=100)
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -61,20 +63,20 @@ class Brain:
         else:
             rotation = -(0.0065 * deviation + 0.0005 * (deviation - self.deviation_left))
 
-        speed = 5
+        speed = 2
         return speed, rotation
 
 
     def straight_case(self, deviation, dif):
         if (abs(dif) < 35):
             rotation = -(0.0054 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 13
+            speed = 2
         elif (abs(dif) < 90):
             rotation = -(0.0052 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 11
+            speed = 1.5
         else:
             rotation = -(0.0049 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 9
+            speed = 1
 
         return speed, rotation
 
@@ -90,7 +92,7 @@ class Brain:
         else:
             rotation = -(0.0075 * deviation + 0.0005 * (deviation - self.deviation_left))
 
-        speed = 5
+        speed = 2
         return speed, rotation
     
     def get_point(self, index, img):
@@ -221,11 +223,16 @@ class Brain:
             # print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(
             #     self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
-            # self.json_data.append({'iter': self.iteration, 'v': speed, 'w': rotation, 'vz': speed_z})
-            # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
-            #     json.dump(self.json_data, outfile)
+            self.speed_history.append(speed)
 
-            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, np.clip(speed_z,-2,2), rotation)
+            speed_cmd = np.mean(self.speed_history)
+            speed_z_cmd = np.clip(speed_z,-2,2)
+
+            self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd, 'p': pitch})
+            with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
+                json.dump(self.json_data, outfile)
+
+            self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation)
 
             self.iteration += 1
             
