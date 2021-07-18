@@ -24,7 +24,8 @@ class Brain:
         # self.drone.takeoff()
         self.takeoff = False
 
-        self.speed_history = deque([0]*100, maxlen=100)
+        self.speed_history = deque([], maxlen=100)
+        self.speedz_history = deque([0]*100, maxlen=100)
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -226,6 +227,7 @@ class Brain:
             #     self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
             self.speed_history.append(speed)
+            self.speedz_history.append(speed_z)
 
             speed_cmd = np.mean(self.speed_history)
             speed_z_cmd = np.clip(speed_z,-2,2)
