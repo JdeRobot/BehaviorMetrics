@@ -20,13 +20,13 @@ Behaviors:
         BrainPath: 'brains/drone/brain_drone_explicit.py'
         Type: 'drone'
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/many_curves_drone.launch
+        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_drone.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: './perfect_bags/lap-many-curves.bag'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
     Layout:
         Frame_0:
             Name: frame_0

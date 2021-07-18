@@ -13,8 +13,8 @@ import json
 
 SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
-TARGET_HEIGHT = 1
-TARGET_LANE_WIDTH = 0.04
+TARGET_HEIGHT = 0.8
+TARGET_LANE_WIDTH = 0.06
 
 class Brain:
 
@@ -123,6 +123,8 @@ class Brain:
         image = img_frontal
         
         try:
+            #cv2.imwrite(SAVE_DIR + 'many_curves_data/Images/image{}.png'.format(self.iteration), cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            #print('written many_curves_data/Images/image{}.png'.format(self.iteration))
             image_cropped = image[230:, :, :]
             image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2HSV)
             lower_red = np.array([0,50,50])
@@ -134,7 +136,7 @@ class Brain:
             rows, cols = image_mask.shape
             rows = rows - 1     # para evitar desbordamiento
 
-            lower_red_height = np.array([0,50,200])
+            lower_red_height = np.array([0,50,200]) #np.array([110,200,115]) #np.array([0,50,200])
             upper_red_height = np.array([180,255,255])
             height_mask_image = cv2.inRange(image_hsv, lower_red_height, upper_red_height)
             height_mask = height_mask_image[9:,:]/255
@@ -228,9 +230,9 @@ class Brain:
             speed_cmd = np.mean(self.speed_history)
             speed_z_cmd = np.clip(speed_z,-2,2)
 
-            self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd, 'p': pitch})
-            with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
-                json.dump(self.json_data, outfile)
+            #self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd, 'p': pitch})
+            #with open(SAVE_DIR + 'many_curves_data/data.json', 'w') as outfile:
+            #    json.dump(self.json_data, outfile)
 
             self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation)
 
