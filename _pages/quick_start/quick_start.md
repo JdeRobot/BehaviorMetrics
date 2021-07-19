@@ -142,6 +142,12 @@ The program allows the following arguments:
 
 For more information run `help driver.py` in a terminal.
 
+Furthermore, the iris drone counterparts are based on `JdeRobot/drones` and the corresponding DroneWrapper. All low level drone control and reading sensor data functionalities can be directly used from the wrapper. To launch a similar case of simulating the line following task based on OpenCV for drones, execute:
+
+```bash
+python driver.py -c ./configs/default-drone.yml -g
+```
+
 
 ### Building your configuration file
 
