@@ -6,15 +6,15 @@ import numpy as np
 import threading
 import time
 import cv2
-
+from collections import deque
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 import json
 
-# SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
+SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
-TARGET_HEIGHT = 1
-TARGET_LANE_WIDTH = 0.04
+TARGET_HEIGHT = 0.8
+TARGET_LANE_WIDTH = 0.06
 
 class Brain:
 
@@ -23,6 +23,9 @@ class Brain:
         self.handler = handler
         # self.drone.takeoff()
         self.takeoff = False
+
+        self.speed_history = deque([], maxlen=100)
+        self.speedz_history = deque([0]*100, maxlen=100)
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -61,20 +64,20 @@ class Brain:
         else:
             rotation = -(0.0065 * deviation + 0.0005 * (deviation - self.deviation_left))
 
-        speed = 5
+        speed = 2
         return speed, rotation
 
 
     def straight_case(self, deviation, dif):
         if (abs(dif) < 35):
             rotation = -(0.0054 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 13
+            speed = 2
         elif (abs(dif) < 90):
             rotation = -(0.0052 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 11
+            speed = 1.5
         else:
             rotation = -(0.0049 * deviation + 0.0005 * (deviation - self.deviation_left))
-            speed = 9
+            speed = 1
 
         return speed, rotation
 
@@ -90,7 +93,7 @@ class Brain:
         else:
             rotation = -(0.0075 * deviation + 0.0005 * (deviation - self.deviation_left))
 
-        speed = 5
+        speed = 2
         return speed, rotation
     
     def get_point(self, index, img):
@@ -121,6 +124,8 @@ class Brain:
         image = img_frontal
         
         try:
+            #cv2.imwrite(SAVE_DIR + 'many_curves_data/Images/image{}.png'.format(self.iteration), cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            #print('written many_curves_data/Images/image{}.png'.format(self.iteration))
             image_cropped = image[230:, :, :]
             image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2HSV)
             lower_red = np.array([0,50,50])
@@ -132,7 +137,7 @@ class Brain:
             rows, cols = image_mask.shape
             rows = rows - 1     # para evitar desbordamiento
 
-            lower_red_height = np.array([0,50,200])
+            lower_red_height = np.array([0,50,200]) #np.array([110,200,115]) #np.array([0,50,200])
             upper_red_height = np.array([180,255,255])
             height_mask_image = cv2.inRange(image_hsv, lower_red_height, upper_red_height)
             height_mask = height_mask_image[9:,:]/255
@@ -221,11 +226,17 @@ class Brain:
             # print("Status: Height->{} | Observed Lane Width->{} | Z-vel->{} | cmd_vel_z->{} | pitch->{}".format(
             #     self.getPose3d()[2], lane_width, curr_vel_z, speed_z, np.degrees(pitch)))
 
-            # self.json_data.append({'iter': self.iteration, 'v': speed, 'w': rotation, 'vz': speed_z})
-            # with open(SAVE_DIR + 'simple_circuit_data/data.json', 'w') as outfile:
-            #     json.dump(self.json_data, outfile)
+            self.speed_history.append(speed)
+            self.speedz_history.append(speed_z)
 
-            self.drone.set_cmd_vel(np.clip(speed,0,2), 0, np.clip(speed_z,-2,2), rotation)
+            speed_cmd = np.mean(self.speed_history)
+            speed_z_cmd = np.clip(speed_z,-2,2)
+
+            #self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd, 'p': pitch})
+            #with open(SAVE_DIR + 'many_curves_data/data.json', 'w') as outfile:
+            #    json.dump(self.json_data, outfile)
+
+            self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation)
 
             self.iteration += 1
             

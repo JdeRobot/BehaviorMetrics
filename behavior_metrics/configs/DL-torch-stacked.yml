@@ -17,7 +17,7 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/f1/brain_f1_torchstacked.py'
-        Model: 'model_pilotnet_torch_h2.ckpt'
+        Model: 'model_pilotnet_torch_h2_extreme.ckpt'
         Type: 'f1'
     Experiment:
         Name: "Experiment name"

@@ -103,7 +103,7 @@ class Brain:
                 prediction = self.net(stacked_image).numpy()
             self.inference_times.append(time.time() - start_time)
             # prediction_v = prediction[0][0]*6.5
-            prediction_v = prediction[0][0]/2
+            prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
