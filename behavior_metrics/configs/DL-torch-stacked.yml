@@ -20,7 +20,7 @@ Behaviors:
         Parameters:
             Model: 'model_pilotnet_torch_h2_extreme.ckpt'
             ImageCrop: True
-            Horizon: 3
+            Horizon: 2
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
