@@ -10,15 +10,15 @@ import os
 
 class Brains(object):
 
-    def __init__(self, sensors, actuatrors, brain_path, controller, config=None):
+    def __init__(self, sensors, actuatrors, brain_path, controller, model=None, config=None):
 
         self.sensors = sensors
         self.actuatrors = actuatrors
         self.controller = controller
         self.brain_path = brain_path
         self.config = config
-        if config:
-            self.model = self.config.experiment_model
+        if model:
+            self.model = model
         try:
             if brain_path:
                 self.load_brain(brain_path)
