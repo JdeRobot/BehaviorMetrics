@@ -23,7 +23,7 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
-    def __init__(self, sensors, actuators, model=None, handler=None):
+    def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         """Constructor of the class.
 
         Arguments:

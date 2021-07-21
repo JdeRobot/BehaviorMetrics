@@ -27,7 +27,7 @@ FLOAT = torch.FloatTensor
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
-    def __init__(self, sensors, actuators, model=None, handler=None):
+    def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         """Constructor of the class.
 
         Arguments:
@@ -49,6 +49,13 @@ class Brain:
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
                                     ])
+
+        if config:
+            if 'ImageCrop' in config.keys():
+                self.cropImage = config['ImageCrop']
+            else:
+                self.cropImage = True
+
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -81,7 +88,8 @@ class Brain:
             self.cont = 0
 
         try:
-            image = image[240:480, 0:640]
+            if self.cropImage:
+                image = image[240:480, 0:640]
             show_image = image
             img = cv2.resize(image, (int(200), int(66)))
             img = Image.fromarray(img)

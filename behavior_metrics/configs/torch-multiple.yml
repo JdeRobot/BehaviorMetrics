@@ -17,7 +17,8 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: ['brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py']
-        Model: ['model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt']
+        Parameters:
+            Model: ['model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt']
         Type: 'f1'
     Experiment:
         Name: "Experiment name"

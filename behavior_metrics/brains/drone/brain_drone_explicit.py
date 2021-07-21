@@ -18,7 +18,7 @@ TARGET_LANE_WIDTH = 0.06
 
 class Brain:
 
-    def __init__(self, handler=None):
+    def __init__(self, handler=None, config=None):
         self.drone = DroneWrapper()
         self.handler = handler
         # self.drone.takeoff()

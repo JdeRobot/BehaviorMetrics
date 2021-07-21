@@ -10,14 +10,15 @@ import os
 
 class Brains(object):
 
-    def __init__(self, sensors, actuatrors, brain_path, controller, model=None):
+    def __init__(self, sensors, actuatrors, brain_path, controller, config=None):
 
         self.sensors = sensors
         self.actuatrors = actuatrors
         self.controller = controller
         self.brain_path = brain_path
-        if model:
-            self.model = model
+        self.config = config
+        if config:
+            self.model = self.config.experiment_model
         try:
             if brain_path:
                 self.load_brain(brain_path)
@@ -43,14 +44,14 @@ class Brains(object):
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
             if robot_type == 'drone':
-                self.active_brain = Brain(handler=self)
+                self.active_brain = Brain(handler=self, config=self.config)
             else:
                 if model: 
-                    self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self)
+                    self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self, config=self.config)
                 elif hasattr(self, 'model'):
-                    self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self)
+                    self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self, config=self.config)
                 else: 
-                    self.active_brain = Brain(self.sensors, self.actuatrors, handler=self)
+                    self.active_brain = Brain(self.sensors, self.actuatrors, handler=self, config=self.config)
 
     def get_image(self, camera_name):
         camera = self.sensors.get_camera(camera_name)

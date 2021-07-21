@@ -17,7 +17,9 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/f1/brain_f1_torch.py'
-        Model: 'model_pilotnet_torch_extreme.ckpt'
+        Parameters:
+            Model: 'model_pilotnet_torch_extreme.ckpt'
+            ImageCrop: True
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
