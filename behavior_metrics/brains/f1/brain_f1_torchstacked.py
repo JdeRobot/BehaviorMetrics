@@ -44,7 +44,11 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.device = torch.device("cpu")
+        try:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #torch.device("cpu")
+        except Exception as e:
+            self.device = torch.device("cpu")
+
         self.gpu_inferencing = torch.cuda.is_available()
         self.first_image = None
         if config:
@@ -112,7 +116,7 @@ class Brain:
 
             with torch.no_grad():
                 stacked_image = FLOAT(stacked_image.unsqueeze(0)).to(self.device)
-                prediction = self.net(stacked_image).numpy()
+                prediction = self.net(stacked_image).cpu().numpy()
             self.inference_times.append(time.time() - start_time)
             # prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]
