@@ -44,10 +44,7 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        try:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #torch.device("cpu")
-        except Exception as e:
-            self.device = torch.device("cpu")
+        self.device = torch.device("cpu")
 
         self.gpu_inferencing = torch.cuda.is_available()
         self.first_image = None
