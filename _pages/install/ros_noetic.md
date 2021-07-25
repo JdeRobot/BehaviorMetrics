@@ -101,8 +101,8 @@ sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install python3.7
 
 # Create virtualenv
-virtualenv -p python3.7 .behavior-studio
-source .behavior-studio/bin/activate
+virtualenv -p python3.7 .behavior-metrics
+source .behavior-metrics/bin/activate
 pip install empy
 sudo apt-get install python3.7-dev
 ```
