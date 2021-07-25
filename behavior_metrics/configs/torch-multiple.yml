@@ -19,6 +19,7 @@ Behaviors:
         BrainPath: ['brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py', 'brains/f1/brain_f1_torch.py']
         Parameters:
             Model: ['model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt', 'model_pilotnet_torch.ckpt']
+            ImageCrop: True
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
