@@ -148,8 +148,8 @@ pip3 install -r requirements.txt
 If you are going to use the GUI you need to create the resources file for the application. 
 
 ```bash
-pyrcc5 -o behavior_studio/ui/gui/resources/resources.py \
-	behavior_studio/ui/gui/resources/resources.qrc
+pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
+	ehavior_metrics/ui/gui/resources/resources.qrc
 ```
 
 ### Reinforcement Learning
