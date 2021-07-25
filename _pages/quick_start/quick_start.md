@@ -243,6 +243,19 @@ Following this logic, you will see that the **default configuration** file will 
 
 {% include gallery id="gallery4" caption="" %}
 
+**Custom Brain parameters**
+
+Some parameters for custom brains can be set up directly from the *yml* file below the type of the robot which in this example is *f1*. This format is used to setup paths for trained models and any brain kwargs required by the user.
+
+```yml
+BrainPath: 'brains/f1/brain_f1_torch.py'
+Type: 'f1'
+Parameters:
+    Model: 'trained_model_name.checkpoint'
+    ImageCrop: True 
+    ParamExtra: {Specify value}
+```     
+
 **Reinforcement Learning parameters**
 
 Optionally some parameters for reinforcement learning can be set up directly from the *yml* file below the type of the robot which in this example is *f1rl*.
