@@ -7,11 +7,11 @@ import threading
 import time
 import cv2
 from collections import deque
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+#from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 import json
 
-SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
+#SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
 TARGET_HEIGHT = 0.8
 TARGET_LANE_WIDTH = 0.06
@@ -150,7 +150,7 @@ class Brain:
         image = img_frontal
         
         try:
-            cv2.imwrite(SAVE_DIR + 'many_curves_data/Images/image{}.png'.format(self.iteration), cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            #cv2.imwrite(SAVE_DIR + 'many_curves_data/Images/image{}.png'.format(self.iteration), cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             #print('written many_curves_data/Images/image{}.png'.format(self.iteration))
             image_cropped = image[230:, :, :]
             image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2HSV)
@@ -258,9 +258,9 @@ class Brain:
             speed_z_cmd = np.clip(speed_z,-2,2)
             rotation_cmd = np.mean(self.rot_history)
 
-            self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd})
-            with open(SAVE_DIR + 'many_curves_data/data.json', 'w') as outfile:
-                json.dump(self.json_data, outfile)
+            #self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd})
+            #with open(SAVE_DIR + 'many_curves_data/data.json', 'w') as outfile:
+            #    json.dump(self.json_data, outfile)
 
             self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation_cmd)
 
