@@ -13,7 +13,7 @@ import cv2
 
 class Brain:
 
-    def __init__(self, sensors, actuators, handler):
+    def __init__(self, sensors, actuators, handler, config=None):
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler

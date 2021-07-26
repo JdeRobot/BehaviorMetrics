@@ -7,18 +7,18 @@ import threading
 import time
 import cv2
 from collections import deque
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+#from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 import json
 
-SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
+#SAVE_DIR = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'drone_models/'
 
 TARGET_HEIGHT = 0.8
 TARGET_LANE_WIDTH = 0.06
 
 class Brain:
 
-    def __init__(self, handler=None):
+    def __init__(self, handler=None, config=None):
         self.drone = DroneWrapper()
         self.handler = handler
         # self.drone.takeoff()
@@ -26,6 +26,7 @@ class Brain:
 
         self.speed_history = deque([], maxlen=100)
         self.speedz_history = deque([0]*100, maxlen=100)
+        self.rot_history = deque([], maxlen=1)
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -70,30 +71,30 @@ class Brain:
 
     def straight_case(self, deviation, dif):
         if (abs(dif) < 35):
-            rotation = -(0.0054 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0034 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 2
         elif (abs(dif) < 90):
-            rotation = -(0.0052 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0032 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 1.5
         else:
-            rotation = -(0.0049 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0029 * deviation + 0.0005 * (deviation - self.deviation_left))
             speed = 1
 
         return speed, rotation
 
     def curve_case(self, deviation, dif):
         if (abs(dif) < 50):
-            rotation = -(0.01 * deviation + 0.0006 * (deviation - self.deviation_left))
+            rotation = -(0.001 * deviation + 0.0006 * (deviation - self.deviation_left))
         if (abs(dif) < 80):
-            rotation = -(0.0092 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0095 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 130):
-            rotation = -(0.0087 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0090 * deviation + 0.0005 * (deviation - self.deviation_left))
         elif (abs(dif) < 190):
-            rotation = -(0.008 * deviation + 0.0005 * (deviation - self.deviation_left))
+            rotation = -(0.0085 * deviation + 0.0005 * (deviation - self.deviation_left))
         else:
             rotation = -(0.0075 * deviation + 0.0005 * (deviation - self.deviation_left))
 
-        speed = 2
+        speed = 1.0
         return speed, rotation
     
     def get_point(self, index, img):
@@ -103,6 +104,31 @@ class Brain:
             right = np.max(np.nonzero(img[index]))
             mid = np.abs(left - right)/2 + left
         return int(mid)
+
+    def calculate_line_mask(self, white_region, ncols):
+
+        lines = []
+        white_line = []
+        for i in range(white_region.shape[0]):
+            white_line.append(white_region[i])
+            if i < white_region.shape[0]-1:
+                if abs(white_region[i] - white_region[i+1]) > 10:
+                    lines.append(white_line)
+                    white_line = []
+        lines.append(white_line)
+
+        if len(lines) == 2:
+            middle_line = np.argmin([len(line) for line in lines])
+            white_region = lines[middle_line]
+        elif len(lines) == 3:
+            white_region = lines[1]
+        elif len(lines) == 1:
+            white_region = lines[0]
+        else:
+            middle_line = np.argmin([len(line) for line in lines])
+            white_region = lines[middle_line]
+
+        return white_region
 
     def execute(self):
 
@@ -137,14 +163,12 @@ class Brain:
             rows, cols = image_mask.shape
             rows = rows - 1     # para evitar desbordamiento
 
-            lower_red_height = np.array([0,50,200]) #np.array([110,200,115]) #np.array([0,50,200])
-            upper_red_height = np.array([180,255,255])
-            height_mask_image = cv2.inRange(image_hsv, lower_red_height, upper_red_height)
-            height_mask = height_mask_image[9:,:]/255
+            height_mask = image_mask[9:,:]/255
             white_region = np.where(height_mask[0,:]==1)[0]
 
             if white_region.shape[0] > 0:
-                lane_width = (white_region[-1] - white_region[0])/cols
+                line_mask = self.calculate_line_mask(white_region, cols)
+                lane_width = len(line_mask)/cols
                 self.last_lane_width = lane_width
             else:
                 lane_width = self.last_lane_width
@@ -209,7 +233,7 @@ class Brain:
                 else:
                     rotation = 1
                 speed = 0.1
-                lane_width = 0.5
+                lane_width = self.last_lane_width
 
             pitch = self.drone.get_pitch()
 
@@ -228,15 +252,17 @@ class Brain:
 
             self.speed_history.append(speed)
             self.speedz_history.append(speed_z)
+            self.rot_history.append(rotation)
 
             speed_cmd = np.mean(self.speed_history)
             speed_z_cmd = np.clip(speed_z,-2,2)
+            rotation_cmd = np.mean(self.rot_history)
 
-            #self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd, 'p': pitch})
+            #self.json_data.append({'iter': self.iteration, 'v': speed_cmd, 'w': rotation, 'vz': speed_z_cmd})
             #with open(SAVE_DIR + 'many_curves_data/data.json', 'w') as outfile:
             #    json.dump(self.json_data, outfile)
 
-            self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation)
+            self.drone.set_cmd_vel(speed_cmd, 0, speed_z_cmd, rotation_cmd)
 
             self.iteration += 1
             
