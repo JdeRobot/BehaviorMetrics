@@ -15,6 +15,8 @@ docs:
   - title: Quick Start
     url: /quick_start/
     children:
+    - title: Tutorial
+      url: quick_start/tutorial/
     - title: Brains zoo
       url: quick_start/brains_zoo/
     - title: Datasets
