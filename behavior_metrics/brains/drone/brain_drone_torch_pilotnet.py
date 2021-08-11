@@ -18,7 +18,7 @@ import cv2
 import time
 import os
 from PIL import Image
-from brains.drone.torch_utils.deeppilot import DeepPilot
+from brains.drone.torch_utils.pilotnet import PilotNet
 from drone_wrapper import DroneWrapper
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
@@ -70,7 +70,7 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
-            self.net = DeepPilot((224,224,3), 3).to(self.device)
+            self.net = PilotNet((200,66,3), 3).to(self.device)
             self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
         else: 
             print("Brain not loaded")
@@ -89,11 +89,11 @@ class Brain:
 
     def addPadding(self, img):
 
-        target_height = int(224)
+        target_height = int(66)
         target_width = int(target_height * img.shape[1]/img.shape[0])
         img_resized = cv2.resize(img, (target_width, target_height))
-        padding_left = int((224 - target_width)/2)
-        padding_right = 224 - target_width - padding_left
+        padding_left = int((200 - target_width)/2)
+        padding_right = 200 - target_width - padding_left
         img = cv2.copyMakeBorder(img_resized.copy(),0,0,padding_left,padding_right,cv2.BORDER_CONSTANT,value=[0, 0, 0])
         return img
 
@@ -130,7 +130,7 @@ class Brain:
             show_image = image
             X = image.copy()    
             if X is not None:
-                X = cv2.resize(X, (224, 224))
+                X = cv2.resize(X, (200, 66))
                 X = np.transpose(X,(2,0,1))
                 X = np.squeeze(X)
                 X = np.transpose(X, (1,2,0))
