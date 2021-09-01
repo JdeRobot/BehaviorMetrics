@@ -29,8 +29,7 @@ and how to train the model. Using the examples shown there should be fine for th
 
 5. Take that *.h5* file and store it on *behavior_metrics/models/* creating a new folder *tensorflow_models*. 
 
-6. We're almost ready to go. Modify the *default.yml* file under *behavior_metrics/configs/* folder, changing the BrainPath to *'brains/f1/brain_f1_keras.py'* and 
-adding under this line *Model: '<your_model_name>.h5'*
+6. We're almost ready to go. Modify the *DL-tensorflow.yml* file under *behavior_metrics/configs/* folder, changing the *Model:* '[your_model_name].h5' with your model name.
 
 7. Execute Behavior Studio with the command
 
