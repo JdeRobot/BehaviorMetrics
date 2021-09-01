@@ -14,11 +14,16 @@ import numpy as np
 import cv2
 import time
 import os
+import keras
 
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
+from albumentations import (
+    Compose, Normalize
+)
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'dir1/'
+
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -40,7 +45,7 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
-        
+
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -71,14 +76,25 @@ class Brain:
 
         try:
             image = image[240:480, 0:640]
-            img = cv2.resize(image, (int(image.shape[1] / 4), int(image.shape[0] / 4)))
+            img = cv2.resize(image, (200, 66))
+            AUGMENTATIONS_TEST = Compose([
+                Normalize()
+            ])
+            image = AUGMENTATIONS_TEST(image=img)
+            img = image["image"]
+
             img = np.expand_dims(img, axis=0)
             start_time = time.time()
             prediction = self.net.predict(img)
             self.inference_times.append(time.time() - start_time)
-            # prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]*13
-            prediction_w = prediction[0][1]*3
+            if prediction[0][1] >= 0.5:
+                x = prediction[0][1] - 0.5
+                prediction_w = x * 6
+            else:
+                x = 0.5 - prediction[0][1]
+                prediction_w = x * -6
+
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
