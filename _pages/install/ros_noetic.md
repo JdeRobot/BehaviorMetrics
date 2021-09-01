@@ -284,7 +284,7 @@ and this window will behave as any other Ubuntu terminal, so you are ready to ru
 
 ```bash
 cd BehaviorMetrics/behavior_studio
-python3 driver.py -c default.yml -g
+python3 driver.py -c configs/default.yml -g
 ```
 
 This command will open the Gazebo Simulation in the VNC window. You can also directly run the previous command inside VNC window in a terminal.
