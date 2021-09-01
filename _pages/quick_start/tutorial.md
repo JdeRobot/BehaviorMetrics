@@ -14,7 +14,7 @@ sidebar:
 
 In this tutorial, you will train your first follow line brain for the F1 that can be run on Behavior Metrics.
 
-1. First of all, make sure you have Behavior Metrics installed, following the [installation section](install/). You can try running the *explicit brain* that is
+1. First of all, make sure you have Behavior Metrics installed, following the [installation section](/install/). You can try running the *explicit brain* that is
 already included on Behavior Metrics brains folder. This brain is capable of finishing every circuit available for the project.
 
 2. All the deep learning brains with their code can be located at [Deep Learning Studio's repo](https://github.com/JdeRobot/DeepLearningStudio). 
