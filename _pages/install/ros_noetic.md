@@ -14,7 +14,7 @@ gallery:
     title: "ROS noetic"
 gallery1:
   - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/behavior-studio.png
+    image_path: /assets/images/install/noetic/behavior-metrics.png
     alt: ""
 gallery2:
   - url: /install/ros_noetic
@@ -46,7 +46,7 @@ Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workfl
     1. [Requirements](#requisites)
     2. [Installing ROS Noetic](#noetic)
     3. [Installing Jderobot' dependencies](#dependencies)
-    4. [Installing Behavior Metrics](#behavior-studio)
+    4. [Installing Behavior Metrics](#behavior-metrics)
 2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
         1. [VNC container viewer](#vnc)
@@ -135,7 +135,7 @@ cd BehaviorMetrics/gym-gazebo/
 pip3 install -e .
 ```
 
-### Installing Behavior Metrics <a name="behavior-studio"></a>
+### Installing Behavior Metrics <a name="behavior-metrics"></a>
 
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
 
@@ -220,11 +220,11 @@ directory you want them to be stored inside the container.
 ### For CPU only
 
 ```bash
-docker run -dit --name behavior-studio-noetic \
+docker run -dit --name behavior-metrics-noetic \
 	-p 5900:5900 \
 	-p 8888:8888 \
         -v [local_directory]:[docker_directory] \
-	jderobot/behavior-studio:noetic
+	jderobot/behavior-metrics:noetic
 ```
 
 ### For GPU support (CUDA 10.1 Cudnn 7)
@@ -242,10 +242,10 @@ sudo systemctl restart docker
 The flag `--gpus` is added along with the correct image that contains cuda drivers.
 
 ```bash
-docker run --gpus all -dit --name behavior-studio-noetic \
+docker run --gpus all -dit --name behavior-metrics-noetic \
         -p 5900:5900 \
         -p 8888:8888 \
-        jderobot/behavior-studio:noetic-10.1-cudnn7
+        jderobot/behavior-metrics:noetic-10.1-cudnn7
 ```
 
 ### Using VNC to visualize container <a name="vnc"></a>
@@ -265,7 +265,7 @@ You will need to authenticate, the current password is **jderobot**, although it
 The recommended way to work, is by writing down `docker logs container-name` and you will get an URL, which will take you to notebook, double click on the last URL to open Jupyter.
 
 ```bash
-docker logs behavior-studio-noetic
+docker logs behavior-metrics-noetic
 ```
 
 {% include gallery id="gallery2" %}
@@ -299,18 +299,18 @@ sudo apt-get update && sudo apt-get upgrade
 
 ### Stopping container <a name="stop"></a>
 
-`behavior-studio-noetic` should be replaced with the name of your container.
+`behavior-metrics-noetic` should be replaced with the name of your container.
 
 ```bash
-docker stop behavior-studio-noetic
+docker stop behavior-metrics-noetic
 ```
 
 ### Resuming container <a name="resume"></a>
 
-`behavior-studio-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
+`behavior-metrics-noetic` should be replace with the name of your container, this command is similar to `docker run` so now you can run `docker logs container_name` to get a new link for jupyter, and then connect as usual to your VNC viewer.
 
 ```bash
-docker restart behavior-studio-noetic
+docker restart behavior-metrics-noetic
 ```
 
 ## Building the latest container <a name="building"></a>
