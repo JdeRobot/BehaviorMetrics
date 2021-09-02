@@ -14,7 +14,7 @@ import numpy as np
 import cv2
 import time
 import os
-import keras
+#import keras
 
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
@@ -45,14 +45,17 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
-
+        self.config = config
+        
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
             self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
         else: 
-            print("Brain not loaded")
+            print("** Brain not loaded **")
+            print("- Models path: " + PRETRAINED_MODELS)
+            print("- Model: " + str(model))
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -75,25 +78,37 @@ class Brain:
             self.first_image = image
 
         try:
-            image = image[240:480, 0:640]
-            img = cv2.resize(image, (200, 66))
-            AUGMENTATIONS_TEST = Compose([
-                Normalize()
-            ])
-            image = AUGMENTATIONS_TEST(image=img)
-            img = image["image"]
-
+            if self.config['ImageCropped']:
+                image = image[240:480, 0:640]
+            if 'ImageSize' in self.config:
+                img = cv2.resize(image, (self.config['ImageSize'][0], self.config['ImageSize'][1]))
+            else:
+                img = image
+                
+            if self.config['ImageNormalized']:
+                AUGMENTATIONS_TEST = Compose([
+                    Normalize()
+                ])
+                image = AUGMENTATIONS_TEST(image=img)
+                img = image["image"]
+                
+            
             img = np.expand_dims(img, axis=0)
             start_time = time.time()
             prediction = self.net.predict(img)
             self.inference_times.append(time.time() - start_time)
-            prediction_v = prediction[0][0]*13
-            if prediction[0][1] >= 0.5:
-                x = prediction[0][1] - 0.5
-                prediction_w = x * 6
+            
+            if self.config['PredictionsNormalized']:
+                prediction_v = prediction[0][0]*13
+                if prediction[0][1] >= 0.5:
+                    x = prediction[0][1] - 0.5
+                    prediction_w = x * 6
+                else:
+                    x = 0.5 - prediction[0][1]
+                    prediction_w = x * -6
             else:
-                x = 0.5 - prediction[0][1]
-                prediction_w = x * -6
+                prediction_v = prediction[0][0]
+                prediction_w = prediction[0][1]
 
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)

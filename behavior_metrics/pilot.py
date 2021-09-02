@@ -101,7 +101,7 @@ class Pilot(threading.Thread):
         if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model, self.configuration.brain_kwargs)
         else:
-            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
+            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, config=self.configuration.brain_kwargs)
         self.__wait_gazebo()
 
 
