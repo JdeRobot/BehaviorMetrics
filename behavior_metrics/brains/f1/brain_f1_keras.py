@@ -14,7 +14,6 @@ import numpy as np
 import cv2
 import time
 import os
-#import keras
 
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
@@ -76,7 +75,9 @@ class Brain:
         
         if self.cont == 1:
             self.first_image = image
-
+            
+        self.update_frame('frame_0', image)
+        
         try:
             if self.config['ImageCropped']:
                 image = image[240:480, 0:640]
@@ -116,7 +117,4 @@ class Brain:
 
         except Exception as err:
             print(err)
-        
-        self.update_frame('frame_0', image)
-
         
