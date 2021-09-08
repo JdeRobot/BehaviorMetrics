@@ -101,8 +101,10 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         lap_point = 0
         start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
+            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
                 lap_point = point
+                break
+                
         if type(lap_point) is not int:
             seconds_start = start_point['header.stamp.secs']
             seconds_end = lap_point['header.stamp.secs']
