@@ -118,8 +118,8 @@ For each circuit, the explicit brain can complete it in these times.
 | ----------- | ----------- |
 | Simple Circuit      | ~ 145 secs (2:25)       |
 | Many curves   | ~ 300 secs (5:00)        |
-| Montmeló   | ~ 292 secs (2:52)        |
-| Montreal   | ~ ... secs (:)        |
+| Montmeló   | ~ 292 secs (4:52)        |
+| Montreal   | ~ 280 secs (4:40)        |
 | Nurburgring   | ~ ... secs (:)        |
 
 
