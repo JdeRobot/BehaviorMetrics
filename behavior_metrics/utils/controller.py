@@ -204,9 +204,8 @@ class Controller:
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
-        
-        topic = '/F1ROS/odom'
-        command = "rosbag record -O " + self.stats_filename + " " + topic + " __name:=behav_stats_bag"
+        topics = ['/F1ROS/odom', '/clock']
+        command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)

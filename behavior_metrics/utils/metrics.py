@@ -91,9 +91,17 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
+    print('----CHECKPOINTS LENGTH -->>>> ' + str(len(checkpoints)))
+    data_file = stats_filename.split('.bag')[0] + '/clock.csv'
+    dataframe_pose = pd.read_csv(data_file)
+    clock_points = []
+    for index, row in dataframe_pose.iterrows():
+        clock_points.append(row)
+    print('----clock_points LENGTH -->>>> ' + str(len(clock_points)))
 
     start_point = checkpoints[0]
     end_point = checkpoints[len(checkpoints)-1]
+    start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
     lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100      
     lap_statistics = get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
@@ -101,7 +109,19 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         lap_point = 0
         start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
+            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+                print('----ENTRA----')
+                print(start_clock)
+                print(x)
+                print(x/len(checkpoints))
+                print(len(clock_points)*(x/len(checkpoints)))
+                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))])
+                
+                print(start_clock['clock.secs'])
+                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs'])
+                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs']-start_clock['clock.secs'])
+                print(start_point['header.stamp.secs'])
+                print(point['header.stamp.secs'])
                 lap_point = point
         if type(lap_point) is not int:
             seconds_start = start_point['header.stamp.secs']
