@@ -123,6 +123,8 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
                 print(start_point['header.stamp.secs'])
                 print(point['header.stamp.secs'])
                 lap_point = point
+                break
+                
         if type(lap_point) is not int:
             seconds_start = start_point['header.stamp.secs']
             seconds_end = lap_point['header.stamp.secs']
