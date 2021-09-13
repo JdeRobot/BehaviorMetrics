@@ -91,26 +91,32 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
+    data_file = stats_filename.split('.bag')[0] + '/clock.csv'
+    dataframe_pose = pd.read_csv(data_file)
+    clock_points = []
+    for index, row in dataframe_pose.iterrows():
+        clock_points.append(row)
 
     start_point = checkpoints[0]
     end_point = checkpoints[len(checkpoints)-1]
+    start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
     lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100      
     lap_statistics = get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     if lap_statistics['percentage_completed'] > 100:
         lap_point = 0
         start_point = checkpoints[0]
-        for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+        for ckp_iter, point in enumerate(checkpoints):
+            if ckp_iter is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
                 lap_point = point
                 break
                 
         if type(lap_point) is not int:
-            seconds_start = start_point['header.stamp.secs']
-            seconds_end = lap_point['header.stamp.secs']
+            seconds_start = start_clock['clock.secs']
+            seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
             lap_statistics['lap_seconds'] = seconds_end - seconds_start
             lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
-            lap_statistics['average_speed'] = circuit_distance_completed(checkpoints, lap_point)/lap_statistics['lap_seconds']
+            lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
         else:
             logger.info('Lap seems completed but lap point wasn\'t found')
 
