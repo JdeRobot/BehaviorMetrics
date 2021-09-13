@@ -91,13 +91,11 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
-    print('----CHECKPOINTS LENGTH -->>>> ' + str(len(checkpoints)))
     data_file = stats_filename.split('.bag')[0] + '/clock.csv'
     dataframe_pose = pd.read_csv(data_file)
     clock_points = []
     for index, row in dataframe_pose.iterrows():
         clock_points.append(row)
-    print('----clock_points LENGTH -->>>> ' + str(len(clock_points)))
 
     start_point = checkpoints[0]
     end_point = checkpoints[len(checkpoints)-1]
@@ -108,30 +106,14 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     if lap_statistics['percentage_completed'] > 100:
         lap_point = 0
         start_point = checkpoints[0]
-        for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
-                print('----HERE----')
-                print(start_clock)
-                print(x)
-                print(x/len(checkpoints))
-                print(len(clock_points)*(x/len(checkpoints)))
-                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))])
-                
-                print(start_clock['clock.secs'])
-                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs'])
-                print('----LAP TIME---')
-                print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs']-start_clock['clock.secs'])
-                print('------------------------')
-                print(start_point['header.stamp.secs'])
-                print(point['header.stamp.secs'])
+        for ckp_iter, point in enumerate(checkpoints):
+            if ckp_iter is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
                 lap_point = point
                 break
                 
         if type(lap_point) is not int:
-            #seconds_start = start_point['header.stamp.secs']
             seconds_start = start_clock['clock.secs']
-            #seconds_end = lap_point['header.stamp.secs']
-            seconds_end = clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs']
+            seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
             lap_statistics['lap_seconds'] = seconds_end - seconds_start
             lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
             lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
