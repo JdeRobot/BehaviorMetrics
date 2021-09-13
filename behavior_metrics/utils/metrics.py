@@ -110,7 +110,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         start_point = checkpoints[0]
         for x, point in enumerate(checkpoints):
             if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
-                print('----ENTRA----')
+                print('----HERE----')
                 print(start_clock)
                 print(x)
                 print(x/len(checkpoints))
@@ -119,18 +119,22 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
                 
                 print(start_clock['clock.secs'])
                 print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs'])
+                print('----LAP TIME---')
                 print(clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs']-start_clock['clock.secs'])
+                print('------------------------')
                 print(start_point['header.stamp.secs'])
                 print(point['header.stamp.secs'])
                 lap_point = point
                 break
                 
         if type(lap_point) is not int:
-            seconds_start = start_point['header.stamp.secs']
-            seconds_end = lap_point['header.stamp.secs']
+            #seconds_start = start_point['header.stamp.secs']
+            seconds_start = start_clock['clock.secs']
+            #seconds_end = lap_point['header.stamp.secs']
+            seconds_end = clock_points[int(len(clock_points)*(x/len(checkpoints)))]['clock.secs']
             lap_statistics['lap_seconds'] = seconds_end - seconds_start
             lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
-            lap_statistics['average_speed'] = circuit_distance_completed(checkpoints, lap_point)/lap_statistics['lap_seconds']
+            lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
         else:
             logger.info('Lap seems completed but lap point wasn\'t found')
 
