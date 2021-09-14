@@ -68,13 +68,15 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 controller.unpause_gazebo_simulation()
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
                 
-                rospy.Subscriber("/clock", Clock, clock_callback)
+                clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
                 time_start = clock_time
+                print('TIME START --------> ' + str(time_start))
                 
                 is_finished = False
                 while (clock_time - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or clock_time - time_start < 10:
+                    print('CLOCK TIME ------> ' + str(clock_time))
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
@@ -89,6 +91,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 logger.info('--------------')
                 logger.info('--- END TIME ----------------')
                 time_end = clock_time
+                clock_subscriber.unregister()
+                print('TIME END ---------> ' + str(time_end))
                 logger.info(time_end - time_start)
                 controller.stop_record_stats()
                 # 3. Stop
