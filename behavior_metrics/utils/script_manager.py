@@ -33,7 +33,6 @@ from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
 from pilot import Pilot
 from utils.random_initializer import tmp_random_initializer
-
 from rosgraph_msgs.msg import Clock
 
 clock_time = None
