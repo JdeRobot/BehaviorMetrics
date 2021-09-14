@@ -84,7 +84,7 @@ gallery17:
     alt: ""
 ---
 
-First of all you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](/install/).
+First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](/install/).
 
 Follow the [tutorial](tutorial/) for training your first brain using deep learning and running it on Behavior Studio. 
 
@@ -104,16 +104,28 @@ To run the application with TUI (Terminal User Interface) just run:
 python driver.py -c ./configs/default.yml -t
 ```
 
-To run the application as an script to run several worlds/brains at the same time  run:
+To run the application as a script to run several worlds/brains at the same time  run:
 
 ```bash
 python driver.py -c ./configs/default-multiple.yml -s
 ```
 
+## Reference times for each circuit
+
+For each circuit, the explicit brain can complete it in these times.
+
+| Circuit      | Time |
+| ----------- | ----------- |
+| Simple Circuit      | ~ 75 secs (1:15)       |
+| Many curves   | ~ 151 secs (2:31)        |
+| Montmeló   | ~ 122 secs (2:02)        |
+| Montreal   | ~ 260 secs (4:20)        |
+| Nurburgring   | ~ 88 secs (1:28)        |
+
 
 ## How to use
 
-First of all **if you are going to use the GUI** you need to create the resources file for the application. **YOU JUST HAVE TO DO THIS STEP THE FIRST TIME YOU RUN THE APPLICATION**
+First **if you are going to use the GUI** you need to create the resources file for the application. **YOU JUST HAVE TO DO THIS STEP THE FIRST TIME YOU RUN THE APPLICATION**
 
 
 ```bash
