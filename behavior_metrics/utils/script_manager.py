@@ -34,8 +34,16 @@ from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
 from pilot import Pilot
 from utils.random_initializer import tmp_random_initializer
 
+from rosgraph_msgs.msg import Clock
+
+clock_time = None
+
+def clock_callback(clock_data):
+    global clock_time
+    clock_time = clock_data.clock.to_sec()
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
+    global clock_time
     # Start Behavior Metrics app
     tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], randomize=randomize, gui=False, launch=True)
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
@@ -59,13 +67,14 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 controller.resume_pilot()
                 controller.unpause_gazebo_simulation()
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
-
-                time_start = rospy.get_time()
+                
+                rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-
+                time_start = clock_time
+                
                 is_finished = False
-                while (rospy.get_time() - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or rospy.get_time() - time_start < 10:
+                while (clock_time - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or clock_time - time_start < 10:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
@@ -79,7 +88,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--- END TIME ----------------')
-                time_end = rospy.get_time()
+                time_end = clock_time
                 logger.info(time_end - time_start)
                 controller.stop_record_stats()
                 # 3. Stop

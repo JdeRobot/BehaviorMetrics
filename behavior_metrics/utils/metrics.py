@@ -43,7 +43,7 @@ def circuit_distance_completed(checkpoints, lap_point):
     diameter = 0
     for i, point in enumerate(checkpoints):
         current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        if i is not 0:
+        if i != 0:
             dist = (previous_point - current_point) ** 2
             dist = np.sum(dist, axis=0)
             dist = np.sqrt(dist)
@@ -70,7 +70,7 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     perfect_lap_checkpoints = checkpoints
     start_point = checkpoints[0]
     for x, point in enumerate(checkpoints):
-        if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
+        if x != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
             lap_point = point
 
     circuit_diameter = circuit_distance_completed(checkpoints, lap_point)
@@ -107,7 +107,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         lap_point = 0
         start_point = checkpoints[0]
         for ckp_iter, point in enumerate(checkpoints):
-            if ckp_iter is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+            if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
                 lap_point = point
                 break
                 
