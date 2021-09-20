@@ -32,5 +32,5 @@ torchvision==0.9.1
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
-tensorflow-gpu==2.4.1
+tensorflow-gpu==2.5.1
 albumentations==1.0.3
