@@ -30,7 +30,7 @@ import numpy as np
 from utils import metrics
 from utils import environment
 from utils.logger import logger
-from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
+from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, CIRCUITS_TIMEOUTS
 from pilot import Pilot
 from utils.random_initializer import tmp_random_initializer
 from rosgraph_msgs.msg import Clock
@@ -49,6 +49,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
     pilot.daemon = True
     controller.pilot.start()
     for world_counter, world in enumerate(app_configuration.current_world):
+        import os
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
@@ -73,7 +74,11 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 time_start = clock_time
                 
                 is_finished = False
-                while (clock_time - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or clock_time - time_start < 10:
+                if hasattr(app_configuration, 'experiment_timeouts'):
+                    experiment_timeout = app_configuration.experiment_timeouts[world_counter]
+                else:
+                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)]
+                while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 10:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
