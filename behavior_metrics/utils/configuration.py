@@ -119,7 +119,8 @@ class Config:
         if 'Experiment' in config_data['Behaviors']:
             self.experiment_name = config_data['Behaviors']['Experiment']['Name']
             self.experiment_description = config_data['Behaviors']['Experiment']['Description']
-            self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
+            if 'Timeout' in config_data['Behaviors']['Experiment']:
+                self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
             self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
         if self.robot_type == 'f1rl':

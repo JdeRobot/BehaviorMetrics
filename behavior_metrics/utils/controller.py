@@ -19,21 +19,20 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import subprocess
 import threading
-from datetime import datetime
-
-import rospy
-from std_srvs.srv import Empty
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
-from utils.logger import logger
-
+import rospy
 import os
 import time
 import rosbag
 import json
-from std_msgs.msg import String
 
+from std_srvs.srv import Empty
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from datetime import datetime
+from utils.logger import logger
+from utils.constants import CIRCUITS_TIMEOUTS
+from std_msgs.msg import String
 from utils import metrics
 
 __author__ = 'fqez'
@@ -197,7 +196,10 @@ class Controller:
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
-            self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            if hasattr(self.pilot.configuration, 'experiment_timeouts'):
+                self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            else:
+                self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])] * 1.1
             self.metrics['experiment_repetition'] = repetition_counter
             
         self.perfect_lap_filename = perfect_lap_filename
