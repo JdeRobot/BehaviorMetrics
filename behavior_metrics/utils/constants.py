@@ -9,7 +9,7 @@ CIRCUITS_TIMEOUTS = {
     'simple_circuit.launch': 75,
     'many_curves.launch': 151,
     'montmelo_line.launch': 122,
-    'montreal_line.launch': 260,
+    'montreal_line.launch': 248,
     'nurburgring_line.launch': 88,
 }
 
