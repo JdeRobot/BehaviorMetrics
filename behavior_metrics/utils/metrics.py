@@ -149,8 +149,9 @@ def get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statis
                         break
             if checkpoint['pose.pose.position.x'] == lap_point['pose.pose.position.x'] and checkpoint['pose.pose.position.y'] == lap_point['pose.pose.position.y']:
                 break
-
-        min_dists.append(min_dist)
+                
+        if min_dist < 100:
+            min_dists.append(min_dist)
 
     lap_statistics['orientation_mae'] = sum(min_dists) / len(min_dists)
     lap_statistics['orientation_total_err'] = sum(min_dists)
