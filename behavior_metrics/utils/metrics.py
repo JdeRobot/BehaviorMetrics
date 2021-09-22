@@ -147,7 +147,7 @@ def get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statis
                             min_dist = dist 
                     else:
                         break
-            if perfect_checkpoint == lap_point:
+            if checkpoint['pose.pose.position.x'] == lap_point['pose.pose.position.x'] and checkpoint['pose.pose.position.y'] == lap_point['pose.pose.position.y']:
                 break
 
         min_dists.append(min_dist)
