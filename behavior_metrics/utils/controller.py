@@ -199,7 +199,7 @@ class Controller:
             if hasattr(self.pilot.configuration, 'experiment_timeouts'):
                 self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             else:
-                self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])]
+                self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])] * 1.1
             self.metrics['experiment_repetition'] = repetition_counter
             
         self.perfect_lap_filename = perfect_lap_filename

@@ -77,7 +77,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 if hasattr(app_configuration, 'experiment_timeouts'):
                     experiment_timeout = app_configuration.experiment_timeouts[world_counter]
                 else:
-                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)]
+                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)]  * 1.1
                 while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 10:
                     rospy.sleep(10)
                     old_point = new_point
