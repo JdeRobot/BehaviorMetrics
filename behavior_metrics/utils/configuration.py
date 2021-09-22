@@ -115,7 +115,6 @@ class Config:
                 if param != 'Model':
                     self.brain_kwargs[param] = config_data['Behaviors']['Robot']['Parameters'][param]
 
-                
         if 'Experiment' in config_data['Behaviors']:
             self.experiment_name = config_data['Behaviors']['Experiment']['Name']
             self.experiment_description = config_data['Behaviors']['Experiment']['Description']

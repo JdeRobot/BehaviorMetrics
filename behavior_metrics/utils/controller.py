@@ -220,7 +220,7 @@ class Controller:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while(os.path.isfile(self.stats_filename + '.active')):
+        while os.path.isfile(self.stats_filename + '.active'):
             pass
 
         checkpoints = []
@@ -235,9 +235,9 @@ class Controller:
         
     def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
         time_stats = {'mean_iteration_time': mean_iteration_time, 
-                    'mean_inference_time': mean_inference_time, 
-                    'frame_rate': frame_rate, 
-                    'gpu_inferencing': gpu_inferencing}
+                      'mean_inference_time': mean_inference_time,
+                      'frame_rate': frame_rate,
+                      'gpu_inferencing': gpu_inferencing}
         metrics_str = json.dumps(time_stats)
         stats_str = json.dumps(self.lap_statistics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
@@ -251,7 +251,6 @@ class Controller:
             else:
                 rospy.loginfo('Error: Image Broken and /first_image Skipped: {}'.format(first_image))
         bag.close()
-        
 
     def reload_brain(self, brain, model=None):
         """Helper function to reload the current brain from the GUI.
