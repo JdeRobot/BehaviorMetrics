@@ -19,7 +19,7 @@ Behaviors:
                     
         BrainPath: 'brains/f1/brain_f1_keras.py'
         Parameters:
-            Model: '[model_name].h5'
+            Model: '20210807-124251_deepest_lstm_tinypilotnet_model_300_all_crop_no_seq_unique_albu_extreme_seq.h5'
             ImageCropped: True
             ImageSize: [100,50]
             ImageNormalized: True

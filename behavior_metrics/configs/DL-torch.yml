@@ -18,7 +18,7 @@ Behaviors:
                     MaxW: 0.3
         BrainPath: 'brains/f1/brain_f1_torch.py'
         Parameters:
-            Model: 'model_pilotnet_torch_extreme.ckpt'
+            Model: 'pilot_net_model_123.ckpt'
             ImageCrop: True
         Type: 'f1'
     Experiment:
@@ -27,7 +27,7 @@ Behaviors:
         Timeout: 30
         Repetitions: 2
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch'
+        World: '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
