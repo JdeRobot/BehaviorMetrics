@@ -9,8 +9,8 @@
 
 """
 
-import tensorflow as tf
 import numpy as np
+
 import cv2
 import time
 import os
@@ -22,7 +22,7 @@ from albumentations import (
 )
 
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'behavior-studio-volume/'
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
@@ -43,8 +43,14 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         self.config = config
+        
+        if self.config['GPU'] is False:
+            os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+        import tensorflow as tf
+        
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+        
         
         if model:
             if not path.exists(PRETRAINED_MODELS + model):

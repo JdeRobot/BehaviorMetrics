@@ -23,6 +23,7 @@ Behaviors:
             ImageSize: [100,50]
             ImageNormalized: True
             PredictionsNormalized: True
+            GPU: True
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
