@@ -46,6 +46,7 @@ class Brain:
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         self.config = config
         
+        self.deviation_error = []
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -64,6 +65,58 @@ class Brain:
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
         self.handler.update_frame(frame_id, data)
+        
+    def check_center(self, position_x):
+        if (len(position_x[0]) > 1):
+            x_middle = (position_x[0][0] + position_x[0][len(position_x[0]) - 1]) / 2
+            not_found = False
+        else:
+            # The center of the line is in position 326
+            x_middle = 326
+            not_found = True
+        return x_middle, not_found
+    
+    def get_point(self, index, img):
+        mid = 0
+        if np.count_nonzero(img[index]) > 0:
+            left = np.min(np.nonzero(img[index]))
+            right = np.max(np.nonzero(img[index]))
+            mid = np.abs(left - right)/2 + left
+        return int(mid)
+    
+    def get_deviation_error(self, image_cropped):
+
+        image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_RGB2HSV)
+        lower_red = np.array([0,50,50])
+        upper_red = np.array([180,255,255])
+        image_mask = cv2.inRange(image_hsv, lower_red, upper_red)
+
+        rows, cols = image_mask.shape
+        rows = rows - 1     # para evitar desbordamiento
+
+        alt = 0
+        ff = cv2.reduce(image_mask, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32S)
+        if np.count_nonzero(ff[:, 0]) > 0:
+            alt = np.min(np.nonzero(ff[:, 0]))
+
+        points = []
+        for i in range(3):
+            if i == 0:
+                index = alt
+            else:
+                index = rows//(2*i)
+            points.append((self.get_point(index, image_mask), index))
+
+        points.append((self.get_point(rows, image_mask), rows))
+
+        position_x_down = np.where(image_mask[points[3][1], :])
+
+        # We see that white pixels have been located and we look if the center is located
+        # In this way we can know if the car has left the circuit
+        x_middle_left_down, not_found_down = self.check_center(position_x_down)
+            
+        return abs(326-x_middle_left_down)
+    
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -85,7 +138,10 @@ class Brain:
                 img = cv2.resize(image, (self.config['ImageSize'][0], self.config['ImageSize'][1]))
             else:
                 img = image
-                
+            
+            deviation_error = self.get_deviation_error(image)
+            self.deviation_error.append(deviation_error)
+            
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
                     Normalize()
@@ -114,6 +170,9 @@ class Brain:
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+                
+                
+            
 
         except Exception as err:
             print(err)
