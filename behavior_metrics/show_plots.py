@@ -78,10 +78,8 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(label_completed_distance)
         label_percentage_completed=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(self.lap_statistics['percentage_completed']))
         self.layout.addWidget(label_percentage_completed)
-        label_orientation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Orientation MAE: </span>' + str(self.lap_statistics['orientation_mae']))
+        label_orientation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Deviation error: </span>' + str(sum(time_stats_metadata['deviation_error']) / len(time_stats_metadata['deviation_error']))
         self.layout.addWidget(label_orientation_mae)
-        label_orientation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Orientation total ERROR: </span>' + str(self.lap_statistics['orientation_total_err']))
-        self.layout.addWidget(label_orientation_total_err)
         
         if 'lap_seconds' in self.lap_statistics:
             label_lap_seconds=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(self.lap_statistics['lap_seconds']))

@@ -137,8 +137,6 @@ class Pilot(threading.Thread):
                 if stopped_brain_stats:
                     stopped_brain_stats = False
                     succesful_iteration = False
-                    mean_deviation_error = self.brains.active_brain.deviation_error
-                    logger.info('MEAN DEVIATION ERROR -> ' + str(sum(self.brains.active_brain.deviation_error) / len(self.brains.active_brain.deviation_error)))
                     try:
                         logger.info('----- MEAN INFERENCE TIME -----')
                         self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
@@ -156,6 +154,9 @@ class Pilot(threading.Thread):
                         gpu_inferencing = False
                         first_image = None
                         logger.info('No inference brain')
+                    logger.info('----- MEAN DEVIATION ERROR -----')
+                    deviation_error = self.brains.active_brain.deviation_error
+                    logger.info(sum(deviation_error) / len(deviation_error))
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
@@ -164,7 +165,7 @@ class Pilot(threading.Thread):
                     if hasattr(self.controller, 'stats_filename') and self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                         try:
                             logger.info('Entering Stats into Bag')
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image, mean_deviation_error)
+                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image, deviation_error)
                         except Exception as e:
                             logger.info('Empty ROS bag')
                             logger.error(e)
