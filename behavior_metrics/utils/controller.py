@@ -233,11 +233,12 @@ class Controller:
         self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
         logger.info("END ---- > Stopping stats bag recording")
         
-    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
+    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image, mean_deviation_error):
         time_stats = {'mean_iteration_time': mean_iteration_time, 
                       'mean_inference_time': mean_inference_time,
                       'frame_rate': frame_rate,
-                      'gpu_inferencing': gpu_inferencing}
+                      'gpu_inferencing': gpu_inferencing, 
+                      'mean_deviation_error': mean_deviation_error}
         metrics_str = json.dumps(time_stats)
         stats_str = json.dumps(self.lap_statistics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
