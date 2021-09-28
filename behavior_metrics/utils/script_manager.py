@@ -37,9 +37,11 @@ from rosgraph_msgs.msg import Clock
 
 clock_time = None
 
+
 def clock_callback(clock_data):
     global clock_time
     clock_time = clock_data.clock.to_sec()
+
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
     global clock_time

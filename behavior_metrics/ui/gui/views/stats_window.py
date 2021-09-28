@@ -18,10 +18,6 @@ class StatsWindow(QMainWindow):
         
         # If lap is completed, extend information
         if 'lap_seconds' in self.controller.lap_statistics:
-            #self.orientation_mae_label = QLabel("Orientation MAE -> " + str(self.controller.lap_statistics['orientation_mae']))
-            #self.layout.addWidget(self.orientation_mae_label)
-            #self.orientation_total_err_label = QLabel("Orientation total error -> " + str(self.controller.lap_statistics['orientation_total_err']))
-            #self.layout.addWidget(self.orientation_total_err_label)
             self.lap_seconds_label = QLabel("Lap seconds -> " + str(self.controller.lap_statistics['lap_seconds']) + "s")
             self.layout.addWidget(self.lap_seconds_label)
             self.average_speed_label = QLabel("Average speed -> " + str(self.controller.lap_statistics['average_speed']) + "m/s")
@@ -30,4 +26,3 @@ class StatsWindow(QMainWindow):
             self.layout.addWidget(self.circuit_diameter_label)
             
         wid.setLayout(self.layout)
-        

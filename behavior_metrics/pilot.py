@@ -77,7 +77,6 @@ class Pilot(threading.Thread):
         self.metrics = {}
         self.checkpoint_save = False
         self.max_distance = 0.5
-        
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -104,7 +103,6 @@ class Pilot(threading.Thread):
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, config=self.configuration.brain_kwargs)
         self.__wait_gazebo()
 
-
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
 
@@ -120,23 +118,23 @@ class Pilot(threading.Thread):
         it = 0
         ss = time.time()
         stopped_brain_stats = False
-        succesful_iteration = False
+        successful_iteration = False
         brain_iterations_time = []
-        while (not self.kill_event.is_set()):
+        while not self.kill_event.is_set():
             start_time = datetime.now()
             if not self.stop_event.is_set():
                 stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
-                    succesful_iteration = True
+                    successful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-                    succesful_iteration = False
+                    successful_iteration = False
             else:
                 if stopped_brain_stats:
                     stopped_brain_stats = False
-                    succesful_iteration = False
+                    successful_iteration = False
                     try:
                         logger.info('----- MEAN INFERENCE TIME -----')
                         self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
@@ -172,7 +170,7 @@ class Pilot(threading.Thread):
                     brain_iterations_time = [] 
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            if succesful_iteration:
+            if successful_iteration:
                 brain_iterations_time.append(ms/1000)
             elapsed = time.time() - ss
             if elapsed < 1:
@@ -181,7 +179,7 @@ class Pilot(threading.Thread):
                 ss = time.time()
                 it = 0
 
-            if (ms < TIME_CYCLE):
+            if ms < TIME_CYCLE:
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
         
         logger.info('Pilot: pilot killed.')
@@ -226,4 +224,4 @@ class Pilot(threading.Thread):
         if dist < self.max_distance:
             return True
         return False
-        
+
