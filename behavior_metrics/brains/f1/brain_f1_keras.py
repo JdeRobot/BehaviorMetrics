@@ -115,7 +115,7 @@ class Brain:
         # In this way we can know if the car has left the circuit
         x_middle_left_down, not_found_down = self.check_center(position_x_down)
             
-        return abs(326-x_middle_left_down)
+        return abs(326-x_middle_left_down) if not_found_down is False else 327
     
 
     def execute(self):
@@ -138,6 +138,7 @@ class Brain:
                 img = cv2.resize(image, (self.config['ImageSize'][0], self.config['ImageSize'][1]))
             else:
                 img = image
+
             
             deviation_error = self.get_deviation_error(image)
             self.deviation_error.append(deviation_error)
@@ -171,9 +172,6 @@ class Brain:
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
                 
-                
-            
-
         except Exception as err:
             print(err)
         
