@@ -115,7 +115,7 @@ class Brain:
         # In this way we can know if the car has left the circuit
         x_middle_left_down, not_found_down = self.check_center(position_x_down)
             
-        return abs(326-x_middle_left_down) if not_found_down is False else 327
+        return abs(326-x_middle_left_down) if not_found_down is False else 500
     
 
     def execute(self):

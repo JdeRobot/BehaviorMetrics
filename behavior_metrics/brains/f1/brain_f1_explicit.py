@@ -151,7 +151,7 @@ class Brain:
             x_middle_left_middle, not_found_middle = self.check_center(position_x_middle)
             
             
-            self.deviation_error.append(abs(326-x_middle_left_down) if not_found_down is False else 327)
+            self.deviation_error.append(abs(326-x_middle_left_down) if not_found_down is False else 500)
 
             # We look if white pixels of the row above are located
             if (len(position_x_above[0]) > 1):
