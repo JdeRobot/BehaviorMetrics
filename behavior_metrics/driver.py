@@ -33,7 +33,7 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def check_args():
+def check_args(sys.argv):
     """Function that handles argument checking and parsing.
 
     Arguments:
