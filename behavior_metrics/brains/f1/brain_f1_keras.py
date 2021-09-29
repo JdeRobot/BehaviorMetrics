@@ -9,8 +9,8 @@
 
 """
 
-import tensorflow as tf
 import numpy as np
+
 import cv2
 import time
 import os
@@ -43,10 +43,15 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         self.config = config
-
         self.camera_deviation_error = []
+        
+        if self.config['GPU'] is False:
+            os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+        import tensorflow as tf
+        
+        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
