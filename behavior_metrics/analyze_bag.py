@@ -10,8 +10,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Analyze Rosbags and Generate Plots', epilog='Enjoy the program! :)')
 
@@ -26,7 +25,7 @@ if __name__=="__main__":
                         type=str,
                         required=True,
                         help='Output to plots directory.')
-    
+
     args = parser.parse_args()
 
     bridge = CvBridge()
@@ -56,26 +55,23 @@ if __name__=="__main__":
                     y_points.append(point_yml['pose']['pose']['position']['y'])
 
                 for topic, point, t in bag.read_messages(topics=['/metadata']):
-
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
-                    h = json.dumps(y,indent=4)
+                    h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     metadata = json.loads(data['data'])
 
                 for topic, point, t in bag.read_messages(topics=['/lap_stats']):
-
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
-                    h = json.dumps(y,indent=4)
+                    h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     lapdata = json.loads(data['data'])
 
                 for topic, point, t in bag.read_messages(topics=['/time_stats']):
-
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
-                    h = json.dumps(y,indent=4)
+                    h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     time_stats_metadata = json.loads(data['data'])
-                    
+
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
                     first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
 
@@ -93,13 +89,12 @@ if __name__=="__main__":
                     all_data[world]['image']['path_x'] = []
                     all_data[world]['image']['path_y'] = []
 
-                
                 all_data[world]['completed_distance'].append(lapdata['completed_distance'])
                 all_data[world]['percentage_completed'].append(lapdata['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)
                 all_data[world]['image']['path_x'].append(x_points)
                 all_data[world]['image']['path_y'].append(y_points)
-                
+
                 if 'lap_seconds' in lapdata:
                     all_data[world]['lap_seconds'].append(lapdata['lap_seconds'])
                     all_data[world]['circuit_diameter'].append(lapdata['circuit_diameter'])
@@ -118,9 +113,9 @@ if __name__=="__main__":
     for world in all_data.keys():
         directory = output + 'bag_analysis_plots/' + world
         if not os.path.exists(directory):
-            os.makedirs(directory + '/'+'first_images')
-            os.makedirs(directory + '/'+'performances')
-            os.makedirs(directory + '/'+'path_followed')
+            os.makedirs(directory + '/' + 'first_images')
+            os.makedirs(directory + '/' + 'performances')
+            os.makedirs(directory + '/' + 'path_followed')
 
         for key in all_data[world].keys():
 
@@ -129,23 +124,23 @@ if __name__=="__main__":
                 all_path_x = all_data[world][key]['path_x']
                 all_path_y = all_data[world][key]['path_y']
                 for it in range(len(images)):
-                    cv2.imwrite(directory+'/'+'first_images/Run_' + str(it+1) +'.png', images[it])
+                    cv2.imwrite(directory + '/' + 'first_images/Run_' + str(it + 1) + '.png', images[it])
 
-                    fig = plt.figure(figsize = (10, 5))
+                    fig = plt.figure(figsize=(10, 5))
                     plt.scatter(all_path_x[it], all_path_y[it], zorder=3)
                     plt.ylabel(key)
                     plt.title('Path followed in "{}" circuit'.format(world))
-                    plt.savefig(directory+'/'+'path_followed/Run_' + str(it+1) +'.png')
+                    plt.savefig(directory + '/' + 'path_followed/Run_' + str(it + 1) + '.png')
                     plt.close()
-                
+
             else:
                 plotData = all_data[world][key]
                 labels = []
                 for it in range(len(plotData)):
-                    labels.append('Run_'+str(it+1))
-                fig = plt.figure(figsize = (10, 5))
-                plt.bar(labels, plotData, color ='maroon', width = 0.4)
+                    labels.append('Run_' + str(it + 1))
+                fig = plt.figure(figsize=(10, 5))
+                plt.bar(labels, plotData, color='maroon', width=0.4)
                 plt.ylabel(key)
                 plt.title('Performance in "{}" circuit with metric "{}"'.format(world, key))
-                plt.savefig(directory+'/'+'performances/' + key + '.png')
+                plt.savefig(directory + '/' + 'performances/' + key + '.png')
                 plt.close()

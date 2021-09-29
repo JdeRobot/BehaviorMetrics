@@ -14,13 +14,13 @@ class ThreadPublisher(threading.Thread):
         threading.Thread.__init__(self, args=kill_event)
 
     def run(self):
-        while (not self.kill_event.is_set()):
+        while not self.kill_event.is_set():
             start_time = datetime.now()
 
             self.pub.publish()
 
-            finish_Time = datetime.now()
-            dt = finish_Time - start_time
+            finish_time = datetime.now()
+            dt = finish_time - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            if (ms < time_cycle):
+            if ms < time_cycle:
                 time.sleep((time_cycle - ms) / 1000.0)

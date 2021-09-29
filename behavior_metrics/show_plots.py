@@ -16,8 +16,10 @@ from utils.colors import Colors
 
 bridge = CvBridge()
 
+
 class MetricsWindow(QtWidgets.QMainWindow):
-    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_statistics, circuit_diameter):
+    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_statistics,
+                 circuit_diameter):
         super().__init__()
         self._main = QtWidgets.QWidget()
         self.setCentralWidget(self._main)
@@ -35,7 +37,6 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.setup_plot()
         self.setup_image()
         self.add_labels()
-
 
     def setup_plot(self):
         self.fig_plot = Figure()
@@ -56,37 +57,65 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.ax_image.set_axis_off()
 
     def add_labels(self):
-        label_world=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">World: </span>' + self.bag_metadata['world'])
+        label_world = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">World: </span>' + self.bag_metadata[
+                'world'])
         self.layout.addWidget(label_world)
-        label_brain_path=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Brain path: </span>' + self.bag_metadata['brain_path'])
+        label_brain_path = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Brain path: </span>' + self.bag_metadata[
+                'brain_path'])
         self.layout.addWidget(label_brain_path)
-        label_robot_type=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + self.bag_metadata['robot_type'])
+        label_robot_type = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + self.bag_metadata[
+                'robot_type'])
         self.layout.addWidget(label_robot_type)
 
-        label_mean_iteration_time=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean iteration time: </span>' + str(self.time_stats_metadata['mean_iteration_time']))
+        label_mean_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean iteration time: </span>' + str(
+                self.time_stats_metadata['mean_iteration_time']))
         self.layout.addWidget(label_mean_iteration_time)
-        label_mean_inference_time=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(self.time_stats_metadata['mean_inference_time']))
+        label_mean_inference_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+                self.time_stats_metadata['mean_inference_time']))
         self.layout.addWidget(label_mean_inference_time)
-        label_gpu_inferencing=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(self.time_stats_metadata['gpu_inferencing']))
+        label_gpu_inferencing = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(
+                self.time_stats_metadata['gpu_inferencing']))
         self.layout.addWidget(label_gpu_inferencing)
-        label_frame_rate=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(self.time_stats_metadata['frame_rate']))
+        label_frame_rate = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
+                self.time_stats_metadata['frame_rate']))
         self.layout.addWidget(label_frame_rate)
 
-        label_circuit_diameter=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(self.circuit_diameter))
+        label_circuit_diameter = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
+                self.circuit_diameter))
         self.layout.addWidget(label_circuit_diameter)
-        label_completed_distance=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(self.lap_statistics['completed_distance']))
+        label_completed_distance = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(
+                self.lap_statistics['completed_distance']))
         self.layout.addWidget(label_completed_distance)
-        label_percentage_completed=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(self.lap_statistics['percentage_completed']))
+        label_percentage_completed = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(
+                self.lap_statistics['percentage_completed']))
         self.layout.addWidget(label_percentage_completed)
-        label_orientation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Deviation error: </span>' + str(sum(time_stats_metadata['deviation_error']) / len(time_stats_metadata['deviation_error'])))
+        label_orientation_mae = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Deviation error: </span>' + str(
+                sum(time_stats_metadata['deviation_error']) / len(time_stats_metadata['deviation_error'])))
         self.layout.addWidget(label_orientation_mae)
 
         if 'lap_seconds' in self.lap_statistics:
-            label_lap_seconds=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(self.lap_statistics['lap_seconds']))
+            label_lap_seconds = QLabel(
+                '<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(
+                    self.lap_statistics['lap_seconds']))
             self.layout.addWidget(label_lap_seconds)
-            label_circuit_diameter=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(self.lap_statistics['circuit_diameter']))
+            label_circuit_diameter = QLabel(
+                '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
+                    self.lap_statistics['circuit_diameter']))
             self.layout.addWidget(label_circuit_diameter)
-            label_average_speed=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(self.lap_statistics['average_speed']))
+            label_average_speed = QLabel(
+                '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
+                    self.lap_statistics['average_speed']))
             self.layout.addWidget(label_average_speed)
 
 
@@ -106,25 +135,22 @@ def read_bags(bags):
             bags_checkpoints.append(bag_checkpoints)
 
             for topic, point, t in bag.read_messages(topics=['/metadata']):
-
                 y = yaml.load(str(point), Loader=yaml.FullLoader)
-                h = json.dumps(y,indent=4)
+                h = json.dumps(y, indent=4)
                 data = json.loads(h)
                 metadata = json.loads(data['data'])
                 bags_metadata.append(metadata)
 
             for topic, point, t in bag.read_messages(topics=['/lap_stats']):
-
                 y = yaml.load(str(point), Loader=yaml.FullLoader)
-                h = json.dumps(y,indent=4)
+                h = json.dumps(y, indent=4)
                 data = json.loads(h)
                 lapdata = json.loads(data['data'])
                 bags_lapdata.append(lapdata)
 
             for topic, point, t in bag.read_messages(topics=['/time_stats']):
-
                 y = yaml.load(str(point), Loader=yaml.FullLoader)
-                h = json.dumps(y,indent=4)
+                h = json.dumps(y, indent=4)
                 data = json.loads(h)
                 time_stats_metadata = json.loads(data['data'])
                 # first_image = np.array(time_stats_metadata['first_image'])
@@ -166,8 +192,10 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats
         experiment_statistics['lap_statistics'] = lap_statistics
         experiments_statistics.append(experiment_statistics)
         if lap_statistics['percentage_completed'] > 100:
-            if bags_metadata[x]['world'] in world_completed and bags_metadata[x]['brain_path'] in world_completed[bags_metadata[x]['world']]:
-                world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] + 1
+            if bags_metadata[x]['world'] in world_completed and \
+                    bags_metadata[x]['brain_path'] in world_completed[bags_metadata[x]['world']]:
+                world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = \
+                    world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] + 1
             elif bags_metadata[x]['world'] in world_completed:
                 world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = 1
             else:
@@ -184,7 +212,8 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats
             y_points.append(point_yml['pose']['pose']['position']['y'])
 
         qapp = QtWidgets.QApplication(sys.argv)
-        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_stats[x], lap_statistics, circuit_diameter)
+        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_stats[x], lap_statistics,
+                            circuit_diameter)
         app.show()
         qapp.exec_()
 
@@ -207,6 +236,7 @@ def main():
 
     bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image = read_bags(config_data['bags'])
     show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, time_stats, first_image)
+
 
 if __name__ == "__main__":
     print('Number of arguments:', len(sys.argv), 'arguments.')
