@@ -46,7 +46,7 @@ class Brain:
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
         self.config = config
 
-        self.deviation_error = []
+        self.camera_deviation_error = []
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -84,7 +84,7 @@ class Brain:
             mid = np.abs(left - right) / 2 + left
         return int(mid)
 
-    def get_deviation_error(self, image_cropped):
+    def get_camera_deviation_error(self, image_cropped):
         image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_RGB2HSV)
         lower_red = np.array([0, 50, 50])
         upper_red = np.array([180, 255, 255])
@@ -137,8 +137,8 @@ class Brain:
             else:
                 img = image
 
-            deviation_error = self.get_deviation_error(image)
-            self.deviation_error.append(deviation_error)
+            camera_deviation_error = self.get_devcamera_deviation_error(image)
+            self.camera_deviation_error.append(camera_deviation_error)
 
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([

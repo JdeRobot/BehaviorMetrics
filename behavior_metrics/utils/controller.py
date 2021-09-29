@@ -206,7 +206,7 @@ class Controller:
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
-        self.pilot.brains.active_brain.deviation_error = []
+        self.pilot.brains.active_brain.camera_deviation_error = []
         topics = ['/F1ROS/odom', '/clock']
         command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
         command = shlex.split(command)
@@ -226,8 +226,8 @@ class Controller:
         while os.path.isfile(self.stats_filename + '.active'):
             pass
         
-        self.metrics['deviation_error'] = self.pilot.brains.active_brain.deviation_error
-        self.pilot.brains.active_brain.deviation_error = []
+        self.metrics['camera_deviation_error'] = self.pilot.brains.active_brain.camera_deviation_error
+        self.pilot.brains.active_brain.camera_deviation_error = []
 
         checkpoints = []
         metrics_str = json.dumps(self.metrics)
@@ -239,12 +239,11 @@ class Controller:
         self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
         logger.info("END ---- > Stopping stats bag recording")
         
-    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image, deviation_error):
+    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
         time_stats = {'mean_iteration_time': mean_iteration_time, 
                       'mean_inference_time': mean_inference_time,
                       'frame_rate': frame_rate,
-                      'gpu_inferencing': gpu_inferencing, 
-                      'deviation_error': deviation_error}
+                      'gpu_inferencing': gpu_inferencing}
         metrics_str = json.dumps(time_stats)
         stats_str = json.dumps(self.lap_statistics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:

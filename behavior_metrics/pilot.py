@@ -157,9 +157,7 @@ class Pilot(threading.Thread):
                         gpu_inferencing = False
                         first_image = None
                         logger.info('No inference brain')
-                    logger.info('----- MEAN DEVIATION ERROR -----')
-                    deviation_error = self.brains.active_brain.deviation_error
-                    logger.info(sum(deviation_error) / len(deviation_error))
+
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
@@ -170,7 +168,7 @@ class Pilot(threading.Thread):
                         try:
                             logger.info('Entering Stats into Bag')
                             self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
-                                                            gpu_inferencing, first_image, deviation_error)
+                                                            gpu_inferencing, first_image)
                         except Exception as e:
                             logger.info('Empty ROS bag')
                             logger.error(e)
