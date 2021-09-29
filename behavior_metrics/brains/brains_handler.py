@@ -10,10 +10,10 @@ import os
 
 class Brains(object):
 
-    def __init__(self, sensors, actuatrors, brain_path, controller, model=None, config=None):
+    def __init__(self, sensors, actuators, brain_path, controller, model=None, config=None):
 
         self.sensors = sensors
-        self.actuatrors = actuatrors
+        self.actuators = actuators
         self.controller = controller
         self.brain_path = brain_path
         self.config = config
@@ -33,7 +33,6 @@ class Brains(object):
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
 
-        
         if robot_type == 'f1rl':
             from utils import environment
             environment.close_gazebo()
@@ -47,11 +46,11 @@ class Brains(object):
                 self.active_brain = Brain(handler=self, config=self.config)
             else:
                 if model: 
-                    self.active_brain = Brain(self.sensors, self.actuatrors, model=model, handler=self, config=self.config)
+                    self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self, config=self.config)
                 elif hasattr(self, 'model'):
-                    self.active_brain = Brain(self.sensors, self.actuatrors, model=self.model, handler=self, config=self.config)
+                    self.active_brain = Brain(self.sensors, self.actuators, model=self.model, handler=self, config=self.config)
                 else: 
-                    self.active_brain = Brain(self.sensors, self.actuatrors, handler=self, config=self.config)
+                    self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
 
     def get_image(self, camera_name):
         camera = self.sensors.get_camera(camera_name)
@@ -62,7 +61,7 @@ class Brains(object):
         return laser.getLaserData()
 
     def get_motors(self, motors_name):
-        return self.actuatrors.get_motor(motors_name)
+        return self.actuators.get_motor(motors_name)
 
     def update_pose3d(self, pose_data):
         self.controller.update_pose3d(pose_data)

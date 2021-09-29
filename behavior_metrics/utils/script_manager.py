@@ -37,9 +37,11 @@ from rosgraph_msgs.msg import Clock
 
 clock_time = None
 
+
 def clock_callback(clock_data):
     global clock_time
     clock_time = clock_data.clock.to_sec()
+
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
     global clock_time
@@ -66,7 +68,9 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     controller.reload_brain(brain)
                 controller.resume_pilot()
                 controller.unpause_gazebo_simulation()
-                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
+                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
+                                        world_counter=world_counter, brain_counter=brain_counter,
+                                        repetition_counter=repetition_counter)
                 
                 clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])

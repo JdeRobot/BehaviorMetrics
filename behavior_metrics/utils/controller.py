@@ -206,6 +206,7 @@ class Controller:
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
+        self.pilot.brains.active_brain.camera_deviation_error = []
         topics = ['/F1ROS/odom', '/clock']
         command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
         command = shlex.split(command)
@@ -214,6 +215,8 @@ class Controller:
         
     def stop_record_stats(self):
         logger.info("Stopping stats bag recording")
+       
+        
         command = "rosnode kill /behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
@@ -222,6 +225,9 @@ class Controller:
         # Wait for rosbag file to be closed. Otherwise it causes error
         while os.path.isfile(self.stats_filename + '.active'):
             pass
+        
+        self.metrics['camera_deviation_error'] = self.pilot.brains.active_brain.camera_deviation_error
+        self.pilot.brains.active_brain.camera_deviation_error = []
 
         checkpoints = []
         metrics_str = json.dumps(self.metrics)
