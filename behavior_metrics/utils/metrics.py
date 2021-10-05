@@ -72,7 +72,10 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     perfect_lap_checkpoints = checkpoints
     start_point = checkpoints[0]
     for x, point in enumerate(checkpoints):
-        if x != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+        #if x != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+        if x != 0 and is_finish_line(point, start_point):
+            print(x)
+            print(point)
             lap_point = point
 
     circuit_diameter = circuit_distance_completed(checkpoints, lap_point)
