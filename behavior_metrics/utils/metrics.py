@@ -34,7 +34,7 @@ def is_finish_line(point, start_point):
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
-    if dist < 0.5:
+    if dist <= 1.0:
         return True
     return False
 
@@ -51,7 +51,7 @@ def circuit_distance_completed(checkpoints, lap_point):
             diameter += dist
         if point is lap_point:
             break
-        previous_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        previous_point = current_point
     return diameter
 
 
@@ -65,20 +65,17 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     ground_truth_file_split = ground_truth_lap_file.split('.bag')[0]
     data_file = ground_truth_file_split + '/F1ROS-odom.csv'
     dataframe_pose = pd.read_csv(data_file)
-    checkpoints = []
+    perfect_lap_checkpoints = []
     for index, row in dataframe_pose.iterrows():
-        checkpoints.append(row)
+        perfect_lap_checkpoints.append(row)
 
-    perfect_lap_checkpoints = checkpoints
-    start_point = checkpoints[0]
-    for x, point in enumerate(checkpoints):
-        #if x != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
-        if x != 0 and is_finish_line(point, start_point):
-            print(x)
-            print(point)
+    start_point = perfect_lap_checkpoints[0]
+    for x, point in enumerate(perfect_lap_checkpoints):
+        if x > 100 and is_finish_line(point, start_point):
             lap_point = point
+            break
 
-    circuit_diameter = circuit_distance_completed(checkpoints, lap_point)
+    circuit_diameter = circuit_distance_completed(perfect_lap_checkpoints, lap_point)
     shutil.rmtree(ground_truth_lap_file.split('.bag')[0])
     return perfect_lap_checkpoints, circuit_diameter
 
