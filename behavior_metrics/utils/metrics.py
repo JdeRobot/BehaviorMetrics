@@ -76,6 +76,7 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
             break
 
     circuit_diameter = circuit_distance_completed(perfect_lap_checkpoints, lap_point)
+    print('....CIRCUIT DIAMETER ----> '  + str(circuit_diameter))
     shutil.rmtree(ground_truth_lap_file.split('.bag')[0])
     return perfect_lap_checkpoints, circuit_diameter
 
@@ -102,23 +103,32 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     end_point = checkpoints[len(checkpoints)-1]
     start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100      
-    if lap_statistics['percentage_completed'] > 100:
-        lap_point = 0
-        start_point = checkpoints[0]
-        for ckp_iter, point in enumerate(checkpoints):
-            if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
-                lap_point = point
-                break
-                
-        if type(lap_point) is not int:
-            seconds_start = start_clock['clock.secs']
-            seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
-            lap_statistics['lap_seconds'] = seconds_end - seconds_start
-            lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
-            lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
-        else:
-            logger.info('Lap seems completed but lap point wasn\'t found')
+    lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100
+    
+    print('------------------------------------------------------------------------------------------------')
+    print('COMPLETED DISTANCE ----> ' + str(lap_statistics['completed_distance']))
+    print('PERCENTAGE COMPLETED -----> ' + str(lap_statistics['completed_distance'] / circuit_diameter))
+    print('PERCENTAGE COMPLETED -----> ' + str(lap_statistics['percentage_completed']))
+    print('CIRCUIT DIAMETER -------> ' + str(circuit_diameter))
+    print('------------------------------------------------------------------------------------------------')
+    
+    #if lap_statistics['percentage_completed'] > 100:
+    #if lap_statistics['percentage_completed'] > 80:
+    lap_point = 0
+    start_point = checkpoints[0]
+    for ckp_iter, point in enumerate(checkpoints):
+        if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+            lap_point = point
+            break
+    print(lap_point)        
+    if type(lap_point) is not int:
+        seconds_start = start_clock['clock.secs']
+        seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
+        lap_statistics['lap_seconds'] = seconds_end - seconds_start
+        lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
+        lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
+    else:
+        logger.info('Lap not completed')
 
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
