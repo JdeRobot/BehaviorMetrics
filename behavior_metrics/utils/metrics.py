@@ -103,24 +103,30 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     end_point = checkpoints[len(checkpoints)-1]
     start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100
-    
-    print('------------------------------------------------------------------------------------------------')
-    print('COMPLETED DISTANCE ----> ' + str(lap_statistics['completed_distance']))
-    print('PERCENTAGE COMPLETED -----> ' + str(lap_statistics['completed_distance'] / circuit_diameter))
-    print('PERCENTAGE COMPLETED -----> ' + str(lap_statistics['percentage_completed']))
-    print('CIRCUIT DIAMETER -------> ' + str(circuit_diameter))
-    print('------------------------------------------------------------------------------------------------')
     
     #if lap_statistics['percentage_completed'] > 100:
     #if lap_statistics['percentage_completed'] > 80:
     lap_point = 0
     start_point = checkpoints[0]
+    #lap_points = []
+    #print('------ LAP POINTS ------')
+    previous_lap_point = 0 
+    laps = 0
     for ckp_iter, point in enumerate(checkpoints):
         if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
-            lap_point = point
-            break
-    print(lap_point)        
+            if type(lap_point) == int:
+                lap_point = point
+            #lap_points.append(point)
+            if ckp_iter - 1 != previous_lap_point:
+                laps += 1
+            previous_lap_point = ckp_iter
+            #print(ckp_iter)
+            #break
+    #print(lap_point) 
+    #print('----LAPS---------->')
+    #print(laps)
+    # check laps in lap_points
+
     if type(lap_point) is not int:
         seconds_start = start_clock['clock.secs']
         seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
@@ -129,6 +135,45 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
     else:
         logger.info('Lap not completed')
-
+        
+    first_checkpoint = checkpoints[0]
+    first_checkpoint = np.array([first_checkpoint['pose.pose.position.x'], first_checkpoint['pose.pose.position.y']])
+    last_checkpoint = checkpoints[len(checkpoints)-1]
+    last_checkpoint = np.array([last_checkpoint['pose.pose.position.x'], last_checkpoint['pose.pose.position.y']])
+    min_distance_first = 100
+    min_distance_last = 100
+    previous_point = []
+    for i, point in enumerate(perfect_lap_checkpoints): 
+        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        if i != 0:               
+            dist = (first_checkpoint - current_point) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_distance_first:
+                min_distance_first = dist
+                first_perfect_ckecpoint_position = i
+                
+            dist = (last_checkpoint - current_point) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_distance_last:
+                min_distance_last = dist
+                last_perfect_ckecpoint_position = i
+    #print('---- AVERAGE SPEED --->' + str(lap_statistics['average_speed']))
+    #print('------ LAP SECONDS ---> ' + str(lap_statistics['lap_seconds']))
+    #print('---------- CIRCUIT DIAMETER ----> ' + str(lap_statistics['circuit_diameter']))
+    #print('---------- MIN DISTANCE FIRST ---> ' + str(min_distance_first))
+    #print('---------- MIN DISTANCE LAST ---> ' + str(min_distance_last))
+    #print('FIRST POINT POSITION ----> ' + str(first_perfect_ckecpoint_position)) 
+    #print('LAST POINT POSITION-----> ' + str(last_perfect_ckecpoint_position))
+    #print('TOTAL POINTS CHECKPOINTS ------> ' + str(len(checkpoints)))
+    #print('TOTAL POINTS PERFECT ----> ' + str(len(perfect_lap_checkpoints)))
+    #print('PERCENTAGE ---> ' + str((((last_perfect_ckecpoint_position-first_perfect_ckecpoint_position)/len(perfect_lap_checkpoints)) * 100) + laps * 100))
+    #print('PERCENTAGE COMPLETED -----> ' + str((last_perfect_ckecpoint_position / len(perfect_lap_checkpoints) * 100)))  
+    #print(last_checkpoint)
+    #print(np.array([perfect_lap_checkpoints[last_perfect_ckecpoint_position]['pose.pose.position.x'], perfect_lap_checkpoints[last_perfect_ckecpoint_position]['pose.pose.position.y']]))
+    #print('------------------------------------------------------------------------------------------------')
+    lap_statistics['percentage_completed'] = (((last_perfect_ckecpoint_position-first_perfect_ckecpoint_position)/len(perfect_lap_checkpoints)) * 100) + laps * 100
+    
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
