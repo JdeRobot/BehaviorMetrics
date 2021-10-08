@@ -99,10 +99,6 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(
                 self.lap_statistics['percentage_completed']))
         self.layout.addWidget(label_percentage_completed)
-        label_orientation_mae = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Deviation error: </span>' + str(
-                sum(time_stats_metadata['deviation_error']) / len(time_stats_metadata['deviation_error'])))
-        self.layout.addWidget(label_orientation_mae)
 
         if 'lap_seconds' in self.lap_statistics:
             label_lap_seconds = QLabel(
@@ -117,6 +113,10 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
                     self.lap_statistics['average_speed']))
             self.layout.addWidget(label_average_speed)
+            label_position_deviation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(self.lap_statistics['position_deviation_mae']))
+            self.layout.addWidget(label_position_deviation_mae)
+            label_position_deviation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(self.lap_statistics['position_deviation_total_err']))
+            self.layout.addWidget(label_position_deviation_total_err)
 
 
 def read_bags(bags):
