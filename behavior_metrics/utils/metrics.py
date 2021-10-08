@@ -76,7 +76,6 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
             break
 
     circuit_diameter = circuit_distance_completed(perfect_lap_checkpoints, lap_point)
-    print('....CIRCUIT DIAMETER ----> '  + str(circuit_diameter))
     shutil.rmtree(ground_truth_lap_file.split('.bag')[0])
     return perfect_lap_checkpoints, circuit_diameter
 
@@ -103,29 +102,17 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     end_point = checkpoints[len(checkpoints)-1]
     start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    
-    #if lap_statistics['percentage_completed'] > 100:
-    #if lap_statistics['percentage_completed'] > 80:
     lap_point = 0
     start_point = checkpoints[0]
-    #lap_points = []
-    #print('------ LAP POINTS ------')
     previous_lap_point = 0 
     laps = 0
     for ckp_iter, point in enumerate(checkpoints):
         if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
             if type(lap_point) == int:
                 lap_point = point
-            #lap_points.append(point)
             if ckp_iter - 1 != previous_lap_point:
                 laps += 1
             previous_lap_point = ckp_iter
-            #print(ckp_iter)
-            #break
-    #print(lap_point) 
-    #print('----LAPS---------->')
-    #print(laps)
-    # check laps in lap_points
 
     if type(lap_point) is not int:
         seconds_start = start_clock['clock.secs']
@@ -159,21 +146,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
             if dist < min_distance_last:
                 min_distance_last = dist
                 last_perfect_ckecpoint_position = i
-    #print('---- AVERAGE SPEED --->' + str(lap_statistics['average_speed']))
-    #print('------ LAP SECONDS ---> ' + str(lap_statistics['lap_seconds']))
-    #print('---------- CIRCUIT DIAMETER ----> ' + str(lap_statistics['circuit_diameter']))
-    #print('---------- MIN DISTANCE FIRST ---> ' + str(min_distance_first))
-    #print('---------- MIN DISTANCE LAST ---> ' + str(min_distance_last))
-    #print('FIRST POINT POSITION ----> ' + str(first_perfect_ckecpoint_position)) 
-    #print('LAST POINT POSITION-----> ' + str(last_perfect_ckecpoint_position))
-    #print('TOTAL POINTS CHECKPOINTS ------> ' + str(len(checkpoints)))
-    #print('TOTAL POINTS PERFECT ----> ' + str(len(perfect_lap_checkpoints)))
-    #print('PERCENTAGE ---> ' + str((((last_perfect_ckecpoint_position-first_perfect_ckecpoint_position)/len(perfect_lap_checkpoints)) * 100) + laps * 100))
-    #print('PERCENTAGE COMPLETED -----> ' + str((last_perfect_ckecpoint_position / len(perfect_lap_checkpoints) * 100)))  
-    #print(last_checkpoint)
-    #print(np.array([perfect_lap_checkpoints[last_perfect_ckecpoint_position]['pose.pose.position.x'], perfect_lap_checkpoints[last_perfect_ckecpoint_position]['pose.pose.position.y']]))
-    #print('------------------------------------------------------------------------------------------------')
+
     lap_statistics['percentage_completed'] = (((last_perfect_ckecpoint_position-first_perfect_ckecpoint_position)/len(perfect_lap_checkpoints)) * 100) + laps * 100
-    
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
