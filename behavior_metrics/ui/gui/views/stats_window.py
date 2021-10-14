@@ -26,5 +26,9 @@ class StatsWindow(QMainWindow):
             self.layout.addWidget(self.average_speed_label)
             self.circuit_diameter_label = QLabel("Circuit diameter -> " + str(self.controller.lap_statistics['circuit_diameter']) + "m")
             self.layout.addWidget(self.circuit_diameter_label)
+            self.position_deviation_mae_label = QLabel("Position deviation MAE -> " + str(self.controller.lap_statistics['position_deviation_mae']))
+            self.layout.addWidget(self.position_deviation_mae_label)
+            self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.lap_statistics['position_deviation_total_err']))
+            self.layout.addWidget(self.position_deviation_total_err_label)
             
         wid.setLayout(self.layout)
