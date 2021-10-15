@@ -70,10 +70,12 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
         perfect_lap_checkpoints.append(row)
 
     start_point = perfect_lap_checkpoints[0]
-    for x, point in enumerate(perfect_lap_checkpoints):
-        if x > 100 and is_finish_line(point, start_point):
-            lap_point = point
-            break
+    lap_point = 0
+    for ckp_iter, point in enumerate(perfect_lap_checkpoints):
+        if ckp_iter > 100  and is_finish_line(point, start_point):
+            if type(lap_point) == int:
+                lap_point = point
+                break
 
     circuit_diameter = circuit_distance_completed(perfect_lap_checkpoints, lap_point)
     shutil.rmtree(ground_truth_lap_file.split('.bag')[0])
