@@ -44,7 +44,6 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.config = config
-        self.camera_deviation_error = []
         
         if self.config['GPU'] is False:
             os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -89,38 +88,6 @@ class Brain:
             mid = np.abs(left - right) / 2 + left
         return int(mid)
 
-    def get_camera_deviation_error(self, image_cropped):
-        image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_RGB2HSV)
-        lower_red = np.array([0, 50, 50])
-        upper_red = np.array([180, 255, 255])
-        image_mask = cv2.inRange(image_hsv, lower_red, upper_red)
-
-        rows, cols = image_mask.shape
-        rows = rows - 1  # para evitar desbordamiento
-
-        alt = 0
-        ff = cv2.reduce(image_mask, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32S)
-        if np.count_nonzero(ff[:, 0]) > 0:
-            alt = np.min(np.nonzero(ff[:, 0]))
-
-        points = []
-        for i in range(3):
-            if i == 0:
-                index = alt
-            else:
-                index = rows // (2 * i)
-            points.append((self.get_point(index, image_mask), index))
-
-        points.append((self.get_point(rows, image_mask), rows))
-
-        position_x_down = np.where(image_mask[points[3][1], :])
-
-        # We see that white pixels have been located and we look if the center is located
-        # In this way we can know if the car has left the circuit
-        x_middle_left_down, not_found_down = self.check_center(position_x_down)
-
-        return abs(326 - x_middle_left_down) if not_found_down is False else 500
-
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
@@ -142,8 +109,6 @@ class Brain:
             else:
                 img = image
 
-            camera_deviation_error = self.get_devcamera_deviation_error(image)
-            self.camera_deviation_error.append(camera_deviation_error)
 
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
