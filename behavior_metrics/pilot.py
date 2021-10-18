@@ -14,8 +14,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
-from datetime import datetime
 
+from datetime import datetime
 from brains.brains_handler import Brains
 from robot.actuators import Actuators
 from robot.sensors import Sensors
@@ -53,7 +53,7 @@ class Pilot(threading.Thread):
             configuration {utils.configuration.Config} -- Configuration instance of the application
             controller {utils.controller.Controller} -- Controller instance of the MVC of the application
         """
-        
+
         self.controller = controller
         self.controller.set_pilot(self)
         self.configuration = configuration
@@ -61,43 +61,50 @@ class Pilot(threading.Thread):
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
         self.brain_path = brain_path
+        self.robot_type = self.brain_path.split("/")[-2]
         self.sensors = None
         self.actuators = None
         self.brains = None
         self.initialize_robot()
-        self.pose3d = self.sensors.get_pose3d('pose3d_0')
-        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        if self.robot_type == 'drone':
+            self.pose3d = self.brains.active_brain.getPose3d()
+            self.start_pose = np.array([self.pose3d[0], self.pose3d[1]])
+        else:
+            self.pose3d = self.sensors.get_pose3d('pose3d_0')
+            self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
         self.previous = datetime.now()
         self.checkpoints = []
         self.metrics = {}
         self.checkpoint_save = False
         self.max_distance = 0.5
-        
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
 
-        gazebo_ready = False
+        # gazebo_ready = False
         self.stop_event.set()
-#         while not gazebo_ready:
-#             try:
-#                 self.controller.pause_gazebo_simulation()
-#                 gazebo_ready = True
-#                 self.stop_event.clear()
-#             except Exception as ex:
-#                 print(ex)
+
+    #         while not gazebo_ready:
+    #             try:
+    #                 self.controller.pause_gazebo_simulation()
+    #                 gazebo_ready = True
+    #                 self.stop_event.clear()
+    #             except Exception as ex:
+    #                 print(ex)
 
     def initialize_robot(self):
         """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
         self.stop_interfaces()
-        self.actuators = Actuators(self.configuration.actuators)
-        self.sensors = Sensors(self.configuration.sensors)
+        if self.robot_type != 'drone':
+            self.actuators = Actuators(self.configuration.actuators)
+            self.sensors = Sensors(self.configuration.sensors)
         if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
-            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller, self.configuration.experiment_model)
+            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
+                                 self.configuration.experiment_model, self.configuration.brain_kwargs)
         else:
-            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller)
+            self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
+                                 config=self.configuration.brain_kwargs)
         self.__wait_gazebo()
-
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
@@ -114,28 +121,30 @@ class Pilot(threading.Thread):
         it = 0
         ss = time.time()
         stopped_brain_stats = False
-        succesful_iteration = False
+        successful_iteration = False
         brain_iterations_time = []
-        while (not self.kill_event.is_set()):
+        while not self.kill_event.is_set():
             start_time = datetime.now()
             if not self.stop_event.is_set():
                 stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
-                    succesful_iteration = True
+                    successful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-                    succesful_iteration = False
+                    successful_iteration = False
             else:
                 if stopped_brain_stats:
                     stopped_brain_stats = False
-                    succesful_iteration = False
+                    successful_iteration = False
                     try:
                         logger.info('----- MEAN INFERENCE TIME -----')
                         self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-                        frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
+                            self.brains.active_brain.inference_times)
+                        frame_rate = len(self.brains.active_brain.inference_times) / sum(
+                            self.brains.active_brain.inference_times)
                         gpu_inferencing = self.brains.active_brain.gpu_inferencing
                         first_image = self.brains.active_brain.first_image
                         logger.info(mean_inference_time)
@@ -148,23 +157,26 @@ class Pilot(threading.Thread):
                         gpu_inferencing = False
                         first_image = None
                         logger.info('No inference brain')
+
                     logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
                     logger.info(hasattr(self.controller, 'stats_filename'))
-                    if hasattr(self.controller, 'stats_filename') and self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
+                    if hasattr(self.controller, 'stats_filename') and \
+                            self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                         try:
                             logger.info('Entering Stats into Bag')
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image)
+                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
+                                                            gpu_inferencing, first_image)
                         except Exception as e:
                             logger.info('Empty ROS bag')
                             logger.error(e)
-                    brain_iterations_time = [] 
+                    brain_iterations_time = []
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            if succesful_iteration:
-                brain_iterations_time.append(ms/1000)
+            if successful_iteration:
+                brain_iterations_time.append(ms / 1000)
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1
@@ -172,9 +184,9 @@ class Pilot(threading.Thread):
                 ss = time.time()
                 it = 0
 
-            if (ms < TIME_CYCLE):
+            if ms < TIME_CYCLE:
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-        
+
         logger.info('Pilot: pilot killed.')
 
     def stop(self):
@@ -204,8 +216,9 @@ class Pilot(threading.Thread):
         Arguments:
             brain_path {str} -- Path to the brain module to load.
         """
+        print("aaaa")
         self.brains.load_brain(brain_path, model=model)
-            
+
     def finish_line(self):
         pose = self.pose3d.getPose3d()
         current_point = np.array([pose.x, pose.y])
@@ -217,4 +230,3 @@ class Pilot(threading.Thread):
         if dist < self.max_distance:
             return True
         return False
-        

@@ -31,7 +31,8 @@ import numpy as np
 from utils import metrics
 from utils import environment
 from utils.logger import logger
-    
+
+
 def tmp_random_initializer(current_world, stats_perfect_lap, randomize=False, gui=False, launch=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
@@ -76,7 +77,7 @@ def tmp_random_initializer(current_world, stats_perfect_lap, randomize=False, gu
     elif current_circuit == "lap-simple-circuit":
         orientation_z = -1.5
     
-    random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3) ,
+    random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
                                 round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), 
                                 round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
     

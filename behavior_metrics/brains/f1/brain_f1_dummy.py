@@ -5,7 +5,7 @@
 class Brain:
     """Specific dummy brain for the f1 robot."""
 
-    def __init__(self, sensors, actuators, handler=None):
+    def __init__(self, sensors, actuators, handler=None, config=None):
         """Constructor of the class.
 
         Arguments:

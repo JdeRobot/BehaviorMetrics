@@ -30,12 +30,21 @@ import numpy as np
 from utils import metrics
 from utils import environment
 from utils.logger import logger
-from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
+from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, CIRCUITS_TIMEOUTS
 from pilot import Pilot
 from utils.random_initializer import tmp_random_initializer
+from rosgraph_msgs.msg import Clock
+
+clock_time = None
+
+
+def clock_callback(clock_data):
+    global clock_time
+    clock_time = clock_data.clock.to_sec()
 
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
+    global clock_time
     # Start Behavior Metrics app
     tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], randomize=randomize, gui=True, launch=True)
 
@@ -43,6 +52,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
     pilot.daemon = True
     controller.pilot.start()
     for world_counter, world in enumerate(app_configuration.current_world):
+        import os
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
@@ -60,14 +70,21 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     controller.reload_brain(brain)
                 controller.resume_pilot()
                 controller.unpause_gazebo_simulation()
-                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
-
-                time_start = rospy.get_time()
+                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
+                                        world_counter=world_counter, brain_counter=brain_counter,
+                                        repetition_counter=repetition_counter)
+                
+                clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-
+                time_start = clock_time
+                
                 is_finished = False
-                while (rospy.get_time() - time_start < app_configuration.experiment_timeouts[world_counter] and not is_finished) or rospy.get_time() - time_start < 10:
+                if hasattr(app_configuration, 'experiment_timeouts'):
+                    experiment_timeout = app_configuration.experiment_timeouts[world_counter]
+                else:
+                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)]  * 1.1
+                while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 10:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
@@ -81,7 +98,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--- END TIME ----------------')
-                time_end = rospy.get_time()
+                time_end = clock_time
+                clock_subscriber.unregister()
                 logger.info(time_end - time_start)
                 controller.stop_record_stats()
                 # 3. Stop

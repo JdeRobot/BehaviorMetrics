@@ -34,46 +34,50 @@ def is_finish_line(point, start_point):
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
-    if dist < 0.5:
+    if dist <= 1.0:
         return True
     return False
+
 
 def circuit_distance_completed(checkpoints, lap_point):
     previous_point = []
     diameter = 0
     for i, point in enumerate(checkpoints):
         current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        if i is not 0:
+        if i != 0:
             dist = (previous_point - current_point) ** 2
             dist = np.sum(dist, axis=0)
             dist = np.sqrt(dist)
             diameter += dist
         if point is lap_point:
             break
-        previous_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        previous_point = current_point
     return diameter
+
 
 def read_perfect_lap_rosbag(ground_truth_lap_file):
     bag_reader = bagreader(ground_truth_lap_file)
-    csvfiles = []
+    csv_files = []
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
-        csvfiles.append(data)
+        csv_files.append(data)
     
     ground_truth_file_split = ground_truth_lap_file.split('.bag')[0]
     data_file = ground_truth_file_split + '/F1ROS-odom.csv'
     dataframe_pose = pd.read_csv(data_file)
-    checkpoints = []
+    perfect_lap_checkpoints = []
     for index, row in dataframe_pose.iterrows():
-        checkpoints.append(row)
+        perfect_lap_checkpoints.append(row)
 
-    perfect_lap_checkpoints = checkpoints
-    start_point = checkpoints[0]
-    for x, point in enumerate(checkpoints):
-        if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
-            lap_point = point
+    start_point = perfect_lap_checkpoints[0]
+    lap_point = 0
+    for ckp_iter, point in enumerate(perfect_lap_checkpoints):
+        if ckp_iter > 100  and is_finish_line(point, start_point):
+            if type(lap_point) == int:
+                lap_point = point
+                break
 
-    circuit_diameter = circuit_distance_completed(checkpoints, lap_point)
+    circuit_diameter = circuit_distance_completed(perfect_lap_checkpoints, lap_point)
     shutil.rmtree(ground_truth_lap_file.split('.bag')[0])
     return perfect_lap_checkpoints, circuit_diameter
 
@@ -81,42 +85,77 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
 def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     lap_statistics = {}
     bag_reader = bagreader(stats_filename)
-    csvfiles = []
+    csv_files = []
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
-        csvfiles.append(data)
+        csv_files.append(data)
 
     data_file = stats_filename.split('.bag')[0] + '/F1ROS-odom.csv'
     dataframe_pose = pd.read_csv(data_file)
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
+    data_file = stats_filename.split('.bag')[0] + '/clock.csv'
+    dataframe_pose = pd.read_csv(data_file)
+    clock_points = []
+    for index, row in dataframe_pose.iterrows():
+        clock_points.append(row)
 
-    start_point = checkpoints[0]
     end_point = checkpoints[len(checkpoints)-1]
+    start_clock = clock_points[0]
     lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100      
-    lap_statistics = get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
-    if lap_statistics['percentage_completed'] > 100:
-        lap_point = 0
-        start_point = checkpoints[0]
-        for x, point in enumerate(checkpoints):
-            if x is not 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point) :
+    lap_point = 0
+    start_point = checkpoints[0]
+    previous_lap_point = 0 
+    laps = 0
+    for ckp_iter, point in enumerate(checkpoints):
+        if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+            if type(lap_point) == int:
                 lap_point = point
-        if type(lap_point) is not int:
-            seconds_start = start_point['header.stamp.secs']
-            seconds_end = lap_point['header.stamp.secs']
-            lap_statistics['lap_seconds'] = seconds_end - seconds_start
-            lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
-            lap_statistics['average_speed'] = circuit_distance_completed(checkpoints, lap_point)/lap_statistics['lap_seconds']
-        else:
-            logger.info('Lap seems completed but lap point wasn\'t found')
+            if ckp_iter - 1 != previous_lap_point:
+                laps += 1
+            previous_lap_point = ckp_iter
 
+    if type(lap_point) is not int:
+        seconds_start = start_clock['clock.secs']
+        seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
+        lap_statistics['lap_seconds'] = seconds_end - seconds_start
+        lap_statistics['circuit_diameter'] = circuit_distance_completed(checkpoints, lap_point)
+        lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
+        lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point)
+    else:
+        logger.info('Lap not completed')
+        
+    first_checkpoint = checkpoints[0]
+    first_checkpoint = np.array([first_checkpoint['pose.pose.position.x'], first_checkpoint['pose.pose.position.y']])
+    last_checkpoint = checkpoints[len(checkpoints)-1]
+    last_checkpoint = np.array([last_checkpoint['pose.pose.position.x'], last_checkpoint['pose.pose.position.y']])
+    min_distance_first = 100
+    min_distance_last = 100
+    previous_point = []
+    for i, point in enumerate(perfect_lap_checkpoints): 
+        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        if i != 0:               
+            dist = (first_checkpoint - current_point) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_distance_first:
+                min_distance_first = dist
+                first_perfect_ckecpoint_position = i
+                
+            dist = (last_checkpoint - current_point) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_distance_last:
+                min_distance_last = dist
+                last_perfect_ckecpoint_position = i
+
+    lap_statistics['percentage_completed'] = (((last_perfect_ckecpoint_position-first_perfect_ckecpoint_position)/len(perfect_lap_checkpoints)) * 100) + laps * 100
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
 
-def get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statistics):
-    start_time = datetime.now()
+
+def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point):
     min_dists = []
     previous_checkpoint_x = 0
     for checkpoint in checkpoints:
@@ -125,7 +164,7 @@ def get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statis
         for x, perfect_checkpoint in enumerate(perfect_lap_checkpoints):
             if x >= previous_checkpoint_x:
                 if abs(checkpoint['pose.pose.position.x'] - perfect_checkpoint['pose.pose.position.x']) < 1.5 and abs(checkpoint['pose.pose.position.y'] - perfect_checkpoint['pose.pose.position.y']) < 1.5:
-                    if (ten_checkpoints > 0):
+                    if ten_checkpoints > 0:
                         if ten_checkpoints == 10:
                             previous_checkpoint_x = x - 10
                         ten_checkpoints -= 1
@@ -138,9 +177,13 @@ def get_robot_orientation_score(perfect_lap_checkpoints, checkpoints, lap_statis
                             min_dist = dist 
                     else:
                         break
-        min_dists.append(min_dist)
+            if checkpoint['pose.pose.position.x'] == lap_point['pose.pose.position.x'] and checkpoint['pose.pose.position.y'] == lap_point['pose.pose.position.y']:
+                break
 
-    end_time = datetime.now()
-    lap_statistics['orientation_mae'] = sum(min_dists) / len(min_dists)
-    lap_statistics['orientation_total_err'] = sum(min_dists)
-    return lap_statistics
+        if min_dist < 100:
+            min_dists.append(min_dist)
+
+    lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+    lap_statistics['position_deviation_total_err'] = sum(min_dists)
+    
+    return lap_statistics 

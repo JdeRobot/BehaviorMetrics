@@ -33,7 +33,7 @@ from visual_control_utils.visualization import add_arrow_prediction
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
-    def __init__(self, sensors, actuators, model=None, handler=None):
+    def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         """Constructor of the class.
 
         Arguments:
@@ -44,6 +44,9 @@ class Brain:
             handler {brains.brain_handler.Brains} -- Handler of the current brain. Communication with the controller
             (default: {None})
         """
+
+        print("holaaaaaa000")
+
         self.motors = actuators.get_motor('motors_0')
         self.camera = sensors.get_camera('camera_0')
         self.handler = handler
@@ -52,10 +55,11 @@ class Brain:
 
         if not model:
             model = [
-                '/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6',
-                '/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7']
-            model = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_1"
+                '/media/frivas/External/phd/version_6', '/media/frivas/External/phd/version_7']
+            model = "/media/frivas/External/phd/version_1"
 
+
+        print(model)
 
         if model:
             if isinstance(model, str):

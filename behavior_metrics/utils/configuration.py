@@ -105,14 +105,21 @@ class Config:
         
         self.stats_out = config_data['Behaviors']['Stats']['Out']
         self.stats_perfect_lap = config_data['Behaviors']['Stats']['PerfectLap']
+
+        self.brain_kwargs = {}
         
-        if 'Model' in config_data['Behaviors']['Robot']:
-            self.experiment_model = config_data['Behaviors']['Robot']['Model']
-                
+        if 'Parameters' in config_data['Behaviors']['Robot']:
+            if 'Model' in config_data['Behaviors']['Robot']['Parameters']:
+                self.experiment_model = config_data['Behaviors']['Robot']['Parameters']['Model']
+            for param in config_data['Behaviors']['Robot']['Parameters']:
+                if param != 'Model':
+                    self.brain_kwargs[param] = config_data['Behaviors']['Robot']['Parameters'][param]
+
         if 'Experiment' in config_data['Behaviors']:
             self.experiment_name = config_data['Behaviors']['Experiment']['Name']
             self.experiment_description = config_data['Behaviors']['Experiment']['Description']
-            self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
+            if 'Timeout' in config_data['Behaviors']['Experiment']:
+                self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
             self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
         if self.robot_type == 'f1rl':

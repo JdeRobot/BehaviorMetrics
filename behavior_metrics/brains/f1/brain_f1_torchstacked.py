@@ -28,7 +28,7 @@ FLOAT = torch.FloatTensor
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
-    def __init__(self, sensors, actuators, model=None, handler=None):
+    def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         """Constructor of the class.
 
         Arguments:
@@ -45,13 +45,25 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.device = torch.device("cpu")
+
         self.gpu_inferencing = torch.cuda.is_available()
         self.first_image = None
-        self.horizon = 2
+        if config:
+            if 'ImageCrop' in config.keys():
+                self.cropImage = config['ImageCrop']
+            else:
+                self.cropImage = True
+
+            if 'Horizon' in config.keys():
+                self.horizon = config['Horizon']
+            else:
+                assert False, 'Please specify horizon to use stacked PilotNet brain'
+
         self.image_horizon = deque([], maxlen=self.horizon)
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
                                     ])
+            
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
@@ -70,6 +82,16 @@ class Brain:
         """
         self.handler.update_frame(frame_id, data)
 
+    def addPadding(self, img):
+
+        target_height = int(66)
+        target_width = int(target_height * img.shape[1]/img.shape[0])
+        img_resized = cv2.resize(img, (target_width, target_height))
+        padding_left = int((200 - target_width)/2)
+        padding_right = 200 - target_width - padding_left
+        img = cv2.copyMakeBorder(img_resized.copy(),0,0,padding_left,padding_right,cv2.BORDER_CONSTANT,value=[0, 0, 0])
+        return img
+
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
          
@@ -84,7 +106,10 @@ class Brain:
             self.cont = 0
 
         try:
-            image = image[240:480, 0:640]
+            if self.cropImage:
+                image = image[240:480, 0:640]
+            else:
+                image = self.addPadding(image)
             show_image = image
             img = cv2.resize(image, (int(200), int(66)))
             img = Image.fromarray(img)
@@ -100,10 +125,10 @@ class Brain:
 
             with torch.no_grad():
                 stacked_image = FLOAT(stacked_image.unsqueeze(0)).to(self.device)
-                prediction = self.net(stacked_image).numpy()
+                prediction = self.net(stacked_image).cpu().numpy()
             self.inference_times.append(time.time() - start_time)
             # prediction_v = prediction[0][0]*6.5
-            prediction_v = prediction[0][0]/2
+            prediction_v = prediction[0][0]
             prediction_w = prediction[0][1]
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)

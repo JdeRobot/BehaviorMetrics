@@ -17,7 +17,9 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/f1/brain_f1_torch.py'
-        Model: 'model_pilotnet_torch.ckpt'
+        Parameters:
+            Model: 'model_pilotnet_torch_extreme.ckpt'
+            ImageCrop: True
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
@@ -25,13 +27,13 @@ Behaviors:
         Timeout: 30
         Repetitions: 2
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch'
+        World: '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: './perfect_bags/lap-many-curves.bag'
+        PerfectLap: './perfect_bags/lap-montmelo.bag'
     Layout:
         Frame_0:
             Name: frame_0

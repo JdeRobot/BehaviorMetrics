@@ -42,8 +42,6 @@ def check_args(argv):
     Returns:
         dict -- dictionary with the detected configuration.
     """
-    config_data = {}
-
     parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
                                      epilog='Enjoy the program! :)')
 
@@ -67,7 +65,7 @@ def check_args(argv):
                        action='store_true',
                        help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
                            Colors.OKBLUE, Colors.ENDC))
-    
+
     group.add_argument('-s',
                        '--script',
                        action='store_true',
@@ -75,10 +73,10 @@ def check_args(argv):
                            Colors.OKBLUE, Colors.ENDC))
 
     parser.add_argument('-r',
-                       '--random',
-                       action='store_true',
-                       help='{}Run Behavior Metrics F1 with random spawning{}'.format(
-                           Colors.OKBLUE, Colors.ENDC))
+                        '--random',
+                        action='store_true',
+                        help='{}Run Behavior Metrics F1 with random spawning{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
 
     args = parser.parse_args()
 
@@ -94,7 +92,7 @@ def check_args(argv):
 
     if args.tui:
         config_data['tui'] = args.tui
-        
+
     if args.script:
         config_data['script'] = args.script
 
@@ -104,7 +102,7 @@ def check_args(argv):
     return config_data
 
 
-def conf_window(configuration, controller=None):
+def conf_window(configuration):
     """Gui windows for configuring the app. If not configuration file specified when launched, this windows appears,
     otherwise, main_win is called.
 
@@ -114,22 +112,20 @@ def conf_window(configuration, controller=None):
     Keyword Arguments:
         controller {Controller} -- controller part of the MVC of the application (default: {None})
     """
-    try:
 
-        from PyQt5.QtWidgets import QApplication
-        from ui.gui.views_controller import ParentWindow, ViewsController
+    from PyQt5.QtWidgets import QApplication
+    from ui.gui.views_controller import ParentWindow, ViewsController
 
-        app = QApplication(sys.argv)
-        main_window = ParentWindow()
+    app = QApplication(sys.argv)
+    main_window = ParentWindow()
 
-        views_controller = ViewsController(main_window, configuration)
-        views_controller.show_title()
+    views_controller = ViewsController(main_window, configuration)
+    views_controller.show_title()
 
-        main_window.show()
+    main_window.show()
 
-        app.exec_()
-    except Exception:
-        pass
+    app.exec_()
+
 
 
 def main_win(configuration, controller):
@@ -139,21 +135,19 @@ def main_win(configuration, controller):
         configuration {Config} -- configuration instance for the application
         controller {Controller} -- controller part of the MVC model of the application
     """
-    try:
-        from PyQt5.QtWidgets import QApplication
-        from ui.gui.views_controller import ParentWindow, ViewsController
+    from PyQt5.QtWidgets import QApplication
+    from ui.gui.views_controller import ParentWindow, ViewsController
 
-        app = QApplication(sys.argv)
-        main_window = ParentWindow()
+    app = QApplication(sys.argv)
+    main_window = ParentWindow()
 
-        views_controller = ViewsController(main_window, configuration, controller)
-        views_controller.show_main_view(True)
+    views_controller = ViewsController(main_window, configuration, controller)
+    views_controller.show_main_view(True)
 
-        main_window.show()
+    main_window.show()
 
-        app.exec_()
-    except Exception as e:
-        logger.error(e)
+    app.exec_()
+
 
 
 def main():
@@ -165,16 +159,19 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
-    
+
+    print("hola")
+
     # If there's no config, configure the app through the GUI
     if app_configuration.empty and config_data['gui']:
         conf_window(app_configuration)
-        
+
     # Launch the simulation
     if app_configuration.current_world and not config_data['script']:
         logger.debug('Launching Simulation... please wait...')
         if config_data['random']:
-            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, randomize=True, gui=True, launch=False)
+            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, randomize=True,
+                                   gui=True, launch=False)
             app_configuration.current_world = 'tmp_circuit.launch'
         environment.launch_env(app_configuration.current_world)
 
@@ -187,23 +184,34 @@ def main():
             t = TUI(controller)
             ttui = threading.Thread(target=t.run)
             ttui.start()
-          
+
     if not config_data['script']:
+        print("aaaaahol1a")
+
         # Launch control
         pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
         pilot.daemon = True
         pilot.start()
         logger.info('Executing app')
     else:
+        print("aaaaaho2la")
+
         script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
         logger.info('closing all processes...')
         environment.close_gazebo()
         logger.info('DONE! Bye, bye :)')
         return
-        
+
+    print("aaaaahola")
+
+
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
+        print("aaaaahola333311")
+
         main_win(app_configuration, controller)
+        print("aaaaahola3333")
+
     else:
         pilot.join()
 

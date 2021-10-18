@@ -19,21 +19,20 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import subprocess
 import threading
-from datetime import datetime
-
-import rospy
-from std_srvs.srv import Empty
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
-from utils.logger import logger
-
+import rospy
 import os
 import time
 import rosbag
 import json
-from std_msgs.msg import String
 
+from std_srvs.srv import Empty
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from datetime import datetime
+from utils.logger import logger
+from utils.constants import CIRCUITS_TIMEOUTS
+from std_msgs.msg import String
 from utils import metrics
 
 __author__ = 'fqez'
@@ -197,29 +196,33 @@ class Controller:
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
-            self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            if hasattr(self.pilot.configuration, 'experiment_timeouts'):
+                self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            else:
+                self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])] * 1.1
             self.metrics['experiment_repetition'] = repetition_counter
             
         self.perfect_lap_filename = perfect_lap_filename
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
         self.stats_filename = timestr + '.bag'
-        
-        topic = '/F1ROS/odom'
-        command = "rosbag record -O " + self.stats_filename + " " + topic + " __name:=behav_stats_bag"
+        topics = ['/F1ROS/odom', '/clock']
+        command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
         
     def stop_record_stats(self):
         logger.info("Stopping stats bag recording")
+       
+        
         command = "rosnode kill /behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while(os.path.isfile(self.stats_filename + '.active')):
+        while os.path.isfile(self.stats_filename + '.active'):
             pass
 
         checkpoints = []
@@ -234,9 +237,9 @@ class Controller:
         
     def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
         time_stats = {'mean_iteration_time': mean_iteration_time, 
-                    'mean_inference_time': mean_inference_time, 
-                    'frame_rate': frame_rate, 
-                    'gpu_inferencing': gpu_inferencing}
+                      'mean_inference_time': mean_inference_time,
+                      'frame_rate': frame_rate,
+                      'gpu_inferencing': gpu_inferencing}
         metrics_str = json.dumps(time_stats)
         stats_str = json.dumps(self.lap_statistics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
@@ -250,7 +253,6 @@ class Controller:
             else:
                 rospy.loginfo('Error: Image Broken and /first_image Skipped: {}'.format(first_image))
         bag.close()
-        
 
     def reload_brain(self, brain, model=None):
         """Helper function to reload the current brain from the GUI.
