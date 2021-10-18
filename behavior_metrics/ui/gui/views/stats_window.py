@@ -15,8 +15,6 @@ class StatsWindow(QMainWindow):
         self.layout.addWidget(self.percentage_completed_label)
         self.completed_distance_label = QLabel("Completed distance -> " + str(self.controller.lap_statistics['completed_distance']) + "m")
         self.layout.addWidget(self.completed_distance_label)
-        self.camera_deviation_error_label = QLabel("Mean camera deviation -> " + str(sum(self.controller.metrics['camera_deviation_error'])/len(self.controller.metrics['camera_deviation_error'])))
-        self.layout.addWidget(self.camera_deviation_error_label)
 
         # If lap is completed, extend information
         if 'lap_seconds' in self.controller.lap_statistics:

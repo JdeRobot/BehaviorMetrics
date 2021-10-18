@@ -15,7 +15,6 @@ class Brain:
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
-        self.camera_deviation_error = []
         # self.iteration = 0
         # self.json_data = []
         self.lock = threading.Lock()
@@ -141,8 +140,6 @@ class Brain:
             # In this way we can know if the car has left the circuit
             x_middle_left_down, not_found_down = self.check_center(position_x_down)
             x_middle_left_middle, not_found_middle = self.check_center(position_x_middle)
-
-            self.camera_deviation_error.append(abs(326 - x_middle_left_down) if not_found_down is False else 500)
 
             # We look if white pixels of the row above are located
             if (len(position_x_above[0]) > 1):
