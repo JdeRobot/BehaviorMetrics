@@ -16,22 +16,81 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: ['brains/f1/brain_f1_keras.py', 'brains/f1/brain_f1_keras.py']
-        Model: ['model_deepest_lstm_cropped_250_norm_max_pooling.h5', 'model_deepest_lstm_cropped_250_norm_test.h5']
+        BrainPath: ['brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py',
+                    'brains/f1/brain_f1_onnx_frivas.py'
+        ]
+        Model: [
+                ['/media/frivas/External/phd/001/version_0', '/media/frivas/External/phd/001/version_00'],
+                ['/media/frivas/External/phd/001/version_3', '/media/frivas/External/phd/001/version_4'],
+
+
+                '/media/frivas/External/phd/version_0',
+                '/media/frivas/External/phd/version_1',
+                '/media/frivas/External/phd/version_2',
+                '/media/frivas/External/phd/version_3',
+                '/media/frivas/External/phd/version_4',
+                '/media/frivas/External/phd/version_5',
+                ['/media/frivas/External/phd/version_6', '/media/frivas/External/phd/version_7'],
+                [ '/media/frivas/External/phd/version_8', '/media/frivas/External/phd/version_9' ],
+                '/media/frivas/External/phd/version_10',
+                '/media/frivas/External/phd/version_11',
+                '/media/frivas/External/phd/version_12',
+                '/media/frivas/External/phd/version_13',
+                '/media/frivas/External/phd/version_14',
+                '/media/frivas/External/phd/version_15',
+                '/media/frivas/External/phd/version_16',
+                [ '/media/frivas/External/phd/version_18', '/media/frivas/External/phd/version_17' ],
+                [ '/media/frivas/External/phd/version_20', '/media/frivas/External/phd/version_19' ],
+                '/media/frivas/External/phd/version_21',
+                '/media/frivas/External/phd/version_22',
+                '/media/frivas/External/phd/version_23',
+                '/media/frivas/External/phd/version_24',
+                '/media/frivas/External/phd/version_25',
+                '/media/frivas/External/phd/version_26',
+                [ '/media/frivas/External/phd/version_28', '/media/frivas/External/phd/version_27' ]
+        ]
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
         Description: "Experiment description"
-        Timeout: [30, 30]
+        Timeout: [120, 120, 120, 180]
         Repetitions: 2
     Simulation:
-        World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
+        World: ['/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: ['./perfect_bags/lap-simple-circuit.bag', './perfect_bags/lap-many-curves.bag']
+        PerfectLap: ['./perfect_bags/lap-montmelo.bag',
+                     './perfect_bags/lap-nurburgring.bag',
+                    './perfect_bags/lap-simple-circuit.bag',
+                     './perfect_bags/lap-many-curves.bag']
     Layout:
         Frame_0:
             Name: frame_0

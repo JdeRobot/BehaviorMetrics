@@ -11,6 +11,7 @@
         angular speed(w)
 
 """
+import sys
 
 import numpy as np
 import cv2
@@ -49,24 +50,56 @@ class Brain:
         self.cont = 0
         self.inference_times = []
 
+        if not model:
+            model = [
+                '/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6',
+                '/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7']
+            model = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_1"
+
+
+        if model:
+            if isinstance(model, str):
+                checkpoint_path_input = load_best_model(model)
+
+                check_points_info = {
+                    "combined": checkpoint_path_input,
+                    # "w": checkpoint_path_input_w,
+                    # "v": checkpoint_path_input_v
+                }
+            else:
+                print("Input model: {}".format(model))
+                check_points_info = {
+                    "w": load_best_model(model[0]),
+                    "v": load_best_model(model[1])
+                }
+
+            print("-----")
+            print("Len model: {}".format(len(model)))
+            print(model)
+        else:
+            model_path = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_10"
+            checkpoint_path_input = load_best_model(model_path)
+
+            check_points_info = {
+                "combined": checkpoint_path_input,
+                # "w": checkpoint_path_input_w,
+                # "v": checkpoint_path_input_v
+            }
+
+        # sys.exit(0)
+
 
         checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7/checkpoints/rc-classification-epoch=12-val_acc=1.00-val_loss=0.09.ckpt"
         checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_9/checkpoints/rc-classification-epoch=33-val_acc=0.98-val_loss=0.05.ckpt"
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6/checkpoints/rc-classification-epoch=19-val_acc=1.00-val_loss=0.03.ckpt"
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_8/checkpoints/rc-classification-epoch=34-val_acc=0.98-val_loss=0.06.ckpt"
 
-        model_path = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_10"
-
-        checkpoint_path_input = load_best_model(model_path)
 
 
-        check_points_info = {
-            "combined": checkpoint_path_input,
-            # "w": checkpoint_path_input_w,
-            # "v": checkpoint_path_input_v
-        }
 
         self.device = "cuda:0"
+
+        self.gpu_inferencing = "cuda" in self.device
 
 
         self.models = {}
@@ -132,9 +165,11 @@ class Brain:
             motors_info = net_config.get_real_values_from_estimation(prediction)
         else:
             raw_prediction = raw_prediction.numpy()
-            motors_info = {"w": raw_prediction[0], "v": raw_prediction[1]}
+            motors_info = {}
+            for idx, controller in enumerate(net_config.regression_data["controllers"]):
+                motors_info[controller] = raw_prediction[idx]
 
-        print(motors_info)
+        # print(motors_info)
 
         if "v" in motors_info:
             v = motors_info["v"]
@@ -171,11 +206,11 @@ class Brain:
 
 
         except Exception as exc:
-            print(exc)
+            print("ERROR  -> {}".format(exc))
 
 
-        # if self.cont == 1:
-        #     self.first_image = image
+        if self.cont == 1:
+            self.first_image = image
 
         # try:
         #     image = image[240:480, 0:640]

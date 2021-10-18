@@ -38,7 +38,7 @@ if __name__=="__main__":
 
     for root, dirs, files in os.walk(baginput):
         print("Total Number of Bags to Read from {}: {}".format(root, len(files)))
-        for name in files:
+        for name in sorted(files):
 
             bag_file = os.path.join(root, name)
 
@@ -149,3 +149,8 @@ if __name__=="__main__":
                 plt.title('Performance in "{}" circuit with metric "{}"'.format(world, key))
                 plt.savefig(directory+'/'+'performances/' + key + '.png')
                 plt.close()
+
+    for world in all_data.keys():
+        del all_data[world]["image"]
+
+    json.dump(all_data, open(os.path.join(output, "stats.json"), "w"))

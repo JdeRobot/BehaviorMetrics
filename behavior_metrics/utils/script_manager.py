@@ -37,7 +37,8 @@ from utils.random_initializer import tmp_random_initializer
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
     # Start Behavior Metrics app
-    tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], randomize=randomize, gui=False, launch=True)
+    tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], randomize=randomize, gui=True, launch=True)
+
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
@@ -45,8 +46,9 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
+                print("Rep counter: {} / {}".format(repetition_counter, app_configuration.experiment_repetitions))
                 # 1. Load world
-                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=False, launch=True)
+                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=True, launch=True)
                 controller.initialize_robot()
                 controller.pilot.configuration.current_world = world
                 controller.pilot.brains.brain_path = brain
@@ -94,6 +96,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     logger.info(app_configuration.experiment_model[brain_counter])
                 logger.info('--- STATS ---')
                 logger.info(controller.lap_statistics)
+                print("check: {} of {}".format(controller.lap_statistics['percentage_completed'], MIN_EXPERIMENT_PERCENTAGE_COMPLETED))
                 if controller.lap_statistics['percentage_completed'] < MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
                     logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
                     os.remove(controller.stats_filename)
