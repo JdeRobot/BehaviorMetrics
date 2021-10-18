@@ -216,7 +216,6 @@ class Pilot(threading.Thread):
         Arguments:
             brain_path {str} -- Path to the brain module to load.
         """
-        print("aaaa")
         self.brains.load_brain(brain_path, model=model)
 
     def finish_line(self):

@@ -691,7 +691,6 @@ class Toolbar(QWidget):
 
         try:
             self.current_brain_label.setText('Current brain: ' + txt)
-            print("bbbbbb")
             # load brain from controller
             self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
 

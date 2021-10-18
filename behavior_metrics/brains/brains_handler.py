@@ -45,10 +45,7 @@ class Brains(object):
             if robot_type == 'drone':
                 self.active_brain = Brain(handler=self, config=self.config)
             else:
-                print("holaaaaaa111111")
-                print(self.config)
-
-                if model: 
+                if model:
                     self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self, config=self.config)
                 elif hasattr(self, 'model'):
                     self.active_brain = Brain(self.sensors, self.actuators, model=self.model, handler=self, config=self.config)

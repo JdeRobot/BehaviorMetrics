@@ -112,20 +112,22 @@ def conf_window(configuration):
     Keyword Arguments:
         controller {Controller} -- controller part of the MVC of the application (default: {None})
     """
+    try:
 
-    from PyQt5.QtWidgets import QApplication
-    from ui.gui.views_controller import ParentWindow, ViewsController
+        from PyQt5.QtWidgets import QApplication
+        from ui.gui.views_controller import ParentWindow, ViewsController
 
-    app = QApplication(sys.argv)
-    main_window = ParentWindow()
+        app = QApplication(sys.argv)
+        main_window = ParentWindow()
 
-    views_controller = ViewsController(main_window, configuration)
-    views_controller.show_title()
+        views_controller = ViewsController(main_window, configuration)
+        views_controller.show_title()
 
-    main_window.show()
+        main_window.show()
 
-    app.exec_()
-
+        app.exec_()
+    except Exception:
+        pass
 
 
 def main_win(configuration, controller):
@@ -135,19 +137,21 @@ def main_win(configuration, controller):
         configuration {Config} -- configuration instance for the application
         controller {Controller} -- controller part of the MVC model of the application
     """
-    from PyQt5.QtWidgets import QApplication
-    from ui.gui.views_controller import ParentWindow, ViewsController
+    try:
+        from PyQt5.QtWidgets import QApplication
+        from ui.gui.views_controller import ParentWindow, ViewsController
 
-    app = QApplication(sys.argv)
-    main_window = ParentWindow()
+        app = QApplication(sys.argv)
+        main_window = ParentWindow()
 
-    views_controller = ViewsController(main_window, configuration, controller)
-    views_controller.show_main_view(True)
+        views_controller = ViewsController(main_window, configuration, controller)
+        views_controller.show_main_view(True)
 
-    main_window.show()
+        main_window.show()
 
-    app.exec_()
-
+        app.exec_()
+    except Exception as e:
+        logger.error(e)
 
 
 def main():
@@ -159,8 +163,6 @@ def main():
 
     # Create controller of model-view
     controller = Controller()
-
-    print("hola")
 
     # If there's no config, configure the app through the GUI
     if app_configuration.empty and config_data['gui']:
@@ -186,32 +188,21 @@ def main():
             ttui.start()
 
     if not config_data['script']:
-        print("aaaaahol1a")
-
         # Launch control
         pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
         pilot.daemon = True
         pilot.start()
         logger.info('Executing app')
     else:
-        print("aaaaaho2la")
-
         script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
         logger.info('closing all processes...')
         environment.close_gazebo()
         logger.info('DONE! Bye, bye :)')
         return
 
-    print("aaaaahola")
-
-
     # If GUI specified, launch it. Otherwise don't
     if config_data['gui']:
-        print("aaaaahola333311")
-
         main_win(app_configuration, controller)
-        print("aaaaahola3333")
-
     else:
         pilot.join()
 
