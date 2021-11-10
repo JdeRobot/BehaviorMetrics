@@ -157,33 +157,36 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
 
 def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point):
     min_dists = []
-    previous_checkpoint_x = 0
+    # previous_checkpoint_x = 0
     for checkpoint in checkpoints:
         min_dist = 100
-        ten_checkpoints = 10
+        # ten_checkpoints = 0
         for x, perfect_checkpoint in enumerate(perfect_lap_checkpoints):
-            if x >= previous_checkpoint_x:
-                if abs(checkpoint['pose.pose.position.x'] - perfect_checkpoint['pose.pose.position.x']) < 1.5 and abs(checkpoint['pose.pose.position.y'] - perfect_checkpoint['pose.pose.position.y']) < 1.5:
-                    if ten_checkpoints > 0:
-                        if ten_checkpoints == 10:
-                            previous_checkpoint_x = x - 10
-                        ten_checkpoints -= 1
-                        point_1 = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
-                        point_2 = np.array([perfect_checkpoint['pose.pose.position.x'], perfect_checkpoint['pose.pose.position.y']])
-                        dist = (point_2 - point_1) ** 2
-                        dist = np.sum(dist, axis=0)
-                        dist = np.sqrt(dist)
-                        if dist < min_dist:
-                            min_dist = dist 
-                    else:
-                        break
+            # if x >= previous_checkpoint_x:
+            # if abs(checkpoint['pose.pose.position.x'] - perfect_checkpoint['pose.pose.position.x']) < 2 and abs(checkpoint['pose.pose.position.y'] - perfect_checkpoint['pose.pose.position.y']) < 2:
+            # print('posible_punto')
+            # if ten_checkpoints > 0:
+            # if ten_checkpoints == 10:
+            #    previous_checkpoint_x = x - 10
+            # previous_checkpoint_x = x
+            # ten_checkpoints -= 1
+            point_1 = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
+            point_2 = np.array([perfect_checkpoint['pose.pose.position.x'], perfect_checkpoint['pose.pose.position.y']])
+            dist = (point_2 - point_1) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_dist:
+                min_dist = dist
+                # else:
+                #    break
             if checkpoint['pose.pose.position.x'] == lap_point['pose.pose.position.x'] and checkpoint['pose.pose.position.y'] == lap_point['pose.pose.position.y']:
                 break
 
         if min_dist < 100:
             min_dists.append(min_dist)
-
+    print('CHECKPOINTS NUMBER --------------------------> ' + str(len(checkpoints)))
+    print('MIN DISTS NUMBER ----------------------------> ' + str(len(min_dists)))
     lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
     lap_statistics['position_deviation_total_err'] = sum(min_dists)
-    
-    return lap_statistics 
+
+    return lap_statistics
