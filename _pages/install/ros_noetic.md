@@ -149,7 +149,7 @@ If you are going to use the GUI you need to create the resources file for the ap
 
 ```bash
 pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
-	ehavior_metrics/ui/gui/resources/resources.qrc
+	behavior_metrics/ui/gui/resources/resources.qrc
 ```
 
 ### Reinforcement Learning
