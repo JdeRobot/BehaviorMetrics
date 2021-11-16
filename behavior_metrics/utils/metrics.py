@@ -160,6 +160,12 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
     previous_checkpoint_x = -1
     for error_counter, checkpoint in enumerate(checkpoints):
         min_dist = 100
+        #
+        # TODO:
+        # What happens if the car goes backwards some running time but still completes the circuit?
+        # Example: explicit brain in Montmeló!
+        #
+        #
         best_checkpoint = previous_checkpoint_x + 1
         if previous_checkpoint_x != -1:
             counter = 1
