@@ -196,7 +196,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
                     break
         previous_checkpoint_x = best_checkpoint
         if min_dist < 100:
-            min_dists.append(100**min_dist)
+            min_dists.append(1000**min_dist)
     lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
     lap_statistics['position_deviation_total_err'] = sum(min_dists)
 
