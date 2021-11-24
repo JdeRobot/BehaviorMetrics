@@ -11,6 +11,7 @@
 
 import numpy as np
 
+import keras
 import cv2
 import time
 import os
@@ -20,6 +21,7 @@ from os import path
 from albumentations import (
     Compose, Normalize
 )
+from utils.gradcam.gradcam import GradCAM
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
 
@@ -44,18 +46,18 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.config = config
-        
+
         if self.config['GPU'] is False:
             os.environ["CUDA_VISIBLE_DEVICES"]="-1"
         import tensorflow as tf
-        
+
         self.gpu_inferencing = True if tf.test.gpu_device_name() else False
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            self.net = keras.models.load_model(PRETRAINED_MODELS + model)
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
@@ -109,7 +111,7 @@ class Brain:
             else:
                 img = image
 
-
+            orig = img
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
                     Normalize()
@@ -137,6 +139,14 @@ class Brain:
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+
+            # GradCAM from image
+            i = np.argmax(prediction[0])
+            cam = GradCAM(self.net, i)
+            heatmap = cam.compute_heatmap(img)
+            heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
+            (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
+            self.update_frame('frame_1', output)
 
         except Exception as err:
             print(err)
