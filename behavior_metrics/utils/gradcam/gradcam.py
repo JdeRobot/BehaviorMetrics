@@ -1,4 +1,5 @@
 from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -22,7 +23,8 @@ class GradCAM:
         # by looping over the layers of the network in reverse order
         for layer in reversed(self.model.layers):
             # check to see if the layer has a 4D output
-            if len(layer.output_shape) == 4:
+            #if i > 6 and len(layer.output_shape) == 4:
+            if len(layer.output_shape) == 4 and type(layer) == Conv2D:
                 return layer.name
         # otherwise, we could not find a 4D layer so the GradCAM
         # algorithm cannot be applied
@@ -45,7 +47,8 @@ class GradCAM:
             # associated with the specific class index
             inputs = tf.cast(image, tf.float32)
             (conv_outputs, predictions) = grad_model(inputs)
-            loss = predictions[:, self.class_idx]
+            #loss = predictions[:, self.class_idx]
+            loss = predictions[:, 1]
         # use automatic differentiation to compute the gradients
         grads = tape.gradient(loss, conv_outputs)
 
@@ -89,4 +92,3 @@ class GradCAM:
         # return a 2-tuple of the color mapped heatmap and the output,
         # overlaid image
         return heatmap, output
-
