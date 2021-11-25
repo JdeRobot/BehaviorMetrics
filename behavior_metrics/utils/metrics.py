@@ -157,7 +157,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     if first_perfect_checkpoint_position > last_perfect_checkpoint_position:
         lap_statistics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
     else:
-        lap_statistics['percentage_completed'] = (((last_perfect_ckecpoint_position - first_perfect_ckecpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
+        lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
 
