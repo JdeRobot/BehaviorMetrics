@@ -23,7 +23,7 @@ from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
 
-from scipy.optimize import fmin
+from scipy.optimize import fminbound, dual_annealing
 from scipy.interpolate import CubicSpline
 
 
@@ -160,30 +160,35 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
 
 def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point):
     min_dists = []
-    previous_t = 0
 
     # Get list of points
     point_x = []; point_y = []; point_t = []
-    for x, perfect_checkpoint in enumerate(perfect_lap_checkpoints):
-        point_x.append(perfect_checkpoint['pose.pose.position.x'])
-        point_y.append(perfect_checkpoint['pose.pose.position.y'])
+    for x, checkpoint in enumerate(checkpoints):
+        point_x.append(checkpoint['pose.pose.position.x'])
+        point_y.append(checkpoint['pose.pose.position.y'])
         point_t.append(x)
+        
+    point_x.append(point_x[0])
+    point_y.append(point_y[0])
+    point_t.append(point_t[-1] + 1)
 
     # Generate Spline from points
     spline_x = CubicSpline(point_t, point_x)
     spline_y = CubicSpline(point_t, point_y)
 
     # Iterate through checkpoints and calculate minimum distance
-    for error_counter, checkpoint in enumerate(checkpoints):
+    for error_counter, checkpoint in enumerate(perfect_lap_checkpoints):
         point = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
-        distance_function = lambda t: (point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2
+        distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
         
-        min_t = fmin(distance_function, np.array([previous_t]), disp=False)
-        previous_t = min_t[0]
-        min_dist = distance_function(previous_t)
+        min_t = fminbound(distance_function, -len(point_x), len(point_x))
+        min_dist = distance_function(min_t)
+        
+        if min_dist > 1:
+            min_t = dual_annealing(distance_function, bounds = [(0, len(point_x))]).x[0]
+            min_dist = distance_function(min_t)
 
-        if min_dist < 100:
-            min_dists.append(min_dist)
+        min_dists.append(1000 ** min_dist)
 
     lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
     lap_statistics['position_deviation_total_err'] = sum(min_dists)
