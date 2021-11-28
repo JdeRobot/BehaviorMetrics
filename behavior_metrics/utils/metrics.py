@@ -23,7 +23,7 @@ from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
 
-from scipy.optimize import fminbound, dual_annealing
+from scipy.optimize import fmin, dual_annealing
 from scipy.interpolate import CubicSpline
 
 
@@ -168,25 +168,42 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         point_y.append(checkpoint['pose.pose.position.y'])
         point_t.append(x)
         
+    # Get starting point of perfect checkpoints
+    for error_counter, checkpoint in enumerate(perfect_lap_checkpoints):
+        point = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
+        break
+        
+    # Rotate the x and y to start according to perfect checkpoints
+    min_dist = 100; index_t = -1
+    for i, (x, y) in enumerate(zip(point_x, point_y)):
+        dist = np.sqrt((point[0] - x) ** 2 + (point[1] - y) ** 2)
+        if min_dist > dist:
+            min_dist = dist
+            index_t = i
+        
+    point_x = point_x[index_t:] + point_x[:index_t]
+    point_y = point_y[index_t:] + point_y[:index_t]
+    
+    # Generate Periodic spline from points
     point_x.append(point_x[0])
     point_y.append(point_y[0])
     point_t.append(point_t[-1] + 1)
 
-    # Generate Spline from points
-    spline_x = CubicSpline(point_t, point_x)
-    spline_y = CubicSpline(point_t, point_y)
+    spline_x = CubicSpline(point_t, point_x, bc_type = 'periodic')
+    spline_y = CubicSpline(point_t, point_y, bc_type = 'periodic')
 
     # Iterate through checkpoints and calculate minimum distance
+    previous_t = 0
     for error_counter, checkpoint in enumerate(perfect_lap_checkpoints):
         point = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
         distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
         
-        min_t = fminbound(distance_function, -len(point_x), len(point_x))
-        min_dist = distance_function(min_t)
+        previous_t = fmin(distance_function, np.array([previous_t]), disp = False)[0]
+        min_dist = distance_function(previous_t)
         
         if min_dist > 1:
-            min_t = dual_annealing(distance_function, bounds = [(0, len(point_x))]).x[0]
-            min_dist = distance_function(min_t)
+            previous_t = dual_annealing(distance_function, bounds = [(0, len(point_x))]).x[0]
+            min_dist = distance_function(previous_t)
 
         min_dists.append(1000 ** min_dist)
 
