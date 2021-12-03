@@ -119,15 +119,16 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
             if ckp_iter - 1 != previous_lap_point:
                 laps += 1
             previous_lap_point = ckp_iter
-
+    lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
+    seconds_start = start_clock['clock.secs']
+    seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
+    lap_statistics['average_speed'] = lap_statistics['completed_distance'] / (seconds_end - seconds_start)
     # If lap is completed, add more statistic information
     if type(lap_point) is not int:
         seconds_start = start_clock['clock.secs']
         seconds_end = clock_points[int(len(clock_points)*(ckp_iter/len(checkpoints)))]['clock.secs']
         lap_statistics['lap_seconds'] = seconds_end - seconds_start
         lap_statistics['circuit_diameter'] = circuit_diameter
-        lap_statistics['average_speed'] = lap_statistics['circuit_diameter']/lap_statistics['lap_seconds']
-        lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point)
     else:
         logger.info('Lap not completed')
 
@@ -165,7 +166,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     return lap_statistics
 
 
-def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics, lap_point):
+def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics):
     min_dists = []
 
     # Get list of points
