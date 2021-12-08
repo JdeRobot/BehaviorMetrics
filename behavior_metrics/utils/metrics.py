@@ -23,6 +23,9 @@ from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
 
+from scipy.optimize import fmin, dual_annealing
+from scipy.interpolate import CubicSpline
+
 
 def is_finish_line(point, start_point):
     try:
@@ -165,44 +168,64 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
 
 def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics):
     min_dists = []
-    previous_checkpoint_x = -1
-    for error_counter, checkpoint in enumerate(checkpoints):
-        min_dist = 100
-        best_checkpoint = previous_checkpoint_x + 1
-        if previous_checkpoint_x != -1:
-            counter = -10
-            new_counter = 0
-            while counter < 10:
-                if previous_checkpoint_x + counter < len(perfect_lap_checkpoints):
-                    perfect_checkpoint = perfect_lap_checkpoints[previous_checkpoint_x + counter]
-                else:
-                    perfect_checkpoint = perfect_lap_checkpoints[new_counter]
-                    new_counter += 1
-                point_1 = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
-                point_2 = np.array([perfect_checkpoint['pose.pose.position.x'], perfect_checkpoint['pose.pose.position.y']])
-                dist = (point_2 - point_1) ** 2
-                dist = np.sum(dist, axis=0)
-                dist = np.sqrt(dist)
-                if dist < min_dist:
-                    min_dist = dist
-                    if previous_checkpoint_x + counter < len(perfect_lap_checkpoints):
-                        best_checkpoint = previous_checkpoint_x + counter
-                    else:
-                        best_checkpoint = new_counter - 1
-                counter += 1
-        else:
-            for x, perfect_checkpoint in enumerate(perfect_lap_checkpoints):
-                point_1 = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
-                point_2 = np.array([perfect_checkpoint['pose.pose.position.x'], perfect_checkpoint['pose.pose.position.y']])
-                dist = (point_2 - point_1) ** 2
-                dist = np.sum(dist, axis=0)
-                dist = np.sqrt(dist)
-                if dist < min_dist:
-                    min_dist = dist
-                    best_checkpoint = x
-        previous_checkpoint_x = best_checkpoint
-        if min_dist < 100:
-            min_dists.append(1000**min_dist)
+
+    # Get list of points
+    point_x = []; point_y = []; point_t = []
+    for x, checkpoint in enumerate(checkpoints):
+        point_x.append(checkpoint['pose.pose.position.x'])
+        point_y.append(checkpoint['pose.pose.position.y'])
+        point_t.append(x)
+
+    # Generate a natural spline from points
+    spline_x = CubicSpline(point_t, point_x, bc_type = 'natural')
+    spline_y = CubicSpline(point_t, point_y, bc_type = 'natural')
+        
+    # Rotate the x and y to start according to checkpoints
+    min_dist = 100; index_t = -1
+    perfect_x = []; perfect_y = []
+    for i, checkpoint in enumerate(perfect_lap_checkpoints):
+        x = checkpoint['pose.pose.position.x']
+        y = checkpoint['pose.pose.position.y']
+        perfect_x.append(x)
+        perfect_y.append(y)
+        
+        dist = np.sqrt((point_x[0] - x) ** 2 + (point_y[0] - y) ** 2)
+        if min_dist > dist:
+            min_dist = dist
+            index_t = i
+        
+    perfect_x = perfect_x[index_t:] + perfect_x[:index_t]
+    perfect_y = perfect_y[index_t:] + perfect_y[:index_t]
+
+    # Iterate through checkpoints and calculate minimum distance
+    previous_t = 0; perfect_index = 0
+    while True:
+        x = perfect_x[perfect_index]
+        y = perfect_y[perfect_index]
+
+        point = np.array([x, y])
+        distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
+
+        # Local Optimization for minimum distance
+        previous_t = fmin(distance_function, np.array([previous_t]), disp = False)[0]
+        min_dist = distance_function(previous_t)
+        
+        # Global Optimization if minimum distance is greater than expected
+        # OR
+        # at start checkpoints, since the car may be at start position during initialization (NN Brain)
+        if min_dist > 1 or perfect_index in [0, 1, 2]:
+            min_bound = previous_t
+            max_bound = previous_t + 100
+            previous_t = dual_annealing(distance_function, bounds = [(min_bound, max_bound)]).x[0]
+            min_dist = distance_function(previous_t)
+
+        # Loop only till all the available points
+        if previous_t > point_t[-1] - 1:
+            break
+
+        min_dists.append(1000 ** min_dist)
+        perfect_index = (perfect_index + 1) % len(perfect_x)
+
     lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
     lap_statistics['position_deviation_total_err'] = sum(min_dists)
 
