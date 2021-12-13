@@ -28,7 +28,7 @@ from scipy.interpolate import CubicSpline
 
 MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
 MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
-MIN_EXPERIMENT_TIME = 20
+MIN_EXPERIMENT_TIME = 15
 
 def is_finish_line(point, start_point):
     try:
@@ -168,7 +168,7 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         else:
             lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100)
 
-    if lap_statistics['percentage_completed'] > MIN_PERCENTAGE_COMPLETED_EXPERIMENT and lap_statistics['completed_distance'] > MIN_COMPLETED_DISTANCE_EXPERIMENT and seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
+    if lap_statistics['percentage_completed'] > MIN_PERCENTAGE_COMPLETED_EXPERIMENT:
         lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     else:
         lap_statistics['position_deviation_mae'] = 0
