@@ -119,7 +119,6 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
             if ckp_iter - 1 != previous_lap_point:
                 laps += 1
             previous_lap_point = ckp_iter
-    lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
     lap_statistics['average_speed'] = lap_statistics['completed_distance'] / (seconds_end - seconds_start)
@@ -162,6 +161,12 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
         lap_statistics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
     else:
         lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
+
+    if lap_statistics['percentage_completed'] > 0:
+        lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
+    else:
+        lap_statistics['position_deviation_mae'] = 0
+        lap_statistics['position_deviation_total_err'] = 0
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
 
