@@ -160,9 +160,12 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     if first_perfect_checkpoint_position > last_perfect_checkpoint_position and lap_statistics['completed_distance'] > 10:
         lap_statistics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
     else:
-        lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
+        if seconds_end - seconds_start > 20:
+            lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
+        else:
+            lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100)
 
-    if lap_statistics['percentage_completed'] > 0:
+    if lap_statistics['percentage_completed'] > 0 and lap_statistics['completed_distance'] > 10 and seconds_end - seconds_start > 20:
         lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     else:
         lap_statistics['position_deviation_mae'] = 0
