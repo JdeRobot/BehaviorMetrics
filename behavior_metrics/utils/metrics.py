@@ -26,6 +26,9 @@ from utils.logger import logger
 from scipy.optimize import fmin, dual_annealing
 from scipy.interpolate import CubicSpline
 
+MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
+MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
+MIN_EXPERIMENT_TIME = 20
 
 def is_finish_line(point, start_point):
     try:
@@ -157,15 +160,15 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
                 min_distance_last = dist
                 last_perfect_checkpoint_position = i
 
-    if first_perfect_checkpoint_position > last_perfect_checkpoint_position and lap_statistics['completed_distance'] > 10:
+    if first_perfect_checkpoint_position > last_perfect_checkpoint_position and lap_statistics['completed_distance'] > MIN_COMPLETED_DISTANCE_EXPERIMENT:
         lap_statistics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
     else:
-        if seconds_end - seconds_start > 20:
+        if seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
             lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
         else:
             lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100)
 
-    if lap_statistics['percentage_completed'] > 0 and lap_statistics['completed_distance'] > 10 and seconds_end - seconds_start > 20:
+    if lap_statistics['percentage_completed'] > MIN_PERCENTAGE_COMPLETED_EXPERIMENT and lap_statistics['completed_distance'] > MIN_COMPLETED_DISTANCE_EXPERIMENT and seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
         lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     else:
         lap_statistics['position_deviation_mae'] = 0
