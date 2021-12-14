@@ -18,6 +18,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import pandas as pd
 import numpy as np
 import shutil
+import time
 
 from datetime import datetime
 from bagpy import bagreader
@@ -29,6 +30,7 @@ from scipy.interpolate import CubicSpline
 MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
 MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
 MIN_EXPERIMENT_TIME = 15
+POSITION_DEVIATION_CALCULATION_TIMEOUT = 180
 
 def is_finish_line(point, start_point):
     try:
@@ -215,6 +217,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
     # Iterate through checkpoints and calculate minimum distance
     previous_t = 0
     perfect_index = 0
+    current_computation_time = time.time()
+    computation_timeout = current_computation_time + POSITION_DEVIATION_CALCULATION_TIMEOUT
     while True:
         x = perfect_x[perfect_index]
         y = perfect_y[perfect_index]
@@ -236,13 +240,19 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
             min_dist = distance_function(previous_t)
 
         # Loop only till all the available points
-        if previous_t > point_t[-1] - 1:
+        if previous_t > point_t[-1] - 1 or current_computation_time > computation_timeout:
             break
+        else:
+            current_computation_time = time.time()
 
         min_dists.append(1000 ** min_dist)
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
-    lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
-    lap_statistics['position_deviation_total_err'] = sum(min_dists)
+    if current_computation_time > computation_timeout:
+        lap_statistics['position_deviation_mae'] = 0
+        lap_statistics['position_deviation_total_err'] = 0
+    else:
+        lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+        lap_statistics['position_deviation_total_err'] = sum(min_dists)
 
     return lap_statistics
