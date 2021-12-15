@@ -151,7 +151,7 @@ class Controller:
             topics {list} -- List of topics to be recorde
             dataset_name {str} -- Path of the resulting bag file
         """
-        
+
         if not self.recording:
             logger.info("Recording bag at: {}".format(dataset_name))
             self.recording = True
@@ -174,9 +174,9 @@ class Controller:
                 subprocess.Popen(command, stdout=out, stderr=err)
         else:
             logger.info("No bag recording")
-            
-            
-    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
+
+    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None,
+                     repetition_counter=None):
         logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
@@ -201,7 +201,7 @@ class Controller:
             else:
                 self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])] * 1.1
             self.metrics['experiment_repetition'] = repetition_counter
-            
+
         self.perfect_lap_filename = perfect_lap_filename
         self.stats_record_dir_path = stats_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -211,11 +211,10 @@ class Controller:
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
-        
-    def stop_record_stats(self):
+
+    def stop_record_stats(self, pitch_error=False):
         logger.info("Stopping stats bag recording")
-       
-        
+
         command = "rosnode kill /behav_stats_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
@@ -230,13 +229,19 @@ class Controller:
         with rosbag.Bag(self.stats_filename, 'a') as bag:
             metadata_msg = String(data=metrics_str)
             bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
-        bag.close()        
+        bag.close()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
-        self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
+        if not pitch_error:
+            self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints,
+                                                                   circuit_diameter)
+        else:
+            self.lap_statistics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
+                                   'circuit_diameter': 0, 'position_deviation_mae': 0,
+                                   'position_deviation_total_err': 0}
         logger.info("END ---- > Stopping stats bag recording")
-        
+
     def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
-        time_stats = {'mean_iteration_time': mean_iteration_time, 
+        time_stats = {'mean_iteration_time': mean_iteration_time,
                       'mean_inference_time': mean_inference_time,
                       'frame_rate': frame_rate,
                       'gpu_inferencing': gpu_inferencing}
@@ -261,7 +266,7 @@ class Controller:
             brain {srt} -- Brain to be reloadaed.
         """
         logger.info("Reloading brain... {}".format(brain))
-        
+
         self.pause_pilot()
         self.pilot.reload_brain(brain, model)
 

@@ -29,8 +29,9 @@ from scipy.interpolate import CubicSpline
 
 MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
 MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
-MIN_EXPERIMENT_TIME = 15
+MIN_EXPERIMENT_TIME = 30
 POSITION_DEVIATION_CALCULATION_TIMEOUT = 180
+
 
 def is_finish_line(point, start_point):
     try:
@@ -118,7 +119,8 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     laps = 0
     ckp_iter = 0
     for ckp_iter, point in enumerate(checkpoints):
-        if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] and is_finish_line(point, start_point):
+        if ckp_iter != 0 and point['header.stamp.secs'] - 10 > start_point['header.stamp.secs'] \
+                and is_finish_line(point, start_point):
             if type(lap_point) == int:
                 lap_point = point
             if ckp_iter - 1 != previous_lap_point:
@@ -127,14 +129,6 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
     lap_statistics['average_speed'] = lap_statistics['completed_distance'] / (seconds_end - seconds_start)
-    # If lap is completed, add more statistic information
-    if type(lap_point) is not int:
-        seconds_start = start_clock['clock.secs']
-        seconds_end = clock_points[int(len(clock_points) * (ckp_iter / len(checkpoints)))]['clock.secs']
-        lap_statistics['lap_seconds'] = seconds_end - seconds_start
-        lap_statistics['circuit_diameter'] = circuit_diameter
-    else:
-        logger.info('Lap not completed')
 
     # Find last and first checkpoints for retrieving percentage completed
     first_checkpoint = checkpoints[0]
@@ -169,12 +163,22 @@ def lap_percentage_completed(stats_filename, perfect_lap_checkpoints, circuit_di
             lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
         else:
             lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100)
-
     if lap_statistics['percentage_completed'] > MIN_PERCENTAGE_COMPLETED_EXPERIMENT:
         lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
     else:
+        lap_statistics['percentage_completed'] = 0
         lap_statistics['position_deviation_mae'] = 0
         lap_statistics['position_deviation_total_err'] = 0
+
+    # If lap is completed, add more statistic information
+    if type(lap_point) is not int and lap_statistics['percentage_completed'] != 0:
+        seconds_start = start_clock['clock.secs']
+        seconds_end = clock_points[int(len(clock_points) * (ckp_iter / len(checkpoints)))]['clock.secs']
+        lap_statistics['lap_seconds'] = seconds_end - seconds_start
+        lap_statistics['circuit_diameter'] = circuit_diameter
+    else:
+        logger.info('Lap not completed')
+
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_statistics
 
@@ -249,6 +253,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
     if current_computation_time > computation_timeout:
+        lap_statistics['percentage_completed'] = 0
         lap_statistics['position_deviation_mae'] = 0
         lap_statistics['position_deviation_total_err'] = 0
     else:

@@ -2,7 +2,7 @@
 
 """This module contains the script manager.
 
-This module is in charge of running the application as an script, without GUI. 
+This module is in charge of running the application as an script, without GUI.
 It is used for experiments for different brains/worlds
 
 This program is free software: you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-
 
 import subprocess
 import xml.etree.ElementTree as ET
@@ -46,7 +45,8 @@ def clock_callback(clock_data):
 def run_brains_worlds(app_configuration, controller, randomize=False):
     global clock_time
     # Start Behavior Metrics app
-    tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0], randomize=randomize, gui=False, launch=True)
+    tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0],
+                           randomize=randomize, gui=False, launch=True)
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
@@ -56,7 +56,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
                 # 1. Load world
-                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=False, launch=True)
+                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=False,
+                                       launch=True)
                 controller.initialize_robot()
                 controller.pilot.configuration.current_world = world
                 controller.pilot.brains.brain_path = brain
@@ -71,25 +72,34 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
                                         world_counter=world_counter, brain_counter=brain_counter,
                                         repetition_counter=repetition_counter)
-                
+
                 clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
-                new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+                new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
+                                      controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
                 time_start = clock_time
-                
+                previous_pitch = 0
                 is_finished = False
+                pitch_error = False
                 if hasattr(app_configuration, 'experiment_timeouts'):
                     experiment_timeout = app_configuration.experiment_timeouts[world_counter]
                 else:
-                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)]  * 1.1
-                while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 10:
+                    experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)] * 1.1
+                while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 20:
                     rospy.sleep(10)
                     old_point = new_point
-                    new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x, controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+                    new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
+                                          controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+
                     if is_trapped(old_point, new_point):
                         is_finished = True
-                    if metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
+                    elif metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
                         is_finished = True
+                    elif previous_pitch != 0 and abs(controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch - previous_pitch) > 0.2:
+                        is_finished = True
+                        pitch_error = True
+                    else:
+                        previous_pitch = controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
 
                 logger.info('--------------')
                 logger.info('--------------')
@@ -99,7 +109,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 time_end = clock_time
                 clock_subscriber.unregister()
                 logger.info(time_end - time_start)
-                controller.stop_record_stats()
+                controller.stop_record_stats(pitch_error)
                 # 3. Stop
                 controller.pause_pilot()
                 controller.pause_gazebo_simulation()
@@ -110,21 +120,18 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 if hasattr(app_configuration, 'experiment_model'):
                     logger.info('--- MODEL ---')
                     logger.info(app_configuration.experiment_model[brain_counter])
-                logger.info('--- STATS ---')
-                logger.info(controller.lap_statistics)
-                if controller.lap_statistics['percentage_completed'] < MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
-                    logger.info('--- DELETE STATS and RETRY EXPERIMENT ---')
-                    os.remove(controller.stats_filename)
-                else:
-                    repetition_counter += 1
+                if not pitch_error:
+                    logger.info('--- STATS ---')
+                    logger.info(controller.lap_statistics)
+                repetition_counter += 1
                 logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--------------')
                 logger.info('--------------')
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')
-        
-        
+
+
 def is_trapped(old_point, new_point):
     dist = (old_point - new_point) ** 2
     dist = np.sum(dist, axis=0)
