@@ -223,8 +223,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
 
         # Local Optimization for minimum distance
-        previous_t = fmin(distance_function, np.array([previous_t]), disp=False)[0]
-        min_dist = distance_function(previous_t)
+        current_t = fmin(distance_function, np.array([previous_t]), disp=False)[0]
+        min_dist = distance_function(current_t)
 
         # Global Optimization if minimum distance is greater than expected
         # OR
@@ -232,13 +232,20 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         if min_dist > 1 or perfect_index in [0, 1, 2]:
             min_bound = previous_t
             max_bound = previous_t + 100
-            previous_t = dual_annealing(distance_function, bounds=[(min_bound, max_bound)]).x[0]
-            min_dist = distance_function(previous_t)
+            current_t = dual_annealing(distance_function, bounds=[(min_bound, max_bound)]).x[0]
+            min_dist = distance_function(current_t)
 
-        # Loop only till all the available points
-        if previous_t > point_t[-1] - 1:
+        # Two termination conditions:
+        # 1. Loop only till all the available points
+        if current_t > point_t[-1] - 1:
             break
 
+        # 2. Terminate when converging to same point on spline
+        if abs(current_t - previous_t) < 0.01:
+            print("Unexpected Behavior: Converging to same point")
+            break
+
+        previous_t = current_t
         min_dists.append(1000 ** min_dist)
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
