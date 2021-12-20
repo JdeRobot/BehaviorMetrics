@@ -215,6 +215,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
     # Iterate through checkpoints and calculate minimum distance
     previous_t = 0
     perfect_index = 0
+    count_same_t = 0
     while True:
         x = perfect_x[perfect_index]
         y = perfect_y[perfect_index]
@@ -242,8 +243,12 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
 
         # 2. Terminate when converging to same point on spline
         if abs(current_t - previous_t) < 0.01:
-            print("Unexpected Behavior: Converging to same point")
-            break
+            count_same_t += 1
+            if count_same_t > 3:
+                print("Unexpected Behavior: Converging to same point")
+                break
+            else:
+                count_same_t = 0
 
         previous_t = current_t
         min_dists.append(1000 ** min_dist)
