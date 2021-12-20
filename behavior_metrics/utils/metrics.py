@@ -30,7 +30,6 @@ from scipy.interpolate import CubicSpline
 MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
 MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
 MIN_EXPERIMENT_TIME = 30
-POSITION_DEVIATION_CALCULATION_TIMEOUT = 180
 
 
 def is_finish_line(point, start_point):
@@ -221,8 +220,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
     # Iterate through checkpoints and calculate minimum distance
     previous_t = 0
     perfect_index = 0
-    current_computation_time = time.time()
-    computation_timeout = current_computation_time + POSITION_DEVIATION_CALCULATION_TIMEOUT
+    count_same_t = 0
     while True:
         x = perfect_x[perfect_index]
         y = perfect_y[perfect_index]
@@ -231,8 +229,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
 
         # Local Optimization for minimum distance
-        previous_t = fmin(distance_function, np.array([previous_t]), disp=False)[0]
-        min_dist = distance_function(previous_t)
+        current_t = fmin(distance_function, np.array([previous_t]), disp=False)[0]
+        min_dist = distance_function(current_t)
 
         # Global Optimization if minimum distance is greater than expected
         # OR
@@ -240,24 +238,28 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         if min_dist > 1 or perfect_index in [0, 1, 2]:
             min_bound = previous_t
             max_bound = previous_t + 100
-            previous_t = dual_annealing(distance_function, bounds=[(min_bound, max_bound)]).x[0]
-            min_dist = distance_function(previous_t)
+            current_t = dual_annealing(distance_function, bounds=[(min_bound, max_bound)]).x[0]
+            min_dist = distance_function(current_t)
 
-        # Loop only till all the available points
-        if previous_t > point_t[-1] - 1 or current_computation_time > computation_timeout:
+        # Two termination conditions:
+        # 1. Loop only till all the available points
+        if current_t > point_t[-1] - 1:
             break
-        else:
-            current_computation_time = time.time()
 
+        # 2. Terminate when converging to same point on spline
+        if abs(current_t - previous_t) < 0.01:
+            count_same_t += 1
+            if count_same_t > 3:
+                print("Unexpected Behavior: Converging to same point")
+                break
+        else:
+            count_same_t = 0
+
+        previous_t = current_t
         min_dists.append(1000 ** min_dist)
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
-    if current_computation_time > computation_timeout:
-        lap_statistics['percentage_completed'] = 0
-        lap_statistics['position_deviation_mae'] = 0
-        lap_statistics['position_deviation_total_err'] = 0
-    else:
-        lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
-        lap_statistics['position_deviation_total_err'] = sum(min_dists)
+    lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+    lap_statistics['position_deviation_total_err'] = sum(min_dists)
 
     return lap_statistics
