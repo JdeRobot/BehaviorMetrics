@@ -247,8 +247,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
             if count_same_t > 3:
                 print("Unexpected Behavior: Converging to same point")
                 break
-            else:
-                count_same_t = 0
+        else:
+            count_same_t = 0
 
         previous_t = current_t
         min_dists.append(1000 ** min_dist)
