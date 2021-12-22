@@ -77,6 +77,7 @@ class Pilot(threading.Thread):
         self.metrics = {}
         self.checkpoint_save = False
         self.max_distance = 0.5
+        self.execution_completed = False
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -136,6 +137,7 @@ class Pilot(threading.Thread):
                     successful_iteration = False
             else:
                 if stopped_brain_stats:
+                    self.execution_completed = False
                     stopped_brain_stats = False
                     successful_iteration = False
                     try:
@@ -163,8 +165,7 @@ class Pilot(threading.Thread):
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
                     logger.info(hasattr(self.controller, 'stats_filename'))
-                    if hasattr(self.controller, 'stats_filename') and \
-                            self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
+                    if hasattr(self.controller, 'stats_filename'):
                         try:
                             logger.info('Entering Stats into Bag')
                             self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
@@ -173,6 +174,7 @@ class Pilot(threading.Thread):
                             logger.info('Empty ROS bag')
                             logger.error(e)
                     brain_iterations_time = []
+                    self.execution_completed = True
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             if successful_iteration:
