@@ -11,5 +11,6 @@ CIRCUITS_TIMEOUTS = {
     'montmelo_line.launch': 122,
     'montreal_line.launch': 248,
     'nurburgring_line.launch': 88,
+    'montmelo_no_red_line.launch': 122
 }
 
