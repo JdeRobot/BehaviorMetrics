@@ -131,7 +131,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')
     # Wait for pilot to complete execution and save stats before closing processes
-    while controller.pilot.execution_completed == False:
+    while not controller.pilot.execution_completed:
         pass
 
 
