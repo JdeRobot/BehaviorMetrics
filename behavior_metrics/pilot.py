@@ -127,6 +127,7 @@ class Pilot(threading.Thread):
         while not self.kill_event.is_set():
             start_time = datetime.now()
             if not self.stop_event.is_set():
+                self.execution_completed = False
                 stopped_brain_stats = True
                 try:
                     self.brains.active_brain.execute()
