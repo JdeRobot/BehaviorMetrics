@@ -109,7 +109,6 @@ class Pilot(threading.Thread):
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
-
         if self.sensors:
             self.sensors.kill()
         if self.actuators:
@@ -228,7 +227,6 @@ class Pilot(threading.Thread):
         dist = (self.start_pose - current_point) ** 2
         dist = np.sum(dist, axis=0)
         dist = np.sqrt(dist)
-        # print(dist)
         if dist < self.max_distance:
             return True
         return False
