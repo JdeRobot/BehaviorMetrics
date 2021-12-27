@@ -91,7 +91,6 @@ class Controller:
         try:
             with self.__data_loc:
                 data = self.data.get(frame_id, None)
-                # self.data[frame_id] = None
         except Exception:
             pass
 
@@ -184,10 +183,11 @@ class Controller:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
         else:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
-        self.metrics = {}
-        self.metrics['world'] = current_world_tail
-        self.metrics['brain_path'] = current_brain_tail
-        self.metrics['robot_type'] = self.pilot.configuration.robot_type
+        self.metrics = {
+            'world': current_world_tail,
+            'brain_path': current_brain_tail,
+            'robot_type': self.pilot.configuration.robot_type
+        }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
                 self.metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
@@ -224,7 +224,6 @@ class Controller:
         while os.path.isfile(self.stats_filename + '.active'):
             pass
 
-        checkpoints = []
         metrics_str = json.dumps(self.metrics)
         with rosbag.Bag(self.stats_filename, 'a') as bag:
             metadata_msg = String(data=metrics_str)
@@ -232,8 +231,7 @@ class Controller:
         bag.close()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints,
-                                                                   circuit_diameter)
+            self.lap_statistics = metrics.get_statistics(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
         else:
             self.lap_statistics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                    'circuit_diameter': 0, 'position_deviation_mae': 0,
