@@ -231,8 +231,7 @@ class Controller:
         bag.close()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.lap_statistics = metrics.lap_percentage_completed(self.stats_filename, perfect_lap_checkpoints,
-                                                                   circuit_diameter)
+            self.lap_statistics = metrics.get_statistics(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
         else:
             self.lap_statistics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                    'circuit_diameter': 0, 'position_deviation_mae': 0,
