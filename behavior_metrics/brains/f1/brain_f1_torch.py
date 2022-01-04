@@ -44,7 +44,7 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.device = torch.device("cpu")
-        self.gpu_inferencing = torch.cuda.is_available()
+        self.gpu_inference = torch.cuda.is_available()
         self.first_image = None
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()

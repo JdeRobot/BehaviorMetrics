@@ -78,10 +78,10 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
                 self.time_stats_metadata['mean_inference_time']))
         self.layout.addWidget(label_mean_inference_time)
-        label_gpu_inferencing = QLabel(
+        label_gpu_inference = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(
-                self.time_stats_metadata['gpu_inferencing']))
-        self.layout.addWidget(label_gpu_inferencing)
+                self.time_stats_metadata['gpu_inference']))
+        self.layout.addWidget(label_gpu_inference)
         label_frame_rate = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
                 self.time_stats_metadata['frame_rate']))

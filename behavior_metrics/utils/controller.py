@@ -174,9 +174,9 @@ class Controller:
         else:
             logger.info("No bag recording")
 
-    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None,
+    def record_metrics(self, perfect_lap_filename, metrics_record_dir_path, world_counter=None, brain_counter=None,
                      repetition_counter=None):
-        logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
+        logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
         if brain_counter is not None:
@@ -203,49 +203,49 @@ class Controller:
             self.experiment_metadata['experiment_repetition'] = repetition_counter
 
         self.perfect_lap_filename = perfect_lap_filename
-        self.stats_record_dir_path = stats_record_dir_path
+        self.metrics_record_dir_path = metrics_record_dir_path
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        self.stats_filename = timestr + '.bag'
+        self.experiment_metrics_filename = timestr + '.bag'
         topics = ['/F1ROS/odom', '/clock']
-        command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
+        command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
 
-    def stop_record_stats(self, pitch_error=False):
-        logger.info("Stopping stats bag recording")
+    def stop_recording_metrics(self, pitch_error=False):
+        logger.info("Stopping metrics bag recording")
 
-        command = "rosnode kill /behav_stats_bag"
+        command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while os.path.isfile(self.stats_filename + '.active'):
+        while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
         experiment_metadata_str = json.dumps(self.experiment_metadata)
-        with rosbag.Bag(self.stats_filename, 'a') as bag:
+        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
             experiment_metadata_msg = String(data=experiment_metadata_str)
             bag.write('/metadata', experiment_metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.lap_metrics = metrics.get_metrics(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
+            self.lap_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
         else:
             self.lap_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                    'circuit_diameter': 0, 'position_deviation_mae': 0,
                                    'position_deviation_total_err': 0}
-        logger.info("END ---- > Stopping stats bag recording")
+        logger.info("END ----> Stopping metrics bag recording")
 
-    def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
+    def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inference, first_image):
         time_metrics = {'mean_iteration_time': mean_iteration_time,
                       'mean_inference_time': mean_inference_time,
                       'frame_rate': frame_rate,
-                      'gpu_inferencing': gpu_inferencing}
+                      'gpu_inference': gpu_inference}
         time_metrics_str = json.dumps(time_metrics)
         lap_metrics_str = json.dumps(self.lap_metrics)
-        with rosbag.Bag(self.stats_filename, 'a') as bag:
+        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
             time_metrics_msg = String(data=time_metrics_str)
             lap_metrics_msg = String(data=lap_metrics_str)
             bag.write('/time_metrics', time_metrics_msg, rospy.Time(bag.get_end_time()))

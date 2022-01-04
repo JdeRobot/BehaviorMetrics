@@ -68,7 +68,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     controller.reload_brain(brain)
                 controller.resume_pilot()
                 controller.unpause_gazebo_simulation()
-                controller.record_stats(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
+                controller.record_metrics(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
                                         world_counter=world_counter, brain_counter=brain_counter,
                                         repetition_counter=repetition_counter)
 
@@ -107,7 +107,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 time_end = clock_time
                 clock_subscriber.unregister()
                 logger.info('* Experiment end time ---> ' + str(time_end - time_start))
-                controller.stop_record_stats(pitch_error)
+                controller.stop_recording_metrics(pitch_error)
                 # 3. Stop
                 controller.pause_pilot()
                 controller.pause_gazebo_simulation()
