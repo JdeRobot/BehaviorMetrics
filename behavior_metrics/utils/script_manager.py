@@ -116,7 +116,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 if hasattr(app_configuration, 'experiment_model'):
                     logger.info('* Model ---> ' + app_configuration.experiment_model[brain_counter])
                 if not pitch_error:
-                    logger.info('* Metrics ---> ' + str(controller.lap_statistics))
+                    logger.info('* Metrics ---> ' + str(controller.lap_metrics))
                 repetition_counter += 1
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')

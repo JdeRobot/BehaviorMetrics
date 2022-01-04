@@ -18,7 +18,7 @@ bridge = CvBridge()
 
 
 class MetricsWindow(QtWidgets.QMainWindow):
-    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_statistics,
+    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_stats_metadata, lap_metrics,
                  circuit_diameter):
         super().__init__()
         self._main = QtWidgets.QWidget()
@@ -31,7 +31,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.first_image = first_image
         self.bag_metadata = bag_metadata
         self.time_stats_metadata = time_stats_metadata
-        self.lap_statistics = lap_statistics
+        self.lap_metrics = lap_metrics
         self.circuit_diameter = circuit_diameter
 
         self.setup_plot()
@@ -93,29 +93,29 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(label_circuit_diameter)
         label_completed_distance = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(
-                self.lap_statistics['completed_distance']))
+                self.lap_metrics['completed_distance']))
         self.layout.addWidget(label_completed_distance)
         label_percentage_completed = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(
-                self.lap_statistics['percentage_completed']))
+                self.lap_metrics['percentage_completed']))
         self.layout.addWidget(label_percentage_completed)
 
-        if 'lap_seconds' in self.lap_statistics:
+        if 'lap_seconds' in self.lap_metrics:
             label_lap_seconds = QLabel(
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(
-                    self.lap_statistics['lap_seconds']))
+                    self.lap_metrics['lap_seconds']))
             self.layout.addWidget(label_lap_seconds)
             label_circuit_diameter = QLabel(
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
-                    self.lap_statistics['circuit_diameter']))
+                    self.lap_metrics['circuit_diameter']))
             self.layout.addWidget(label_circuit_diameter)
             label_average_speed = QLabel(
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
-                    self.lap_statistics['average_speed']))
+                    self.lap_metrics['average_speed']))
             self.layout.addWidget(label_average_speed)
-            label_position_deviation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(self.lap_statistics['position_deviation_mae']))
+            label_position_deviation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(self.lap_metrics['position_deviation_mae']))
             self.layout.addWidget(label_position_deviation_mae)
-            label_position_deviation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(self.lap_statistics['position_deviation_total_err']))
+            label_position_deviation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(self.lap_metrics['position_deviation_total_err']))
             self.layout.addWidget(label_position_deviation_total_err)
 
 
@@ -188,10 +188,10 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats
             perfect_lap_path = 'lap-montmelo.bag'
 
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
-        lap_statistics = bags_lapdata[x]
-        experiment_statistics['lap_statistics'] = lap_statistics
+        lap_metrics = bags_lapdata[x]
+        experiment_statistics['lap_metrics'] = lap_metrics
         experiments_statistics.append(experiment_statistics)
-        if lap_statistics['percentage_completed'] > 100:
+        if lap_metrics['percentage_completed'] > 100:
             if bags_metadata[x]['world'] in world_completed and \
                     bags_metadata[x]['brain_path'] in world_completed[bags_metadata[x]['world']]:
                 world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = \
@@ -201,10 +201,10 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats
             else:
                 world_completed[bags_metadata[x]['world']] = {}
                 world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = 1
-        if 'lap_seconds' in lap_statistics:
-            print('LAP SECONDS -> ' + str(lap_statistics['lap_seconds']))
-            print('CIRCUIT DIAMETER -> ' + str(lap_statistics['circuit_diameter']))
-            print('AVERAGE SPEED -> ' + str(lap_statistics['average_speed']))
+        if 'lap_seconds' in lap_metrics:
+            print('LAP SECONDS -> ' + str(lap_metrics['lap_seconds']))
+            print('CIRCUIT DIAMETER -> ' + str(lap_metrics['circuit_diameter']))
+            print('AVERAGE SPEED -> ' + str(lap_metrics['average_speed']))
 
         for point in checkpoints:
             point_yml = yaml.load(str(point), Loader=yaml.FullLoader)
@@ -212,7 +212,7 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_stats
             y_points.append(point_yml['pose']['pose']['position']['y'])
 
         qapp = QtWidgets.QApplication(sys.argv)
-        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_stats[x], lap_statistics,
+        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_stats[x], lap_metrics,
                             circuit_diameter)
         app.show()
         qapp.exec_()
