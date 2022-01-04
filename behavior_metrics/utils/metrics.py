@@ -91,8 +91,8 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
     return perfect_lap_checkpoints, circuit_diameter
 
 
-def get_statistics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
-    lap_statistics = {}
+def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
+    lap_metrics = {}
     bag_reader = bagreader(stats_filename)
     csv_files = []
     for topic in bag_reader.topics:
@@ -126,27 +126,28 @@ def get_statistics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
 
-    lap_statistics = get_distance_completed(lap_statistics, checkpoints)
-    lap_statistics = get_average_speed(lap_statistics, seconds_start, seconds_end)
-    lap_statistics = get_percentage_completed(lap_statistics, checkpoints, perfect_lap_checkpoints, seconds_start, seconds_end, laps)
-    lap_statistics = get_lap_completed_stats(lap_statistics, circuit_diameter, previous_lap_point, lap_point)
+    lap_metrics = get_distance_completed(lap_metrics, checkpoints)
+    lap_metrics = get_average_speed(lap_metrics, seconds_start, seconds_end)
+    lap_metrics = get_percentage_completed(lap_metrics, checkpoints, perfect_lap_checkpoints, seconds_start
+                                              , seconds_end, laps)
+    lap_metrics = get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point)
 
     shutil.rmtree(stats_filename.split('.bag')[0])
-    return lap_statistics
+    return lap_metrics
 
 
-def get_distance_completed(lap_statistics, checkpoints):
+def get_distance_completed(lap_metrics, checkpoints):
     end_point = checkpoints[len(checkpoints) - 1]
-    lap_statistics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    return lap_statistics
+    lap_metrics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
+    return lap_metrics
 
 
-def get_average_speed(lap_statistics, seconds_start, seconds_end):
-    lap_statistics['average_speed'] = lap_statistics['completed_distance'] / (seconds_end - seconds_start)
-    return lap_statistics
+def get_average_speed(lap_metrics, seconds_start, seconds_end):
+    lap_metrics['average_speed'] = lap_metrics['completed_distance'] / (seconds_end - seconds_start)
+    return lap_metrics
 
 
-def get_percentage_completed(lap_statistics, checkpoints, perfect_lap_checkpoints, seconds_start, seconds_end, laps):
+def get_percentage_completed(lap_metrics, checkpoints, perfect_lap_checkpoints, seconds_start, seconds_end, laps):
     # Find last and first checkpoints for retrieving percentage completed
     first_checkpoint = checkpoints[0]
     first_checkpoint = np.array([first_checkpoint['pose.pose.position.x'], first_checkpoint['pose.pose.position.y']])
@@ -172,19 +173,25 @@ def get_percentage_completed(lap_statistics, checkpoints, perfect_lap_checkpoint
             if dist < min_distance_last:
                 min_distance_last = dist
                 last_perfect_checkpoint_position = i
-    if first_perfect_checkpoint_position > last_perfect_checkpoint_position and lap_statistics['completed_distance'] > MIN_COMPLETED_DISTANCE_EXPERIMENT and seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
-        lap_statistics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) + laps * 100
+    if first_perfect_checkpoint_position > last_perfect_checkpoint_position and lap_metrics['completed_distance'] \
+            > MIN_COMPLETED_DISTANCE_EXPERIMENT and seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
+        lap_metrics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position
+                                                    + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
+                                                  * 100) + laps * 100
     else:
         if seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
-            lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(
-                perfect_lap_checkpoints)) * 100) + laps * 100
+            lap_metrics['percentage_completed'] = \
+                (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
+                 * 100) + laps * 100
         else:
-            lap_statistics['percentage_completed'] = (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100)
-    lap_statistics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics)
-    return lap_statistics
+            lap_metrics['percentage_completed'] = \
+                (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
+                 * 100)
+    lap_metrics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_metrics)
+    return lap_metrics
 
 
-def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_statistics):
+def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap_metrics):
     min_dists = []
 
     # Get list of points
@@ -261,24 +268,25 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
         min_dists.append(1000 ** min_dist)
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
-    lap_statistics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
-    lap_statistics['position_deviation_total_err'] = sum(min_dists)
+    lap_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+    lap_metrics['position_deviation_total_err'] = sum(min_dists)
 
-    return lap_statistics
+    return lap_metrics
 
 
-def get_lap_completed_stats(lap_statistics, circuit_diameter, previous_lap_point, lap_point):
+def get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point):
     # If lap is completed, add more statistic information
-    if type(lap_point) is not int and lap_statistics['percentage_completed'] > LAP_COMPLETED_PERCENTAGE:
-        if abs(((lap_statistics['completed_distance'] / circuit_diameter) * 100) - lap_statistics['percentage_completed']) > 5:
+    if type(lap_point) is not int and lap_metrics['percentage_completed'] > LAP_COMPLETED_PERCENTAGE:
+        if abs(((lap_metrics['completed_distance'] / circuit_diameter) * 100) -
+               lap_metrics['percentage_completed']) > 5:
             logger.info('Error in experiment! The actual lap percentage and the approximated one are different.')
-            lap_statistics['percentage_completed'] = (lap_statistics['completed_distance'] / circuit_diameter) * 100
+            lap_metrics['percentage_completed'] = (lap_metrics['completed_distance'] / circuit_diameter) * 100
         else:
             seconds_start = start_clock['clock.secs']
             seconds_end = clock_points[int(len(clock_points) * (previous_lap_point / len(checkpoints)))]['clock.secs']
-            lap_statistics['lap_seconds'] = seconds_end - seconds_start
-            lap_statistics['circuit_diameter'] = circuit_diameter
+            lap_metrics['lap_seconds'] = seconds_end - seconds_start
+            lap_metrics['circuit_diameter'] = circuit_diameter
     else:
         logger.info('Lap not completed')
 
-    return lap_statistics
+    return lap_metrics

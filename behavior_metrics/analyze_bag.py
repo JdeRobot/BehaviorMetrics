@@ -60,7 +60,7 @@ if __name__ == "__main__":
                     data = json.loads(h)
                     metadata = json.loads(data['data'])
 
-                for topic, point, t in bag.read_messages(topics=['/lap_stats']):
+                for topic, point, t in bag.read_messages(topics=['/lap_metrics']):
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)

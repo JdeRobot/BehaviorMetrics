@@ -168,7 +168,7 @@ class Pilot(threading.Thread):
                     if hasattr(self.controller, 'stats_filename'):
                         try:
                             logger.info('Entering Stats into Bag')
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
+                            self.controller.save_metrics(mean_iteration_time, mean_inference_time, frame_rate,
                                                             gpu_inferencing, first_image)
                         except Exception as e:
                             logger.info('Empty ROS bag')

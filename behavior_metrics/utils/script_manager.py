@@ -17,7 +17,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import subprocess
-import xml.etree.ElementTree as ET
 import time
 import os
 import rospy
@@ -74,7 +73,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                                         repetition_counter=repetition_counter)
 
                 clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
-                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(app_configuration.stats_perfect_lap[world_counter])
+                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(
+                    app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                       controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
                 time_start = clock_time
@@ -85,7 +85,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     experiment_timeout = app_configuration.experiment_timeouts[world_counter]
                 else:
                     experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)] * 1.1
-                while (clock_time - time_start < experiment_timeout and not is_finished) or clock_time - time_start < 20:
+                while (clock_time - time_start < experiment_timeout and not is_finished) \
+                        or clock_time - time_start < 20:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
@@ -95,39 +96,28 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                         is_finished = True
                     elif metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
                         is_finished = True
-                    elif previous_pitch != 0 and abs(controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch - previous_pitch) > 0.2:
+                    elif previous_pitch != 0 and abs(controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
+                                                     - previous_pitch) > 0.2:
                         is_finished = True
                         pitch_error = True
                     else:
                         previous_pitch = controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
 
-                logger.info('--------------')
-                logger.info('--------------')
-                logger.info('--------------')
-                logger.info('--------------')
-                logger.info('--- END TIME ----------------')
+
                 time_end = clock_time
                 clock_subscriber.unregister()
-                logger.info(time_end - time_start)
+                logger.info('* Experiment end time ---> ' + str(time_end - time_start))
                 controller.stop_record_stats(pitch_error)
                 # 3. Stop
                 controller.pause_pilot()
                 controller.pause_gazebo_simulation()
-                logger.info('--- WORLD ---')
-                logger.info(world)
-                logger.info('--- BRAIN ---')
-                logger.info(brain)
+                logger.info('* World ---> ' + world)
+                logger.info('* Brain ---> ' + brain)
                 if hasattr(app_configuration, 'experiment_model'):
-                    logger.info('--- MODEL ---')
-                    logger.info(app_configuration.experiment_model[brain_counter])
+                    logger.info('* Model ---> ' + app_configuration.experiment_model[brain_counter])
                 if not pitch_error:
-                    logger.info('--- STATS ---')
-                    logger.info(controller.lap_statistics)
+                    logger.info('* Metrics ---> ' + str(controller.lap_statistics))
                 repetition_counter += 1
-                logger.info('--------------')
-                logger.info('--------------')
-                logger.info('--------------')
-                logger.info('--------------')
         os.remove('tmp_circuit.launch')
         os.remove('tmp_world.launch')
     # Wait for pilot to complete execution and save stats before closing processes
