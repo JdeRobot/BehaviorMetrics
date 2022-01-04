@@ -6,7 +6,7 @@ class StatsWindow(QMainWindow):
         super(StatsWindow, self).__init__(parent)
         
         self.controller = controller
-        self.setWindowTitle("Statistics")        
+        self.setWindowTitle("Metrics")
         wid = QWidget(self)
         self.setCentralWidget(wid)
         
