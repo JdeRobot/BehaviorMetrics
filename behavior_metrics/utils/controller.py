@@ -204,8 +204,8 @@ class Controller:
 
         self.perfect_lap_filename = perfect_lap_filename
         self.metrics_record_dir_path = metrics_record_dir_path
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        self.experiment_metrics_filename = timestr + '.bag'
+        time_str = time.strftime("%Y%m%d-%H%M%S")
+        self.experiment_metrics_filename = time_str + '.bag'
         topics = ['/F1ROS/odom', '/clock']
         command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
@@ -234,15 +234,14 @@ class Controller:
             self.lap_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
         else:
             self.lap_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
-                                   'circuit_diameter': 0, 'position_deviation_mae': 0,
-                                   'position_deviation_total_err': 0}
-        logger.info("END ----> Stopping metrics bag recording")
+                                'circuit_diameter': 0, 'position_deviation_mae': 0, 'position_deviation_total_err': 0}
+        logger.info("Stopping metrics bag recording")
 
     def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inference, first_image):
         time_metrics = {'mean_iteration_time': mean_iteration_time,
-                      'mean_inference_time': mean_inference_time,
-                      'frame_rate': frame_rate,
-                      'gpu_inference': gpu_inference}
+                        'mean_inference_time': mean_inference_time,
+                        'frame_rate': frame_rate,
+                        'gpu_inference': gpu_inference}
         time_metrics_str = json.dumps(time_metrics)
         lap_metrics_str = json.dumps(self.lap_metrics)
         with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
