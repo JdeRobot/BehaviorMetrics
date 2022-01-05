@@ -51,7 +51,7 @@ class Brain:
             os.environ["CUDA_VISIBLE_DEVICES"]="-1"
         import tensorflow as tf
 
-        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+        self.gpu_inference = True if tf.test.gpu_device_name() else False
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):

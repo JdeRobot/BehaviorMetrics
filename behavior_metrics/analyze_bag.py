@@ -60,17 +60,17 @@ if __name__ == "__main__":
                     data = json.loads(h)
                     metadata = json.loads(data['data'])
 
-                for topic, point, t in bag.read_messages(topics=['/lap_stats']):
+                for topic, point, t in bag.read_messages(topics=['/lap_metrics']):
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     lapdata = json.loads(data['data'])
 
-                for topic, point, t in bag.read_messages(topics=['/time_stats']):
+                for topic, point, t in bag.read_messages(topics=['/time_metrics']):
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)
-                    time_stats_metadata = json.loads(data['data'])
+                    time_metrics_metadata = json.loads(data['data'])
 
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
                     first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')

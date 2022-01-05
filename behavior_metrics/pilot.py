@@ -120,14 +120,14 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
-        stopped_brain_stats = False
+        stopped_brain_metrics = False
         successful_iteration = False
         brain_iterations_time = []
         while not self.kill_event.is_set():
             start_time = datetime.now()
             if not self.stop_event.is_set():
                 self.execution_completed = False
-                stopped_brain_stats = True
+                stopped_brain_metrics = True
                 try:
                     self.brains.active_brain.execute()
                     successful_iteration = True
@@ -136,40 +136,36 @@ class Pilot(threading.Thread):
                     logger.error(e)
                     successful_iteration = False
             else:
-                if stopped_brain_stats:
+                if stopped_brain_metrics:
                     self.execution_completed = False
-                    stopped_brain_stats = False
+                    stopped_brain_metrics = False
                     successful_iteration = False
                     try:
-                        logger.info('----- MEAN INFERENCE TIME -----')
                         self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
                         mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
                             self.brains.active_brain.inference_times)
                         frame_rate = len(self.brains.active_brain.inference_times) / sum(
                             self.brains.active_brain.inference_times)
-                        gpu_inferencing = self.brains.active_brain.gpu_inferencing
+                        gpu_inference = self.brains.active_brain.gpu_inference
                         first_image = self.brains.active_brain.first_image
-                        logger.info(mean_inference_time)
-                        logger.info(frame_rate)
-                        logger.info('-------------------')
+                        logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + ' s')
+                        logger.info('* Frame rate ---> ' + str(frame_rate) + ' fps')
                     except Exception as e:
                         logger.error(e)
                         mean_inference_time = 0
                         frame_rate = 0
-                        gpu_inferencing = False
+                        gpu_inference = False
                         first_image = None
                         logger.info('No inference brain')
 
-                    logger.info('----- MEAN ITERATION TIME -----')
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
-                    logger.info(mean_iteration_time)
-                    logger.info('-------------------')
-                    logger.info(hasattr(self.controller, 'stats_filename'))
-                    if hasattr(self.controller, 'stats_filename'):
+                    logger.info('* Mean brain iteration time ---> ' + str(mean_iteration_time) + ' s')
+                    logger.info(hasattr(self.controller, 'experiment_metrics_filename'))
+                    if hasattr(self.controller, 'experiment_metrics_filename'):
                         try:
-                            logger.info('Entering Stats into Bag')
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
-                                                            gpu_inferencing, first_image)
+                            logger.info('Saving metrics to ROS bag')
+                            self.controller.save_metrics(mean_iteration_time, mean_inference_time, frame_rate,
+                                                         gpu_inference, first_image)
                         except Exception as e:
                             logger.info('Empty ROS bag')
                             logger.error(e)

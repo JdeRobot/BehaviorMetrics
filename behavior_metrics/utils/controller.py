@@ -174,82 +174,81 @@ class Controller:
         else:
             logger.info("No bag recording")
 
-    def record_stats(self, perfect_lap_filename, stats_record_dir_path, world_counter=None, brain_counter=None,
+    def record_metrics(self, perfect_lap_filename, metrics_record_dir_path, world_counter=None, brain_counter=None,
                      repetition_counter=None):
-        logger.info("Recording stats bag at: {}".format(stats_record_dir_path))
+        logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
         self.start_time = datetime.now()
         current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
         if brain_counter is not None:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
         else:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
-        self.metrics = {
+        self.experiment_metadata = {
             'world': current_world_tail,
             'brain_path': current_brain_tail,
             'robot_type': self.pilot.configuration.robot_type
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
-                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
             else:
-                self.metrics['experiment_model'] = self.pilot.configuration.experiment_model
+                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model
         if hasattr(self.pilot.configuration, 'experiment_name'):
-            self.metrics['experiment_name'] = self.pilot.configuration.experiment_name
-            self.metrics['experiment_description'] = self.pilot.configuration.experiment_description
+            self.experiment_metadata['experiment_name'] = self.pilot.configuration.experiment_name
+            self.experiment_metadata['experiment_description'] = self.pilot.configuration.experiment_description
             if hasattr(self.pilot.configuration, 'experiment_timeouts'):
-                self.metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+                self.experiment_metadata['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             else:
-                self.metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.metrics['world'])] * 1.1
-            self.metrics['experiment_repetition'] = repetition_counter
+                self.experiment_metadata['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.experiment_metadata['world'])] * 1.1
+            self.experiment_metadata['experiment_repetition'] = repetition_counter
 
         self.perfect_lap_filename = perfect_lap_filename
-        self.stats_record_dir_path = stats_record_dir_path
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        self.stats_filename = timestr + '.bag'
+        self.metrics_record_dir_path = metrics_record_dir_path
+        time_str = time.strftime("%Y%m%d-%H%M%S")
+        self.experiment_metrics_filename = time_str + '.bag'
         topics = ['/F1ROS/odom', '/clock']
-        command = "rosbag record -O " + self.stats_filename + " " + " ".join(topics) + " __name:=behav_stats_bag"
+        command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
 
-    def stop_record_stats(self, pitch_error=False):
-        logger.info("Stopping stats bag recording")
+    def stop_recording_metrics(self, pitch_error=False):
+        logger.info("Stopping metrics bag recording")
 
-        command = "rosnode kill /behav_stats_bag"
+        command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while os.path.isfile(self.stats_filename + '.active'):
+        while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
-        metrics_str = json.dumps(self.metrics)
-        with rosbag.Bag(self.stats_filename, 'a') as bag:
-            metadata_msg = String(data=metrics_str)
-            bag.write('/metadata', metadata_msg, rospy.Time(bag.get_end_time()))
+        experiment_metadata_str = json.dumps(self.experiment_metadata)
+        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
+            experiment_metadata_msg = String(data=experiment_metadata_str)
+            bag.write('/metadata', experiment_metadata_msg, rospy.Time(bag.get_end_time()))
         bag.close()
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.lap_statistics = metrics.get_statistics(self.stats_filename, perfect_lap_checkpoints, circuit_diameter)
+            self.lap_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
         else:
-            self.lap_statistics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
-                                   'circuit_diameter': 0, 'position_deviation_mae': 0,
-                                   'position_deviation_total_err': 0}
-        logger.info("END ---- > Stopping stats bag recording")
+            self.lap_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
+                                'circuit_diameter': 0, 'position_deviation_mae': 0, 'position_deviation_total_err': 0}
+        logger.info("Stopping metrics bag recording")
 
-    def save_time_stats(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inferencing, first_image):
-        time_stats = {'mean_iteration_time': mean_iteration_time,
-                      'mean_inference_time': mean_inference_time,
-                      'frame_rate': frame_rate,
-                      'gpu_inferencing': gpu_inferencing}
-        metrics_str = json.dumps(time_stats)
-        stats_str = json.dumps(self.lap_statistics)
-        with rosbag.Bag(self.stats_filename, 'a') as bag:
-            metadata_msg = String(data=metrics_str)
-            lap_stats_msg = String(data=stats_str)
-            bag.write('/time_stats', metadata_msg, rospy.Time(bag.get_end_time()))
-            bag.write('/lap_stats', lap_stats_msg, rospy.Time(bag.get_end_time()))
+    def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inference, first_image):
+        time_metrics = {'mean_iteration_time': mean_iteration_time,
+                        'mean_inference_time': mean_inference_time,
+                        'frame_rate': frame_rate,
+                        'gpu_inference': gpu_inference}
+        time_metrics_str = json.dumps(time_metrics)
+        lap_metrics_str = json.dumps(self.lap_metrics)
+        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
+            time_metrics_msg = String(data=time_metrics_str)
+            lap_metrics_msg = String(data=lap_metrics_str)
+            bag.write('/time_metrics', time_metrics_msg, rospy.Time(bag.get_end_time()))
+            bag.write('/lap_metrics', lap_metrics_msg, rospy.Time(bag.get_end_time()))
             if first_image is not None and first_image.shape == (480, 640, 3):
                 rospy.loginfo('Image received and sent to /first_image')
                 bag.write('/first_image', self.cvbridge.cv2_to_imgmsg(first_image), rospy.Time(bag.get_end_time()))
