@@ -14,6 +14,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
+import rospy
 
 from datetime import datetime
 from brains.brains_handler import Brains
@@ -29,6 +30,15 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 TIME_CYCLE = 50
+
+from rosgraph_msgs.msg import Clock
+
+clock_time = None
+
+
+def clock_callback(clock_data):
+    global clock_time
+    clock_time = clock_data.clock.to_sec()
 
 
 class Pilot(threading.Thread):
@@ -118,13 +128,17 @@ class Pilot(threading.Thread):
     def run(self):
         """Main loop of the class. Calls a brain action every TIME_CYCLE"""
         "TODO: cleanup measure of ips"
+        global clock_time
+        clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
         it = 0
         ss = time.time()
         stopped_brain_metrics = False
         successful_iteration = False
         brain_iterations_time = []
+        ros_iterations_time = []
         while not self.kill_event.is_set():
             start_time = datetime.now()
+            start_time_ros = clock_time
             if not self.stop_event.is_set():
                 self.execution_completed = False
                 stopped_brain_metrics = True
@@ -159,7 +173,9 @@ class Pilot(threading.Thread):
                         logger.info('No inference brain')
 
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+                    mean_ros_iteration_time = sum(ros_iterations_time) / len(ros_iterations_time)
                     logger.info('* Mean brain iteration time ---> ' + str(mean_iteration_time) + ' s')
+                    logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + ' s')
                     logger.info(hasattr(self.controller, 'experiment_metrics_filename'))
                     if hasattr(self.controller, 'experiment_metrics_filename'):
                         try:
@@ -173,8 +189,6 @@ class Pilot(threading.Thread):
                     self.execution_completed = True
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            if successful_iteration:
-                brain_iterations_time.append(ms / 1000)
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1
@@ -184,7 +198,12 @@ class Pilot(threading.Thread):
 
             if ms < TIME_CYCLE:
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-
+            dt = datetime.now() - start_time
+            ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+            if successful_iteration:
+                ros_iterations_time.append(clock_time - start_time_ros)
+                brain_iterations_time.append(ms / 1000)
+        clock_subscriber.unregister()
         logger.info('Pilot: pilot killed.')
 
     def stop(self):
