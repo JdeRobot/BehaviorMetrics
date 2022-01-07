@@ -189,6 +189,7 @@ class Pilot(threading.Thread):
                     self.execution_completed = True
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+            brain_iterations_time.append(ms / 1000)
             elapsed = time.time() - ss
             if elapsed < 1:
                 it += 1
@@ -198,13 +199,11 @@ class Pilot(threading.Thread):
 
             if ms < TIME_CYCLE:
                 time.sleep((TIME_CYCLE - ms) / 1000.0)
-            dt = datetime.now() - start_time
-            ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             if successful_iteration:
                 if self.real_time_factor:
                     real_time_factors.append(self.real_time_factor)
                 ros_iterations_time.append(self.ros_clock_time - start_time_ros)
-                brain_iterations_time.append(ms / 1000)
+        self.stats_process.terminate()
         logger.info('Pilot: pilot killed.')
 
     def stop(self):
@@ -254,12 +253,13 @@ class Pilot(threading.Thread):
         args = ["gz", "stats", "-p"]
         # Prints gz statistics. "-p": Output comma-separated values containing-
         # real-time factor (percent), simtime (sec), realtime (sec), paused (T or F)
-        stats_process = subprocess.Popen(args, stdout=subprocess.PIPE)
+        self.stats_process = subprocess.Popen(args, stdout=subprocess.PIPE)
         # bufsize=1 enables line-bufferred mode (the input buffer is flushed
         # automatically on newlines if you would write to process.stdin )
-        with stats_process.stdout:
-            for line in iter(stats_process.stdout.readline, b''):
+        with self.stats_process.stdout:
+            for line in iter(self.stats_process.stdout.readline, b''):
                 stats_list = [x.strip() for x in line.split(b',')]
+                print(self.real_time_factor)
                 try:
                     self.real_time_factor = float(stats_list[0].decode("utf-8"))
                 except Exception as ex:

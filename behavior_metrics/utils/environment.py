@@ -21,7 +21,7 @@ import time
 
 from utils.logger import logger
 
-# TODO: quitar paths absolutos
+# TODO: remove absolute paths
 
 __author__ = 'fqez'
 __contributors__ = []
