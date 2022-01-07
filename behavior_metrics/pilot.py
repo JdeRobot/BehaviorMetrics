@@ -23,6 +23,7 @@ from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
+from rosgraph_msgs.msg import Clock
 
 import numpy as np
 
@@ -31,15 +32,6 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 TIME_CYCLE = 50
-
-from rosgraph_msgs.msg import Clock
-
-clock_time = None
-
-
-def clock_callback(clock_data):
-    global clock_time
-    clock_time = clock_data.clock.to_sec()
 
 
 class Pilot(threading.Thread):
@@ -89,6 +81,10 @@ class Pilot(threading.Thread):
         self.checkpoint_save = False
         self.max_distance = 0.5
         self.execution_completed = False
+        self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)
+        self.stats_thread = threading.Thread(target=self.track_stats)
+        self.stats_thread.start()
+        self.ros_clock_time = 0
         self.real_time_factor = 0
 
     def __wait_gazebo(self):
@@ -130,10 +126,6 @@ class Pilot(threading.Thread):
     def run(self):
         """Main loop of the class. Calls a brain action every TIME_CYCLE"""
         "TODO: cleanup measure of ips"
-        global clock_time
-        clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
-        self.stats_thread = threading.Thread(target=self.track_stats)
-        self.stats_thread.start()
         it = 0
         ss = time.time()
         stopped_brain_metrics = False
@@ -143,7 +135,7 @@ class Pilot(threading.Thread):
         real_time_factors = []
         while not self.kill_event.is_set():
             start_time = datetime.now()
-            start_time_ros = clock_time
+            start_time_ros = self.ros_clock_time
             if not self.stop_event.is_set():
                 self.execution_completed = False
                 stopped_brain_metrics = True
@@ -178,10 +170,13 @@ class Pilot(threading.Thread):
                     mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
                     mean_ros_iteration_time = sum(ros_iterations_time) / len(ros_iterations_time)
                     real_time_factor = sum(real_time_factors) / len(real_time_factors)
-                    logger.info('* Mean brain iteration time ---> ' + str(mean_iteration_time) + 's [Max iterations per second = ' + str(int(1 / (TIME_CYCLE / 1000))) + ']')
+                    logger.info('* Mean brain iteration time ---> ' + str(
+                        mean_iteration_time) + 's [Max iterations per second = ' + str(
+                        int(1 / (TIME_CYCLE / 1000))) + ']')
                     logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
                     logger.info('* Mean real time factor ---> ' + str(real_time_factor))
-                    logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
+                    logger.info(
+                        '* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
                     if hasattr(self.controller, 'experiment_metrics_filename'):
                         try:
                             logger.info('Saving metrics to ROS bag')
@@ -208,9 +203,8 @@ class Pilot(threading.Thread):
             if successful_iteration:
                 if self.real_time_factor:
                     real_time_factors.append(self.real_time_factor)
-                ros_iterations_time.append(clock_time - start_time_ros)
+                ros_iterations_time.append(self.ros_clock_time - start_time_ros)
                 brain_iterations_time.append(ms / 1000)
-        clock_subscriber.unregister()
         logger.info('Pilot: pilot killed.')
 
     def stop(self):
@@ -228,7 +222,7 @@ class Pilot(threading.Thread):
 
     def kill(self):
         """Destroy the main loop. For exiting"""
-
+        self.clock_subscriber.unregister()
         self.actuators.kill()
         self.kill_event.set()
 
@@ -252,6 +246,9 @@ class Pilot(threading.Thread):
         if dist < self.max_distance:
             return True
         return False
+
+    def clock_callback(self, clock_data):
+        self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):
         args = ["gz", "stats", "-p"]
