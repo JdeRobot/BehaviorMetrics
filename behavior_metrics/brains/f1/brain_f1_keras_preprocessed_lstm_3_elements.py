@@ -39,7 +39,7 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+        self.gpu_inference = True if tf.test.gpu_device_name() else False
         #self.previous_images = np.zeros((25, 13))
         self.previous_images = np.zeros((3, 31))
         #self.previous_images_1 = np.zeros((5, 13))

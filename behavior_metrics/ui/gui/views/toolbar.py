@@ -582,7 +582,7 @@ class Toolbar(QWidget):
             self.recording_stats_animation_label.start_animation()
             self.recording_stats_label.show()
             self.recording_stats_animation_label.show()
-            self.controller.record_stats(filename, dirname)
+            self.controller.record_metrics(filename, dirname)
         else:
             self.stats_hint_label.setText('Select a directory to save stats first!')
             self.stats_hint_label.show()
@@ -594,7 +594,7 @@ class Toolbar(QWidget):
         self.recording_stats_animation_label.stop_animation()
         self.recording_stats_animation_label.hide()
         self.recording_stats_label.hide()
-        self.controller.stop_record_stats()
+        self.controller.stop_recording_metrics()
         
         dialog = StatsWindow(self, self.controller)
         dialog.show()

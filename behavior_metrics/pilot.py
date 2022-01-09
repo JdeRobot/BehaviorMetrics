@@ -77,6 +77,7 @@ class Pilot(threading.Thread):
         self.metrics = {}
         self.checkpoint_save = False
         self.max_distance = 0.5
+        self.execution_completed = False
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -108,7 +109,6 @@ class Pilot(threading.Thread):
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
-
         if self.sensors:
             self.sensors.kill()
         if self.actuators:
@@ -119,15 +119,15 @@ class Pilot(threading.Thread):
         """Main loop of the class. Calls a brain action every TIME_CYCLE"""
         "TODO: cleanup measure of ips"
         it = 0
-
         ss = time.time()
-        stopped_brain_stats = False
+        stopped_brain_metrics = False
         successful_iteration = False
         brain_iterations_time = []
         while not self.kill_event.is_set():
             start_time = datetime.now()
             if not self.stop_event.is_set():
-                stopped_brain_stats = True
+                self.execution_completed = False
+                stopped_brain_metrics = True
                 try:
                     self.brains.active_brain.execute()
                     successful_iteration = True
@@ -136,52 +136,41 @@ class Pilot(threading.Thread):
                     logger.error(e)
                     successful_iteration = False
             else:
-                if stopped_brain_stats:
-                    offset_for_metrics = 150
-                    stopped_brain_stats = False
+                if stopped_brain_metrics:
+                    self.execution_completed = False
+                    stopped_brain_metrics = False
                     successful_iteration = False
                     try:
-                        logger.info('----- MEAN INFERENCE TIME -----')
-                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[offset_for_metrics:-offset_for_metrics]
-
-                        print("max value: {}".format(np.max(self.brains.active_brain.inference_times)))
-                        print("mean value: {}".format(np.mean(self.brains.active_brain.inference_times)))
-
-                        # print(self.brains.active_brain.inference_times[:-100])
-
-                        inference_time = self.brains.active_brain.inference_times[offset_for_metrics:-offset_for_metrics]
-                        mean_inference_time = np.mean(inference_time)
-                        frame_rate = len(inference_time) / sum(
-                            inference_time)
-                        gpu_inferencing = self.brains.active_brain.gpu_inferencing
+                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
+                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
+                            self.brains.active_brain.inference_times)
+                        frame_rate = len(self.brains.active_brain.inference_times) / sum(
+                            self.brains.active_brain.inference_times)
+                        gpu_inference = self.brains.active_brain.gpu_inference
                         first_image = self.brains.active_brain.first_image
-                        logger.info(mean_inference_time)
-                        logger.info(frame_rate)
-                        logger.info('-------------------')
+                        logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + ' s')
+                        logger.info('* Frame rate ---> ' + str(frame_rate) + ' fps')
                     except Exception as e:
                         logger.error(e)
                         mean_inference_time = 0
                         frame_rate = 0
-                        gpu_inferencing = False
+                        gpu_inference = False
                         first_image = None
                         logger.info('No inference brain')
 
-                    logger.info('----- MEAN ITERATION TIME -----')
-                    print(self.brains.active_brain.get_iteration_time())
-                    mean_iteration_time = np.mean(brain_iterations_time)
-                    logger.info(mean_iteration_time)
-                    logger.info('-------------------')
-                    logger.info(hasattr(self.controller, 'stats_filename'))
-                    if hasattr(self.controller, 'stats_filename') and \
-                            self.controller.lap_statistics['percentage_completed'] > MIN_EXPERIMENT_PERCENTAGE_COMPLETED:
+                    mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+                    logger.info('* Mean brain iteration time ---> ' + str(mean_iteration_time) + ' s')
+                    logger.info(hasattr(self.controller, 'experiment_metrics_filename'))
+                    if hasattr(self.controller, 'experiment_metrics_filename'):
                         try:
-                            logger.info('Entering Stats into Bag')
-                            self.controller.save_time_stats(mean_iteration_time, mean_inference_time, frame_rate,
-                                                            gpu_inferencing, first_image)
+                            logger.info('Saving metrics to ROS bag')
+                            self.controller.save_metrics(mean_iteration_time, mean_inference_time, frame_rate,
+                                                         gpu_inference, first_image)
                         except Exception as e:
                             logger.info('Empty ROS bag')
                             logger.error(e)
                     brain_iterations_time = []
+                    self.execution_completed = True
             dt = datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             if successful_iteration:
@@ -234,7 +223,6 @@ class Pilot(threading.Thread):
         dist = (self.start_pose - current_point) ** 2
         dist = np.sum(dist, axis=0)
         dist = np.sqrt(dist)
-        # print(dist)
         if dist < self.max_distance:
             return True
         return False

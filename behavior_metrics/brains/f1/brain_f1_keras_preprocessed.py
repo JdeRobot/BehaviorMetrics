@@ -36,7 +36,7 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.gpu_inferencing = True if tf.test.gpu_device_name() else False
+        self.gpu_inference = True if tf.test.gpu_device_name() else False
         
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
