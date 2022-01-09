@@ -163,7 +163,7 @@ def read_bags(bags):
             correct_bags += 1
         except Exception as excep:
             print(excep)
-            print('Error in bag')
+            print('Error in bag{}'.format(metadata))
 
     print('Correct bags: ' + str(correct_bags))
 

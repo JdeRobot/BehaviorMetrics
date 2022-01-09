@@ -35,7 +35,10 @@ if __name__ == "__main__":
 
     all_data = {}
 
-    for root, dirs, files in os.walk(baginput):
+    lap_stat_keys = ["completed_distance", "lap_seconds", "circuit_diameter", "average_speed",
+                     "position_deviation_mae", "position_deviation_total_err", "percentage_completed"]
+
+    for experiment_index, (root, dirs, files) in enumerate(os.walk(baginput)):
         print("Total Number of Bags to Read from {}: {}".format(root, len(files)))
         for name in sorted(files):
 
@@ -72,6 +75,8 @@ if __name__ == "__main__":
                     data = json.loads(h)
                     time_stats_metadata = json.loads(data['data'])
 
+                first_image = None
+
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
                     first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
 
@@ -79,36 +84,36 @@ if __name__ == "__main__":
 
                 if world not in all_data.keys():
                     all_data[world] = {}
-                    all_data[world]['percentage_completed'] = []
-                    all_data[world]['completed_distance'] = []
-                    all_data[world]['lap_seconds'] = []
-                    all_data[world]['circuit_diameter'] = []
-                    all_data[world]['average_speed'] = []
                     all_data[world]['image'] = {}
                     all_data[world]['image']['first_images'] = []
                     all_data[world]['image']['path_x'] = []
                     all_data[world]['image']['path_y'] = []
+                    all_data[world]['time_meta'] = []
 
+                    for lap_key in lap_stat_keys:
+                        all_data[world][lap_key] = []
+
+
+
+                all_data[world]['time_meta'].append(time_stats_metadata)
                 all_data[world]['completed_distance'].append(lapdata['completed_distance'])
                 all_data[world]['percentage_completed'].append(lapdata['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)
                 all_data[world]['image']['path_x'].append(x_points)
                 all_data[world]['image']['path_y'].append(y_points)
 
-                if 'lap_seconds' in lapdata:
-                    all_data[world]['lap_seconds'].append(lapdata['lap_seconds'])
-                    all_data[world]['circuit_diameter'].append(lapdata['circuit_diameter'])
-                    all_data[world]['average_speed'].append(lapdata['average_speed'])
-                else:
-                    all_data[world]['lap_seconds'].append(0.0)
-                    all_data[world]['circuit_diameter'].append(0.0)
-                    all_data[world]['average_speed'].append(0.0)
+                for lap_stat in lap_stat_keys:
+                    if lap_stat in lapdata:
+                        all_data[world][lap_stat].append(lapdata[lap_stat])
+                    else:
+                        all_data[world][lap_stat].append(0)
+
 
                 bag.close()
 
             except Exception as excep:
                 print(excep)
-                print('Error in bag')
+                print('Error in bag {} - {} '.format(world, experiment_index))
 
     for world in all_data.keys():
         directory = output + 'bag_analysis_plots/' + world
@@ -118,13 +123,17 @@ if __name__ == "__main__":
             os.makedirs(directory + '/' + 'path_followed')
 
         for key in all_data[world].keys():
-
+            if key == "time_meta":
+                continue
             if key == 'image':
                 images = all_data[world][key]['first_images']
                 all_path_x = all_data[world][key]['path_x']
                 all_path_y = all_data[world][key]['path_y']
                 for it in range(len(images)):
-                    cv2.imwrite(directory + '/' + 'first_images/Run_' + str(it + 1) + '.png', images[it])
+                    try:
+                        cv2.imwrite(directory + '/' + 'first_images/Run_' + str(it + 1) + '.png', images[it])
+                    except:
+                        pass
 
                     fig = plt.figure(figsize=(10, 5))
                     plt.scatter(all_path_x[it], all_path_y[it], zorder=3)

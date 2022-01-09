@@ -119,6 +119,7 @@ class Pilot(threading.Thread):
         """Main loop of the class. Calls a brain action every TIME_CYCLE"""
         "TODO: cleanup measure of ips"
         it = 0
+
         ss = time.time()
         stopped_brain_stats = False
         successful_iteration = False
@@ -136,15 +137,22 @@ class Pilot(threading.Thread):
                     successful_iteration = False
             else:
                 if stopped_brain_stats:
+                    offset_for_metrics = 150
                     stopped_brain_stats = False
                     successful_iteration = False
                     try:
                         logger.info('----- MEAN INFERENCE TIME -----')
-                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
-                            self.brains.active_brain.inference_times)
-                        frame_rate = len(self.brains.active_brain.inference_times) / sum(
-                            self.brains.active_brain.inference_times)
+                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[offset_for_metrics:-offset_for_metrics]
+
+                        print("max value: {}".format(np.max(self.brains.active_brain.inference_times)))
+                        print("mean value: {}".format(np.mean(self.brains.active_brain.inference_times)))
+
+                        # print(self.brains.active_brain.inference_times[:-100])
+
+                        inference_time = self.brains.active_brain.inference_times[offset_for_metrics:-offset_for_metrics]
+                        mean_inference_time = np.mean(inference_time)
+                        frame_rate = len(inference_time) / sum(
+                            inference_time)
                         gpu_inferencing = self.brains.active_brain.gpu_inferencing
                         first_image = self.brains.active_brain.first_image
                         logger.info(mean_inference_time)
@@ -159,7 +167,8 @@ class Pilot(threading.Thread):
                         logger.info('No inference brain')
 
                     logger.info('----- MEAN ITERATION TIME -----')
-                    mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+                    print(self.brains.active_brain.get_iteration_time())
+                    mean_iteration_time = np.mean(brain_iterations_time)
                     logger.info(mean_iteration_time)
                     logger.info('-------------------')
                     logger.info(hasattr(self.controller, 'stats_filename'))

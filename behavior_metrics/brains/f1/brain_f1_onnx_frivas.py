@@ -28,9 +28,11 @@ from models.visual_control import VisualControl
 from visual_control_utils.check_point_loader import load_best_model
 from visual_control_utils.logits_conversion import from_logit_to_estimation, from_one_hot_to_class
 from visual_control_utils.visualization import add_arrow_prediction
+from brains.base.brain_base import BrainBase
+import time
 
 
-class Brain:
+class Brain(BrainBase):
     """Specific brain for the f1 robot. See header."""
 
     def __init__(self, sensors, actuators, model=None, handler=None, config=None):
@@ -45,11 +47,11 @@ class Brain:
             (default: {None})
         """
 
-        print("holaaaaaa000")
+        print("Model: {}".format(model))
+        super().__init__(sensors, actuators, model, handler, config)
 
-        self.motors = actuators.get_motor('motors_0')
-        self.camera = sensors.get_camera('camera_0')
-        self.handler = handler
+        self.motors = self.actuators.get_motor('motors_0')
+        self.camera = self.sensors.get_camera('camera_0')
         self.cont = 0
         self.inference_times = []
 
@@ -57,9 +59,6 @@ class Brain:
             model = [
                 '/media/frivas/External/phd/version_6', '/media/frivas/External/phd/version_7']
             model = "/media/frivas/External/phd/version_1"
-
-
-        print(model)
 
         if model:
             if isinstance(model, str):
@@ -92,19 +91,20 @@ class Brain:
 
         # sys.exit(0)
 
-
         checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7/checkpoints/rc-classification-epoch=12-val_acc=1.00-val_loss=0.09.ckpt"
         checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_9/checkpoints/rc-classification-epoch=33-val_acc=0.98-val_loss=0.05.ckpt"
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6/checkpoints/rc-classification-epoch=19-val_acc=1.00-val_loss=0.03.ckpt"
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_8/checkpoints/rc-classification-epoch=34-val_acc=0.98-val_loss=0.06.ckpt"
 
-
-
-
         self.device = "cuda:0"
+        # self.device = "cpu"
+
+        if "cuda" in self.device:
+            map_location = {'cuda:0': 'cpu'}
+        else:
+            map_location = None
 
         self.gpu_inferencing = "cuda" in self.device
-
 
         self.models = {}
         self.net_configs = {}
@@ -116,7 +116,7 @@ class Brain:
 
             self.models[controller] = VisualControl.load_from_checkpoint(checkpoint_path=check_points_info[controller], dataset_path="", lr=5e-2,
                                                             base_size=self.net_configs[controller].base_size,
-                                                            batch_size=self.net_configs[controller].batch_size, net_config=self.net_configs[controller])
+                                                            batch_size=self.net_configs[controller].batch_size, net_config=self.net_configs[controller], map_location=map_location)
 
             self.models[controller].to(self.device)
             self.models[controller].eval()
@@ -184,8 +184,10 @@ class Brain:
             self.motors.sendW(motors_info["w"])
         return motors_info
 
-    def execute(self):
+    def execute_imp(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
+
+        start_time = time.time()
 
         self.cont += 1
         image = self.camera.getImage().data
@@ -203,7 +205,7 @@ class Brain:
                 controller_output = self.calculate_v_w(predictions, self.net_configs[controller])
                 motors_info.update(controller_output)
 
-
+            # print(time.time() - start_time)
             self.inference_times.append(time.time() - start_time)
             image_labels = add_arrow_prediction(image, motors_info)
             self.update_frame('frame_0', image_labels)
@@ -229,5 +231,4 @@ class Brain:
         #     print(err)
 
         # self.update_frame('frame_0', image)
-
 

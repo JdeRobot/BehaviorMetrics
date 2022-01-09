@@ -67,15 +67,15 @@ def tmp_random_initializer(current_world, stats_perfect_lap, randomize=False, gu
         random_point = perfect_lap_checkpoints[random_index]
         orientation_z = random_point['pose.pose.orientation.z']
 
-    current_circuit = os.path.basename(stats_perfect_lap).split(".")[0]
-    if current_circuit == "lap-nurburgring":
-        orientation_z = -0.51
-    elif current_circuit == "lap-montmelo":
-        orientation_z = -3.12
-    elif current_circuit == "lap-many-curves":
-        orientation_z = -1.5
-    elif current_circuit == "lap-simple-circuit":
-        orientation_z = -1.5
+    # current_circuit = os.path.basename(stats_perfect_lap).split(".")[0]
+    # if current_circuit == "lap-nurburgring":
+    #     orientation_z = -0.51
+    # elif current_circuit == "lap-montmelo":
+    #     orientation_z = -3.12
+    # elif current_circuit == "lap-many-curves":
+    #     orientation_z = -1.5
+    # elif current_circuit == "lap-simple-circuit":
+    #     orientation_z = -1.5
     
     random_start_point = np.array([round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
                                 round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3), 

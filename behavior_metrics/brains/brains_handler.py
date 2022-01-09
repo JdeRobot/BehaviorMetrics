@@ -27,7 +27,6 @@ class Brains(object):
             exit(1)
 
     def load_brain(self, path, model=None):
-
         path_split = path.split("/")
         robot_type = path_split[-2]
         module_name = path_split[-1][:-3]  # removing .py extension
