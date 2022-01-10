@@ -95,8 +95,13 @@ if __name__ == "__main__":
 
 
 
-                all_data[world]['time_meta'].append(time_stats_metadata)
-                all_data[world]['completed_distance'].append(lapdata['completed_distance'])
+                all_data[world]['time_meta'].append(time_metrics_metadata)
+                try:
+                    all_data[world]['completed_distance'].append(lapdata['completed_distance'])
+                except:
+                    print("Aqui error")
+                    all_data[world]['completed_distance'].append(0)
+
                 all_data[world]['percentage_completed'].append(lapdata['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)
                 all_data[world]['image']['path_x'].append(x_points)

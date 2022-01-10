@@ -130,7 +130,7 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     lap_metrics = get_average_speed(lap_metrics, seconds_start, seconds_end)
     lap_metrics = get_percentage_completed(lap_metrics, checkpoints, perfect_lap_checkpoints, seconds_start
                                               , seconds_end, laps)
-    lap_metrics = get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point)
+    lap_metrics = get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point, start_clock, clock_points, checkpoints)
 
     shutil.rmtree(stats_filename.split('.bag')[0])
     return lap_metrics
@@ -274,7 +274,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, lap
     return lap_metrics
 
 
-def get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point):
+def get_lap_completed_stats(lap_metrics, circuit_diameter, previous_lap_point, lap_point, start_clock, clock_points, checkpoints):
     # If lap is completed, add more statistic information
     if type(lap_point) is not int and lap_metrics['percentage_completed'] > LAP_COMPLETED_PERCENTAGE:
         if abs(((lap_metrics['completed_distance'] / circuit_diameter) * 100) -

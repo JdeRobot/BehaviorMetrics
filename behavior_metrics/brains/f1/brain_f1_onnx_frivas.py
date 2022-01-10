@@ -59,6 +59,7 @@ class Brain(BrainBase):
             model = [
                 '/media/frivas/External/phd/version_6', '/media/frivas/External/phd/version_7']
             model = "/media/frivas/External/phd/version_1"
+            model = "/media/frivas/External/phd/version_10"
 
         if model:
             if isinstance(model, str):
@@ -96,8 +97,8 @@ class Brain(BrainBase):
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6/checkpoints/rc-classification-epoch=19-val_acc=1.00-val_loss=0.03.ckpt"
         checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_8/checkpoints/rc-classification-epoch=34-val_acc=0.98-val_loss=0.06.ckpt"
 
-        self.device = "cuda:0"
-        # self.device = "cpu"
+        # self.device = "cuda:0"
+        self.device = "cpu"
 
         if "cuda" in self.device:
             map_location = {'cuda:0': 'cpu'}

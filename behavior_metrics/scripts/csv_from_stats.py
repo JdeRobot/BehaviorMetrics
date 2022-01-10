@@ -10,7 +10,7 @@ if __name__ == "__main__":
     with open(experiment_main_file, 'r') as f:
         doc = yaml.load(f)
 
-    stats = json.load(open("/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis_OK_GPU1/stats.json"))
+    stats = json.load(open("/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis/stats.json"))
 
     n_models = len(doc['Behaviors']['Robot']['Parameters']['Model'])
 
