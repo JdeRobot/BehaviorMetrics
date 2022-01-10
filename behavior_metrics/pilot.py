@@ -127,7 +127,6 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
-        successful_iteration = False
         brain_iterations_time = []
         ros_iterations_time = []
         real_time_factors = []
@@ -138,27 +137,23 @@ class Pilot(threading.Thread):
                 self.execution_completed = False
                 try:
                     self.brains.active_brain.execute()
-                    successful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-                    successful_iteration = False
 
-            dt = datetime.now() - start_time
-            ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            brain_iterations_time.append(ms / 1000)
-            elapsed = time.time() - ss
-            if elapsed < 1:
-                it += 1
-            else:
-                ss = time.time()
-                it = 0
+                dt = datetime.now() - start_time
+                ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+                brain_iterations_time.append(ms / 1000)
+                elapsed = time.time() - ss
+                if elapsed < 1:
+                    it += 1
+                else:
+                    ss = time.time()
+                    it = 0
 
-            if ms < TIME_CYCLE:
-                time.sleep((TIME_CYCLE - ms) / 1000.0)
-            if successful_iteration:
-                if self.real_time_factor:
-                    real_time_factors.append(self.real_time_factor)
+                if ms < TIME_CYCLE:
+                    time.sleep((TIME_CYCLE - ms) / 1000.0)
+                real_time_factors.append(self.real_time_factor)
                 ros_iterations_time.append(self.ros_clock_time - start_time_ros)
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
@@ -176,9 +171,14 @@ class Pilot(threading.Thread):
             gpu_inference = False
             first_image = None
             logger.info('No deep learning based brain')
-        mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
-        mean_ros_iteration_time = sum(ros_iterations_time) / len(ros_iterations_time)
-        real_time_factor = sum(real_time_factors) / len(real_time_factors)
+        if brain_iterations_time and ros_iterations_time and ros_iterations_time:
+            mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
+            mean_ros_iteration_time = sum(ros_iterations_time) / len(ros_iterations_time)
+            real_time_factor = sum(real_time_factors) / len(real_time_factors)
+        else:
+            mean_iteration_time = 0
+            mean_ros_iteration_time = 0
+            real_time_factor = 0
         logger.info('* Mean brain iteration time ---> ' + str(
             mean_iteration_time) + 's [Max iterations per second = ' + str(
             int(1 / (TIME_CYCLE / 1000))) + ']')
