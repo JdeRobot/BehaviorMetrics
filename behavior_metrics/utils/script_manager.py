@@ -26,7 +26,6 @@ import sys
 import numpy as np
 
 from utils import metrics
-from utils import environment
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, CIRCUITS_TIMEOUTS
 from pilot import Pilot
@@ -36,7 +35,7 @@ from rosgraph_msgs.msg import Clock
 clock_time = None
 
 
-def clock_callback(clock_data):
+def clock_callback_2(clock_data):
     global clock_time
     clock_time = clock_data.clock.to_sec()
 
@@ -44,19 +43,15 @@ def clock_callback(clock_data):
 def run_brains_worlds(app_configuration, controller, randomize=False):
     global clock_time
     # Start Behavior Metrics app
-    tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0],
-                           randomize=randomize, gui=False, launch=True)
-    pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
-    pilot.daemon = True
-    controller.pilot.start()
     for world_counter, world in enumerate(app_configuration.current_world):
-        import os
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
+                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], randomize=randomize, gui=False, launch=True)
+                pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
+                pilot.daemon = True
+                controller.pilot.start()
                 # 1. Load world
-                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=False,
-                                       launch=True)
                 controller.initialize_robot()
                 controller.pilot.configuration.current_world = world
                 controller.pilot.brains.brain_path = brain
@@ -72,12 +67,11 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                                         world_counter=world_counter, brain_counter=brain_counter,
                                         repetition_counter=repetition_counter)
 
-                clock_subscriber = rospy.Subscriber("/clock", Clock, clock_callback)
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(
                     app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                       controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-                time_start = clock_time
+                time_start = controller.pilot.ros_clock_time
                 previous_pitch = 0
                 is_finished = False
                 pitch_error = False
@@ -85,8 +79,8 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     experiment_timeout = app_configuration.experiment_timeouts[world_counter]
                 else:
                     experiment_timeout = CIRCUITS_TIMEOUTS[os.path.basename(world)] * 1.1
-                while (clock_time - time_start < experiment_timeout and not is_finished) \
-                        or clock_time - time_start < 20:
+                while (controller.pilot.ros_clock_time - time_start < experiment_timeout and not is_finished) \
+                        or controller.pilot.ros_clock_time - time_start < 20:
                     rospy.sleep(10)
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
@@ -103,13 +97,11 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     else:
                         previous_pitch = controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
 
-
-                time_end = clock_time
-                clock_subscriber.unregister()
+                time_end = controller.pilot.ros_clock_time
                 logger.info('* Experiment end time ---> ' + str(time_end - time_start))
                 controller.stop_recording_metrics(pitch_error)
                 # 3. Stop
-                controller.pause_pilot()
+                controller.stop_pilot()
                 controller.pause_gazebo_simulation()
                 logger.info('* World ---> ' + world)
                 logger.info('* Brain ---> ' + brain)
@@ -118,11 +110,12 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 if not pitch_error:
                     logger.info('* Metrics ---> ' + str(controller.lap_metrics))
                 repetition_counter += 1
-        os.remove('tmp_circuit.launch')
-        os.remove('tmp_world.launch')
-    # Wait for pilot to complete execution and save stats before closing processes
-    while not controller.pilot.execution_completed:
-        pass
+                os.remove('tmp_circuit.launch')
+                os.remove('tmp_world.launch')
+                while not controller.pilot.execution_completed:
+                    print('PILOT EXECUTION NOT COMPLETED')
+                    time.sleep(1)
+    controller.stop_pilot()
 
 
 def is_trapped(old_point, new_point):

@@ -195,8 +195,6 @@ def main():
         logger.info('Executing app')
     else:
         script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
-        while not controller.pilot.execution_completed:
-            pass
         logger.info('closing all processes...')
         environment.close_gazebo()
         logger.info('DONE! Bye, bye :)')
