@@ -50,6 +50,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], app_configuration.real_time_update_rate, randomize=randomize, gui=False, launch=True)
                 pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
+                pilot.real_time_update_rate = app_configuration.real_time_update_rate
                 controller.pilot.start()
                 # 1. Load world
                 controller.initialize_robot()

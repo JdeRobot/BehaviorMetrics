@@ -88,6 +88,7 @@ class Pilot(threading.Thread):
         self.brain_iterations_time = []
         self.ros_iterations_time = []
         self.real_time_factors = []
+        self.real_time_update_rate = 1000
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -212,11 +213,10 @@ class Pilot(threading.Thread):
     def calculate_metrics(self):
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-            mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
-                self.brains.active_brain.inference_times)
-            frame_rate = len(self.brains.active_brain.inference_times) / sum(
-                self.brains.active_brain.inference_times)
+            mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+            frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
             gpu_inference = self.brains.active_brain.gpu_inference
+            real_time_update_rate = self.real_time_update_rate
             first_image = self.brains.active_brain.first_image
             logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + 's')
             logger.info('* Frame rate ---> ' + str(frame_rate) + 'fps')
@@ -224,6 +224,7 @@ class Pilot(threading.Thread):
             mean_inference_time = 0
             frame_rate = 0
             gpu_inference = False
+            real_time_update_rate = self.real_time_update_rate
             first_image = None
             logger.info('No deep learning based brain')
         if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
@@ -239,12 +240,22 @@ class Pilot(threading.Thread):
                 int(1 / (TIME_CYCLE / 1000))) + ']')
         logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
         logger.info('* Mean real time factor ---> ' + str(real_time_factor))
+        logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
+        logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
         if hasattr(self.controller, 'experiment_metrics_filename'):
             try:
+                metrics = {
+                    'mean_iteration_time': mean_iteration_time,
+                    'mean_inference_time': mean_inference_time,
+                    'frame_rate': frame_rate,
+                    'gpu_inference': gpu_inference,
+                    'mean_ros_iteration_time': mean_ros_iteration_time,
+                    'real_time_factor': real_time_factor,
+                    'real_time_update_rate': real_time_update_rate
+                }
                 logger.info('Saving metrics to ROS bag')
-                self.controller.save_metrics(mean_iteration_time, mean_inference_time, frame_rate,
-                                             gpu_inference, mean_ros_iteration_time, real_time_factor, first_image)
+                self.controller.save_metrics(metrics, first_image)
             except Exception as e:
                 logger.info('Empty ROS bag')
                 logger.error(e)
