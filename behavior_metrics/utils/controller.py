@@ -237,11 +237,13 @@ class Controller:
                                 'circuit_diameter': 0, 'position_deviation_mae': 0, 'position_deviation_total_err': 0}
         logger.info("Stopping metrics bag recording")
 
-    def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inference, first_image):
+    def save_metrics(self, mean_iteration_time, mean_inference_time, frame_rate, gpu_inference, mean_ros_iteration_time, real_time_factor, first_image):
         time_metrics = {'mean_iteration_time': mean_iteration_time,
                         'mean_inference_time': mean_inference_time,
                         'frame_rate': frame_rate,
-                        'gpu_inference': gpu_inference}
+                        'gpu_inference': gpu_inference,
+                        'mean_ros_iteration_time': mean_ros_iteration_time,
+                        'real_time_factor': real_time_factor,}
         time_metrics_str = json.dumps(time_metrics)
         lap_metrics_str = json.dumps(self.lap_metrics)
         with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:

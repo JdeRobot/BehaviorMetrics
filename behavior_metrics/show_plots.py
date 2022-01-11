@@ -86,6 +86,14 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
                 self.time_metrics_metadata['frame_rate']))
         self.layout.addWidget(label_frame_rate)
+        label_mean_ros_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+                self.time_metrics_metadata['mean_ros_iteration_time']))
+        self.layout.addWidget(label_mean_ros_iteration_time)
+        label_real_time_factor = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+                self.time_metrics_metadata['real_time_factor']))
+        self.layout.addWidget(label_real_time_factor)
 
         label_circuit_diameter = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
