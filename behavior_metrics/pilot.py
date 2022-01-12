@@ -159,7 +159,6 @@ class Pilot(threading.Thread):
                     time.sleep((TIME_CYCLE - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
                 self.ros_iterations_time.append(self.ros_clock_time - start_time_ros)
-        self.calculate_metrics()
         self.execution_completed = True
         self.clock_subscriber.unregister()
         self.stats_process.terminate()
@@ -210,7 +209,7 @@ class Pilot(threading.Thread):
             return True
         return False
 
-    def calculate_metrics(self):
+    def calculate_metrics(self, experiment_metrics):
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
             mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
@@ -243,22 +242,16 @@ class Pilot(threading.Thread):
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
-        if hasattr(self.controller, 'experiment_metrics_filename'):
-            try:
-                metrics = {
-                    'mean_iteration_time': mean_iteration_time,
-                    'mean_inference_time': mean_inference_time,
-                    'frame_rate': frame_rate,
-                    'gpu_inference': gpu_inference,
-                    'mean_ros_iteration_time': mean_ros_iteration_time,
-                    'real_time_factor': real_time_factor,
-                    'real_time_update_rate': real_time_update_rate
-                }
-                logger.info('Saving metrics to ROS bag')
-                self.controller.save_metrics(metrics, first_image)
-            except Exception as e:
-                logger.info('Empty ROS bag')
-                logger.error(e)
+        experiment_metrics['mean_iteration_time'] = mean_iteration_time
+        experiment_metrics['mean_inference_time'] = mean_inference_time
+        experiment_metrics['frame_rate'] = frame_rate
+        experiment_metrics['gpu_inference'] = gpu_inference
+        experiment_metrics['mean_ros_iteration_time'] = mean_ros_iteration_time
+        experiment_metrics['real_time_factor'] = real_time_factor
+        experiment_metrics['real_time_update_rate'] = real_time_update_rate
+        logger.info('Saving metrics to ROS bag')
+        return experiment_metrics, first_image
+
 
     def clock_callback(self, clock_data):
         self.ros_clock_time = clock_data.clock.to_sec()
