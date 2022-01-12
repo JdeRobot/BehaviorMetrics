@@ -278,10 +278,10 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, exp
 def get_lap_completed_stats(experiment_metrics, circuit_diameter, previous_lap_point, lap_point, start_clock, clock_points, checkpoints):
     # If lap is completed, add more statistic information
     if type(lap_point) is not int and experiment_metrics['percentage_completed'] > LAP_COMPLETED_PERCENTAGE:
-            seconds_start = start_clock['clock.secs']
-            seconds_end = clock_points[int(len(clock_points) * (previous_lap_point / len(checkpoints)))]['clock.secs']
-            experiment_metrics['lap_seconds'] = seconds_end - seconds_start
-            experiment_metrics['circuit_diameter'] = circuit_diameter
+        seconds_start = start_clock['clock.secs']
+        seconds_end = clock_points[int(len(clock_points) * (previous_lap_point / len(checkpoints)))]['clock.secs']
+        experiment_metrics['lap_seconds'] = seconds_end - seconds_start
+        experiment_metrics['circuit_diameter'] = circuit_diameter
     else:
         logger.info('Lap not completed')
 
