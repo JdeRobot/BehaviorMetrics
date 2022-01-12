@@ -47,7 +47,9 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
-                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], app_configuration.real_time_update_rate, randomize=randomize, gui=False, launch=True)
+                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter],
+                                       app_configuration.real_time_update_rate, randomize=randomize, gui=False,
+                                       launch=True)
                 pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
                 pilot.real_time_update_rate = app_configuration.real_time_update_rate
@@ -64,9 +66,10 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     controller.reload_brain(brain)
                 controller.resume_pilot()
                 controller.unpause_gazebo_simulation()
-                controller.record_metrics(app_configuration.stats_perfect_lap[world_counter], app_configuration.stats_out,
-                                        world_counter=world_counter, brain_counter=brain_counter,
-                                        repetition_counter=repetition_counter)
+                controller.record_metrics(app_configuration.stats_perfect_lap[world_counter],
+                                          app_configuration.stats_out,
+                                          world_counter=world_counter, brain_counter=brain_counter,
+                                          repetition_counter=repetition_counter)
 
                 perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(
                     app_configuration.stats_perfect_lap[world_counter])
@@ -97,7 +100,6 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                         pitch_error = True
                     else:
                         previous_pitch = controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
-
                 time_end = controller.pilot.ros_clock_time
                 logger.info('* Experiment end time ---> ' + str(time_end - time_start))
                 controller.stop_recording_metrics(pitch_error)
@@ -109,12 +111,11 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 if hasattr(app_configuration, 'experiment_model'):
                     logger.info('* Model ---> ' + app_configuration.experiment_model[brain_counter])
                 if not pitch_error:
-                    logger.info('* Metrics ---> ' + str(controller.lap_metrics))
+                    logger.info('* Metrics ---> ' + str(controller.experiment_metrics))
                 repetition_counter += 1
                 os.remove('tmp_circuit.launch')
                 os.remove('tmp_world.launch')
                 while not controller.pilot.execution_completed:
-                    print('PILOT EXECUTION NOT COMPLETED')
                     time.sleep(1)
     controller.stop_pilot()
 
