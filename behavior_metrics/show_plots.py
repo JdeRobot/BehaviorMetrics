@@ -181,9 +181,9 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, fi
         if bags_metadata[x]['world'] == 'simple_circuit.launch':
             perfect_lap_path = 'perfect_bags/lap-simple-circuit.bag'
         elif bags_metadata[x]['world'] == 'many_curves.launch':
-            perfect_lap_path = 'lap-many-curves.bag'
+            perfect_lap_path = 'perfect_bags/lap-many-curves.bag'
         elif bags_metadata[x]['world'] == 'montmelo_line.launch':
-            perfect_lap_path = 'lap-montmelo.bag'
+            perfect_lap_path = 'perfect_bags/lap-montmelo.bag'
 
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
         experiment_metrics = bags_experiment_data[x]
