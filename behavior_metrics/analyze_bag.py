@@ -60,17 +60,11 @@ if __name__ == "__main__":
                     data = json.loads(h)
                     metadata = json.loads(data['data'])
 
-                for topic, point, t in bag.read_messages(topics=['/lap_metrics']):
+                for topic, point, t in bag.read_messages(topics=['/experiment_metrics']):
                     y = yaml.load(str(point), Loader=yaml.FullLoader)
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)
-                    lapdata = json.loads(data['data'])
-
-                for topic, point, t in bag.read_messages(topics=['/time_metrics']):
-                    y = yaml.load(str(point), Loader=yaml.FullLoader)
-                    h = json.dumps(y, indent=4)
-                    data = json.loads(h)
-                    time_metrics_metadata = json.loads(data['data'])
+                    experiment_metrics = json.loads(data['data'])
 
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
                     first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
@@ -89,16 +83,16 @@ if __name__ == "__main__":
                     all_data[world]['image']['path_x'] = []
                     all_data[world]['image']['path_y'] = []
 
-                all_data[world]['completed_distance'].append(lapdata['completed_distance'])
-                all_data[world]['percentage_completed'].append(lapdata['percentage_completed'])
+                all_data[world]['completed_distance'].append(experiment_metrics['completed_distance'])
+                all_data[world]['percentage_completed'].append(experiment_metrics['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)
                 all_data[world]['image']['path_x'].append(x_points)
                 all_data[world]['image']['path_y'].append(y_points)
 
-                if 'lap_seconds' in lapdata:
-                    all_data[world]['lap_seconds'].append(lapdata['lap_seconds'])
-                    all_data[world]['circuit_diameter'].append(lapdata['circuit_diameter'])
-                    all_data[world]['average_speed'].append(lapdata['average_speed'])
+                if 'lap_seconds' in experiment_metrics:
+                    all_data[world]['lap_seconds'].append(experiment_metrics['lap_seconds'])
+                    all_data[world]['circuit_diameter'].append(experiment_metrics['circuit_diameter'])
+                    all_data[world]['average_speed'].append(experiment_metrics['average_speed'])
                 else:
                     all_data[world]['lap_seconds'].append(0.0)
                     all_data[world]['circuit_diameter'].append(0.0)
