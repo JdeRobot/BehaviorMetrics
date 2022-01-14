@@ -132,6 +132,7 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
                                                   seconds_start, seconds_end, laps)
     experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, previous_lap_point, lap_point,
                                                  start_clock, clock_points, checkpoints)
+    experiment_metrics['experiment_total_time'] = seconds_end - seconds_start
 
     shutil.rmtree(stats_filename.split('.bag')[0])
     return experiment_metrics
