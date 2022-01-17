@@ -22,8 +22,8 @@ class StatsWindow(QMainWindow):
         self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.experiment_metrics['position_deviation_total_err']))
         self.layout.addWidget(self.position_deviation_total_err_label)
 
-        self.mean_iteration_time_label = QLabel("Mean brain iteration time -> " + str(self.controller.experiment_metrics['mean_iteration_time']))
-        self.layout.addWidget(self.mean_iteration_time_label)
+        self.mean_brain_iteration_time_label = QLabel("Mean brain iteration time -> " + str(self.controller.experiment_metrics['mean_brain_iteration_time']))
+        self.layout.addWidget(self.mean_brain_iteration_time_label)
         self.mean_inference_time_label = QLabel("Mean inference time -> " + str(self.controller.experiment_metrics['mean_inference_time']))
         self.layout.addWidget(self.mean_inference_time_label)
         self.frame_rate_label = QLabel("Frame rate -> " + str(self.controller.experiment_metrics['frame_rate']))

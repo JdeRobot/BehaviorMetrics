@@ -227,22 +227,22 @@ class Pilot(threading.Thread):
             first_image = None
             logger.info('No deep learning based brain')
         if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
-            mean_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
+            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
             mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
         else:
-            mean_iteration_time = 0
+            mean_brain_iteration_time = 0
             mean_ros_iteration_time = 0
             real_time_factor = 0
         logger.info(
-            '* Mean brain iteration time ---> ' + str(mean_iteration_time) + 's [Max iterations per second = ' + str(
+            '* Mean brain iteration time ---> ' + str(mean_brain_iteration_time) + 's [Max iterations per second = ' + str(
                 int(1 / (TIME_CYCLE / 1000))) + ']')
         logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
         logger.info('* Mean real time factor ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
-        experiment_metrics['mean_iteration_time'] = mean_iteration_time
+        experiment_metrics['mean_brain_iteration_time'] = mean_brain_iteration_time
         experiment_metrics['mean_inference_time'] = mean_inference_time
         experiment_metrics['frame_rate'] = frame_rate
         experiment_metrics['gpu_inference'] = gpu_inference

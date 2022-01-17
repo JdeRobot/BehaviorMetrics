@@ -69,10 +69,10 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 'robot_type'])
         self.layout.addWidget(label_robot_type)
 
-        label_mean_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean iteration time: </span>' + str(
-                self.experiment_metrics['mean_iteration_time']))
-        self.layout.addWidget(label_mean_iteration_time)
+        label_mean_brain_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
+                self.experiment_metrics['mean_brain_iteration_time']))
+        self.layout.addWidget(label_mean_brain_iteration_time)
         label_mean_inference_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
                 self.experiment_metrics['mean_inference_time']))
