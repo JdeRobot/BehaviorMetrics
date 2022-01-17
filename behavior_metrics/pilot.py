@@ -14,6 +14,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 import time
+import rospy
+import subprocess
 
 from datetime import datetime
 from brains.brains_handler import Brains
@@ -21,6 +23,7 @@ from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
+from rosgraph_msgs.msg import Clock
 
 import numpy as np
 
@@ -78,6 +81,14 @@ class Pilot(threading.Thread):
         self.checkpoint_save = False
         self.max_distance = 0.5
         self.execution_completed = False
+        self.stats_thread = threading.Thread(target=self.track_stats)
+        self.stats_thread.start()
+        self.ros_clock_time = 0
+        self.real_time_factor = 0
+        self.brain_iterations_time = []
+        self.ros_iterations_time = []
+        self.real_time_factors = []
+        self.real_time_update_rate = 1000
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -120,71 +131,42 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
-        stopped_brain_metrics = False
-        successful_iteration = False
-        brain_iterations_time = []
+        self.brain_iterations_time = []
+        self.ros_iterations_time = []
+        self.real_time_factors = []
         while not self.kill_event.is_set():
-            start_time = datetime.now()
             if not self.stop_event.is_set():
+                start_time = datetime.now()
+                start_time_ros = self.ros_clock_time
                 self.execution_completed = False
-                stopped_brain_metrics = True
                 try:
                     self.brains.active_brain.execute()
-                    successful_iteration = True
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-                    successful_iteration = False
-            else:
-                if stopped_brain_metrics:
-                    self.execution_completed = False
-                    stopped_brain_metrics = False
-                    successful_iteration = False
-                    try:
-                        self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-                        mean_inference_time = sum(self.brains.active_brain.inference_times) / len(
-                            self.brains.active_brain.inference_times)
-                        frame_rate = len(self.brains.active_brain.inference_times) / sum(
-                            self.brains.active_brain.inference_times)
-                        gpu_inference = self.brains.active_brain.gpu_inference
-                        first_image = self.brains.active_brain.first_image
-                        logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + ' s')
-                        logger.info('* Frame rate ---> ' + str(frame_rate) + ' fps')
-                    except Exception as e:
-                        logger.error(e)
-                        mean_inference_time = 0
-                        frame_rate = 0
-                        gpu_inference = False
-                        first_image = None
-                        logger.info('No inference brain')
 
-                    mean_iteration_time = sum(brain_iterations_time) / len(brain_iterations_time)
-                    logger.info('* Mean brain iteration time ---> ' + str(mean_iteration_time) + ' s')
-                    logger.info(hasattr(self.controller, 'experiment_metrics_filename'))
-                    if hasattr(self.controller, 'experiment_metrics_filename'):
-                        try:
-                            logger.info('Saving metrics to ROS bag')
-                            self.controller.save_metrics(mean_iteration_time, mean_inference_time, frame_rate,
-                                                         gpu_inference, first_image)
-                        except Exception as e:
-                            logger.info('Empty ROS bag')
-                            logger.error(e)
-                    brain_iterations_time = []
-                    self.execution_completed = True
-            dt = datetime.now() - start_time
-            ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-            if successful_iteration:
-                brain_iterations_time.append(ms / 1000)
-            elapsed = time.time() - ss
-            if elapsed < 1:
-                it += 1
-            else:
-                ss = time.time()
-                it = 0
+                dt = datetime.now() - start_time
+                ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+                self.brain_iterations_time.append(ms / 1000)
+                elapsed = time.time() - ss
+                if elapsed < 1:
+                    it += 1
+                else:
+                    ss = time.time()
+                    it = 0
 
-            if ms < TIME_CYCLE:
-                time.sleep((TIME_CYCLE - ms) / 1000.0)
-
+                if ms < TIME_CYCLE:
+                    time.sleep((TIME_CYCLE - ms) / 1000.0)
+                self.real_time_factors.append(self.real_time_factor)
+                self.ros_iterations_time.append(self.ros_clock_time - start_time_ros)
+        self.execution_completed = True
+        self.clock_subscriber.unregister()
+        self.stats_process.terminate()
+        poll = self.stats_process.poll()
+        while poll is None:
+            time.sleep(1)
+            poll = self.stats_process.poll()
+        self.kill()
         logger.info('Pilot: pilot killed.')
 
     def stop(self):
@@ -202,7 +184,7 @@ class Pilot(threading.Thread):
 
     def kill(self):
         """Destroy the main loop. For exiting"""
-
+        self.stop_interfaces()
         self.actuators.kill()
         self.kill_event.set()
 
@@ -226,3 +208,71 @@ class Pilot(threading.Thread):
         if dist < self.max_distance:
             return True
         return False
+
+    def calculate_metrics(self, experiment_metrics):
+        if hasattr(self.brains.active_brain, 'inference_times'):
+            self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
+            mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
+            frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+            gpu_inference = self.brains.active_brain.gpu_inference
+            real_time_update_rate = self.real_time_update_rate
+            first_image = self.brains.active_brain.first_image
+            logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + 's')
+            logger.info('* Frame rate ---> ' + str(frame_rate) + 'fps')
+        else:
+            mean_inference_time = 0
+            frame_rate = 0
+            gpu_inference = False
+            real_time_update_rate = self.real_time_update_rate
+            first_image = None
+            logger.info('No deep learning based brain')
+        if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
+            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
+            mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
+            real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
+        else:
+            mean_brain_iteration_time = 0
+            mean_ros_iteration_time = 0
+            real_time_factor = 0
+        logger.info(
+            '* Mean brain iteration time ---> ' + str(mean_brain_iteration_time) + 's [Max iterations per second = ' + str(
+                int(1 / (TIME_CYCLE / 1000))) + ']')
+        logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
+        logger.info('* Mean real time factor ---> ' + str(real_time_factor))
+        logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
+        logger.info('* GPU inference ---> ' + str(gpu_inference))
+        logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
+        experiment_metrics['mean_brain_iteration_time'] = mean_brain_iteration_time
+        experiment_metrics['mean_inference_time'] = mean_inference_time
+        experiment_metrics['frame_rate'] = frame_rate
+        experiment_metrics['gpu_inference'] = gpu_inference
+        experiment_metrics['mean_ros_iteration_time'] = mean_ros_iteration_time
+        experiment_metrics['real_time_factor'] = real_time_factor
+        experiment_metrics['real_time_update_rate'] = real_time_update_rate
+        logger.info('Saving metrics to ROS bag')
+        return experiment_metrics, first_image
+
+
+    def clock_callback(self, clock_data):
+        self.ros_clock_time = clock_data.clock.to_sec()
+
+    def track_stats(self):
+        args = ["gz", "stats", "-p"]
+        # Prints gz statistics. "-p": Output comma-separated values containing-
+        # real-time factor (percent), simtime (sec), realtime (sec), paused (T or F)
+        self.stats_process = subprocess.Popen(args, stdout=subprocess.PIPE)
+        # bufsize=1 enables line-bufferred mode (the input buffer is flushed
+        # automatically on newlines if you would write to process.stdin )
+        poll = self.stats_process.poll()
+        while poll is not None:
+            time.sleep(1)
+            poll = self.stats_process.poll()
+
+        self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)
+        with self.stats_process.stdout:
+            for line in iter(self.stats_process.stdout.readline, b''):
+                stats_list = [x.strip() for x in line.split(b',')]
+                try:
+                    self.real_time_factor = float(stats_list[0].decode("utf-8"))
+                except Exception as ex:
+                    self.real_time_factor = 0
