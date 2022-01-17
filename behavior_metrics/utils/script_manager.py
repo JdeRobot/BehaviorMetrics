@@ -32,16 +32,8 @@ from pilot import Pilot
 from utils.random_initializer import tmp_random_initializer
 from rosgraph_msgs.msg import Clock
 
-clock_time = None
-
-
-def clock_callback_2(clock_data):
-    global clock_time
-    clock_time = clock_data.clock.to_sec()
-
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
-    global clock_time
     # Start Behavior Metrics app
     for world_counter, world in enumerate(app_configuration.current_world):
         for brain_counter, brain in enumerate(app_configuration.brain_path):
