@@ -133,7 +133,7 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, previous_lap_point, lap_point,
                                                  start_clock, clock_points, checkpoints)
     experiment_metrics['experiment_total_time'] = seconds_end - seconds_start
-
+    logger.info('* Experiment total time ---> ' + str(experiment_metrics['experiment_total_time']))
     shutil.rmtree(stats_filename.split('.bag')[0])
     return experiment_metrics
 
@@ -141,11 +141,13 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
 def get_distance_completed(experiment_metrics, checkpoints):
     end_point = checkpoints[len(checkpoints) - 1]
     experiment_metrics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
+    logger.info('* Completed distance ---> ' + str(experiment_metrics['completed_distance']))
     return experiment_metrics
 
 
 def get_average_speed(experiment_metrics, seconds_start, seconds_end):
     experiment_metrics['average_speed'] = experiment_metrics['completed_distance'] / (seconds_end - seconds_start)
+    logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']))
     return experiment_metrics
 
 
@@ -189,6 +191,7 @@ def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkp
             experiment_metrics['percentage_completed'] = \
                 (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
                  * 100)
+    logger.info('* Percentage completed ---> ' + str(experiment_metrics['percentage_completed']))
     experiment_metrics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, experiment_metrics)
     return experiment_metrics
 
@@ -272,7 +275,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, exp
 
     experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
-
+    logger.info('* Position deviation MAE ---> ' + str(experiment_metrics['position_deviation_mae']))
+    logger.info('* Position deviation total error ---> ' + str(experiment_metrics['position_deviation_total_err']))
     return experiment_metrics
 
 
@@ -283,7 +287,8 @@ def get_lap_completed_stats(experiment_metrics, circuit_diameter, previous_lap_p
         seconds_end = clock_points[int(len(clock_points) * (previous_lap_point / len(checkpoints)))]['clock.secs']
         experiment_metrics['lap_seconds'] = seconds_end - seconds_start
         experiment_metrics['circuit_diameter'] = circuit_diameter
+        logger.info('* Lap seconds ---> ' + str(experiment_metrics['lap_seconds']))
+        logger.info('* Circuit diameter ---> ' + str(experiment_metrics['circuit_diameter']))
     else:
         logger.info('Lap not completed')
-
     return experiment_metrics

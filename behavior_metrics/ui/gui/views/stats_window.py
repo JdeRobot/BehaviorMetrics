@@ -22,7 +22,7 @@ class StatsWindow(QMainWindow):
         self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.experiment_metrics['position_deviation_total_err']))
         self.layout.addWidget(self.position_deviation_total_err_label)
 
-        self.mean_iteration_time_label = QLabel("Mean iteration time -> " + str(self.controller.experiment_metrics['mean_iteration_time']))
+        self.mean_iteration_time_label = QLabel("Mean brain iteration time -> " + str(self.controller.experiment_metrics['mean_iteration_time']))
         self.layout.addWidget(self.mean_iteration_time_label)
         self.mean_inference_time_label = QLabel("Mean inference time -> " + str(self.controller.experiment_metrics['mean_inference_time']))
         self.layout.addWidget(self.mean_inference_time_label)
@@ -36,6 +36,8 @@ class StatsWindow(QMainWindow):
         self.layout.addWidget(self.real_time_factor_label)
         self.real_time_update_rate_label = QLabel("Real time update rate -> " + str(self.controller.experiment_metrics['real_time_update_rate']))
         self.layout.addWidget(self.real_time_update_rate_label)
+        self.experiment_total_time_label = QLabel("Experiment total time -> " + str(self.controller.experiment_metrics['experiment_total_time']))
+        self.layout.addWidget(self.experiment_total_time_label)
 
         # If lap is completed, extend information
         if 'lap_seconds' in self.controller.experiment_metrics:
