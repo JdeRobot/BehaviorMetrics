@@ -135,9 +135,9 @@ class Pilot(threading.Thread):
         self.ros_iterations_time = []
         self.real_time_factors = []
         while not self.kill_event.is_set():
-            start_time = datetime.now()
-            start_time_ros = self.ros_clock_time
             if not self.stop_event.is_set():
+                start_time = datetime.now()
+                start_time_ros = self.ros_clock_time
                 self.execution_completed = False
                 try:
                     self.brains.active_brain.execute()
