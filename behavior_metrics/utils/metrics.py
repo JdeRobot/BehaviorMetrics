@@ -120,9 +120,9 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
                 and is_finish_line(point, start_point):
             if type(lap_point) == int:
                 lap_point = point
-            if ckp_iter - 1 != previous_lap_point:
+            if abs(ckp_iter - previous_lap_point) > 20:
                 laps += 1
-            previous_lap_point = ckp_iter
+                previous_lap_point = ckp_iter
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
 
@@ -184,6 +184,9 @@ def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkp
                                                       * 100) + laps * 100
     else:
         if seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
+            # if the percectage is very close to 100%, remove lap.
+            if abs((((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) - 100) < 1 and laps >= 1:
+                laps -= 1
             experiment_metrics['percentage_completed'] = \
                 (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
                  * 100) + laps * 100
