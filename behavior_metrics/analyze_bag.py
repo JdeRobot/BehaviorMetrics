@@ -65,7 +65,7 @@ if __name__ == "__main__":
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     experiment_metrics = json.loads(data['data'])
-
+                first_image = np.zeros((1, 1))
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
                     first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
 
@@ -82,21 +82,41 @@ if __name__ == "__main__":
                     all_data[world]['image']['first_images'] = []
                     all_data[world]['image']['path_x'] = []
                     all_data[world]['image']['path_y'] = []
+                    all_data[world]['position_deviation_mae'] = []
+                    all_data[world]['position_deviation_total_err'] = []
+                    all_data[world]['mean_brain_iteration_time'] = []
+                    all_data[world]['target_brain_iteration_time'] = []
+                    all_data[world]['mean_inference_time'] = []
+                    all_data[world]['frame_rate'] = []
+                    all_data[world]['mean_ros_iteration_time'] = []
+                    all_data[world]['real_time_factor'] = []
+                    all_data[world]['real_time_update_rate'] = []
+                    all_data[world]['experiment_total_time'] = []
 
                 all_data[world]['completed_distance'].append(experiment_metrics['completed_distance'])
                 all_data[world]['percentage_completed'].append(experiment_metrics['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)
                 all_data[world]['image']['path_x'].append(x_points)
                 all_data[world]['image']['path_y'].append(y_points)
+                all_data[world]['average_speed'].append(experiment_metrics['average_speed'])
+                all_data[world]['position_deviation_mae'].append(experiment_metrics['position_deviation_mae'])
+                all_data[world]['position_deviation_total_err'].append(
+                    experiment_metrics['position_deviation_total_err'])
+                all_data[world]['mean_brain_iteration_time'].append(experiment_metrics['mean_brain_iteration_time'])
+                all_data[world]['target_brain_iteration_time'].append(experiment_metrics['target_brain_iteration_time'])
+                all_data[world]['mean_inference_time'].append(experiment_metrics['mean_inference_time'])
+                all_data[world]['frame_rate'].append(experiment_metrics['frame_rate'])
+                all_data[world]['mean_ros_iteration_time'].append(experiment_metrics['mean_ros_iteration_time'])
+                all_data[world]['real_time_factor'].append(experiment_metrics['real_time_factor'])
+                all_data[world]['real_time_update_rate'].append(experiment_metrics['real_time_update_rate'])
+                all_data[world]['experiment_total_time'].append(experiment_metrics['experiment_total_time'])
 
                 if 'lap_seconds' in experiment_metrics:
                     all_data[world]['lap_seconds'].append(experiment_metrics['lap_seconds'])
                     all_data[world]['circuit_diameter'].append(experiment_metrics['circuit_diameter'])
-                    all_data[world]['average_speed'].append(experiment_metrics['average_speed'])
                 else:
                     all_data[world]['lap_seconds'].append(0.0)
                     all_data[world]['circuit_diameter'].append(0.0)
-                    all_data[world]['average_speed'].append(0.0)
 
                 bag.close()
 
