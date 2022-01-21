@@ -73,7 +73,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 self.experiment_metrics['mean_brain_iteration_time']) + 's')
         self.layout.addWidget(label_mean_brain_iteration_time)
         label_target_brain_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Target brain iteration time: </span>' + str(
                 self.experiment_metrics['target_brain_iteration_time']) + 'it/s')
         self.layout.addWidget(label_target_brain_iteration_time)
         label_mean_inference_time = QLabel(
@@ -89,19 +89,19 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 self.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(label_frame_rate)
         label_mean_ros_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean ROS iteration time: </span>' + str(
                 self.experiment_metrics['mean_ros_iteration_time']))
         self.layout.addWidget(label_mean_ros_iteration_time)
         label_real_time_factor = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time factor: </span>' + str(
                 self.experiment_metrics['real_time_factor']))
         self.layout.addWidget(label_real_time_factor)
         label_real_time_update_rate = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time update rate: </span>' + str(
                 self.experiment_metrics['real_time_update_rate']))
         self.layout.addWidget(label_real_time_update_rate)
         label_experiment_total_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total time: </span>' + str(
                 self.experiment_metrics['experiment_total_time']) + 's')
         self.layout.addWidget(label_experiment_total_time)
         label_circuit_diameter = QLabel(
@@ -125,7 +125,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 self.experiment_metrics['position_deviation_mae']))
         self.layout.addWidget(label_position_deviation_mae)
         label_position_deviation_total_err = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total error: </span>' + str(
                 self.experiment_metrics['position_deviation_total_err']))
         self.layout.addWidget(label_position_deviation_total_err)
 
@@ -144,6 +144,7 @@ def read_bags(bags):
     bags_checkpoints = []
     bags_metadata = []
     bags_experiment_data = []
+    first_images = []
     correct_bags = 0
     for bag_file in bags:
         print('Reading bag: ' + bag_file)
@@ -167,9 +168,10 @@ def read_bags(bags):
                 data = json.loads(h)
                 lapdata = json.loads(data['data'])
                 bags_experiment_data.append(lapdata)
-
+            first_image = np.zeros((1,1))
             for topic, point, t in bag.read_messages(topics=['/first_image']):
                 first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
+            first_images.append(first_image)
 
             bag.close()
             correct_bags += 1
@@ -179,10 +181,10 @@ def read_bags(bags):
 
     print('Correct bags: ' + str(correct_bags))
 
-    return bags_checkpoints, bags_metadata, bags_experiment_data, first_image
+    return bags_checkpoints, bags_metadata, bags_experiment_data, first_images
 
 
-def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, first_image):
+def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, first_images):
     experiments_metrics = []
     world_completed = {}
 
@@ -224,7 +226,7 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, fi
             y_points.append(point_yml['pose']['pose']['position']['y'])
 
         qapp = QtWidgets.QApplication(sys.argv)
-        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], experiment_metrics,
+        app = MetricsWindow(bags[x], x_points, y_points, first_images[x], bags_metadata[x], experiment_metrics,
                             circuit_diameter)
         app.show()
         qapp.exec_()
@@ -246,8 +248,8 @@ def main():
     if args.bags:
         config_data['bags'] = args.bags
 
-    bags_checkpoints, bags_metadata, bags_lapdata, first_image = read_bags(config_data['bags'])
-    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, first_image)
+    bags_checkpoints, bags_metadata, bags_lapdata, first_images = read_bags(config_data['bags'])
+    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, first_images)
 
 
 if __name__ == "__main__":
