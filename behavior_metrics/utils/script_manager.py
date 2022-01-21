@@ -82,7 +82,6 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                           controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-                    print(new_point)
                     if is_trapped(old_point, new_point):
                         is_finished = True
                     elif metrics.is_finish_line(new_point, start_point):
