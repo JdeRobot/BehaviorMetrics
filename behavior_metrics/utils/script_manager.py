@@ -67,6 +67,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                       controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
+                start_point = new_point
                 time_start = controller.pilot.ros_clock_time
                 previous_pitch = 0
                 is_finished = False
@@ -81,10 +82,9 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     old_point = new_point
                     new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                           controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
-
                     if is_trapped(old_point, new_point):
                         is_finished = True
-                    elif metrics.is_finish_line(new_point, perfect_lap_checkpoints[0]):
+                    elif metrics.is_finish_line(new_point, start_point):
                         is_finished = True
                     elif previous_pitch != 0 and abs(controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
                                                      - previous_pitch) > 0.2:
