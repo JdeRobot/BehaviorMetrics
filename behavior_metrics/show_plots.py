@@ -168,7 +168,7 @@ def read_bags(bags):
                 data = json.loads(h)
                 lapdata = json.loads(data['data'])
                 bags_experiment_data.append(lapdata)
-            first_image = np.zeros((1,1))
+            first_image = np.zeros((1, 1))
             for topic, point, t in bag.read_messages(topics=['/first_image']):
                 first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
             first_images.append(first_image)
