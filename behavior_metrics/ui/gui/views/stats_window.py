@@ -22,11 +22,13 @@ class StatsWindow(QMainWindow):
         self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.experiment_metrics['position_deviation_total_err']))
         self.layout.addWidget(self.position_deviation_total_err_label)
 
-        self.mean_brain_iteration_time_label = QLabel("Mean brain iteration time -> " + str(self.controller.experiment_metrics['mean_brain_iteration_time']))
+        self.mean_brain_iteration_time_label = QLabel("Mean brain iteration time -> " + str(self.controller.experiment_metrics['mean_brain_iteration_time']) + 's')
         self.layout.addWidget(self.mean_brain_iteration_time_label)
-        self.mean_inference_time_label = QLabel("Mean inference time -> " + str(self.controller.experiment_metrics['mean_inference_time']))
+        self.target_brain_iteration_time_label = QLabel("Target brain iteration time -> " + str(self.controller.experiment_metrics['target_brain_iteration_time']) + 'it/s')
+        self.layout.addWidget(self.target_brain_iteration_time_label)
+        self.mean_inference_time_label = QLabel("Mean inference time -> " + str(self.controller.experiment_metrics['mean_inference_time']) + 's')
         self.layout.addWidget(self.mean_inference_time_label)
-        self.frame_rate_label = QLabel("Frame rate -> " + str(self.controller.experiment_metrics['frame_rate']))
+        self.frame_rate_label = QLabel("Frame rate -> " + str(self.controller.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(self.frame_rate_label)
         self.gpu_inference_label = QLabel("GPU inference -> " + str(self.controller.experiment_metrics['gpu_inference']))
         self.layout.addWidget(self.gpu_inference_label)
@@ -36,7 +38,7 @@ class StatsWindow(QMainWindow):
         self.layout.addWidget(self.real_time_factor_label)
         self.real_time_update_rate_label = QLabel("Real time update rate -> " + str(self.controller.experiment_metrics['real_time_update_rate']))
         self.layout.addWidget(self.real_time_update_rate_label)
-        self.experiment_total_time_label = QLabel("Experiment total time -> " + str(self.controller.experiment_metrics['experiment_total_time']))
+        self.experiment_total_time_label = QLabel("Experiment total time -> " + str(self.controller.experiment_metrics['experiment_total_time']) + 's')
         self.layout.addWidget(self.experiment_total_time_label)
 
         # If lap is completed, extend information
