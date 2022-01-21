@@ -68,14 +68,17 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + self.bag_metadata[
                 'robot_type'])
         self.layout.addWidget(label_robot_type)
-
         label_mean_brain_iteration_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
-                self.experiment_metrics['mean_brain_iteration_time']))
+                self.experiment_metrics['mean_brain_iteration_time']) + 's')
         self.layout.addWidget(label_mean_brain_iteration_time)
+        label_target_brain_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
+                self.experiment_metrics['target_brain_iteration_time']) + 'it/s')
+        self.layout.addWidget(label_target_brain_iteration_time)
         label_mean_inference_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
-                self.experiment_metrics['mean_inference_time']))
+                self.experiment_metrics['mean_inference_time']) + 's')
         self.layout.addWidget(label_mean_inference_time)
         label_gpu_inference = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(
@@ -83,7 +86,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.layout.addWidget(label_gpu_inference)
         label_frame_rate = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
-                self.experiment_metrics['frame_rate']))
+                self.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(label_frame_rate)
         label_mean_ros_iteration_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
@@ -93,19 +96,38 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
                 self.experiment_metrics['real_time_factor']))
         self.layout.addWidget(label_real_time_factor)
-
+        label_real_time_update_rate = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+                self.experiment_metrics['real_time_update_rate']))
+        self.layout.addWidget(label_real_time_update_rate)
+        label_experiment_total_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
+                self.experiment_metrics['experiment_total_time']) + 's')
+        self.layout.addWidget(label_experiment_total_time)
         label_circuit_diameter = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
                 self.circuit_diameter))
         self.layout.addWidget(label_circuit_diameter)
         label_completed_distance = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(
-                self.experiment_metrics['completed_distance']))
+                self.experiment_metrics['completed_distance']) + "m")
         self.layout.addWidget(label_completed_distance)
         label_percentage_completed = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(
-                self.experiment_metrics['percentage_completed']))
+                self.experiment_metrics['percentage_completed']) + "%")
         self.layout.addWidget(label_percentage_completed)
+        label_average_speed = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
+                self.experiment_metrics['average_speed']) + "m/s")
+        self.layout.addWidget(label_average_speed)
+        label_position_deviation_mae = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(
+                self.experiment_metrics['position_deviation_mae']))
+        self.layout.addWidget(label_position_deviation_mae)
+        label_position_deviation_total_err = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(
+                self.experiment_metrics['position_deviation_total_err']))
+        self.layout.addWidget(label_position_deviation_total_err)
 
         if 'lap_seconds' in self.experiment_metrics:
             label_lap_seconds = QLabel(
@@ -116,14 +138,6 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
                     self.experiment_metrics['circuit_diameter']))
             self.layout.addWidget(label_circuit_diameter)
-            label_average_speed = QLabel(
-                '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
-                    self.experiment_metrics['average_speed']))
-            self.layout.addWidget(label_average_speed)
-            label_position_deviation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(self.experiment_metrics['position_deviation_mae']))
-            self.layout.addWidget(label_position_deviation_mae)
-            label_position_deviation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(self.experiment_metrics['position_deviation_total_err']))
-            self.layout.addWidget(label_position_deviation_total_err)
 
 
 def read_bags(bags):
