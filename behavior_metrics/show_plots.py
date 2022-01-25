@@ -100,10 +100,14 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time update rate: </span>' + str(
                 self.experiment_metrics['real_time_update_rate']))
         self.layout.addWidget(label_real_time_update_rate)
-        label_experiment_total_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total time: </span>' + str(
-                self.experiment_metrics['experiment_total_time']) + 's')
-        self.layout.addWidget(label_experiment_total_time)
+        label_experiment_total_simulated_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total simulated time: </span>' + str(
+                self.experiment_metrics['experiment_total_simulated_time']) + 's')
+        self.layout.addWidget(label_experiment_total_simulated_time)
+        label_experiment_total_real_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total real time: </span>' + str(
+                self.experiment_metrics['experiment_total_real_time']) + 's')
+        self.layout.addWidget(label_experiment_total_real_time)
         label_circuit_diameter = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
                 self.circuit_diameter))

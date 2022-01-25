@@ -91,7 +91,8 @@ if __name__ == "__main__":
                     all_data[world]['mean_ros_iteration_time'] = []
                     all_data[world]['real_time_factor'] = []
                     all_data[world]['real_time_update_rate'] = []
-                    all_data[world]['experiment_total_time'] = []
+                    all_data[world]['experiment_total_simulated_time'] = []
+                    all_data[world]['experiment_total_real_time'] = []
 
                 all_data[world]['completed_distance'].append(experiment_metrics['completed_distance'])
                 all_data[world]['percentage_completed'].append(experiment_metrics['percentage_completed'])
@@ -109,7 +110,8 @@ if __name__ == "__main__":
                 all_data[world]['mean_ros_iteration_time'].append(experiment_metrics['mean_ros_iteration_time'])
                 all_data[world]['real_time_factor'].append(experiment_metrics['real_time_factor'])
                 all_data[world]['real_time_update_rate'].append(experiment_metrics['real_time_update_rate'])
-                all_data[world]['experiment_total_time'].append(experiment_metrics['experiment_total_time'])
+                all_data[world]['experiment_total_simulated_time'].append(experiment_metrics['experiment_total_simulated_time'])
+                all_data[world]['experiment_total_real_time'].append(experiment_metrics['experiment_total_real_time'])
 
                 if 'lap_seconds' in experiment_metrics:
                     all_data[world]['lap_seconds'].append(experiment_metrics['lap_seconds'])
