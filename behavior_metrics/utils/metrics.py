@@ -42,6 +42,7 @@ def is_finish_line(point, start_point):
         start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     except IndexError:
         start_point = start_point
+    #start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
@@ -137,8 +138,8 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
                                                   seconds_start, seconds_end, laps)
     experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, first_previous_lap_point, lap_point,
                                                  start_clock, clock_points, checkpoints)
-    experiment_metrics['experiment_total_time'] = seconds_end - seconds_start
-    logger.info('* Experiment total time ---> ' + str(experiment_metrics['experiment_total_time']))
+    experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
+    logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
     shutil.rmtree(stats_filename.split('.bag')[0])
     return experiment_metrics
 

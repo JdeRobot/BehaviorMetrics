@@ -89,6 +89,7 @@ class Pilot(threading.Thread):
         self.ros_iterations_time = []
         self.real_time_factors = []
         self.real_time_update_rate = 1000
+        self.pilot_start_time = 0
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -134,6 +135,8 @@ class Pilot(threading.Thread):
         self.brain_iterations_time = []
         self.ros_iterations_time = []
         self.real_time_factors = []
+        self.sensors.get_camera('camera_0').total_frames = 0
+        self.pilot_start_time = time.time()
         while not self.kill_event.is_set():
             if not self.stop_event.is_set():
                 start_time = datetime.now()
@@ -213,7 +216,8 @@ class Pilot(threading.Thread):
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
             mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-            frame_rate = len(self.brains.active_brain.inference_times) / sum(self.brains.active_brain.inference_times)
+            total_frames = self.sensors.get_camera('camera_0').frames
+            frame_rate = self.sensors.get_camera('camera_0').total_frames/experiment_metrics['experiment_total_simulated_time']
             gpu_inference = self.brains.active_brain.gpu_inference
             real_time_update_rate = self.real_time_update_rate
             first_image = self.brains.active_brain.first_image
@@ -235,13 +239,15 @@ class Pilot(threading.Thread):
             mean_ros_iteration_time = 0
             real_time_factor = 0
         logger.info('* Mean brain iteration time ---> ' + str(mean_brain_iteration_time) + 's')
-        logger.info('* Target brain iteration time -> '+ str(1 / (TIME_CYCLE / 1000)) + 'it/s')
+        logger.info('* Brain iterations frequency ---> ' + str(1/mean_brain_iteration_time) + 'it/s')
+        logger.info('* Target brain iteration time -> ' + str(1 / (TIME_CYCLE / 1000)) + 'it/s')
         logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
         logger.info('* Mean real time factor ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
         experiment_metrics['mean_brain_iteration_time'] = mean_brain_iteration_time
+        experiment_metrics['brain_iterations_frequency'] = 1 / mean_brain_iteration_time
         experiment_metrics['target_brain_iteration_time'] = 1 / (TIME_CYCLE / 1000)
         experiment_metrics['mean_inference_time'] = mean_inference_time
         experiment_metrics['frame_rate'] = frame_rate
