@@ -53,11 +53,13 @@ class ListenerCamera:
         self.data = Image()
         self.sub = None
         self.lock = threading.Lock()
+        self.total_frames = 0
 
         self.bridge = CvBridge()
         self.start()
 
     def __callback(self, img):
+        self.total_frames += 1
         image = imageMsg2Image(img, self.bridge)
 
         self.lock.acquire()

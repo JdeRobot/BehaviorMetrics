@@ -213,6 +213,7 @@ class Controller:
 
     def stop_recording_metrics(self, pitch_error=False):
         logger.info("Stopping metrics bag recording")
+        end_time = time.time()
 
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
@@ -233,6 +234,8 @@ class Controller:
                                        'position_deviation_total_err': 0}
 
         self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
+        logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time))
+        self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
         self.save_metrics(first_image)
 
         logger.info("Stopping metrics bag recording")
