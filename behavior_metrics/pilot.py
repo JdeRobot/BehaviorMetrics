@@ -216,7 +216,6 @@ class Pilot(threading.Thread):
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
             mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-            total_frames = self.sensors.get_camera('camera_0').frames
             frame_rate = self.sensors.get_camera('camera_0').total_frames/experiment_metrics['experiment_total_simulated_time']
             gpu_inference = self.brains.active_brain.gpu_inference
             real_time_update_rate = self.real_time_update_rate
