@@ -47,9 +47,9 @@ def check_args(argv):
 
     parser.add_argument('-c',
                         '--config',
-                        action='store',
                         type=str,
-                        required=False,
+                        action='append',
+                        required=True,
                         help='{}Path to the configuration file in YML format.{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
@@ -82,8 +82,10 @@ def check_args(argv):
 
     config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False}
     if args.config:
-        if not os.path.isfile(args.config):
-            parser.error('{}No such file {} {}'.format(Colors.FAIL, args.config, Colors.ENDC))
+        config_data['config'] = []
+        for config_file in args.config:
+            if not os.path.isfile(config_file):
+                parser.error('{}No such file {} {}'.format(Colors.FAIL, config_file, Colors.ENDC))
 
         config_data['config'] = args.config
 
@@ -159,57 +161,59 @@ def main():
 
     # Check and generate configuration
     config_data = check_args(sys.argv)
-    app_configuration = Config(config_data['config'])
+    for config in config_data['config']:
+        app_configuration = Config(config)
 
-    # Create controller of model-view
-    controller = Controller()
+        # Create controller of model-view
+        controller = Controller()
 
-    # If there's no config, configure the app through the GUI
-    if app_configuration.empty and config_data['gui']:
-        conf_window(app_configuration)
+        # If there's no config, configure the app through the GUI
+        if app_configuration.empty and config_data['gui']:
+            conf_window(app_configuration)
 
-    # Launch the simulation
-    if app_configuration.current_world and not config_data['script']:
-        logger.debug('Launching Simulation... please wait...')
-        if config_data['random']:
-            tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap, randomize=True,
-                                   gui=True, launch=False)
-            app_configuration.current_world = 'tmp_circuit.launch'
-        environment.launch_env(app_configuration.current_world)
+        # Launch the simulation
+        if app_configuration.current_world and not config_data['script']:
+            logger.debug('Launching Simulation... please wait...')
+            if config_data['random']:
+                tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap,
+                                       app_configuration.real_time_update_rate, randomize=True,
+                                       gui=True, launch=False)
+                app_configuration.current_world = 'tmp_circuit.launch'
+            environment.launch_env(app_configuration.current_world)
 
-    if config_data['tui']:
-        rows, columns = os.popen('stty size', 'r').read().split()
-        if int(rows) < 34 and int(columns) < 115:
-            logger.error("Terminal window too small: {}x{}, please resize it to at least 35x115".format(rows, columns))
-            sys.exit(1)
+        if config_data['tui']:
+            rows, columns = os.popen('stty size', 'r').read().split()
+            if int(rows) < 34 and int(columns) < 115:
+                logger.error(
+                    "Terminal window too small: {}x{}, please resize it to at least 35x115".format(rows, columns))
+                sys.exit(1)
+            else:
+                t = TUI(controller)
+                ttui = threading.Thread(target=t.run)
+                ttui.start()
+
+        if not config_data['script']:
+            # Launch control
+            pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+            pilot.daemon = True
+            pilot.start()
+            logger.info('Executing app')
+
+            # If GUI specified, launch it. Otherwise don't
+            if config_data['gui']:
+                main_win(app_configuration, controller)
+            else:
+                pilot.join()
+
+            # When window is closed or keypress for quit is detected, quit gracefully.
+            logger.info('closing all processes...')
+            pilot.kill_event.set()
+            environment.close_gazebo()
         else:
-            t = TUI(controller)
-            ttui = threading.Thread(target=t.run)
-            ttui.start()
+            script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
+            logger.info('closing all processes...')
+            environment.close_gazebo()
 
-    if not config_data['script']:
-        # Launch control
-        pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
-        pilot.daemon = True
-        pilot.start()
-        logger.info('Executing app')
-    else:
-        script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
-        logger.info('closing all processes...')
-        environment.close_gazebo()
-        logger.info('DONE! Bye, bye :)')
-        return
-
-    # If GUI specified, launch it. Otherwise don't
-    if config_data['gui']:
-        main_win(app_configuration, controller)
-    else:
-        pilot.join()
-
-    # When window is closed or keypress for quit is detected, quit gracefully.
-    logger.info('closing all processes...')
-    pilot.kill_event.set()
-    environment.close_gazebo()
     logger.info('DONE! Bye, bye :)')
 
 
