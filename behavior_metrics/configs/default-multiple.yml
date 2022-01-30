@@ -32,6 +32,7 @@ Behaviors:
         Repetitions: 2
     Simulation:
         World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']
+        RealTimeUpdateRate: 1000
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

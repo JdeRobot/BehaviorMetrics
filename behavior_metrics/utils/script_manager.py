@@ -45,7 +45,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
     global clock_time
     # Start Behavior Metrics app
     tmp_random_initializer(app_configuration.current_world[0], app_configuration.stats_perfect_lap[0],
-                           randomize=randomize, gui=False, launch=True)
+                           randomize=randomize, gui=True, launch=True)
     pilot = Pilot(app_configuration, controller, app_configuration.brain_path[0])
     pilot.daemon = True
     controller.pilot.start()
@@ -55,7 +55,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
                 # 1. Load world
-                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=False,
+                tmp_random_initializer(world, app_configuration.stats_perfect_lap[world_counter], gui=True,
                                        launch=True)
                 controller.initialize_robot()
                 controller.pilot.configuration.current_world = world

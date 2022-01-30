@@ -18,7 +18,7 @@ bridge = CvBridge()
 
 
 class MetricsWindow(QtWidgets.QMainWindow):
-    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, time_metrics_metadata, lap_metrics,
+    def __init__(self, bag_file, x_points, y_points, first_image, bag_metadata, experiment_metrics,
                  circuit_diameter):
         super().__init__()
         self._main = QtWidgets.QWidget()
@@ -30,8 +30,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
         self.y_points = y_points
         self.first_image = first_image
         self.bag_metadata = bag_metadata
-        self.time_metrics_metadata = time_metrics_metadata
-        self.lap_metrics = lap_metrics
+        self.experiment_metrics = experiment_metrics
         self.circuit_diameter = circuit_diameter
 
         self.setup_plot()
@@ -69,61 +68,87 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + self.bag_metadata[
                 'robot_type'])
         self.layout.addWidget(label_robot_type)
-
-        label_mean_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean iteration time: </span>' + str(
-                self.time_metrics_metadata['mean_iteration_time']))
-        self.layout.addWidget(label_mean_iteration_time)
+        label_mean_brain_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
+                self.experiment_metrics['mean_brain_iteration_time']) + 's')
+        self.layout.addWidget(label_mean_brain_iteration_time)
+        label_target_brain_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Target brain iteration time: </span>' + str(
+                self.experiment_metrics['target_brain_iteration_time']) + 'it/s')
+        self.layout.addWidget(label_target_brain_iteration_time)
         label_mean_inference_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
-                self.time_metrics_metadata['mean_inference_time']))
+                self.experiment_metrics['mean_inference_time']) + 's')
         self.layout.addWidget(label_mean_inference_time)
         label_gpu_inference = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(
-                self.time_metrics_metadata['gpu_inference']))
+                self.experiment_metrics['gpu_inference']))
         self.layout.addWidget(label_gpu_inference)
         label_frame_rate = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
-                self.time_metrics_metadata['frame_rate']))
+                self.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(label_frame_rate)
-
+        label_mean_ros_iteration_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean ROS iteration time: </span>' + str(
+                self.experiment_metrics['mean_ros_iteration_time']))
+        self.layout.addWidget(label_mean_ros_iteration_time)
+        label_real_time_factor = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time factor: </span>' + str(
+                self.experiment_metrics['real_time_factor']))
+        self.layout.addWidget(label_real_time_factor)
+        label_real_time_update_rate = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time update rate: </span>' + str(
+                self.experiment_metrics['real_time_update_rate']))
+        self.layout.addWidget(label_real_time_update_rate)
+        label_experiment_total_simulated_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total simulated time: </span>' + str(
+                self.experiment_metrics['experiment_total_simulated_time']) + 's')
+        self.layout.addWidget(label_experiment_total_simulated_time)
+        label_experiment_total_real_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Experiment total real time: </span>' + str(
+                self.experiment_metrics['experiment_total_real_time']) + 's')
+        self.layout.addWidget(label_experiment_total_real_time)
         label_circuit_diameter = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
                 self.circuit_diameter))
         self.layout.addWidget(label_circuit_diameter)
         label_completed_distance = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Completed distance: </span>' + str(
-                self.lap_metrics['completed_distance']))
+                self.experiment_metrics['completed_distance']) + "m")
         self.layout.addWidget(label_completed_distance)
         label_percentage_completed = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Percentage completed: </span>' + str(
-                self.lap_metrics['percentage_completed']))
+                self.experiment_metrics['percentage_completed']) + "%")
         self.layout.addWidget(label_percentage_completed)
+        label_average_speed = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
+                self.experiment_metrics['average_speed']) + "m/s")
+        self.layout.addWidget(label_average_speed)
+        label_position_deviation_mae = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(
+                self.experiment_metrics['position_deviation_mae']))
+        self.layout.addWidget(label_position_deviation_mae)
+        label_position_deviation_total_err = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total error: </span>' + str(
+                self.experiment_metrics['position_deviation_total_err']))
+        self.layout.addWidget(label_position_deviation_total_err)
 
-        if 'lap_seconds' in self.lap_metrics:
+        if 'lap_seconds' in self.experiment_metrics:
             label_lap_seconds = QLabel(
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Lap seconds: </span>' + str(
-                    self.lap_metrics['lap_seconds']))
+                    self.experiment_metrics['lap_seconds']))
             self.layout.addWidget(label_lap_seconds)
             label_circuit_diameter = QLabel(
                 '<span style=" font-size:10pt; font-weight:600; color:#000000;">Circuit diameter: </span>' + str(
-                    self.lap_metrics['circuit_diameter']))
+                    self.experiment_metrics['circuit_diameter']))
             self.layout.addWidget(label_circuit_diameter)
-            label_average_speed = QLabel(
-                '<span style=" font-size:10pt; font-weight:600; color:#000000;">Average speed: </span>' + str(
-                    self.lap_metrics['average_speed']))
-            self.layout.addWidget(label_average_speed)
-            label_position_deviation_mae=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation MAE: </span>' + str(self.lap_metrics['position_deviation_mae']))
-            self.layout.addWidget(label_position_deviation_mae)
-            label_position_deviation_total_err=QLabel('<span style=" font-size:10pt; font-weight:600; color:#000000;">Position deviation total ERROR: </span>' + str(self.lap_metrics['position_deviation_total_err']))
-            self.layout.addWidget(label_position_deviation_total_err)
 
 
 def read_bags(bags):
     bags_checkpoints = []
     bags_metadata = []
-    bags_lapdata = []
-    time_metrics = []
+    bags_experiment_data = []
+    first_images = []
     correct_bags = 0
     for bag_file in bags:
         print('Reading bag: ' + bag_file)
@@ -141,23 +166,16 @@ def read_bags(bags):
                 metadata = json.loads(data['data'])
                 bags_metadata.append(metadata)
 
-            for topic, point, t in bag.read_messages(topics=['/lap_metrics']):
+            for topic, point, t in bag.read_messages(topics=['/experiment_metrics']):
                 y = yaml.load(str(point), Loader=yaml.FullLoader)
                 h = json.dumps(y, indent=4)
                 data = json.loads(h)
                 lapdata = json.loads(data['data'])
-                bags_lapdata.append(lapdata)
-
-            for topic, point, t in bag.read_messages(topics=['/time_metrics']):
-                y = yaml.load(str(point), Loader=yaml.FullLoader)
-                h = json.dumps(y, indent=4)
-                data = json.loads(h)
-                time_metrics_metadata = json.loads(data['data'])
-                # first_image = np.array(time_metrics_metadata['first_image'])
-                time_metrics.append(time_metrics_metadata)
-
+                bags_experiment_data.append(lapdata)
+            first_image = np.zeros((1, 1))
             for topic, point, t in bag.read_messages(topics=['/first_image']):
                 first_image = bridge.imgmsg_to_cv2(point, desired_encoding='passthrough')
+            first_images.append(first_image)
 
             bag.close()
             correct_bags += 1
@@ -167,10 +185,10 @@ def read_bags(bags):
 
     print('Correct bags: ' + str(correct_bags))
 
-    return bags_checkpoints, bags_metadata, bags_lapdata, time_metrics, first_image
+    return bags_checkpoints, bags_metadata, bags_experiment_data, first_images
 
 
-def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_metrics, first_image):
+def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, first_images):
     experiments_metrics = []
     world_completed = {}
 
@@ -181,17 +199,17 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_metri
         experiment_metrics = {'world': bags_metadata[x]['world'], 'brain_path': bags_metadata[x]['brain_path'],
                                  'robot_type': bags_metadata[x]['robot_type']}
         if bags_metadata[x]['world'] == 'simple_circuit.launch':
-            perfect_lap_path = 'lap-simple-circuit.bag'
+            perfect_lap_path = 'perfect_bags/lap-simple-circuit.bag'
         elif bags_metadata[x]['world'] == 'many_curves.launch':
-            perfect_lap_path = 'lap-many-curves.bag'
+            perfect_lap_path = 'perfect_bags/lap-many-curves.bag'
         elif bags_metadata[x]['world'] == 'montmelo_line.launch':
-            perfect_lap_path = 'lap-montmelo.bag'
+            perfect_lap_path = 'perfect_bags/lap-montmelo.bag'
 
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
-        lap_metrics = bags_lapdata[x]
-        experiment_metrics['lap_metrics'] = lap_metrics
+        experiment_metrics = bags_experiment_data[x]
+        experiment_metrics['experiment_metrics'] = experiment_metrics
         experiments_metrics.append(experiment_metrics)
-        if lap_metrics['percentage_completed'] > 100:
+        if experiment_metrics['percentage_completed'] > 100:
             if bags_metadata[x]['world'] in world_completed and \
                     bags_metadata[x]['brain_path'] in world_completed[bags_metadata[x]['world']]:
                 world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = \
@@ -201,10 +219,10 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_metri
             else:
                 world_completed[bags_metadata[x]['world']] = {}
                 world_completed[bags_metadata[x]['world']][bags_metadata[x]['brain_path']] = 1
-        if 'lap_seconds' in lap_metrics:
-            print('LAP SECONDS -> ' + str(lap_metrics['lap_seconds']))
-            print('CIRCUIT DIAMETER -> ' + str(lap_metrics['circuit_diameter']))
-            print('AVERAGE SPEED -> ' + str(lap_metrics['average_speed']))
+        if 'lap_seconds' in experiment_metrics:
+            print('LAP SECONDS -> ' + str(experiment_metrics['lap_seconds']))
+            print('CIRCUIT DIAMETER -> ' + str(experiment_metrics['circuit_diameter']))
+            print('AVERAGE SPEED -> ' + str(experiment_metrics['average_speed']))
 
         for point in checkpoints:
             point_yml = yaml.load(str(point), Loader=yaml.FullLoader)
@@ -212,7 +230,7 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_lapdata, time_metri
             y_points.append(point_yml['pose']['pose']['position']['y'])
 
         qapp = QtWidgets.QApplication(sys.argv)
-        app = MetricsWindow(bags[x], x_points, y_points, first_image, bags_metadata[x], time_metrics[x], lap_metrics,
+        app = MetricsWindow(bags[x], x_points, y_points, first_images[x], bags_metadata[x], experiment_metrics,
                             circuit_diameter)
         app.show()
         qapp.exec_()
@@ -234,8 +252,8 @@ def main():
     if args.bags:
         config_data['bags'] = args.bags
 
-    bags_checkpoints, bags_metadata, bags_lapdata, time_metrics, first_image = read_bags(config_data['bags'])
-    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, time_metrics, first_image)
+    bags_checkpoints, bags_metadata, bags_lapdata, first_images = read_bags(config_data['bags'])
+    show_metrics(config_data['bags'], bags_checkpoints, bags_metadata, bags_lapdata, first_images)
 
 
 if __name__ == "__main__":

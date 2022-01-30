@@ -79,9 +79,9 @@ class Config:
 
         self.dataset_in = None
         self.dataset_out = None
-        
+
         self.stats_out = None
-        
+
         self.experiment_timeouts = None
 
     def initialize_configuration(self, config_data):
@@ -94,6 +94,10 @@ class Config:
         self.brain_path = robot['BrainPath']
         self.robot_type = robot['Type']
         self.current_world = config_data['Behaviors']['Simulation']['World']
+        if 'RealTimeUpdateRate' in config_data['Behaviors']['Simulation']:
+            self.real_time_update_rate = config_data['Behaviors']['Simulation']['RealTimeUpdateRate']
+        else:
+            self.real_time_update_rate = 1000
 
         self.actuators = robot['Actuators']
         self.sensors = robot['Sensors']
@@ -102,12 +106,12 @@ class Config:
 
         self.dataset_in = config_data['Behaviors']['Dataset']['In']
         self.dataset_out = config_data['Behaviors']['Dataset']['Out']
-        
+
         self.stats_out = config_data['Behaviors']['Stats']['Out']
         self.stats_perfect_lap = config_data['Behaviors']['Stats']['PerfectLap']
 
         self.brain_kwargs = {}
-        
+
         if 'Parameters' in config_data['Behaviors']['Robot']:
             if 'Model' in config_data['Behaviors']['Robot']['Parameters']:
                 self.experiment_model = config_data['Behaviors']['Robot']['Parameters']['Model']
@@ -121,7 +125,7 @@ class Config:
             if 'Timeout' in config_data['Behaviors']['Experiment']:
                 self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
             self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
-        
+
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']
             self.gazebo_positions_set = robot['Parameters']['gazebo_positions_set']
