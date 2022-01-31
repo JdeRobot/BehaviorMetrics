@@ -100,30 +100,9 @@ class Brain:
         self.cont += 1
 
         image = self.camera.getImage().data
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         if self.cont == 1:
             self.first_image = image
-            self.first_image_stack = image
-        elif self.cont == 2:
-            self.second_image_stack = image
-        elif self.cont == 3:
-            self.third_image_stack = image
-        elif self.cont == 4:
-            self.fourth_image_stack = image
-        elif self.cont == 5:
-            self.fifth_image_stack = image
-        elif self.cont == 6:
-            self.sixth_image_stack = image
-        elif self.cont == 7:
-            self.seventh_image_stack = image
-        elif self.cont == 8:
-            self.eigth_image_stack = image
-        elif self.cont == 9:
-            self.nineth_image_stack = image
-        if self.cont == 10:
-            self.tenth_image_stack = image
-
 
         self.update_frame('frame_0', image)
         try:
@@ -160,33 +139,14 @@ class Brain:
                 self.eigth_image_stack = img
             elif self.cont == 9:
                 self.nineth_image_stack = img
-            #if self.cont == 10:
-            #    self.tenth_image_stack = img
             elif self.cont > 9:
-                #self.nineth_image_stack = img
-                #self.twentieh_image_stack = img
                 self.tenth_image_stack = img
-                #self.third_image_stack = img
-                #images_buffer = [self.first_image_stack, self.second_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack, self.tenth_image_stack]
-                #images_buffer = [self.first_image_stack, self.second_image_stack, self.third_image_stack, self.fourth_image_stack, self.fifth_image_stack, self.sixth_image_stack, self.seventh_image_stack, self.eigth_image_stack, self.nineth_image_stack, self.tenth_image_stack]
                 images_buffer = [self.first_image_stack, self.fifth_image_stack, self.tenth_image_stack]
-                #images_buffer = [self.first_image_stack, self.second_image_stack, self.third_image_stack]
-                #images_buffer = [self.first_image_stack, self.tenth_image_stack, self.twentieh_image_stack]
-                #images_buffer = [self.first_image_stack, self.third_image_stack, self.fifth_image_stack, self.seventh_image_stack, self.nineth_image_stack]
                 images_buffer = np.array(images_buffer)
                 img = np.expand_dims(images_buffer, axis=0)
-                #images_buffer = np.dstack([self.first_image_stack, self.second_image_stack, self.third_image_stack])
 
-                #self.first_image_stack = self.third_image_stack
-                #self.third_image_stack = self.fifth_image_stack
-                #self.fifth_image_stack = self.seventh_image_stack
-                #self.seventh_image_stack = self.nineth_image_stack
-                #self.first_image_stack = self.fifth_image_stack
-                #self.fifth_image_stack = self.tenth_image_stack
                 self.first_image_stack = self.second_image_stack
                 self.second_image_stack = self.third_image_stack
-                #self.first_image_stack = self.tenth_image_stack
-                #self.tenth_image_stack = self.twentieh_image_stack
                 self.third_image_stack = self.fourth_image_stack
                 self.fourth_image_stack = self.fifth_image_stack
                 self.fifth_image_stack = self.sixth_image_stack
