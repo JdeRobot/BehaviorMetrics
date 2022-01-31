@@ -2,7 +2,55 @@
     "f1": [
       {
         "name": "Simple circuit",
-        "world": "/opt/jderobot/share/jderobot/gazebo/launch/f1_1_simplecircuit.launch",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_basic.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_no_red_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_no_red_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_no_sun.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_white_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_white_road.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Simple circuit",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_white_road_no_red_line.launch",
         "description": "Description",
         "model": "f1"
       },
@@ -13,8 +61,68 @@
         "model": "f1"
       },
       {
+        "name": "Nurburgring",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Nurburgring",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_no_red_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Nurburgring",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_no_red_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
         "name": "Montmelo",
         "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line_no_sun.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_no_red_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_no_red_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_white_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_white_road.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montmelo",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montmelo_white_road_no_red_line.launch",
         "description": "Description",
         "model": "f1"
       },
@@ -25,8 +133,44 @@
         "model": "f1"
       },
       {
-        "name": "Many curve",
+        "name": "Montreal",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montreal",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_no_red_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Montreal",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/montreal_no_red_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Many curves",
         "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Many curves",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves_no_red_line.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Many curves",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves_no_red_line_no_wall.launch",
+        "description": "Description",
+        "model": "f1"
+      },
+      {
+        "name": "Many curves",
+        "world": "/opt/jderobot/share/jderobot/gazebo/launch/many_curves_no_wall.launch",
         "description": "Description",
         "model": "f1"
       }
