@@ -113,7 +113,6 @@ class Brain:
             else:
                 img = image
 
-            orig = img
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
                     Normalize()
@@ -157,7 +156,6 @@ class Brain:
 
                 start_time = time.time()
                 prediction = self.net.predict(img)
-                #print(time.time() - start_time)
                 self.inference_times.append(time.time() - start_time)
 
                 if self.config['PredictionsNormalized']:
