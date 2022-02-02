@@ -31,7 +31,6 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 50  # 20Hz
 
 
 class Pilot(threading.Thread):
@@ -90,6 +89,7 @@ class Pilot(threading.Thread):
         self.real_time_factors = []
         self.real_time_update_rate = 1000
         self.pilot_start_time = 0
+        self.time_cycle = self.configuration.pilot_time_cycle
 
     def __wait_gazebo(self):
         """Wait for gazebo to be initialized"""
@@ -128,7 +128,7 @@ class Pilot(threading.Thread):
         pass
 
     def run(self):
-        """Main loop of the class. Calls a brain action every TIME_CYCLE"""
+        """Main loop of the class. Calls a brain action every self.time_cycle"""
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
@@ -157,8 +157,8 @@ class Pilot(threading.Thread):
                 else:
                     ss = time.time()
                     it = 0
-                if ms < TIME_CYCLE:
-                    time.sleep((TIME_CYCLE - ms) / 1000.0)
+                if ms < self.time_cycle:
+                    time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
                 self.ros_iterations_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
@@ -232,10 +232,10 @@ class Pilot(threading.Thread):
             mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
             brain_iterations_frequency_simulated_time = 1 / mean_ros_iteration_time
-            target_brain_iteration_simulated_time = 1000 / TIME_CYCLE / round(real_time_factor, 1)
+            target_brain_iteration_simulated_time = 1000 / self.time_cycle / round(real_time_factor, 1)
             mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
             brain_iterations_frequency_real_time = 1 / mean_brain_iteration_time
-            target_brain_iteration_real_time = 1 / (TIME_CYCLE / 1000)
+            target_brain_iteration_real_time = 1 / (self.time_cycle / 1000)
         else:
             mean_brain_iteration_time = 0
             mean_ros_iteration_time = 0

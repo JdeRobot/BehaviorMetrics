@@ -93,6 +93,7 @@ class Config:
         robot = config_data['Behaviors']['Robot']
         self.brain_path = robot['BrainPath']
         self.robot_type = robot['Type']
+        self.pilot_time_cycle = robot['PilotTimeCycle']
         self.current_world = config_data['Behaviors']['Simulation']['World']
         if 'RealTimeUpdateRate' in config_data['Behaviors']['Simulation']:
             self.real_time_update_rate = config_data['Behaviors']['Simulation']['RealTimeUpdateRate']
