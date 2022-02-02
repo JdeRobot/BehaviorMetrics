@@ -157,7 +157,6 @@ class Pilot(threading.Thread):
                 else:
                     ss = time.time()
                     it = 0
-
                 if ms < TIME_CYCLE:
                     time.sleep((TIME_CYCLE - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
@@ -216,7 +215,7 @@ class Pilot(threading.Thread):
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
             mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-            frame_rate = self.sensors.get_camera('camera_0').total_frames/experiment_metrics['experiment_total_simulated_time']
+            frame_rate = self.sensors.get_camera('camera_0').total_frames / experiment_metrics['experiment_total_simulated_time']
             gpu_inference = self.brains.active_brain.gpu_inference
             real_time_update_rate = self.real_time_update_rate
             first_image = self.brains.active_brain.first_image
@@ -230,24 +229,36 @@ class Pilot(threading.Thread):
             first_image = None
             logger.info('No deep learning based brain')
         if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
-            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
             mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
+            brain_iterations_frequency_simulated_time = 1 / mean_ros_iteration_time
+            target_brain_iteration_simulated_time = 1000 / TIME_CYCLE / round(real_time_factor, 1)
+            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
+            brain_iterations_frequency_real_time = 1 / mean_brain_iteration_time
+            target_brain_iteration_real_time = 1 / (TIME_CYCLE / 1000)
         else:
             mean_brain_iteration_time = 0
             mean_ros_iteration_time = 0
             real_time_factor = 0
-        logger.info('* Mean brain iteration time ---> ' + str(mean_brain_iteration_time) + 's')
-        logger.info('* Brain iterations frequency ---> ' + str(1/mean_brain_iteration_time) + 'it/s')
-        logger.info('* Target brain iteration time -> ' + str(1 / (TIME_CYCLE / 1000)) + 'it/s')
+            brain_iterations_frequency_simulated_time = 0
+            target_brain_iteration_simulated_time = 0
+            brain_iterations_frequency_real_time = 0
+            target_brain_iteration_real_time = 0
+        logger.info('* Brain iterations frequency simulated time ---> ' + str(brain_iterations_frequency_simulated_time) + 'it/s')
+        logger.info('* Target brain iteration simulated time -> ' + str(target_brain_iteration_simulated_time) + 'it/s')
+        logger.info('* Mean brain iteration real time ---> ' + str(mean_brain_iteration_time) + 's')
+        logger.info('* Brain iterations frequency real time ---> ' + str(brain_iterations_frequency_real_time) + 'it/s')
+        logger.info('* Target brain iteration real time -> ' + str(target_brain_iteration_real_time) + 'it/s')
         logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
         logger.info('* Mean real time factor ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
-        experiment_metrics['mean_brain_iteration_time'] = mean_brain_iteration_time
-        experiment_metrics['brain_iterations_frequency'] = 1 / mean_brain_iteration_time
-        experiment_metrics['target_brain_iteration_time'] = 1 / (TIME_CYCLE / 1000)
+        experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
+        experiment_metrics['target_brain_iteration_simulated_time'] = target_brain_iteration_simulated_time
+        experiment_metrics['mean_brain_iteration_real_time'] = mean_brain_iteration_time
+        experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
+        experiment_metrics['target_brain_iteration_real_time'] = target_brain_iteration_real_time
         experiment_metrics['mean_inference_time'] = mean_inference_time
         experiment_metrics['frame_rate'] = frame_rate
         experiment_metrics['gpu_inference'] = gpu_inference
@@ -256,7 +267,6 @@ class Pilot(threading.Thread):
         experiment_metrics['real_time_update_rate'] = real_time_update_rate
         logger.info('Saving metrics to ROS bag')
         return experiment_metrics, first_image
-
 
     def clock_callback(self, clock_data):
         self.ros_clock_time = clock_data.clock.to_sec()
