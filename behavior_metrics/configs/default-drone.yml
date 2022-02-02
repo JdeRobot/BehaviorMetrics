@@ -18,7 +18,7 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: 'brains/drone/brain_drone_explicit.py'
-        PilotTimeCycle: 500
+        PilotTimeCycle: 50
         Type: 'drone'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit_drone.launch

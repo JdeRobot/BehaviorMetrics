@@ -18,7 +18,7 @@ Behaviors:
                     MaxW: 0.3
                     RL: True
         BrainPath: 'brains/f1rl/train.py'
-        PilotTimeCycle: 500
+        PilotTimeCycle: 50
         Type: 'f1rl'
         Parameters:
             action_set: 'hard'
