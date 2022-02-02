@@ -31,7 +31,12 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 50  # 20Hz
+TIME_CYCLE = 50  # 20Hz -> 200 a 0.1
+#TIME_CYCLE = 100  # 20Hz -> 100 a 0.1
+# TIME_CYCLE = 200
+#TIME_CYCLE = 500
+#TIME_CYCLE = 0.05  # 20Hz
+#TIME_CYCLE = 2000  # 1Hz -> 10 a 0.1
 
 
 class Pilot(threading.Thread):
@@ -229,26 +234,36 @@ class Pilot(threading.Thread):
             first_image = None
             logger.info('No deep learning based brain')
         if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
-            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
             mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
+            brain_iterations_frequency_simulated_time = 1 / mean_ros_iteration_time
+            target_brain_iteration_simulated_time = 1000 / TIME_CYCLE / round(real_time_factor, 1)
+            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
+            brain_iterations_frequency_real_time = 1 / mean_brain_iteration_time
+            target_brain_iteration_real_time = 1 / (TIME_CYCLE / 1000)
         else:
             mean_brain_iteration_time = 0
             mean_ros_iteration_time = 0
             real_time_factor = 0
-        logger.info('* Brain iterations frequency simulated time ---> ' + str(1 / mean_ros_iteration_time) + 'it/s')
-        logger.info('* Mean brain iteration time ---> ' + str(mean_brain_iteration_time) + 's')
-        logger.info('* Brain iterations frequency real time ---> ' + str(1 / mean_brain_iteration_time) + 'it/s')
-        logger.info('* Target brain iteration time -> ' + str(1000 / TIME_CYCLE / round(real_time_factor, 1)) + 'it/s')
+            brain_iterations_frequency_simulated_time = 0
+            target_brain_iteration_simulated_time = 0
+            brain_iterations_frequency_real_time = 0
+            target_brain_iteration_real_time = 0
+        logger.info('* Brain iterations frequency simulated time ---> ' + str(brain_iterations_frequency_simulated_time) + 'it/s')
+        logger.info('* Target brain iteration simulated time -> ' + str(target_brain_iteration_simulated_time) + 'it/s')
+        logger.info('* Mean brain iteration real time ---> ' + str(mean_brain_iteration_time) + 's')
+        logger.info('* Brain iterations frequency real time ---> ' + str(brain_iterations_frequency_real_time) + 'it/s')
+        logger.info('* Target brain iteration real time -> ' + str(target_brain_iteration_real_time) + 'it/s')
         logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
         logger.info('* Mean real time factor ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
-        experiment_metrics['mean_brain_iteration_time'] = mean_brain_iteration_time
-        experiment_metrics['brain_iterations_frequency_real_time'] = 1 / mean_brain_iteration_time
-        experiment_metrics['brain_iterations_frequency_simulated_time'] = 1 / mean_ros_iteration_time
-        experiment_metrics['target_brain_iteration_time'] = 1000 / TIME_CYCLE / round(real_time_factor, 1)
+        experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
+        experiment_metrics['target_brain_iteration_simulated_time'] = target_brain_iteration_simulated_time
+        experiment_metrics['mean_brain_iteration_real_time'] = mean_brain_iteration_time
+        experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
+        experiment_metrics['target_brain_iteration_real_time'] = target_brain_iteration_real_time
         experiment_metrics['mean_inference_time'] = mean_inference_time
         experiment_metrics['frame_rate'] = frame_rate
         experiment_metrics['gpu_inference'] = gpu_inference
