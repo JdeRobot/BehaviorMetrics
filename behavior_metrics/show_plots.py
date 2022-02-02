@@ -68,14 +68,27 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Robot type: </span>' + self.bag_metadata[
                 'robot_type'])
         self.layout.addWidget(label_robot_type)
-        label_mean_brain_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration time: </span>' + str(
-                self.experiment_metrics['mean_brain_iteration_time']) + 's')
-        self.layout.addWidget(label_mean_brain_iteration_time)
-        label_target_brain_iteration_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Target brain iteration time: </span>' + str(
-                self.experiment_metrics['target_brain_iteration_time']) + 'it/s')
-        self.layout.addWidget(label_target_brain_iteration_time)
+        label_mean_brain_iteration_real_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration real time: </span>' + str(
+                self.experiment_metrics['mean_brain_iteration_real_time']) + 's')
+        self.layout.addWidget(label_mean_brain_iteration_real_time)
+        label_brain_iterations_frequency_real_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Brain iterations frequency simulated time: </span>' + str(
+                self.experiment_metrics['brain_iterations_frequency_real_time_']) + 's')
+        self.layout.addWidget(label_brain_iterations_frequency_real_time)
+        label_target_brain_iteration_real_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Target brain iteration real time: </span>' + str(
+                self.experiment_metrics['target_brain_iteration_real_time']) + 'it/s')
+        self.layout.addWidget(label_target_brain_iteration_real_time)
+        label_brain_iterations_frequency_simulated_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Brain iterations frequency simulated time: </span>' + str(
+                self.experiment_metrics['brain_iterations_frequency_simulated_time']) + 's')
+        self.layout.addWidget(label_brain_iterations_frequency_simulated_time)
+        label_target_brain_iteration_simulated_time = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Target brain iteration simulated time: </span>' + str(
+                self.experiment_metrics['target_brain_iteration_simulated_time']) + 'it/s')
+        self.layout.addWidget(label_target_brain_iteration_simulated_time)
+
         label_mean_inference_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean inference time: </span>' + str(
                 self.experiment_metrics['mean_inference_time']) + 's')
