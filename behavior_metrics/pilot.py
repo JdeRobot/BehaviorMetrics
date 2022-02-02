@@ -31,12 +31,7 @@ __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
-TIME_CYCLE = 50  # 20Hz -> 200 a 0.1
-#TIME_CYCLE = 100  # 20Hz -> 100 a 0.1
-# TIME_CYCLE = 200
-#TIME_CYCLE = 500
-#TIME_CYCLE = 0.05  # 20Hz
-#TIME_CYCLE = 2000  # 1Hz -> 10 a 0.1
+TIME_CYCLE = 50  # 20Hz
 
 
 class Pilot(threading.Thread):
@@ -93,7 +88,7 @@ class Pilot(threading.Thread):
         self.brain_iterations_time = []
         self.ros_iterations_time = []
         self.real_time_factors = []
-        self.real_time_update_rate = 100
+        self.real_time_update_rate = 1000
         self.pilot_start_time = 0
 
     def __wait_gazebo(self):
