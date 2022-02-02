@@ -18,6 +18,7 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: 'brains/f1/brain_f1_keras.py'
+        PilotTimeCycle: 500
         Parameters:
             Model: '[model_name].h5'
             ImageCropped: True
