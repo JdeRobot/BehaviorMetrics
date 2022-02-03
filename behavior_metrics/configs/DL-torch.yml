@@ -17,6 +17,7 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/f1/brain_f1_torch.py'
+        PilotTimeCycle: 50
         Parameters:
             Model: 'model_pilotnet_torch_extreme.ckpt'
             ImageCrop: True

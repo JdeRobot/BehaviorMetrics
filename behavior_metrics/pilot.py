@@ -84,8 +84,8 @@ class Pilot(threading.Thread):
         self.stats_thread.start()
         self.ros_clock_time = 0
         self.real_time_factor = 0
-        self.brain_iterations_time = []
-        self.ros_iterations_time = []
+        self.brain_iterations_real_time = []
+        self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.real_time_update_rate = 1000
         self.pilot_start_time = 0
@@ -132,8 +132,8 @@ class Pilot(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
-        self.brain_iterations_time = []
-        self.ros_iterations_time = []
+        self.brain_iterations_real_time = []
+        self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
@@ -150,7 +150,7 @@ class Pilot(threading.Thread):
 
                 dt = datetime.now() - start_time
                 ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
-                self.brain_iterations_time.append(ms / 1000)
+                self.brain_iterations_real_time.append(ms / 1000)
                 elapsed = time.time() - ss
                 if elapsed < 1:
                     it += 1
@@ -160,7 +160,7 @@ class Pilot(threading.Thread):
                 if ms < self.time_cycle:
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
-                self.ros_iterations_time.append(self.ros_clock_time - start_time_ros)
+                self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
         self.clock_subscriber.unregister()
         self.stats_process.terminate()
@@ -228,17 +228,17 @@ class Pilot(threading.Thread):
             real_time_update_rate = self.real_time_update_rate
             first_image = None
             logger.info('No deep learning based brain')
-        if self.brain_iterations_time and self.ros_iterations_time and self.ros_iterations_time:
-            mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
+        if self.brain_iterations_real_time and self.brain_iterations_simulated_time and self.brain_iterations_simulated_time:
+            mean_brain_iteration_simulated_time = sum(self.brain_iterations_simulated_time) / len(self.brain_iterations_simulated_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
-            brain_iterations_frequency_simulated_time = 1 / mean_ros_iteration_time
+            brain_iterations_frequency_simulated_time = 1 / mean_brain_iteration_simulated_time
             target_brain_iteration_simulated_time = 1000 / self.time_cycle / round(real_time_factor, 2)
-            mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
-            brain_iterations_frequency_real_time = 1 / mean_brain_iteration_time
+            mean_brain_iteration_real_time = sum(self.brain_iterations_real_time) / len(self.brain_iterations_real_time)
+            brain_iterations_frequency_real_time = 1 / mean_brain_iteration_real_time
             target_brain_iteration_real_time = 1 / (self.time_cycle / 1000)
         else:
-            mean_brain_iteration_time = 0
-            mean_ros_iteration_time = 0
+            mean_brain_iteration_real_time = 0
+            mean_brain_iteration_simulated_time = 0
             real_time_factor = 0
             brain_iterations_frequency_simulated_time = 0
             target_brain_iteration_simulated_time = 0
@@ -246,23 +246,23 @@ class Pilot(threading.Thread):
             target_brain_iteration_real_time = 0
         logger.info('* Brain iterations frequency simulated time ---> ' + str(brain_iterations_frequency_simulated_time) + 'it/s')
         logger.info('* Target brain iteration simulated time -> ' + str(target_brain_iteration_simulated_time) + 'it/s')
-        logger.info('* Mean brain iteration real time ---> ' + str(mean_brain_iteration_time) + 's')
+        logger.info('* Mean brain iteration real time ---> ' + str(mean_brain_iteration_real_time) + 's')
         logger.info('* Brain iterations frequency real time ---> ' + str(brain_iterations_frequency_real_time) + 'it/s')
         logger.info('* Target brain iteration real time -> ' + str(target_brain_iteration_real_time) + 'it/s')
-        logger.info('* Mean ROS iteration time ---> ' + str(mean_ros_iteration_time) + 's')
-        logger.info('* Mean real time factor ---> ' + str(real_time_factor))
+        logger.info('* Mean brain iteration simulated time ---> ' + str(mean_brain_iteration_simulated_time) + 's')
+        logger.info('* Mean brain iteration simulated time ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
         experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
         experiment_metrics['target_brain_iteration_simulated_time'] = target_brain_iteration_simulated_time
-        experiment_metrics['mean_brain_iteration_real_time'] = mean_brain_iteration_time
+        experiment_metrics['mean_brain_iteration_real_time'] = mean_brain_iteration_real_time
         experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         experiment_metrics['target_brain_iteration_real_time'] = target_brain_iteration_real_time
         experiment_metrics['mean_inference_time'] = mean_inference_time
         experiment_metrics['frame_rate'] = frame_rate
         experiment_metrics['gpu_inference'] = gpu_inference
-        experiment_metrics['mean_ros_iteration_time'] = mean_ros_iteration_time
+        experiment_metrics['mean_brain_iteration_simulated_time'] = mean_brain_iteration_simulated_time
         experiment_metrics['real_time_factor'] = real_time_factor
         experiment_metrics['real_time_update_rate'] = real_time_update_rate
         logger.info('Saving metrics to ROS bag')

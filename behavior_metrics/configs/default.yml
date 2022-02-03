@@ -18,7 +18,7 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: 'brains/f1/brain_f1_explicit.py'
-        PilotTimeCycle: 500
+        PilotTimeCycle: 50
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
