@@ -249,7 +249,7 @@ class Pilot(threading.Thread):
         logger.info('* Mean brain iteration real time ---> ' + str(mean_brain_iteration_real_time) + 's')
         logger.info('* Brain iterations frequency real time ---> ' + str(brain_iterations_frequency_real_time) + 'it/s')
         logger.info('* Target brain iteration real time -> ' + str(target_brain_iteration_real_time) + 'it/s')
-        logger.info('* Mean ROS iteration time ---> ' + str(mean_brain_iteration_simulated_time) + 's')
+        logger.info('* ;ean brain iteration simulated time ---> ' + str(mean_brain_iteration_simulated_time) + 's')
         logger.info('* Mean brain iteration simulated time ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))

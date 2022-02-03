@@ -39,7 +39,7 @@ class StatsWindow(QMainWindow):
         self.layout.addWidget(self.frame_rate_label)
         self.gpu_inference_label = QLabel("GPU inference -> " + str(self.controller.experiment_metrics['gpu_inference']))
         self.layout.addWidget(self.gpu_inference_label)
-        self.mean_brain_iteration_simulated_time_label = QLabel("Mean ROS iteration time -> " + str(self.controller.experiment_metrics['mean_brain_iteration_simulated_time']))
+        self.mean_brain_iteration_simulated_time_label = QLabel(";ean brain iteration simulated time -> " + str(self.controller.experiment_metrics['mean_brain_iteration_simulated_time']))
         self.layout.addWidget(self.mean_brain_iteration_simulated_time_label)
         self.real_time_factor_label = QLabel("Real time factor -> " + str(self.controller.experiment_metrics['real_time_factor']))
         self.layout.addWidget(self.real_time_factor_label)
