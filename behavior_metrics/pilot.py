@@ -232,7 +232,7 @@ class Pilot(threading.Thread):
             mean_ros_iteration_time = sum(self.ros_iterations_time) / len(self.ros_iterations_time)
             real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
             brain_iterations_frequency_simulated_time = 1 / mean_ros_iteration_time
-            target_brain_iteration_simulated_time = 1000 / self.time_cycle / round(real_time_factor, 1)
+            target_brain_iteration_simulated_time = 1000 / self.time_cycle / round(real_time_factor, 2)
             mean_brain_iteration_time = sum(self.brain_iterations_time) / len(self.brain_iterations_time)
             brain_iterations_frequency_real_time = 1 / mean_brain_iteration_time
             target_brain_iteration_real_time = 1 / (self.time_cycle / 1000)
