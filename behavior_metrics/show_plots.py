@@ -101,10 +101,10 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
                 self.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(label_frame_rate)
-        label_mean_ros_iteration_time = QLabel(
+        label_mean_brain_iteration_simulated_time = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean ROS iteration time: </span>' + str(
-                self.experiment_metrics['mean_ros_iteration_time']))
-        self.layout.addWidget(label_mean_ros_iteration_time)
+                self.experiment_metrics['mean_brain_iteration_simulated_time']))
+        self.layout.addWidget(label_mean_brain_iteration_simulated_time)
         label_real_time_factor = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Real time factor: </span>' + str(
                 self.experiment_metrics['real_time_factor']))
