@@ -91,7 +91,7 @@ if __name__ == "__main__":
                     all_data[world]['target_brain_iteration_simulated_time'] = []
                     all_data[world]['mean_inference_time'] = []
                     all_data[world]['frame_rate'] = []
-                    all_data[world]['mean_ros_iteration_time'] = []
+                    all_data[world]['mean_brain_iteration_simulated_time'] = []
                     all_data[world]['real_time_factor'] = []
                     all_data[world]['real_time_update_rate'] = []
                     all_data[world]['experiment_total_simulated_time'] = []
@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 all_data[world]['target_brain_iteration_simulated_time'].append(experiment_metrics['target_brain_iteration_simulated_time'])
                 all_data[world]['mean_inference_time'].append(experiment_metrics['mean_inference_time'])
                 all_data[world]['frame_rate'].append(experiment_metrics['frame_rate'])
-                all_data[world]['mean_ros_iteration_time'].append(experiment_metrics['mean_ros_iteration_time'])
+                all_data[world]['mean_brain_iteration_simulated_time'].append(experiment_metrics['mean_brain_iteration_simulated_time'])
                 all_data[world]['real_time_factor'].append(experiment_metrics['real_time_factor'])
                 all_data[world]['real_time_update_rate'].append(experiment_metrics['real_time_update_rate'])
                 all_data[world]['experiment_total_simulated_time'].append(experiment_metrics['experiment_total_simulated_time'])
