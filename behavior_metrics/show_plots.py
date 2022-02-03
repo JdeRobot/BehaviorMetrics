@@ -102,7 +102,7 @@ class MetricsWindow(QtWidgets.QMainWindow):
                 self.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(label_frame_rate)
         label_mean_brain_iteration_simulated_time = QLabel(
-            '<span style=" font-size:10pt; font-weight:600; color:#000000;">;ean brain iteration simulated time: </span>' + str(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Mean brain iteration simulated time: </span>' + str(
                 self.experiment_metrics['mean_brain_iteration_simulated_time']))
         self.layout.addWidget(label_mean_brain_iteration_simulated_time)
         label_real_time_factor = QLabel(
