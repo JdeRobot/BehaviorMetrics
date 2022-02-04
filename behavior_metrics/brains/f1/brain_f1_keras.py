@@ -72,23 +72,6 @@ class Brain:
         """
         self.handler.update_frame(frame_id, data)
 
-    def check_center(self, position_x):
-        if (len(position_x[0]) > 1):
-            x_middle = (position_x[0][0] + position_x[0][len(position_x[0]) - 1]) / 2
-            not_found = False
-        else:
-            # The center of the line is in position 326
-            x_middle = 326
-            not_found = True
-        return x_middle, not_found
-
-    def get_point(self, index, img):
-        mid = 0
-        if np.count_nonzero(img[index]) > 0:
-            left = np.min(np.nonzero(img[index]))
-            right = np.max(np.nonzero(img[index]))
-            mid = np.abs(left - right) / 2 + left
-        return int(mid)
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
