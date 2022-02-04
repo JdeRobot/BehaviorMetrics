@@ -9,9 +9,8 @@
 
 """
 
+import tensorflow as tf
 import numpy as np
-
-import keras
 import cv2
 import time
 import os
@@ -57,7 +56,8 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
-            self.net = keras.models.load_model(PRETRAINED_MODELS + model)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            print(self.net.summary())
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
