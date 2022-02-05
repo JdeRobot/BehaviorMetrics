@@ -12,7 +12,7 @@ rospkg==1.2.9
 pathlib==1.0.1
 jderobot-jderobottypes==1.0.0
 catkin_pkg==0.4.23
-numpy==1.20.1
+numpy==1.21.0
 matplotlib==3.3.0
 kiwisolver==1.2
 defusedxml==0.6.0
@@ -32,5 +32,5 @@ torchvision==0.9.1
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
-tensorflow-gpu==2.4.1
+tensorflow-gpu==2.5.2
 albumentations==1.0.3
