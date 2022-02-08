@@ -26,7 +26,7 @@ from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
 from utils.logger import logger
-from utils.random_initializer import tmp_random_initializer
+from utils.tmp_world_generator import tmp_world_generator
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -175,7 +175,7 @@ def main():
         if app_configuration.current_world and not config_data['script']:
             logger.debug('Launching Simulation... please wait...')
             if config_data['random']:
-                tmp_random_initializer(app_configuration.current_world, app_configuration.stats_perfect_lap,
+                tmp_world_generator(app_configuration.current_world, app_configuration.stats_perfect_lap,
                                        app_configuration.real_time_update_rate, randomize=True,
                                        gui=True, launch=False)
                 app_configuration.current_world = 'tmp_circuit.launch'
