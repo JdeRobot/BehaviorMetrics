@@ -10,6 +10,9 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
+import traceback
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Analyze Rosbags and Generate Plots', epilog='Enjoy the program! :)')
@@ -68,6 +71,7 @@ if __name__ == "__main__":
                     h = json.dumps(y, indent=4)
                     data = json.loads(h)
                     experiment_metrics = json.loads(data['data'])
+                    print(experiment_metrics)
 
                 first_image = np.zeros((1, 1))
                 for topic, point, t in bag.read_messages(topics=['/first_image']):
@@ -143,6 +147,7 @@ if __name__ == "__main__":
 
             except Exception as excep:
                 print(excep)
+                print(traceback.format_exc())
                 print('Error in bag {} - {} '.format(world, experiment_index))
 
     for world in all_data.keys():

@@ -107,7 +107,7 @@ class Brain(BrainBase):
         else:
             map_location = None
 
-        self.gpu_inferencing = "cuda" in self.device
+        self.gpu_inference = "cuda" in self.device
 
         self.models = {}
         self.net_configs = {}
