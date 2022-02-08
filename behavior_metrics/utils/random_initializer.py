@@ -66,7 +66,12 @@ def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_ra
         result = math.degrees(result)
         if result < 0:
             result = 360 + result
-        result = (result + 180) % 360
+
+        # Half chances of orientating the car to the exactly opposite direction
+        random_orientation = random.randint(0, 1)
+        if random_orientation == 1:
+            result = (result + 180) % 360
+
         radians = math.radians(result)
         orientation_z = radians
     else:
