@@ -33,7 +33,7 @@ from utils import environment
 from utils.logger import logger
 
 
-def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
+def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
                            launch=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
