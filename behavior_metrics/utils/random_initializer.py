@@ -74,33 +74,29 @@ def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_ra
 
         radians = math.radians(result)
         orientation_z = radians
-    else:
-        random_index = 0
-        random_point = perfect_lap_checkpoints[random_index]
-        orientation_z = random_point['pose.pose.orientation.z']
 
-    random_start_point = np.array(
-        [round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
-         round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3),
-         round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
+        random_start_point = np.array(
+            [round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
+             round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3),
+             round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
 
-    for child_1 in root[0]:
-        if child_1.tag == 'include':
-            next = False
-            for child_2 in child_1:
-                if next:
-                    child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(
-                        random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(
-                        random_start_point[4]) + " " + str(random_start_point[5])
-                    next = False
-                elif child_2.text == 'model://f1_renault':
-                    next = True
+        for child_1 in root[0]:
+            if child_1.tag == 'include':
+                next = False
+                for child_2 in child_1:
+                    if next:
+                        child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(
+                            random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(
+                            random_start_point[4]) + " " + str(random_start_point[5])
+                        next = False
+                    elif child_2.text == 'model://f1_renault':
+                        next = True
 
     # Add physics real time update rate value
     physics_element = ET.SubElement(root[0], 'physics')
     physics_element.set("type", "ode")
     real_time_update_rate_element = ET.SubElement(physics_element, 'real_time_update_rate')
-    real_time_update_rate_element.text = str(real_time_update_rate)  # 1000 es the default value
+    real_time_update_rate_element.text = str(real_time_update_rate)  # 1000 is the default value
 
     tree.write('tmp_world.launch')
     if launch:
