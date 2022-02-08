@@ -24,6 +24,7 @@ import os
 import rospy
 import random
 import sys
+import math
 
 import numpy as np
 
@@ -54,14 +55,20 @@ def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_ra
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
 
     if randomize:
-        random_index = random.randint(0, int(len(perfect_lap_checkpoints) / 2))
+        random_index = random.randint(0, int(len(perfect_lap_checkpoints)))
         random_point = perfect_lap_checkpoints[random_index]
 
-        random_orientation = random.randint(0, 1)
-        if random_orientation == 1:
-            orientation_z = random_point['pose.pose.orientation.z'] + np.random.normal(0, 0.1)
-        else:
-            orientation_z = random_point['pose.pose.orientation.z']
+        p1 = perfect_lap_checkpoints[random_index]
+        p2 = perfect_lap_checkpoints[random_index + 5]
+        delta_y = p2['pose.pose.position.y'] - p1['pose.pose.position.y']
+        delta_x = p2['pose.pose.position.x'] - p1['pose.pose.position.x']
+        result = math.atan2(delta_y, delta_x)
+        result = math.degrees(result)
+        if result < 0:
+            result = 360 + result
+        result = (result + 180) % 360
+        radians = math.radians(result)
+        orientation_z = radians
     else:
         random_index = 0
         random_point = perfect_lap_checkpoints[random_index]
