@@ -40,7 +40,6 @@ def is_finish_line(point, start_point):
         start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     except IndexError:
         start_point = start_point
-    # start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
