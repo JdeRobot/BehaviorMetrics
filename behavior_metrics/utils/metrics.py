@@ -170,7 +170,7 @@ def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkp
         if dist < 5:
             checkpoints_reached_dir_1 += 1
             perfect_point_iterator_dir_1 += 1
-            if checkpoints_reached / len(perfect_lap_checkpoints) == 1:
+            if checkpoints_reached_dir_1 / len(perfect_lap_checkpoints) == 1:
                 lap_checkpoint = checkpoint_iterator
             if perfect_point_iterator_dir_1 >= len(perfect_lap_checkpoints):
                 perfect_point_iterator_dir_1 = 0
@@ -192,7 +192,7 @@ def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkp
         if dist < 5:
             checkpoints_reached_dir_2 += 1
             perfect_point_iterator_dir_2 -= 1
-            if checkpoints_reached / len(perfect_lap_checkpoints) == 1:
+            if checkpoints_reached_dir_2 / len(perfect_lap_checkpoints) == 1:
                 lap_checkpoint = checkpoint_iterator
             if perfect_point_iterator_dir_2 <= 0:
                 perfect_point_iterator_dir_2 = len(perfect_lap_checkpoints)
