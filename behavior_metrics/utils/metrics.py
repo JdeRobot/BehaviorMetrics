@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """This module contains the metrics manager.
-
 This module is in charge of generating metrics for a brain execution.
-
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
@@ -42,6 +40,7 @@ def is_finish_line(point, start_point):
         start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     except IndexError:
         start_point = start_point
+    # start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
@@ -156,31 +155,51 @@ def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkp
             min_dist = dist
             perfect_point_iterator = position
 
-    # Find checkpoints reached
-    checkpoints_reached = 1
-    checkpoint_iterator = 1
-    perfect_point_iterator += 1
     lap_checkpoint = 0
+    # Direction 1
+    checkpoints_reached_dir_1 = 1
+    checkpoint_iterator = 1
+    perfect_point_iterator_dir_1 = perfect_point_iterator + 1
     while checkpoint_iterator < len(checkpoints):
-        current_checkpoint = np.array(
-            [checkpoints[checkpoint_iterator]['pose.pose.position.x'], checkpoints[checkpoint_iterator]['pose.pose.position.y']])
-        perfect_checkpoint = np.array([perfect_lap_checkpoints[perfect_point_iterator]['pose.pose.position.x'],
-                                       perfect_lap_checkpoints[perfect_point_iterator]['pose.pose.position.y']])
+        current_checkpoint = np.array([checkpoints[checkpoint_iterator]['pose.pose.position.x'], checkpoints[checkpoint_iterator]['pose.pose.position.y']])
+        perfect_checkpoint = np.array([perfect_lap_checkpoints[perfect_point_iterator_dir_1]['pose.pose.position.x'],
+                                       perfect_lap_checkpoints[perfect_point_iterator_dir_1]['pose.pose.position.y']])
         dist = (perfect_checkpoint - current_checkpoint) ** 2
         dist = np.sum(dist, axis=0)
         dist = np.sqrt(dist)
         if dist < 5:
-            checkpoints_reached += 1
-            perfect_point_iterator += 1
+            checkpoints_reached_dir_1 += 1
+            perfect_point_iterator_dir_1 += 1
             if checkpoints_reached / len(perfect_lap_checkpoints) == 1:
                 lap_checkpoint = checkpoint_iterator
-            if perfect_point_iterator >= len(perfect_lap_checkpoints):
-                perfect_point_iterator = 0
+            if perfect_point_iterator_dir_1 >= len(perfect_lap_checkpoints):
+                perfect_point_iterator_dir_1 = 0
         else:
             checkpoint_iterator += 1
+    percentage_completed_dir_1 = (checkpoints_reached_dir_1 / len(perfect_lap_checkpoints)) * 100
 
-    experiment_metrics['percentage_completed'] = checkpoints_reached / len(perfect_lap_checkpoints) * 100
-    logger.info('* Percentage completed ---> ' + str(experiment_metrics['percentage_completed']))
+    # Direction 2
+    checkpoints_reached_dir_2 = 1
+    checkpoint_iterator = 1
+    perfect_point_iterator_dir_2 = perfect_point_iterator - 1
+    while checkpoint_iterator < len(checkpoints):
+        current_checkpoint = np.array([checkpoints[checkpoint_iterator]['pose.pose.position.x'], checkpoints[checkpoint_iterator]['pose.pose.position.y']])
+        perfect_checkpoint = np.array([perfect_lap_checkpoints[perfect_point_iterator_dir_2]['pose.pose.position.x'],
+                                       perfect_lap_checkpoints[perfect_point_iterator_dir_2]['pose.pose.position.y']])
+        dist = (perfect_checkpoint - current_checkpoint) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist < 5:
+            checkpoints_reached_dir_2 += 1
+            perfect_point_iterator_dir_2 -= 1
+            if checkpoints_reached / len(perfect_lap_checkpoints) == 1:
+                lap_checkpoint = checkpoint_iterator
+            if perfect_point_iterator_dir_2 <= 0:
+                perfect_point_iterator_dir_2 = len(perfect_lap_checkpoints)
+        else:
+            checkpoint_iterator += 1
+    percentage_completed_dir_2 = (checkpoints_reached_dir_2 / len(perfect_lap_checkpoints)) * 100
+    experiment_metrics['percentage_completed'] = percentage_completed_dir_1 if percentage_completed_dir_1 > percentage_completed_dir_2 else percentage_completed_dir_2
     experiment_metrics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, experiment_metrics)
     return experiment_metrics, lap_checkpoint
 
