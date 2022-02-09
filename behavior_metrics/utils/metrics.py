@@ -42,7 +42,7 @@ def is_finish_line(point, start_point):
         start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     except IndexError:
         start_point = start_point
-    #start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
+    # start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
     dist = (start_point - current_point) ** 2
     dist = np.sum(dist, axis=0)
     dist = np.sqrt(dist)
@@ -136,7 +136,8 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
     experiment_metrics = get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkpoints,
                                                   seconds_start, seconds_end, laps)
-    experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, first_previous_lap_point, lap_point,
+    experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, first_previous_lap_point,
+                                                 lap_point,
                                                  start_clock, clock_points, checkpoints)
     experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
     logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
@@ -158,48 +159,39 @@ def get_average_speed(experiment_metrics, seconds_start, seconds_end):
 
 
 def get_percentage_completed(experiment_metrics, checkpoints, perfect_lap_checkpoints, seconds_start, seconds_end, laps):
-    # Find last and first checkpoints for retrieving percentage completed
-    first_checkpoint = checkpoints[0]
-    first_checkpoint = np.array([first_checkpoint['pose.pose.position.x'], first_checkpoint['pose.pose.position.y']])
-    last_checkpoint = checkpoints[len(checkpoints) - 1]
-    last_checkpoint = np.array([last_checkpoint['pose.pose.position.x'], last_checkpoint['pose.pose.position.y']])
-    min_distance_first = 100
-    min_distance_last = 100
-    first_perfect_checkpoint_position = 0
-    last_perfect_checkpoint_position = 0
-    for i, point in enumerate(perfect_lap_checkpoints):
-        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        if i != 0:
-            dist = (first_checkpoint - current_point) ** 2
-            dist = np.sum(dist, axis=0)
-            dist = np.sqrt(dist)
-            if dist < min_distance_first:
-                min_distance_first = dist
-                first_perfect_checkpoint_position = i
+    first_checkpoint = np.array([checkpoints[0]['pose.pose.position.x'], checkpoints[0]['pose.pose.position.y']])
+    perfect_point_iter = 0
+    min_dist = 100
+    for position, perfect_checkpoint in enumerate(perfect_lap_checkpoints):
+        perfect_checkpoint = np.array(
+            [perfect_checkpoint['pose.pose.position.x'], perfect_checkpoint['pose.pose.position.y']])
+        dist = (perfect_checkpoint - first_checkpoint) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist < min_dist:
+            min_dist = dist
+            perfect_point_iter = position
 
-            dist = (last_checkpoint - current_point) ** 2
-            dist = np.sum(dist, axis=0)
-            dist = np.sqrt(dist)
-            if dist < min_distance_last:
-                min_distance_last = dist
-                last_perfect_checkpoint_position = i
-    if first_perfect_checkpoint_position > last_perfect_checkpoint_position and experiment_metrics['completed_distance'] \
-            > MIN_COMPLETED_DISTANCE_EXPERIMENT and seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
-        experiment_metrics['percentage_completed'] = (((len(perfect_lap_checkpoints) - first_perfect_checkpoint_position
-                                                        + last_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
-                                                      * 100) + laps * 100
-    else:
-        if seconds_end - seconds_start > MIN_EXPERIMENT_TIME:
-            # if the percectage is very close to 100%, remove lap.
-            if abs((((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints)) * 100) - 100) < 1 and laps >= 1:
-                laps -= 1
-            experiment_metrics['percentage_completed'] = \
-                (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
-                 * 100) + laps * 100
+    checkpoints_reached = 1
+    chck_iter = 1
+    perfect_point_iter += 1
+    while chck_iter < len(checkpoints):
+        current_checkpoint = np.array(
+            [checkpoints[chck_iter]['pose.pose.position.x'], checkpoints[chck_iter]['pose.pose.position.y']])
+        perfect_checkpoint = np.array([perfect_lap_checkpoints[perfect_point_iter]['pose.pose.position.x'],
+                                       perfect_lap_checkpoints[perfect_point_iter]['pose.pose.position.y']])
+        dist = (perfect_checkpoint - current_checkpoint) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist < 2:
+            checkpoints_reached += 1
+            perfect_point_iter += 1
+            if perfect_point_iter >= len(perfect_lap_checkpoints):
+                perfect_point_iter = 0
         else:
-            experiment_metrics['percentage_completed'] = \
-                (((last_perfect_checkpoint_position - first_perfect_checkpoint_position) / len(perfect_lap_checkpoints))
-                 * 100)
+            chck_iter += 1
+
+    experiment_metrics['percentage_completed'] = (checkpoints_reached / len(perfect_lap_checkpoints)) * 100
     logger.info('* Percentage completed ---> ' + str(experiment_metrics['percentage_completed']))
     experiment_metrics = get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, experiment_metrics)
     return experiment_metrics
@@ -289,7 +281,8 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, exp
     return experiment_metrics
 
 
-def get_lap_completed_stats(experiment_metrics, circuit_diameter, first_previous_lap_point, lap_point, start_clock, clock_points, checkpoints):
+def get_lap_completed_stats(experiment_metrics, circuit_diameter, first_previous_lap_point, lap_point, start_clock,
+                            clock_points, checkpoints):
     # If lap is completed, add more statistic information
     if type(lap_point) is not int and experiment_metrics['percentage_completed'] > LAP_COMPLETED_PERCENTAGE:
         seconds_start = start_clock['clock.secs']
