@@ -104,10 +104,6 @@ if __name__ == "__main__":
                     all_data[world]['experiment_total_simulated_time'] = []
                     all_data[world]['experiment_total_real_time'] = []
 
-
-
-
-
                 all_data[world]['completed_distance'].append(experiment_metrics['completed_distance'])
                 all_data[world]['percentage_completed'].append(experiment_metrics['percentage_completed'])
                 all_data[world]['image']['first_images'].append(first_image)

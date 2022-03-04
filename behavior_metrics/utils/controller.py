@@ -231,7 +231,7 @@ class Controller:
         else:
             self.experiment_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                        'circuit_diameter': 0, 'position_deviation_mae': 0,
-                                       'position_deviation_total_err': 0, 'experiment_total_simulated_time':0 }
+                                       'position_deviation_total_err': 0, 'experiment_total_simulated_time':0, 'completed_distance':0 }
 
         self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
         logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time))

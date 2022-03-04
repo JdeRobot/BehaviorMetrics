@@ -11,7 +11,7 @@ if __name__ == "__main__":
     with open(experiment_main_file, 'r') as f:
         doc = yaml.load(f)
 
-    stats = json.load(open("/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis__all_v1/stats.json"))
+    stats = json.load(open("/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis/stats.json"))
 
     n_models = len(doc['Behaviors']['Robot']['Parameters']['Model'])
 
@@ -83,6 +83,7 @@ if __name__ == "__main__":
                 current_stat["run"] = idx2
                 for stat in stats[circuit]:
                     if stat == "time_meta":
+                        continue
                         for time_stat in stats[circuit][stat][i]:
                             current_stat[time_stat] = stats[circuit][stat][i][time_stat]
                     else:

@@ -24,6 +24,7 @@ import os
 import rospy
 import random
 import sys
+import math
 
 import numpy as np
 
@@ -32,7 +33,7 @@ from utils import environment
 from utils.logger import logger
 
 
-def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
+def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
                            launch=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
@@ -52,43 +53,56 @@ def tmp_random_initializer(current_world, stats_perfect_lap, real_time_update_ra
     root = tree.getroot()
 
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
-
+    check_point_offset = 5
     if randomize:
-        random_index = random.randint(0, int(len(perfect_lap_checkpoints) / 2))
-        random_point = perfect_lap_checkpoints[random_index]
+        random_index = random.randint(0, int(len(perfect_lap_checkpoints)- check_point_offset - 1))
+        try:
+            random_point = perfect_lap_checkpoints[random_index]
+        except Exception as exc:
+            print("Error to review {}".format(exc))
+            random_index = 2
+            random_point = perfect_lap_checkpoints[random_index]
 
+
+        p1 = perfect_lap_checkpoints[random_index]
+        p2 = perfect_lap_checkpoints[random_index + check_point_offset]
+        delta_y = p2['pose.pose.position.y'] - p1['pose.pose.position.y']
+        delta_x = p2['pose.pose.position.x'] - p1['pose.pose.position.x']
+        result = math.atan2(delta_y, delta_x)
+        result = math.degrees(result)
+        if result < 0:
+            result = 360 + result
+
+        # Half chances of orientating the car to the exactly opposite direction
         random_orientation = random.randint(0, 1)
         if random_orientation == 1:
-            orientation_z = random_point['pose.pose.orientation.z'] + np.random.normal(0, 0.1)
-        else:
-            orientation_z = random_point['pose.pose.orientation.z']
-    else:
-        random_index = 0
-        random_point = perfect_lap_checkpoints[random_index]
-        orientation_z = random_point['pose.pose.orientation.z']
+            result = (result + 180) % 360
 
-    random_start_point = np.array(
-        [round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
-         round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3),
-         round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
+        radians = math.radians(result)
+        orientation_z = radians
 
-    for child_1 in root[0]:
-        if child_1.tag == 'include':
-            next = False
-            for child_2 in child_1:
-                if next:
-                    child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(
-                        random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(
-                        random_start_point[4]) + " " + str(random_start_point[5])
-                    next = False
-                elif child_2.text == 'model://f1_renault':
-                    next = True
+        random_start_point = np.array(
+            [round(random_point['pose.pose.position.x'], 3), round(random_point['pose.pose.position.y'], 3),
+             round(random_point['pose.pose.position.z'], 3), round(random_point['pose.pose.orientation.x'], 3),
+             round(random_point['pose.pose.orientation.y'], 3), round(orientation_z, 3)])
+
+        for child_1 in root[0]:
+            if child_1.tag == 'include':
+                next = False
+                for child_2 in child_1:
+                    if next:
+                        child_2.text = str(random_start_point[0]) + " " + str(random_start_point[1]) + " " + str(
+                            random_start_point[2]) + " " + str(random_start_point[3]) + " " + str(
+                            random_start_point[4]) + " " + str(random_start_point[5])
+                        next = False
+                    elif child_2.text == 'model://f1_renault':
+                        next = True
 
     # Add physics real time update rate value
     physics_element = ET.SubElement(root[0], 'physics')
     physics_element.set("type", "ode")
     real_time_update_rate_element = ET.SubElement(physics_element, 'real_time_update_rate')
-    real_time_update_rate_element.text = str(real_time_update_rate)  # 1000 es the default value
+    real_time_update_rate_element.text = str(real_time_update_rate)  # 1000 is the default value
 
     tree.write('tmp_world.launch')
     if launch:
