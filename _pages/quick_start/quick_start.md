@@ -84,7 +84,7 @@ gallery17:
     alt: ""
 ---
 
-First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](/install/).
+First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](../install).
 
 Follow the [tutorial](tutorial/) for training your first brain using deep learning and running it on Behavior Studio. 
 
