@@ -19,7 +19,7 @@ BLUE = (0, 0, 255)
 MAGENTA = (255, 0, 255)
 TH = 500
 buf = np.ones(25)
-V = 4
+V = 3.5
 V_MULT = 2
 v_mult = V_MULT
 
