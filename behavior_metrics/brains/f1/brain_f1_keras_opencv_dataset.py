@@ -107,13 +107,8 @@ class Brain:
             self.inference_times.append(time.time() - start_time)
 
             if self.config['PredictionsNormalized']:
-                prediction_v = prediction[0][0] * 13
-                if prediction[0][1] >= 0.5:
-                    x = prediction[0][1] - 0.5
-                    prediction_w = x * 6
-                else:
-                    x = 0.5 - prediction[0][1]
-                    prediction_w = x * -6
+                prediction_v = prediction[0][0] * (24 - (6.5)) + (6.5)
+                prediction_w = prediction[0][1] * (7.1 - (-7.1)) + (-7.1)
             else:
                 prediction_v = prediction[0][0]
                 prediction_w = prediction[0][1]
