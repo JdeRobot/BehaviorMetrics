@@ -45,7 +45,7 @@ Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workfl
 1. [Ordinary Installation](#installation)
     1. [Requirements](#requisites)
     2. [Installing ROS Noetic](#noetic)
-    3. [Installing Jderobot' dependencies](#dependencies)
+    3. [Installing Jderobot's dependencies](#dependencies)
     4. [Installing Behavior Metrics](#behavior-metrics)
 2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
@@ -74,7 +74,8 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 #### Set up your keys
 
 ```bash
-sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+sudo apt install curl
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 ```
 
 #### Installing ROS Noetic
@@ -131,8 +132,6 @@ cmake ../ && make && make install
 
 ```bash
 sudo apt-get install libbluetooth-dev libcwiid-dev libftdi-dev libspnav-dev libsdl-dev libsdl-image1.2-dev libusb-dev ros-noetic-octomap-msgs ros-noetic-geodesy ros-noetic-octomap-ros ros-noetic-control-toolbox ros-noetic-pluginlib	ros-noetic-trajectory-msgs ros-noetic-control-msgs ros-noetic-std-srvs ros-noetic-nodelet ros-noetic-urdf ros-noetic-rviz ros-noetic-kdl-conversions ros-noetic-eigen-conversions ros-noetic-tf2-sensor-msgs ros-noetic-pcl-ros ros-noetic-navigation
-cd BehaviorMetrics/gym-gazebo/
-pip3 install -e .
 ```
 
 ### Installing Behavior Metrics <a name="behavior-metrics"></a>
@@ -143,6 +142,8 @@ This application depends on some third party libraries, most of them are include
 git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics
 cd BehaviorMetrics
 pip3 install -r requirements.txt
+cd gym-gazebo
+pip3 install -e .
 ```
 
 If you are going to use the GUI you need to create the resources file for the application. 
@@ -161,7 +162,7 @@ cd BehaviorMetrics/gym-gazebo/
 bash load_env.sh 
 ```
 
-From here you are to good to go to the [quick start guide!](../quick_start/)
+From here you are to good to go to the [Quick Start guide!](../quick_start/)
 
 ## Installation using Docker <a name="docker-installation"></a>
 
@@ -199,7 +200,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
 
-Add your user to the docker's group to avoid using `sudo` for docker, you have to log out and log in to for this change to take effect.
+Add your user to the docker's group to avoid using `sudo` for docker, you have to log out and log in and restart to for this change to take effect. 
 
 ```
 sudo usermod -aG docker your-user
@@ -247,10 +248,11 @@ docker run --gpus all -dit --name behavior-metrics-noetic \
         -p 8888:8888 \
         jderobot/behavior-metrics:noetic-10.1-cudnn7
 ```
+For GPU support on WSL refer [Getting started with CUDA on Ubuntu on WSL 2](https://ubuntu.com/blog/getting-started-with-cuda-on-ubuntu-on-wsl-2).
 
 ### Using VNC to visualize container <a name="vnc"></a>
 
-To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (recommended) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
+To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (depricated) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
 
 {% include gallery id="gallery4" %}
 
@@ -283,7 +285,7 @@ bash
 and this window will behave as any other Ubuntu terminal, so you are ready to run Behavior Metrics, once the GUI is opened it will be displayed in the VNC window.
 
 ```bash
-cd BehaviorMetrics/behavior_studio
+cd BehaviorMetrics/behavior_metrics/
 python3 driver.py -c configs/default.yml -g
 ```
 
@@ -321,3 +323,5 @@ First go to the folder where the `Dockerfile` is, then use docker use docker bui
 cd BehaviorMetrics/.docker/noetic/
 docker build -t any-tag-you-want .
 ```
+
+From here you are to good to go to the [Quick Start guide!](../quick_start/)
