@@ -86,11 +86,11 @@ gallery17:
 
 First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](../install).
 
-<!-- Follow the [tutorial](tutorial/) for training your first brain using deep learning and running it on Behavior Studio.  -->
+Follow the [tutorial](tutorial) for training your first brain using deep learning and running it on Behavior Studio. 
 
-We additionally have some pretrained brains that you can use in Behavior Metrics to illustrate how it works. Find them in the [brains zoo](brains_zoo/).
+We additionally have some pretrained brains that you can use in Behavior Metrics to illustrate how it works. Find them in the [brains zoo](brains_zoo).
 
-If you'd like to train your own brain, we provide you with the [datasets](datasets/).
+If you'd like to train your own brain, we provide you with the [datasets](datasets).
 
 To run the application with GUI (Graphic User Interface) just run:
 
