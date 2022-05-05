@@ -252,7 +252,7 @@ For GPU support on WSL refer [Getting started with CUDA on Ubuntu on WSL 2](http
 
 ### Using VNC to visualize container <a name="vnc"></a>
 
-To connect to our container [VNC viewer for chrome](https://chrome.google.com/webstore/detail/vnc%C2%AE-viewer-for-google-ch/iabmpiboiopbgfabjmgeedhcmjenhbla?hl=en) (depricated) or [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
+To connect to our container [RealVNC](https://www.realvnc.com/en/) can be installed to access the GUI through the port 5900.
 
 {% include gallery id="gallery4" %}
 
