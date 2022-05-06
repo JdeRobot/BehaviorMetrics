@@ -86,28 +86,28 @@ gallery17:
 
 First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](../install).
 
-Follow the [tutorial](tutorial/) for training your first brain using deep learning and running it on Behavior Studio. 
+Follow the [tutorial](tutorial) for training your first brain using deep learning and running it on Behavior Studio. 
 
-We additionally have some pretrained brains that you can use in Behavior Metrics to illustrate how it works. Find them in the [brains zoo](brains_zoo/).
+We additionally have some pretrained brains that you can use in Behavior Metrics to illustrate how it works. Find them in the [brains zoo](brains_zoo).
 
-If you'd like to train your own brain, we provide you with the [datasets](datasets/).
+If you'd like to train your own brain, we provide you with the [datasets](datasets).
 
 To run the application with GUI (Graphic User Interface) just run:
 
 ```bash
-python driver.py -c ./configs/default.yml -g
+python3 driver.py -c ./configs/default.yml -g
 ```
 
 To run the application with TUI (Terminal User Interface) just run:
 
 ```bash
-python driver.py -c ./configs/default.yml -t
+python3 driver.py -c ./configs/default.yml -t
 ```
 
 To run the application as a script to run several worlds/brains at the same time  run:
 
 ```bash
-python driver.py -c ./configs/default-multiple.yml -s
+python3 driver.py -c ./configs/default-multiple.yml -s
 ```
 
 ## Reference times for each circuit
@@ -136,7 +136,7 @@ pyrcc5 -o ui/gui/resources/resources.py ui/gui/resources/resources.qrc
 To launch the application just run the python script as follows:
 
 ```bash
-python driver.py -c ./configs/default.yml -g
+python3 driver.py -c ./configs/default.yml -g
 ```
 
 This command will launch the application with the default configuration:
@@ -159,7 +159,7 @@ For more information run `help driver.py` in a terminal.
 Furthermore, the iris drone counterparts are based on `JdeRobot/drones` and the corresponding DroneWrapper. All low level drone control and reading sensor data functionalities can be directly used from the wrapper. To launch a similar case of simulating the line following task based on OpenCV for drones, execute:
 
 ```bash
-python driver.py -c ./configs/default-drone.yml -g
+python3 driver.py -c ./configs/default-drone.yml -g
 ```
 
 
@@ -317,7 +317,7 @@ You can save metrics from the brain with the stats functionality. For saving, pr
 press again to finish. After that, a general view of the stats should appear. For further detail, run the `show_plots.py` script:
 
 ```
-    python3 show_plots.py -b [bag_name].bag -b [bag_name].bag
+python3 show_plots.py -b [bag_name].bag -b [bag_name].bag
 ``` 
 
 This script will load further information related with the execution.
@@ -327,7 +327,7 @@ This script will load further information related with the execution.
 The `behavior_metrics/show_plots.py` file uses the QtWindow to generate it runtime on the DISPLAY. So, the new script setup as found in `behavior_metrics/scripts/analyze_brain.bash` eases the overall process by first collecting the ROS bags with the confg file provided and then generates all the analysis plots. The argument for the analysis is the config file suitable for using with the `script` mode.
 
 ```
-    bash scripts/analyze_brain.bash ./configs/default-multiple.yml
+bash scripts/analyze_brain.bash ./configs/default-multiple.yml
 ``` 
 
 Finally, this saves everything at `behavior_metrics/bag_analysis/bag_analysis_plots/` directory sorted according to the different circuits. The current formulation of the saving plots analysis creates the following directory structure:
