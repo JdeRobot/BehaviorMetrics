@@ -78,17 +78,6 @@ class Brain:
         """
         self.handler.update_frame(frame_id, data)
 
-    def addPadding(self, img):
-
-        target_height = int(66)
-        target_width = int(target_height * img.shape[1]/img.shape[0])
-        img_resized = cv2.resize(img, (target_width, target_height))
-        padding_left = int((200 - target_width)/2)
-        padding_right = 200 - target_width - padding_left
-        img = cv2.copyMakeBorder(img_resized.copy(),0,0,padding_left,padding_right,cv2.BORDER_CONSTANT,value=[0, 0, 0])
-        return img
-
-
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 

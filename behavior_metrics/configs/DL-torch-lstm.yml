@@ -25,11 +25,6 @@ Behaviors:
             ImageNormalized: True
             PredictionsNormalized: True
         Type: 'f1'
-    Experiment:
-        Name: "Experiment name"
-        Description: "Experiment description"
-        Timeout: 30
-        Repetitions: 2
     Simulation:
         World: '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch'
     Dataset:
