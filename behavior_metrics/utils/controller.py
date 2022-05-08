@@ -236,6 +236,13 @@ class Controller:
                                        'completed_distance': 0}
         logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time))
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
+        
+        time_str = time.strftime("%Y%m%d-%H%M%S")
+        
+        with open(time_str + '.json', 'w') as f:
+            json.dump(self.experiment_metrics, f)
+        logger.info("Metrics stored in JSON file")
+
         logger.info("Stopping metrics bag recording")
 
     def save_metrics(self, first_image):
