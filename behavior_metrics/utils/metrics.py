@@ -134,7 +134,10 @@ def get_distance_completed(experiment_metrics, checkpoints):
 
 
 def get_average_speed(experiment_metrics, seconds_start, seconds_end):
-    experiment_metrics['average_speed'] = experiment_metrics['completed_distance'] / (seconds_end - seconds_start)
+    if (seconds_end - seconds_start):
+        experiment_metrics['average_speed'] = experiment_metrics['completed_distance'] / (seconds_end - seconds_start)
+    else:
+        experiment_metrics['average_speed'] = 0
     logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']))
     return experiment_metrics
 
@@ -280,7 +283,11 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, exp
         min_dists.append(1000 ** min_dist)
         perfect_index = (perfect_index + 1) % len(perfect_x)
 
-    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+    if len(min_dists):
+        experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
+    else:
+        experiment_metrics['position_deviation_mae'] = 0
+        
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
     logger.info('* Position deviation MAE ---> ' + str(experiment_metrics['position_deviation_mae']))
     logger.info('* Position deviation total error ---> ' + str(experiment_metrics['position_deviation_total_err']))
