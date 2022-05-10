@@ -189,3 +189,6 @@ Gemfile.lock
 # Allow pngs for tutorial
 !.docker/imgs/*.png
 !gym-gazebo/agents/f1/.env
+
+# JSON file
+*.json

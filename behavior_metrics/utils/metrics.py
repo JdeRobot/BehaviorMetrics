@@ -17,6 +17,8 @@ import pandas as pd
 import numpy as np
 import shutil
 import time
+import os
+import rosbag
 
 from datetime import datetime
 from bagpy import bagreader
@@ -92,8 +94,41 @@ def read_perfect_lap_rosbag(ground_truth_lap_file):
 
 
 def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
+    empty_metrics = {
+        "completed_distance": 0, 
+        "average_speed": 0, 
+        "percentage_completed": 0, 
+        "position_deviation_mae": 0, 
+        "position_deviation_total_err": 0, 
+        "experiment_total_simulated_time": 0, 
+        "brain_iterations_frequency_simulated_time": 0, 
+        "target_brain_iterations_simulated_time": 0, 
+        "mean_brain_iterations_real_time": 0, 
+        "brain_iterations_frequency_real_time": 0, 
+        "target_brain_iterations_real_time": 0, 
+        "mean_inference_time": 0, 
+        "frame_rate": 0, 
+        "gpu_inference": False, 
+        "mean_brain_iterations_simulated_time": 0, 
+        "real_time_factor": 0, 
+        "real_time_update_rate": 0, 
+        "experiment_total_real_time": 0
+    }
     experiment_metrics = {}
-    bag_reader = bagreader(stats_filename)
+    
+    time_counter = 5
+    while not os.path.exists(stats_filename):
+        time.sleep(1)
+        time_counter -= 1
+        if time_counter <= 0:
+            ValueError(f"{stats_filename} isn't a file!")
+            return empty_metrics
+
+    try:
+        bag_reader = bagreader(stats_filename)
+    except rosbag.bag.ROSBagException:
+        return empty_metrics
+
     csv_files = []
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
@@ -114,16 +149,19 @@ def get_metrics(stats_filename, perfect_lap_checkpoints, circuit_diameter):
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
 
-    experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
-    experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
-    experiment_metrics, lap_checkpoint = get_percentage_completed(experiment_metrics, checkpoints,
-                                                                  perfect_lap_checkpoints)
-    experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, lap_checkpoint,
-                                                 start_clock, clock_points, checkpoints)
-    experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
-    logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
-    shutil.rmtree(stats_filename.split('.bag')[0])
-    return experiment_metrics
+    if len(checkpoints) > 1:
+        experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
+        experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
+        experiment_metrics, lap_checkpoint = get_percentage_completed(experiment_metrics, checkpoints,
+                                                                    perfect_lap_checkpoints)
+        experiment_metrics = get_lap_completed_stats(experiment_metrics, circuit_diameter, lap_checkpoint,
+                                                    start_clock, clock_points, checkpoints)
+        experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
+        logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
+        shutil.rmtree(stats_filename.split('.bag')[0])
+        return experiment_metrics
+    else:
+        return empty_metrics
 
 
 def get_distance_completed(experiment_metrics, checkpoints):
@@ -274,7 +312,7 @@ def get_robot_position_deviation_score(perfect_lap_checkpoints, checkpoints, exp
         if abs(current_t - previous_t) < 0.01:
             count_same_t += 1
             if count_same_t > 3:
-                print("Unexpected Behavior: Converging to same point")
+                logger.info("Unexpected Behavior: Converging to same point")
                 break
         else:
             count_same_t = 0

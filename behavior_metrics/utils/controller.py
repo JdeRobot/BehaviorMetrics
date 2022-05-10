@@ -228,7 +228,13 @@ class Controller:
         if not pitch_error:
             self.experiment_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
             self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
-            self.save_metrics(first_image)
+
+            try:
+                self.save_metrics(first_image)
+            except rosbag.bag.ROSBagException:
+                logger.info("Bag was empty, Try Again")
+
+
         else:
             self.experiment_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                        'circuit_diameter': 0, 'position_deviation_mae': 0,
