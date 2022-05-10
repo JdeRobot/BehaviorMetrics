@@ -19,6 +19,8 @@ Behaviors:
                     
         BrainPath: 'brains/f1/brain_f1_explicit.py'
         PilotTimeCycle: 50
+        Parameters:
+            ImageTranform: 'rain'
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch

@@ -26,6 +26,7 @@ Behaviors:
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
+            ImageTranform: 'rain'
         Type: 'f1'
         Simulation:
             World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
