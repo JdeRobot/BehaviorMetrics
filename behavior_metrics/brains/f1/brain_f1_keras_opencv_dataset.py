@@ -84,7 +84,7 @@ class Brain:
         if self.cont == 1:
             self.first_image = image
 
-        image = self.handler.transform_image(image,self.config['ImageTranform'])
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
         self.update_frame('frame_0', image)
 
         try:

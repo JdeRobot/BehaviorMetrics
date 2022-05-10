@@ -26,7 +26,7 @@ Behaviors:
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            ImageTranform: 'rain'
+            ImageTranform: ''
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
@@ -39,17 +39,17 @@ Behaviors:
     Layout:
         Frame_0:
             Name: frame_0
-        Geometry: [1, 1, 2, 2]
-        Data: rgbimage
-    Frame_1:
-        Name: frame_1
-        Geometry: [0, 1, 1, 1]
-        Data: rgbimage
-    Frame_2:
-        Name: frame_2
-        Geometry: [0, 2, 1, 1]
-        Data: rgbimage
-    Frame_3:
-        Name: frame_3
-        Geometry: [0, 3, 3, 1]
-        Data: rgbimage
+            Geometry: [1, 1, 2, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [0, 3, 3, 1]
+            Data: rgbimage
