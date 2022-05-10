@@ -24,6 +24,15 @@ V_CURVE = 3.5
 V_MULT = 2
 v_mult = V_MULT
 
+import csv
+from utils.constants import DATASETS_DIR, ROOT_PATH
+
+GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
+
+from albumentations import (
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+)
+
 
 class Brain:
 
@@ -31,6 +40,7 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
+        self.config = config
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
@@ -87,6 +97,7 @@ class Brain:
         if image.shape == (3, 3, 3):
             time.sleep(3)
 
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
         image_cropped = image[230:, :, :]
         image_blur = cv2.GaussianBlur(image_cropped, (27, 27), 0)
 
@@ -165,3 +176,4 @@ class Brain:
                     (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
         self.update_frame('frame_1', image_mask)
+        self.iteration += 1

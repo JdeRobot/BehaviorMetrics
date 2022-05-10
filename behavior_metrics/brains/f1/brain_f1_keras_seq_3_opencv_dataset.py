@@ -100,7 +100,7 @@ class Brain:
         image = self.camera.getImage().data
         if self.cont == 1:
             self.first_image = image
-
+        image = self.handler.transform_image(image,self.config['ImageTranform'])
         try:
             if self.config['ImageCropped']:
                 image = image[240:480, 0:640]
@@ -153,6 +153,7 @@ class Brain:
                 start_time = time.time()
                 prediction = self.net.predict(img)
                 self.inference_times.append(time.time() - start_time)
+                #prediction = prediction[0]
                 if self.config['PredictionsNormalized']:
                     prediction_v = prediction[0][0]*(24 - (6.5)) + (6.5)
                     prediction_w = prediction[0][1]*(7.1 - (-7.1)) + (-7.1)

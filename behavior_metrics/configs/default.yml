@@ -17,11 +17,13 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
                     
-        BrainPath: 'brains/f1/brain_f1_explicit.py'
+        BrainPath: 'brains/f1/brain_f1_opencv.py'
         PilotTimeCycle: 50
+        Parameters:
+            ImageTranform: 'rain'
         Type: 'f1'
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+        World: /opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

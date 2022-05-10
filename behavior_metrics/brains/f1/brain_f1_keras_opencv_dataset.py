@@ -18,7 +18,7 @@ import os
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 from albumentations import (
-    Compose, Normalize
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.gradcam.gradcam import GradCAM
 
@@ -84,6 +84,7 @@ class Brain:
         if self.cont == 1:
             self.first_image = image
 
+        image = self.handler.transform_image(image,self.config['ImageTranform'])
         self.update_frame('frame_0', image)
 
         try:
