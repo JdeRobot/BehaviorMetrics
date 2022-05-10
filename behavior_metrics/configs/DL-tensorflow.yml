@@ -16,29 +16,28 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-                    
-        BrainPath: 'brains/f1/brain_f1_keras_seq_3_opencv_dataset.py'
+
+        BrainPath: 'brains/f1/brain_f1_keras.py'
         PilotTimeCycle: 50
         Parameters:
-            Model: '20220411-195313_frankenstein_new_dataset_opencv_2_more_extreme_cases_support_300_epochs_cp.h5'
+            Model: '[model_name].h5'
             ImageCropped: True
-            ImageSize: [100,50]
+            ImageSize: [ 100,50 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            ImageTranform: 'rain'
         Type: 'f1'
-    Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch
-    Dataset:
-        In: '/tmp/my_bag.bag'
-        Out: ''
-    Stats:
-        Out: './'
-        PerfectLap: './perfect_bags/lap-montmelo.bag'
-    Layout:
-        Frame_0:
-            Name: frame_0
+        Simulation:
+            World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+        Dataset:
+            In: '/tmp/my_bag.bag'
+            Out: ''
+        Stats:
+            Out: './'
+            PerfectLap: './perfect_bags/lap-simple-circuit.bag'
+        Layout:
+            Frame_0:
+                Name: frame_0
             Geometry: [1, 1, 2, 2]
             Data: rgbimage
         Frame_1:

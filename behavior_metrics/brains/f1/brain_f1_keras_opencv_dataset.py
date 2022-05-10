@@ -18,7 +18,7 @@ import os
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+    Compose, Normalize
 )
 from utils.gradcam.gradcam import GradCAM
 
