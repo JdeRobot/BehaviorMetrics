@@ -72,7 +72,6 @@ class Brain:
         """
         self.handler.update_frame(frame_id, data)
 
-
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
@@ -84,6 +83,7 @@ class Brain:
         if self.cont == 1:
             self.first_image = image
 
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
         self.update_frame('frame_0', image)
 
         try:

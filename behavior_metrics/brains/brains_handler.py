@@ -1,8 +1,12 @@
 import importlib
 import sys
-from abc import abstractmethod
 import subprocess
 import os
+
+from abc import abstractmethod
+from albumentations import (
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+)
 
 
 """ TODO: fix neural brains """
@@ -75,6 +79,31 @@ class Brains(object):
         # except AttributeError as e:
         #     print('Not found ', frame_id, 'ERROR: ', e)
         #     pass
+
+    def transform_image(self, image, option):
+        augmentation_option = Compose([])
+        if option == 'rain':
+            augmentation_option = Compose([
+                RandomRain(slant_lower=-10, slant_upper=10,
+                           drop_length=20, drop_width=1, drop_color=(200, 200, 200),
+                           blur_value=7, brightness_coefficient=0.7,
+                           rain_type='torrential', always_apply=True)
+            ])
+        elif option == 'night':
+            augmentation_option = Compose([
+                RandomBrightness([-0.5, -0.5], always_apply=True)
+            ])
+        elif option == 'shadow':
+            augmentation_option = Compose([RandomShadow(always_apply=True)])
+        elif option == 'snow':
+            augmentation_option = Compose([RandomSnow(always_apply=True)])
+        elif option == 'fog':
+            augmentation_option = Compose([RandomFog(always_apply=True)])
+        elif option == 'sunflare':
+            augmentation_option = Compose([RandomSunFlare(always_apply=True)])
+        transformed_image = augmentation_option(image=image)
+        transformed_image = transformed_image["image"]
+        return transformed_image
 
     @abstractmethod
     def execute(self):

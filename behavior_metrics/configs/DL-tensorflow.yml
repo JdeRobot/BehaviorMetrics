@@ -16,16 +16,17 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-                    
+
         BrainPath: 'brains/f1/brain_f1_keras.py'
         PilotTimeCycle: 50
         Parameters:
             Model: '[model_name].h5'
             ImageCropped: True
-            ImageSize: [100,50]
+            ImageSize: [ 100,50 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
+            ImageTranform: ''
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
