@@ -1,7 +1,7 @@
 from pathlib import Path
 
 PRETRAINED_MODELS_DIR = 'models/'
-DATASETS_DIR = 'datasets/'
+DATASETS_DIR = 'datasets_opencv/'
 ROOT_PATH = str(Path(__file__).parent.parent)
 MIN_EXPERIMENT_PERCENTAGE_COMPLETED = 3
 # General timeout reference for each circuit extracted using explicit_brain
