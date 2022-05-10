@@ -30,7 +30,7 @@ from utils.constants import DATASETS_DIR, ROOT_PATH
 GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
 
 from albumentations import (
-    Compose, Normalize
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 
 
@@ -48,6 +48,13 @@ class Brain:
         self.threshold_image_lock = threading.Lock()
         self.color_image_lock = threading.Lock()
         self.cont = 0
+        self.iteration = 0
+        # Save dataset
+        # header = ['image_name', 'v', 'w']
+        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'w', encoding='UTF8') as f:
+        #    writer = csv.writer(f)
+        #    writer.writerow(header)
+
         time.sleep(2)
 
     def update_frame(self, frame_id, data):
@@ -98,6 +105,11 @@ class Brain:
             time.sleep(3)
 
         image = self.handler.transform_image(image, self.config['ImageTranform'])
+
+        # Save dataset
+        # rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # cv2.imwrite(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/' + str(self.iteration) + '.png', rgb_image)
+
         image_cropped = image[230:, :, :]
         image_blur = cv2.GaussianBlur(image_cropped, (27, 27), 0)
 
@@ -162,6 +174,12 @@ class Brain:
         w = proportional + derivative + integral
         self.motors.sendW(w)
         self.motors.sendV(v)
+
+        # Save dataset
+        # iteration_data = [str(self.iteration) + '.png', v, w]
+        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'a', encoding='UTF8') as f:
+        #    writer = csv.writer(f)
+        #    writer.writerow(iteration_data)
 
         image_mask = cv2.cvtColor(image_mask, cv2.COLOR_GRAY2RGB)
         cv2.circle(image_mask, points[0], 6, GREEN, -1)
