@@ -37,4 +37,6 @@ docs:
       url: /documentation/status/
     - title: Contributing
       url: /documentation/contributing/
+    - title: Circuits and weather selection
+      url: /documentation/circuit_and_weather/
   
