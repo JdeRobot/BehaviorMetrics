@@ -35,16 +35,13 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y \
 	software-properties-common && \
 	add-apt-repository ppa:deadsnakes/ppa && \
-	apt-get update && \
-	apt-get install -y python3.7 python3.7-dev && \
-	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+	apt-get update
 
 # Installing Behavior Metrics
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
     cd BehaviorMetrics && \
     pip3 install -r requirements.txt && \
-    pip3 -V && python3 -V && \
     pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
