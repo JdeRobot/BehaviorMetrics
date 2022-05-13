@@ -16,5 +16,4 @@ Datasets recorded from simple circuit
 
 | Dataset | Link |
 | ------ | ----------- |
-| Complete dataset for F1  | [download](https://drive.jderobot.org/s/7GJs27gr6CzXPot){:target="_blank"}  | 
-| Curves only dataset for F1 | [download](https://drive.jderobot.org/s/SPibxAsQwpyDB85){:target="_blank"}      | 
+| Complete dataset for F1  | [download](https://drive.google.com/file/d/1EL2Pzzdoj7jLRRi9DXNDVCwZZ0zGGu7H/edit){:target="_blank"}  | 
