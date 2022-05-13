@@ -324,10 +324,10 @@ This script will load further information related with the execution.
 
 **Visualizing Brain Performances**
 
-The `behavior_metrics/show_plots.py` file uses the QtWindow to generate it runtime on the DISPLAY. So, the new script setup as found in `behavior_metrics/scripts/analyze_brain.bash` eases the overall process by first collecting the ROS bags with the confg file provided and then generates all the analysis plots. The argument for the analysis is the config file suitable for using with the `script` mode.
+The `behavior_metrics/show_plots.py` file uses the QtWindow to generate it runtime on the DISPLAY. So, the new script setup as found in `behavior_metrics/scripts/analyse_brain.bash` eases the overall process by first collecting the ROS bags with the confg file provided and then generates all the analysis plots. The argument for the analysis is the config file suitable for using with the `script` mode.
 
 ```
-bash scripts/analyze_brain.bash ./configs/default-multiple.yml
+bash scripts/analyse_brain.bash ./configs/default-multiple.yml
 ``` 
 
 Finally, this saves everything at `behavior_metrics/bag_analysis/bag_analysis_plots/` directory sorted according to the different circuits. The current formulation of the saving plots analysis creates the following directory structure:
