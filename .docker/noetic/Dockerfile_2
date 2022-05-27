@@ -4,16 +4,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 
-
-
-#RUN apt-get update && apt-get install -y \
-#	software-properties-common && \
-#	add-apt-repository ppa:deadsnakes/ppa && \
-#	apt-get update && \
-#	apt-get install -y python3.7 python3.7-dev && \
-#	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2 && \
-#    python3 -V &&  apt-get install -y apt-utils &&  apt install -y 2to3 && apt install -y python3-lib2to3 &&apt-get install -y python3-distutils && apt-get install -y python3-pip && pip3 -V
-
 RUN apt-get update && apt-get install -y \
         cmake \
         icewm \
@@ -34,32 +24,29 @@ RUN apt-get update && apt-get install -y \
         python3-catkin-tools \
         python3-osrf-pycommon \
         python3-rosdep \
+        pyqt5-dev-tools \
         tmux \
         vim \
         x11vnc \
-        software-properties-common \
         xvfb && \
     pip3 install --upgrade pip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN  add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y apt-utils && apt-get update && python3 -V && pip3 -V
+RUN apt-get update && apt-get install -y \
+	software-properties-common && \
+	add-apt-repository ppa:deadsnakes/ppa && \
+	apt-get update
 
 COPY ./requirements.txt /requirements_2.txt
 RUN rm -rf /usr/lib/python3/dist-packages/PyQt5
-RUN pip list
-RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed
-RUN  pip install PyYAML==5.4  --upgrade --ignore-installed
-RUN pip install --force-reinstall --no-deps PyQt5==5.14.1
-RUN pip install --upgrade --force-reinstall PyQt5==5.15.0
-RUN apt-get -y install python3-tk
-RUN cat requirements_2.txt && pip3 list && pip3 install -r requirements_2.txt
+#RUN python3 -c "import PyQt5; print(PyQt5.__file__)"
+RUN pip3 install -r requirements_2.txt
 #RUN  pip3 uninstall PyQt5 && pip3 install -r requirements_2.txt
 
 # Installing Behavior Metrics
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
     cd BehaviorMetrics && \
-    #pip3 install -r requirements.txt && \
     pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
@@ -153,7 +140,7 @@ RUN cd /catkin_ws/src && ln -s /drones/rqt_drone_teleop .
 
 RUN /bin/bash -c '. /opt/ros/noetic/setup.bash' && cd /catkin_ws && \
     rm /etc/ros/rosdep/sources.list.d/20-default.list && \
-    sudo rosdep init 
+    sudo rosdep init
 
 # RUN rosdep update && rosdep install --from-paths . --ignore-src --rosdistro noetic -y
 
