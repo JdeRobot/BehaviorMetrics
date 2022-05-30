@@ -13,7 +13,7 @@ pathlib==1.0.1
 jderobot-jderobottypes==1.0.0
 catkin_pkg==0.4.23
 numpy==1.21.0
-matplotlib
+matplotlib==3.1.2
 kiwisolver==1.2
 defusedxml==0.6.0
 netifaces==0.10.9
@@ -24,8 +24,8 @@ requests==2.21.0
 six>=1.14.0
 empy==3.3.2
 vcstool==0.2.14
-scikit-image
-bagpy
+scikit-image==0.19.2
+bagpy==0.4.10
 pycryptodomex==3.9.9
 torch==1.8.1
 torchvision==0.9.1
