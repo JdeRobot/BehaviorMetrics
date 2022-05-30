@@ -32,7 +32,9 @@ RUN apt-get update && apt-get install -y \
     pip3 install --upgrade pip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN  add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y apt-utils && apt-get update && python3 -V && pip3 -V
+RUN  add-apt-repository ppa:deadsnakes/ppa && \
+      apt-get update && \
+      apt-get install -y apt-utils
 
 # Remove possible duplicated packages
 RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed && \
