@@ -39,7 +39,7 @@ RUN  add-apt-repository ppa:deadsnakes/ppa && \
 # Remove possible duplicated packages
 RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed && \
      pip install PyYAML==5.4  --upgrade --ignore-installed && \
-     apt-get -y install python3-tk && \
+     apt-get -y install python3-tk
 
 # Installing Behavior Metrics
 RUN cd /root/ && \
