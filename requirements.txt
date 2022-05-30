@@ -5,7 +5,6 @@ jupyterlab==2.2.10
 PyQt3D==5.15.0
 npyscreen==4.10.5
 pynput==1.6.8
-opencv_python==4.2.0.34
 environs==8.0.0
 PyYAML==5.4
 rospkg==1.2.9
