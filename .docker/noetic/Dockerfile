@@ -24,18 +24,22 @@ RUN apt-get update && apt-get install -y \
         python3-catkin-tools \
         python3-osrf-pycommon \
         python3-rosdep \
-        pyqt5-dev-tools \
         tmux \
         vim \
         x11vnc \
+        software-properties-common \
         xvfb && \
     pip3 install --upgrade pip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-	software-properties-common && \
-	add-apt-repository ppa:deadsnakes/ppa && \
-	apt-get update
+RUN  add-apt-repository ppa:deadsnakes/ppa && \
+      apt-get update && \
+      apt-get install -y apt-utils
+
+# Remove possible duplicated packages
+RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed && \
+     pip install PyYAML==5.4  --upgrade --ignore-installed && \
+     apt-get -y install python3-tk && \
 
 # Installing Behavior Metrics
 RUN cd /root/ && \
