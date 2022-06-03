@@ -98,11 +98,9 @@ class Brain:
         self.cont += 1
 
         image = self.camera.getImage().data
-
         if self.cont == 1:
             self.first_image = image
         image = self.handler.transform_image(image,self.config['ImageTranform'])
-        self.update_frame('frame_0', image)
         try:
             if self.config['ImageCropped']:
                 image = image[240:480, 0:640]
@@ -110,7 +108,7 @@ class Brain:
                 img = cv2.resize(image, (self.config['ImageSize'][0], self.config['ImageSize'][1]))
             else:
                 img = image
-
+            self.update_frame('frame_0', img)
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
                     Normalize()
@@ -155,19 +153,13 @@ class Brain:
                 start_time = time.time()
                 prediction = self.net.predict(img)
                 self.inference_times.append(time.time() - start_time)
-
+                #prediction = prediction[0]
                 if self.config['PredictionsNormalized']:
-                    prediction_v = prediction[0][0] * 13
-                    if prediction[0][1] >= 0.5:
-                        x = prediction[0][1] - 0.5
-                        prediction_w = x * 6
-                    else:
-                        x = 0.5 - prediction[0][1]
-                        prediction_w = x * -6
+                    prediction_v = prediction[0][0]*(24 - (6.5)) + (6.5)
+                    prediction_w = prediction[0][1]*(7.1 - (-7.1)) + (-7.1)
                 else:
                     prediction_v = prediction[0][0]
                     prediction_w = prediction[0][1]
-
                 if prediction_w != '' and prediction_w != '':
                     self.motors.sendV(prediction_v)
                     self.motors.sendW(prediction_w)

@@ -176,7 +176,7 @@ def main():
             logger.debug('Launching Simulation... please wait...')
             if config_data['random']:
                 tmp_world_generator(app_configuration.current_world, app_configuration.stats_perfect_lap,
-                                       app_configuration.real_time_update_rate, randomize=True,
+                                       app_configuration.real_time_update_rate, randomize=False,
                                        gui=True, launch=False)
                 app_configuration.current_world = 'tmp_circuit.launch'
             environment.launch_env(app_configuration.current_world)

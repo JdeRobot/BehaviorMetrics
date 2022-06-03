@@ -16,26 +16,39 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-
-        BrainPath: 'brains/f1/brain_f1_keras.py'
+        BrainPath: [
+                'brains/f1/brain_f1_onnx_frivas.py'
+        ]
         PilotTimeCycle: 50
         Parameters:
-            Model: '[model_name].h5'
-            ImageCropped: True
-            ImageSize: [ 100,50 ]
-            ImageNormalized: True
-            PredictionsNormalized: True
-            GPU: True
-            ImageTranform: ''
+            Model: [
+                    '/media/nas/PHD/lightning_logs/version_5'
+            ]
         Type: 'f1'
+    Experiment:
+        Name: "Experiment name"
+        Description: "Experiment description"
+        Timeout: [3600]
+        Repetitions: 2
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+        World: [
+                '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch'
+#                '/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch',
+#                '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch',
+#                '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch'
+        ]
+        RealTimeUpdateRate: 10
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
+        PerfectLap: [
+                './perfect_bags/lap-montmelo.bag',
+#                     './perfect_bags/lap-nurburgring.bag',
+#                    './perfect_bags/lap-simple-circuit.bag',
+#                     './perfect_bags/lap-many-curves.bag'
+        ]
     Layout:
         Frame_0:
             Name: frame_0

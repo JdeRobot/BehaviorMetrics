@@ -62,6 +62,8 @@ class Brain(BrainBase):
             model = "/media/frivas/External/phd/version_10"
             model = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_5"
             model = "/media/frivas/External/phd/version_3"
+            model = "/home/frivas/devel/mio/github/my_phd/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7"
+            model = "/media/nas/PHD/lightning_logs/version_5"
 
         if model:
             if isinstance(model, str):
@@ -82,25 +84,19 @@ class Brain(BrainBase):
             print("-----")
             print("Len model: {}".format(len(model)))
             print(model)
-        else:
-            model_path = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_10"
-            checkpoint_path_input = load_best_model(model_path)
+        # else:
+        #     model_path = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_10"
+        #     checkpoint_path_input = load_best_model(model_path)
 
-            check_points_info = {
-                "combined": checkpoint_path_input,
-                # "w": checkpoint_path_input_w,
-                # "v": checkpoint_path_input_v
-            }
+            # check_points_info = {
+            #     "combined": checkpoint_path_input,
+            #     # "w": checkpoint_path_input_w,
+            #     # "v": checkpoint_path_input_v
+            # }
 
-        # sys.exit(0)
 
-        checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_7/checkpoints/rc-classification-epoch=12-val_acc=1.00-val_loss=0.09.ckpt"
-        checkpoint_path_input_v = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_9/checkpoints/rc-classification-epoch=33-val_acc=0.98-val_loss=0.05.ckpt"
-        checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_6/checkpoints/rc-classification-epoch=19-val_acc=1.00-val_loss=0.03.ckpt"
-        checkpoint_path_input_w = "/home/frivas/devel/mio/github/2017-phd-francisco-rivas/deep_learning/python/networks/lightning_logs/version_8/checkpoints/rc-classification-epoch=34-val_acc=0.98-val_loss=0.06.ckpt"
-
-        self.device = "cuda:0"
-        # self.device = "cpu"
+        # self.device = "cuda:0"
+        self.device = "cpu"
 
         if "cuda" in self.device:
             map_location = {'cuda:0': 'cpu'}
@@ -178,13 +174,15 @@ class Brain(BrainBase):
 
         # print(motors_info)
 
+        w_mean, w_std, v_mean, v_std = net_config.norm_values
+
         if "v" in motors_info:
             v = motors_info["v"]
-            if v < 2:
-                v = 2
-            self.motors.sendV(v)
+            # if v < 2:
+            #     v = 2
+            self.motors.sendV(v * v_std + v_mean)
         if "w" in motors_info:
-            self.motors.sendW(motors_info["w"])
+            self.motors.sendW(motors_info["w"] * w_std + w_mean)
         return motors_info
 
     def execute_imp(self):

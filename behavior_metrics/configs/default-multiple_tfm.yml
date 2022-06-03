@@ -1,0 +1,86 @@
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/F1ROS/cameraL/image_raw'
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/F1ROS/odom'
+        Actuators:
+            Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/F1ROS/cmd_vel'
+                    MaxV: 3
+                    MaxW: 0.3
+        BrainPath: [
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py',
+                'brains/f1/brain_f1_onnx_frivas.py'
+        ]
+        PilotTimeCycle: 50
+        Parameters:
+            Model: [
+                    '/media/nas/PHD/lightning_logs/version_0',
+                    '/media/nas/PHD/lightning_logs/version_1',
+                    '/media/nas/PHD/lightning_logs/version_2',
+                    '/media/nas/PHD/lightning_logs/version_3',
+                    '/media/nas/PHD/lightning_logs/version_4',
+                    '/media/nas/PHD/lightning_logs/version_5',
+                    '/media/nas/PHD/lightning_logs/version_6',
+                    '/media/nas/PHD/lightning_logs/version_7',
+                    '/media/nas/PHD/lightning_logs/version_8'
+
+            ]
+        Type: 'f1'
+    Experiment:
+        Name: "Experiment name"
+        Description: "Experiment description"
+        Timeout: [120, 120, 120, 250, 350]
+        Repetitions: 10
+    Simulation:
+        World: [
+                '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/nurburgring_line.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch',
+                '/opt/jderobot/share/jderobot/gazebo/launch/montreal_line.launch'
+        ]
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: [
+                './perfect_bags/lap-montmelo.bag',
+                 './perfect_bags/lap-nurburgring.bag',
+                './perfect_bags/lap-simple-circuit.bag',
+                 './perfect_bags/lap-many-curves.bag',
+                './perfect_bags/lap-montreal.bag'
+        ]
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 2, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [0, 3, 3, 1]
+            Data: rgbimage

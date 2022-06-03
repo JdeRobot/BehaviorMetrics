@@ -16,20 +16,17 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-
-        BrainPath: 'brains/f1/brain_f1_keras.py'
+        BrainPath: 'brains/f1/brain_f1_torch-lstm.py'
         PilotTimeCycle: 50
         Parameters:
-            Model: '[model_name].h5'
-            ImageCropped: True
-            ImageSize: [ 100,50 ]
+            Model: 'model_lstm_pilotnet_torch.ckpt'
+            ImageCrop: True
+            ImageSize: [100,50]
             ImageNormalized: True
             PredictionsNormalized: True
-            GPU: True
-            ImageTranform: ''
         Type: 'f1'
     Simulation:
-        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+        World: '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

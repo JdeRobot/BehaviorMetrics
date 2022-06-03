@@ -20,8 +20,18 @@ MAGENTA = (255, 0, 255)
 TH = 500
 buf = np.ones(25)
 V = 4
+V_CURVE = 3.5
 V_MULT = 2
 v_mult = V_MULT
+
+import csv
+from utils.constants import DATASETS_DIR, ROOT_PATH
+
+GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
+
+from albumentations import (
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+)
 
 
 class Brain:
@@ -30,6 +40,7 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
+        self.config = config
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
@@ -37,6 +48,13 @@ class Brain:
         self.threshold_image_lock = threading.Lock()
         self.color_image_lock = threading.Lock()
         self.cont = 0
+        self.iteration = 0
+        # Save dataset
+        # header = ['image_name', 'v', 'w']
+        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'w', encoding='UTF8') as f:
+        #    writer = csv.writer(f)
+        #    writer.writerow(header)
+
         time.sleep(2)
 
     def update_frame(self, frame_id, data):
@@ -67,7 +85,7 @@ class Brain:
         if np.count_nonzero(img[index]) > 0:
             left = np.min(np.nonzero(img[index]))
             right = np.max(np.nonzero(img[index]))
-            mid = np.abs(left - right)/2 + left
+            mid = np.abs(left - right) / 2 + left
         return int(mid)
 
     def execute(self):
@@ -82,15 +100,19 @@ class Brain:
         # red_lower = (0, 255, 15)
         red_lower = (0, 110, 15)
         # kernel = np.ones((8, 8), np.uint8)
-        
-        
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
 
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
+
+        # Save dataset
+        # rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # cv2.imwrite(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/' + str(self.iteration) + '.png', rgb_image)
+
         image_cropped = image[230:, :, :]
         image_blur = cv2.GaussianBlur(image_cropped, (27, 27), 0)
-        
+
         image_hsv = cv2.cvtColor(image_blur, cv2.COLOR_RGB2HSV)
         image_mask = cv2.inRange(image_hsv, red_lower, red_upper)
         # image_eroded = cv2.erode(image_mask, kernel, iterations=3)
@@ -99,7 +121,7 @@ class Brain:
         self.update_frame('frame_0', image)
 
         rows, cols = image_mask.shape
-        rows = rows - 1     # para evitar desbordamiento
+        rows = rows - 1  # para evitar desbordamiento
 
         alt = 0
         ff = cv2.reduce(image_mask, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32S)
@@ -111,7 +133,7 @@ class Brain:
             if i == 0:
                 index = alt
             else:
-                index = rows//(2*i)
+                index = rows // (2 * i)
             points.append((self.getPoint(index, image_mask), index))
 
         points.append((self.getPoint(rows, image_mask), rows))
@@ -122,9 +144,9 @@ class Brain:
             kp = 0.001
             kd = 0.004
             ki = 0
-            cv2.circle(image_mask, (0, cols//2), 6, RED, -1)
+            cv2.circle(image_mask, (0, cols // 2), 6, RED, -1)
 
-            if image_cropped[0, cols//2, 0] < 170 and v > 8:
+            if image_cropped[0, cols // 2, 0] < 170 and v > 8:
                 accel = -0.4
             else:
                 accel = 0.3
@@ -132,13 +154,15 @@ class Brain:
             v_mult = v_mult + accel
             if v_mult > 6:
                 v_mult = 6
+            v = V * v_mult
         else:
             kp = 0.011  # 0.018
             kd = 0.011  # 0.011
             ki = 0
             v_mult = V_MULT
+            v = V_CURVE * v_mult
 
-        new_error = cols//2 - points[0][0]
+        new_error = cols // 2 - points[0][0]
 
         proportional = kp * new_error
         error_diff = new_error - error
@@ -148,9 +172,14 @@ class Brain:
         integral = ki * integral
 
         w = proportional + derivative + integral
-        v = V * v_mult
         self.motors.sendW(w)
         self.motors.sendV(v)
+
+        # Save dataset
+        # iteration_data = [str(self.iteration) + '.png', v, w]
+        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'a', encoding='UTF8') as f:
+        #    writer = csv.writer(f)
+        #    writer.writerow(iteration_data)
 
         image_mask = cv2.cvtColor(image_mask, cv2.COLOR_GRAY2RGB)
         cv2.circle(image_mask, points[0], 6, GREEN, -1)
@@ -158,10 +187,11 @@ class Brain:
         cv2.circle(image_mask, points[2], 6, GREEN, -1)
         cv2.circle(image_mask, points[3], 6, GREEN, -1)
         cv2.putText(image_mask, 'w: {:+.2f} v: {}'.format(w, v),
-                                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
         cv2.putText(image_mask, 'collinearU: {} collinearD: {}'.format(l, l2),
-                                (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
+                    (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
         cv2.putText(image_mask, 'actual: {}'.format(current),
-                                (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
         self.update_frame('frame_1', image_mask)
+        self.iteration += 1

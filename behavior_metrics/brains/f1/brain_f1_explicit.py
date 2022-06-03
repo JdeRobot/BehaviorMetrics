@@ -12,6 +12,7 @@ class Brain:
         self.camera = sensors.get_camera('camera_0')
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
+        self.config = config
 
         self.x_middle_left_above = 0
         self.deviation_left = 0
@@ -93,7 +94,7 @@ class Brain:
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
-
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
         self.update_frame('frame_0', image)
         # cv2.imwrite(PRETRAINED_MODELS + 'montmelo_data/' + str(self.iteration) + '.jpg', image)
         # self.iteration += 1

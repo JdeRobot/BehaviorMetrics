@@ -7,11 +7,18 @@ import numpy as np
 
 if __name__ == "__main__":
     experiment_main_file = "/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/configs/default-multiple4.yml"
+    experiment_main_file = "/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/configs/default-multiple_NEW.yml"
+    experiment_main_file = "/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/configs/default-multiple_test.yml"
 
     with open(experiment_main_file, 'r') as f:
         doc = yaml.load(f)
 
-    stats = json.load(open("/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis/stats.json"))
+
+    json_file = "/media/nas/PHD/bags/bag_analysis_tfm/stats.json"
+    json_file = "/home/frivas/devel/mio/github/BehaviorMetrics/behavior_metrics/bag_analysis/stats.json"
+
+
+    stats = json.load(open(json_file))
 
     n_models = len(doc['Behaviors']['Robot']['Parameters']['Model'])
 
@@ -53,6 +60,8 @@ if __name__ == "__main__":
             current_stat["apply_vertical_flip"] = model_info[model_name].get("apply_vertical_flip", True)
             current_stat["non_common_samples_mult_factor"] = model_info[model_name].get("non_common_samples_mult_factor", 0)
             current_stat["loss_reduction"] = model_info[model_name].get("loss_reduction", "mean")
+            current_stat["normalize_input"] = model_info[model_name].get("normalize_input", False)
+
 
 
             acc = {"v": 0, "w": 0}
@@ -93,9 +102,10 @@ if __name__ == "__main__":
             all_data_all_list_of_dict += current_experiment_runs
             #computing mean value for each experiment
             for current_key in current_experiment_runs[0]:
-                if isinstance(current_experiment_runs[0][current_key], str) or isinstance(current_experiment_runs[0][current_key], int):
+                if isinstance(current_experiment_runs[0][current_key], str) or isinstance(current_experiment_runs[0][current_key], int) or \
+                        current_key in ["acc_v", "acc_w", "acc", "mean_brain_iterations_real_time", "brain_iterations_frequency_real_time", "target_brain_iterations_real_time", "brain_iterations_frequency_simulated_time",
+                                        "target_brain_iterations_simulated_time","mean_inference_time",	"frame_rate", "mean_brain_iterations_simulated_time", "real_time_factor" ]:
                     pass
-
                 else:
                     current_stat[current_key] = np.mean([x[current_key] for x in current_experiment_runs if x["lap_seconds"] > 0])
 

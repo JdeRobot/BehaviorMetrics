@@ -35,12 +35,18 @@ from rosgraph_msgs.msg import Clock
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
     # Start Behavior Metrics app
+    my_count = 0
     for world_counter, world in enumerate(app_configuration.current_world):
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
+                # if my_count < 238:
+                #     print(my_count)
+                #     my_count += 1
+                #     continue
+
                 tmp_world_generator(world, app_configuration.stats_perfect_lap[world_counter],
-                                       app_configuration.real_time_update_rate, randomize=randomize, gui=True,
+                                       app_configuration.real_time_update_rate, randomize=False, gui=False,
                                        launch=True)
                 pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
@@ -109,7 +115,10 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 os.remove('tmp_world.launch')
                 while not controller.pilot.execution_completed:
                     time.sleep(1)
-    controller.stop_pilot()
+    try:
+        controller.stop_pilot()
+    except:
+        pass
 
 
 def is_trapped(old_point, new_point):

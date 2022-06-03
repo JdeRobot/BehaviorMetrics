@@ -102,7 +102,7 @@ def is_gzclient_open():
     """
 
     try:
-        ps_output = subprocess.check_output(["ps", "-Af"]).strip("\n")
+        ps_output = subprocess.check_output(["ps", "-Af"], encoding='utf8').strip("\n")
     except subprocess.CalledProcessError as ce:
         logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
         sys.exit(-1)

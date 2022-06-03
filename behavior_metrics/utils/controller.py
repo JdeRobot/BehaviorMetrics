@@ -226,17 +226,28 @@ class Controller:
 
         perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.experiment_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints,
-                                                          circuit_diameter)
+            self.experiment_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
+            self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
+
+            try:
+                self.save_metrics(first_image)
+            except rosbag.bag.ROSBagException:
+                logger.info("Bag was empty, Try Again")
+
+
         else:
             self.experiment_metrics = {'percentage_completed': 0, 'average_speed': 0, 'lap_seconds': 0,
                                        'circuit_diameter': 0, 'position_deviation_mae': 0,
-                                       'position_deviation_total_err': 0, 'experiment_total_simulated_time':0, 'completed_distance':0 }
-
-        self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
+                                       'position_deviation_total_err': 0, 'experiment_total_simulated_time': 0,
+                                       'completed_distance': 0}
         logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time))
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
-        self.save_metrics(first_image)
+        
+        time_str = time.strftime("%Y%m%d-%H%M%S")
+        
+        with open(time_str + '.json', 'w') as f:
+            json.dump(self.experiment_metrics, f)
+        logger.info("Metrics stored in JSON file")
 
         logger.info("Stopping metrics bag recording")
 
@@ -262,9 +273,12 @@ class Controller:
             brain {srt} -- Brain to be reloadaed.
         """
         logger.info("Reloading brain... {}".format(brain))
-
+        print("a")
         self.pause_pilot()
+        print("b")
         self.pilot.reload_brain(brain, model)
+        print("c")
+
 
     # Helper functions (connection with logic)
 
