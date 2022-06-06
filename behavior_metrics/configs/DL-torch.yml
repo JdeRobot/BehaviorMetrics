@@ -22,11 +22,6 @@ Behaviors:
             Model: 'model_pilotnet_torch_extreme.ckpt'
             ImageCrop: True
         Type: 'f1'
-    Experiment:
-        Name: "Experiment name"
-        Description: "Experiment description"
-        Timeout: 30
-        Repetitions: 2
     Simulation:
         World: '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch'
     Dataset:
