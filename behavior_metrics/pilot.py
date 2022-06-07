@@ -32,7 +32,6 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-
 class Pilot(threading.Thread):
     """This class handles the robot and its brain.
 
@@ -212,6 +211,22 @@ class Pilot(threading.Thread):
         return False
 
     def calculate_metrics(self, experiment_metrics):
+        print('****************')
+        print('****************')
+        print('****************')
+        print('****************')
+        print('****************')
+        print(self.brains.active_brain.suddenness_distance)
+        print('****************')
+        print('****************')
+        print('****************')
+        print('****************')
+        print(sum(self.brains.active_brain.suddenness_distance) / len(self.brains.active_brain.suddenness_distance))
+        print('****************')
+        print('****************')
+        print('****************')
+        print('****************')
+
         if hasattr(self.brains.active_brain, 'inference_times'):
             self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
             mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)

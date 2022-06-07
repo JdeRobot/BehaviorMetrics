@@ -47,6 +47,12 @@ class Brain:
         self.inference_times = []
         self.config = config
 
+        self.suddenness_distance = []
+        self.previous_timestamp = 0
+        self.previous_image = 0
+        self.previous_v = None
+        self.previous_w = None
+
         self.third_image = []
 
         if self.config['GPU'] is False:
@@ -96,6 +102,16 @@ class Brain:
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
         self.cont += 1
+        '''
+        if type(self.previous_image) == int:
+            self.previous_image = self.camera.getImage().data
+            self.previous_timestamp = timestamp
+        if (timestamp - self.previous_timestamp  >= 0.085):
+            #print(timestamp)
+            self.previous_image = self.camera.getImage().data
+            self.previous_timestamp = timestamp
+        image = self.previous_image
+        '''
 
         image = self.camera.getImage().data
         if self.cont == 1:
@@ -163,6 +179,15 @@ class Brain:
                 if prediction_w != '' and prediction_w != '':
                     self.motors.sendV(prediction_v)
                     self.motors.sendW(prediction_w)
+
+                if self.previous_v != None:
+                    a = np.array((prediction[0][0], prediction[0][1]))
+                    b = np.array((self.previous_v, self.previous_w))
+                    distance = np.linalg.norm(a-b)
+                    self.suddenness_distance.append(distance)
+                self.previous_v = prediction[0][0]
+                self.previous_w = prediction[0][1]
+
 
         except Exception as err:
             print(err)

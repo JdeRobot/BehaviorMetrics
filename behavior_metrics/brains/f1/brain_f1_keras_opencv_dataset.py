@@ -46,6 +46,10 @@ class Brain:
         self.inference_times = []
         self.config = config
 
+        self.suddenness_distance = []
+        self.previous_v = None
+        self.previous_w = None
+
         if self.config['GPU'] is False:
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
         import tensorflow as tf
@@ -71,7 +75,6 @@ class Brain:
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
         self.handler.update_frame(frame_id, data)
-
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -117,6 +120,14 @@ class Brain:
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+
+            if self.previous_v != None:
+                a = np.array((prediction[0][0], prediction[0][1]))
+                b = np.array((self.previous_v, self.previous_w))
+                distance = np.linalg.norm(a - b)
+                self.suddenness_distance.append(distance)
+            self.previous_v = prediction[0][0]
+            self.previous_w = prediction[0][1]
 
             # GradCAM from image
             i = np.argmax(prediction[0])

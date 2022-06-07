@@ -49,12 +49,20 @@ class Brain:
         self.color_image_lock = threading.Lock()
         self.cont = 0
         self.iteration = 0
-        # Save dataset
-        # header = ['image_name', 'v', 'w']
-        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'w', encoding='UTF8') as f:
-        #    writer = csv.writer(f)
-        #    writer.writerow(header)
 
+        self.previous_timestamp = 0
+        self.previous_image = 0
+        self.previous_v = None
+        self.previous_w = None
+        self.suddenness_distance = []
+
+        # Save dataset
+        '''
+        header = ['image_name', 'v', 'w', 'timestamp']
+        with open(GENERATED_DATASETS_DIR + 'difficult_situations_01_06_2022/many_curves_4/data.csv', 'w', encoding='UTF8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+        '''
         time.sleep(2)
 
     def update_frame(self, frame_id, data):
@@ -100,16 +108,34 @@ class Brain:
         # red_lower = (0, 255, 15)
         red_lower = (0, 110, 15)
         # kernel = np.ones((8, 8), np.uint8)
+        '''
+        if type(self.previous_image) == int:
+            self.previous_image = self.camera.getImage().data
+            self.previous_timestamp = timestamp
+        if (timestamp - self.previous_timestamp >= 0.085):
+            self.previous_image = self.camera.getImage().data
+        '''
+        image = self.previous_image
+
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
             time.sleep(3)
 
+        '''
+        save_dataset = False
+        if (timestamp - self.previous_timestamp  >= 0.085):
+        #if (timestamp - self.previous_timestamp  >= 0.045):
+            #print(timestamp)
+            self.previous_timestamp = timestamp
+            save_dataset = True
+            # Save dataset
+            rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(GENERATED_DATASETS_DIR + 'difficult_situations_01_06_2022/many_curves_4/' + str(self.iteration) + '.png', rgb_image)
+        '''
         image = self.handler.transform_image(image, self.config['ImageTranform'])
-
         # Save dataset
         # rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # cv2.imwrite(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/' + str(self.iteration) + '.png', rgb_image)
-
+        # cv2.imwrite(GENERATED_DATASETS_DIR + 'montreal_12_05_2022_opencv_anticlockwise_1/' + str(self.iteration) + '.png', rgb_image)
         image_cropped = image[230:, :, :]
         image_blur = cv2.GaussianBlur(image_cropped, (27, 27), 0)
 
@@ -175,12 +201,26 @@ class Brain:
         self.motors.sendW(w)
         self.motors.sendV(v)
 
-        # Save dataset
-        # iteration_data = [str(self.iteration) + '.png', v, w]
-        # with open(GENERATED_DATASETS_DIR + 'montmelo_line_opencv/data.csv', 'a', encoding='UTF8') as f:
-        #    writer = csv.writer(f)
-        #    writer.writerow(iteration_data)
+        v = np.interp(np.array([v]), (6.5, 24), (0, 1))[0]
+        w = np.interp(np.array([w]), (-7.1, 7.1), (0, 1))[0]
+        if self.previous_v != None:
+            a = np.array((v, w))
+            b = np.array((self.previous_v, self.previous_w))
+            distance = np.linalg.norm(a - b)
+            self.suddenness_distance.append(distance)
+        self.previous_v = v
+        self.previous_w = w
 
+        '''
+        if (save_dataset):
+            # Save dataset
+            iteration_data = [str(self.iteration) + '.png', v, w, self.previous_timestamp]
+            with open(GENERATED_DATASETS_DIR + 'difficult_situations_01_06_2022/many_curves_4/data.csv', 'a', encoding='UTF8') as f:
+                writer = csv.writer(f)
+                writer.writerow(iteration_data)
+            print(self.iteration)
+            self.iteration += 1
+        '''
         image_mask = cv2.cvtColor(image_mask, cv2.COLOR_GRAY2RGB)
         cv2.circle(image_mask, points[0], 6, GREEN, -1)
         cv2.circle(image_mask, points[1], 6, GREEN, -1)  # punto central rows/2
@@ -194,4 +234,4 @@ class Brain:
                     (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
         self.update_frame('frame_1', image_mask)
-        self.iteration += 1
+
