@@ -47,9 +47,10 @@ class Brain:
         self.inference_times = []
         self.config = config
 
+        # self.previous_timestamp = 0
+        # self.previous_image = 0
+
         self.suddenness_distance = []
-        self.previous_timestamp = 0
-        self.previous_image = 0
         self.previous_v = None
         self.previous_w = None
 

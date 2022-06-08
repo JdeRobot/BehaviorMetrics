@@ -50,8 +50,9 @@ class Brain:
         self.cont = 0
         self.iteration = 0
 
-        self.previous_timestamp = 0
-        self.previous_image = 0
+        #self.previous_timestamp = 0
+        #self.previous_image = 0
+
         self.previous_v = None
         self.previous_w = None
         self.suddenness_distance = []
