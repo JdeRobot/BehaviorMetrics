@@ -37,6 +37,8 @@ class StatsWindow(QMainWindow):
         self.layout.addWidget(self.mean_inference_time_label)
         self.frame_rate_label = QLabel("Frame rate -> " + str(self.controller.experiment_metrics['frame_rate']) + 'fps')
         self.layout.addWidget(self.frame_rate_label)
+        self.suddenness_distance = QLabel("Suddenness distance -> " + str(self.controller.experiment_metrics['suddenness_distance']))
+        self.layout.addWidget(self.suddenness_distance)
         self.gpu_inference_label = QLabel("GPU inference -> " + str(self.controller.experiment_metrics['gpu_inference']))
         self.layout.addWidget(self.gpu_inference_label)
         self.mean_brain_iterations_simulated_time_label = QLabel("Mean brain iterations simulated time -> " + str(self.controller.experiment_metrics['mean_brain_iterations_simulated_time']))
