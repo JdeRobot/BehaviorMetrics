@@ -116,7 +116,7 @@ class Brain:
         if (timestamp - self.previous_timestamp >= 0.085):
             self.previous_image = self.camera.getImage().data
         '''
-        image = self.previous_image
+        #image = self.previous_image
 
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
