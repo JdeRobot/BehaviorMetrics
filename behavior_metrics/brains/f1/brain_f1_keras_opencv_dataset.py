@@ -83,12 +83,13 @@ class Brain:
 
         image = self.camera.getImage().data
         # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        base_image = image
 
         if self.cont == 1:
             self.first_image = image
 
         image = self.handler.transform_image(image, self.config['ImageTranform'])
-        self.update_frame('frame_0', image)
+        #self.update_frame('frame_0', image)
 
         try:
             if self.config['ImageCropped']:
@@ -128,6 +129,18 @@ class Brain:
                 self.suddenness_distance.append(distance)
             self.previous_v = prediction[0][0]
             self.previous_w = prediction[0][1]
+
+            # show image in gui -> frame_0
+            import math
+            x1, y1 = int(base_image.shape[:2][1]/2), base_image.shape[:2][0] # ancho, alto
+            length = 200
+            angle = (90 + int(math.degrees(-prediction_w))) * 3.14 / 180.0
+            x2 = int(x1 - length * math.cos(angle))
+            y2 = int(y1 - length * math.sin(angle))
+
+            line_thickness = 2
+            cv2.line(base_image, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
+            self.update_frame('frame_0', base_image)
 
             # GradCAM from image
             i = np.argmax(prediction[0])
