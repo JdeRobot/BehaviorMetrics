@@ -115,8 +115,8 @@ class Brain:
             self.previous_timestamp = timestamp
         if (timestamp - self.previous_timestamp >= 0.085):
             self.previous_image = self.camera.getImage().data
+        image = self.previous_image
         '''
-        #image = self.previous_image
 
         image = self.camera.getImage().data
         if image.shape == (3, 3, 3):
@@ -143,9 +143,6 @@ class Brain:
         image_hsv = cv2.cvtColor(image_blur, cv2.COLOR_RGB2HSV)
         image_mask = cv2.inRange(image_hsv, red_lower, red_upper)
         # image_eroded = cv2.erode(image_mask, kernel, iterations=3)
-
-        # show image in gui -> frame_0
-        self.update_frame('frame_0', image)
 
         rows, cols = image_mask.shape
         rows = rows - 1  # para evitar desbordamiento
@@ -201,6 +198,17 @@ class Brain:
         w = proportional + derivative + integral
         self.motors.sendW(w)
         self.motors.sendV(v)
+
+        # show image in gui -> frame_0
+        import math
+        x1, y1 = int(image.shape[:2][1] / 2), image.shape[:2][0]  # ancho, alto
+        length = 200
+        angle = (90 + int(math.degrees(-w))) * 3.14 / 180.0
+        x2 = int(x1 - length * math.cos(angle))
+        y2 = int(y1 - length * math.sin(angle))
+        line_thickness = 2
+        cv2.line(image, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
+        self.update_frame('frame_0', image)
 
         v = np.interp(np.array([v]), (6.5, 24), (0, 1))[0]
         w = np.interp(np.array([w]), (-7.1, 7.1), (0, 1))[0]
