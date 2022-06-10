@@ -57,7 +57,7 @@ class Brain:
         self.third_image = []
 
         if self.config['GPU'] is False:
-            os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+            os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
         self.gpu_inference = True if tf.test.gpu_device_name() else False
 
@@ -72,13 +72,23 @@ class Brain:
             print("- Models path: " + PRETRAINED_MODELS)
             print("- Model: " + str(model))
 
-    def update_frame(self, frame_id, data):
+    def update_frame(self, frame_id, data, angular_speed=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
+        if angular_speed:
+            import math
+            x1, y1 = int(data.shape[:2][1] / 2), data.shape[:2][0]  # ancho, alto
+            length = 200
+            angle = (90 + int(math.degrees(-angular_speed))) * 3.14 / 180.0
+            x2 = int(x1 - length * math.cos(angle))
+            y2 = int(y1 - length * math.sin(angle))
+
+            line_thickness = 2
+            cv2.line(data, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
         self.handler.update_frame(frame_id, data)
 
     def check_center(self, position_x):
@@ -115,9 +125,10 @@ class Brain:
         '''
 
         image = self.camera.getImage().data
+        base_image = image
         if self.cont == 1:
             self.first_image = image
-        image = self.handler.transform_image(image,self.config['ImageTranform'])
+        image = self.handler.transform_image(image, self.config['ImageTranform'])
         try:
             if self.config['ImageCropped']:
                 image = image[240:480, 0:640]
@@ -125,7 +136,7 @@ class Brain:
                 img = cv2.resize(image, (self.config['ImageSize'][0], self.config['ImageSize'][1]))
             else:
                 img = image
-            self.update_frame('frame_0', img)
+            # sself.update_frame('frame_0', img)
             if self.config['ImageNormalized']:
                 AUGMENTATIONS_TEST = Compose([
                     Normalize()
@@ -170,10 +181,9 @@ class Brain:
                 start_time = time.time()
                 prediction = self.net.predict(img)
                 self.inference_times.append(time.time() - start_time)
-                #prediction = prediction[0]
                 if self.config['PredictionsNormalized']:
-                    prediction_v = prediction[0][0]*(24 - (6.5)) + (6.5)
-                    prediction_w = prediction[0][1]*(7.1 - (-7.1)) + (-7.1)
+                    prediction_v = prediction[0][0] * (24 - (6.5)) + (6.5)
+                    prediction_w = prediction[0][1] * (7.1 - (-7.1)) + (-7.1)
                 else:
                     prediction_v = prediction[0][0]
                     prediction_w = prediction[0][1]
@@ -181,10 +191,12 @@ class Brain:
                     self.motors.sendV(prediction_v)
                     self.motors.sendW(prediction_w)
 
+                self.update_frame('frame_0', base_image, prediction_w)
+
                 if self.previous_v != None:
                     a = np.array((prediction[0][0], prediction[0][1]))
                     b = np.array((self.previous_v, self.previous_w))
-                    distance = np.linalg.norm(a-b)
+                    distance = np.linalg.norm(a - b)
                     self.suddenness_distance.append(distance)
                 self.previous_v = prediction[0][0]
                 self.previous_w = prediction[0][1]
