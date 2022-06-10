@@ -72,13 +72,23 @@ class Brain:
             print("- Models path: " + PRETRAINED_MODELS)
             print("- Model: " + str(model))
 
-    def update_frame(self, frame_id, data):
+    def update_frame(self, frame_id, data, angular_speed=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
+        if angular_speed:
+            import math
+            x1, y1 = int(data.shape[:2][1] / 2), data.shape[:2][0]  # ancho, alto
+            length = 200
+            angle = (90 + int(math.degrees(-angular_speed))) * 3.14 / 180.0
+            x2 = int(x1 - length * math.cos(angle))
+            y2 = int(y1 - length * math.sin(angle))
+
+            line_thickness = 2
+            cv2.line(data, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
         self.handler.update_frame(frame_id, data)
 
     def check_center(self, position_x):
@@ -181,17 +191,7 @@ class Brain:
                     self.motors.sendV(prediction_v)
                     self.motors.sendW(prediction_w)
 
-                # show image in gui -> frame_0
-                import math
-                x1, y1 = int(base_image.shape[:2][1] / 2), base_image.shape[:2][0]  # ancho, alto
-                length = 200
-                angle = (90 + int(math.degrees(-prediction_w))) * 3.14 / 180.0
-                x2 = int(x1 - length * math.cos(angle))
-                y2 = int(y1 - length * math.sin(angle))
-
-                line_thickness = 2
-                cv2.line(base_image, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
-                self.update_frame('frame_0', base_image)
+                self.update_frame('frame_0', base_image, prediction_w)
 
                 if self.previous_v != None:
                     a = np.array((prediction[0][0], prediction[0][1]))
