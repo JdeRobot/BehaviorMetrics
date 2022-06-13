@@ -21,6 +21,7 @@ Behaviors:
         Parameters:
             Model: 'model_pilotnet_torch_extreme.ckpt'
             ImageCrop: True
+            GPU: True
         Type: 'f1'
     Experiment:
         Name: "Experiment name"
