@@ -264,4 +264,3 @@ class Brain:
                     (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
         self.update_frame('frame_1', image_mask)
-

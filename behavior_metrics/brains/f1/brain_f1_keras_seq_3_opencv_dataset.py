@@ -25,7 +25,6 @@ from utils.gradcam.gradcam import GradCAM
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
 
 
-
 class Brain:
     """Specific brain for the f1 robot. See header."""
 
