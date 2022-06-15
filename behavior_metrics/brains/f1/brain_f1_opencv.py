@@ -51,7 +51,7 @@ class Brain:
 
         self.previous_v = None
         self.previous_w = None
-        self.previous_w_2 = None
+        self.previous_w_normalized = None
         self.suddenness_distance = []
 
         # Save dataset
@@ -225,7 +225,7 @@ class Brain:
         self.motors.sendV(v)
 
         self.update_frame('frame_0', image)
-        current_w = w
+        current_w_normalized = w
 
         v = np.interp(np.array([v]), (6.5, 24), (0, 1))[0]
         w = np.interp(np.array([w]), (-7.1, 7.1), (0, 1))[0]
@@ -237,9 +237,9 @@ class Brain:
         self.previous_v = v
         self.previous_w = w
 
-        if self.previous_w_2 != None and distance:
-            self.update_frame('frame_2', image, current_w, self.previous_w_2, str(round(distance, 4)))
-        self.previous_w_2 = current_w
+        if self.previous_w_normalized != None:
+            self.update_frame('frame_2', image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
+        self.previous_w_normalized = current_w_normalized
 
         '''
         if (save_dataset):
