@@ -1,18 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import csv
+import cv2
+import math
+import numpy as np
 import threading
 import time
+from albumentations import (
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+)
+from utils.constants import DATASETS_DIR, ROOT_PATH
 
-import cv2
-import numpy as np
-
-time_cycle = 80
 error = 0
 integral = 0
 v = 0
 w = 0
 current = 'straight'
-time_cycle = 80
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -24,14 +27,7 @@ V_CURVE = 3.5
 V_MULT = 2
 v_mult = V_MULT
 
-import csv
-from utils.constants import DATASETS_DIR, ROOT_PATH
-
 GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
-
-from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
-)
 
 
 class Brain:
@@ -55,6 +51,7 @@ class Brain:
 
         self.previous_v = None
         self.previous_w = None
+        self.previous_w_normalized = None
         self.suddenness_distance = []
 
         # Save dataset
@@ -66,23 +63,35 @@ class Brain:
         '''
         time.sleep(2)
 
-    def update_frame(self, frame_id, data, angular_speed=None):
+    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
-        if angular_speed:
-            import math
+        if current_angular_speed:
+            data = np.array(data, copy=True)
+
             x1, y1 = int(data.shape[:2][1] / 2), data.shape[:2][0]  # ancho, alto
             length = 200
-            angle = (90 + int(math.degrees(-angular_speed))) * 3.14 / 180.0
+            angle = (90 + int(math.degrees(-current_angular_speed))) * 3.14 / 180.0
             x2 = int(x1 - length * math.cos(angle))
             y2 = int(y1 - length * math.sin(angle))
 
-            line_thickness = 2
+            line_thickness = 10
             cv2.line(data, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
+            length = 150
+            angle = (90 + int(math.degrees(-previous_angular_speed))) * 3.14 / 180.0
+            x2 = int(x1 - length * math.cos(angle))
+            y2 = int(y1 - length * math.sin(angle))
+
+            cv2.line(data, (x1, y1), (x2, y2), (255, 0, 0), thickness=line_thickness)
+            if float(distance) > 0.01:
+                cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            else:
+                cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
         self.handler.update_frame(frame_id, data)
 
     def collinear3(self, x1, y1, x2, y2, x3, y3):
@@ -215,7 +224,8 @@ class Brain:
         self.motors.sendW(w)
         self.motors.sendV(v)
 
-        self.update_frame('frame_0', image, w)
+        self.update_frame('frame_0', image)
+        current_w_normalized = w
 
         v = np.interp(np.array([v]), (6.5, 24), (0, 1))[0]
         w = np.interp(np.array([w]), (-7.1, 7.1), (0, 1))[0]
@@ -226,6 +236,10 @@ class Brain:
             self.suddenness_distance.append(distance)
         self.previous_v = v
         self.previous_w = w
+
+        if self.previous_w_normalized != None:
+            self.update_frame('frame_2', image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
+        self.previous_w_normalized = current_w_normalized
 
         '''
         if (save_dataset):
@@ -250,4 +264,3 @@ class Brain:
                     (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 2, cv2.LINE_AA)
 
         self.update_frame('frame_1', image_mask)
-
