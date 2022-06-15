@@ -9,17 +9,17 @@
 
 """
 
-import tensorflow as tf
-import numpy as np
 import cv2
-import time
+import math
+import numpy as np
 import os
-
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
-from os import path
+import tensorflow as tf
+import time
 from albumentations import (
     Compose, Normalize
 )
+from os import path
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.gradcam.gradcam import GradCAM
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
@@ -49,6 +49,7 @@ class Brain:
         self.suddenness_distance = []
         self.previous_v = None
         self.previous_w = None
+        self.previous_w_normalized = None
 
         if self.config['GPU'] is False:
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -67,23 +68,35 @@ class Brain:
             print("- Models path: " + PRETRAINED_MODELS)
             print("- Model: " + str(model))
 
-    def update_frame(self, frame_id, data, angular_speed=None):
+    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
-        if angular_speed:
-            import math
+        if current_angular_speed:
+            data = np.array(data, copy=True)
+
             x1, y1 = int(data.shape[:2][1] / 2), data.shape[:2][0]  # ancho, alto
             length = 200
-            angle = (90 + int(math.degrees(-angular_speed))) * 3.14 / 180.0
+            angle = (90 + int(math.degrees(-current_angular_speed))) * 3.14 / 180.0
             x2 = int(x1 - length * math.cos(angle))
             y2 = int(y1 - length * math.sin(angle))
 
-            line_thickness = 2
+            line_thickness = 10
             cv2.line(data, (x1, y1), (x2, y2), (0, 0, 0), thickness=line_thickness)
+            length = 150
+            angle = (90 + int(math.degrees(-previous_angular_speed))) * 3.14 / 180.0
+            x2 = int(x1 - length * math.cos(angle))
+            y2 = int(y1 - length * math.sin(angle))
+
+            cv2.line(data, (x1, y1), (x2, y2), (255, 0, 0), thickness=line_thickness)
+            if float(distance) > 0.01:
+                cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            else:
+                cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
         self.handler.update_frame(frame_id, data)
 
     def execute(self):
@@ -99,7 +112,7 @@ class Brain:
             self.first_image = image
 
         image = self.handler.transform_image(image, self.config['ImageTranform'])
-        #self.update_frame('frame_0', image)
+        self.update_frame('frame_0', image)
 
         try:
             if self.config['ImageCropped']:
@@ -132,6 +145,7 @@ class Brain:
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
 
+            current_w_normalized = prediction_w
             if self.previous_v != None:
                 a = np.array((prediction[0][0], prediction[0][1]))
                 b = np.array((self.previous_v, self.previous_w))
@@ -140,7 +154,9 @@ class Brain:
             self.previous_v = prediction[0][0]
             self.previous_w = prediction[0][1]
 
-            self.update_frame('frame_0', base_image, prediction_w)
+            if self.previous_w_normalized != None:
+                self.update_frame('frame_2', base_image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
+            self.previous_w_normalized = current_w_normalized
 
             # GradCAM from image
             i = np.argmax(prediction[0])

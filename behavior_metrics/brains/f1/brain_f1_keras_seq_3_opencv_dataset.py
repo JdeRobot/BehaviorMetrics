@@ -9,23 +9,22 @@
 
 """
 
-import numpy as np
-
 import cv2
-import time
+import math
+import numpy as np
 import os
 import tensorflow as tf
-
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
-from os import path
+import time
 from albumentations import (
     Compose, Normalize
 )
+from os import path
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.gradcam.gradcam import GradCAM
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
 
-import math
+
 
 class Brain:
     """Specific brain for the f1 robot. See header."""
