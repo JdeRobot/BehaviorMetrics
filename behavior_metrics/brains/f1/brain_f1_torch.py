@@ -110,7 +110,7 @@ class Brain:
             with torch.no_grad():
                 image = self.transformations(img).unsqueeze(0)
                 image = FLOAT(image).to(self.device)
-                prediction = self.net(image).cpu().numpy()
+                prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy() 
             self.inference_times.append(time.time() - start_time)
             # prediction_v = prediction[0][0]*6.5
             prediction_v = prediction[0][0]
