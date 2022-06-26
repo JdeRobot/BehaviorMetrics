@@ -25,6 +25,7 @@ import rospy
 import random
 import sys
 import math
+import shutil
 
 import numpy as np
 
@@ -33,8 +34,8 @@ from utils import environment
 from utils.logger import logger
 
 
-def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
-                           launch=False):
+def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, camera_configuration,
+                        randomize=False, gui=False, launch=False):
     environment.close_gazebo()
     tree = ET.parse(current_world)
     root = tree.getroot()
@@ -98,7 +99,17 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
     real_time_update_rate_element = ET.SubElement(physics_element, 'real_time_update_rate')
     real_time_update_rate_element.text = str(real_time_update_rate)  # 1000 is the default value
 
+    # Make Model based Changes
+    tmp_model_generator(camera_configuration)
+    for child_1 in root[0]:
+        if child_1.tag == 'include':
+            for child_2 in child_1:
+                if child_2.text == 'model://f1_renault':
+                    child_2.text = 'model://f1_temp'
+                    break
+    
     tree.write('tmp_world.launch')
+    
     if launch:
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
@@ -111,3 +122,38 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
 
         # give gazebo some time to initialize
         time.sleep(5)
+        
+
+def tmp_model_generator(camera_config):
+    # Create folder for Model
+    try:
+        os.mkdir('/opt/jderobot/share/jderobot/gazebo/models/f1_temp')
+    except FileExistsError:
+        pass
+    
+    model_dir = '/opt/jderobot/share/jderobot/gazebo/models/f1_renault'
+    
+    # Copy model files
+    shutil.copyfile(model_dir + '/model.config', '/opt/jderobot/share/jderobot/gazebo/models/f1_temp/model.config')
+    shutil.copyfile(model_dir + '/model.sdf', '/opt/jderobot/share/jderobot/gazebo/models/f1_temp/model.sdf')
+    
+    # Make changes to model.sdf
+    tree = ET.parse('/opt/jderobot/share/jderobot/gazebo/models/f1_temp/model.sdf')
+    root = tree.getroot()
+    
+    # Change model name
+    root[0].set('name', 'f1_temp')
+    
+    # Change Pose
+    for child in root[0][2]:
+        if ('name' in child.attrib) and \
+           (child.attrib['name'] == 'left_cam' or child.attrib['name'] == 'cam_f1_left'):
+            pose = [float(p) for p in child[0].text.split(' ')]
+            pose[1] = pose[1] + camera_config['Translation']
+            pose[4] = pose[4] + camera_config['Rotation']
+            child[0].text = ' '.join(map(str, pose))
+    # Save
+    tree.write('/opt/jderobot/share/jderobot/gazebo/models/f1_temp/model.sdf')
+    
+if __name__ == "__main__":
+    tmp_model_generator('/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch')
