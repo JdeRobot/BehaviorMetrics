@@ -1,0 +1,53 @@
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/F1ROS/cameraL/image_raw'
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/F1ROS/odom'
+        Actuators:
+            Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/F1ROS/cmd_vel'
+                    MaxV: 3
+                    MaxW: 0.3
+                    
+        BrainPath: 'brains/f1/brain_f1_explicit_noise.py'
+        PilotTimeCycle: 50
+        Parameters:
+            NoiseType: 'salt&pepper'                # two options, gaussian (Mean, Std_Dev) and salt&pepper(Probability)
+            NoiseParams:
+                Mean: 0
+                Std_Dev: 5
+                Probability: 0.2
+        Type: 'f1'
+    Simulation:
+        World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 2, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [0, 3, 3, 1]
+            Data: rgbimage
