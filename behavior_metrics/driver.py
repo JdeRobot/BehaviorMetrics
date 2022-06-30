@@ -175,9 +175,10 @@ def main():
         if app_configuration.current_world and not config_data['script']:
             logger.debug('Launching Simulation... please wait...')
             if config_data['random']:
+                camera_config = app_configuration.sensors['Cameras']['Camera_0']['CameraConfig']
                 tmp_world_generator(app_configuration.current_world, app_configuration.stats_perfect_lap,
-                                       app_configuration.real_time_update_rate, randomize=True,
-                                       gui=True, launch=False)
+                                       app_configuration.real_time_update_rate, camera_config,
+                                        randomize=True, gui=True, launch=False)
                 app_configuration.current_world = 'tmp_circuit.launch'
             environment.launch_env(app_configuration.current_world)
 

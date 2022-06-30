@@ -5,8 +5,11 @@ import os
 
 from abc import abstractmethod
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, 
+    GaussNoise, Lambda
 )
+from utils.noise import salt_and_pepper_noise, gaussian_noise
+
 
 
 """ TODO: fix neural brains """
@@ -101,6 +104,11 @@ class Brains(object):
             augmentation_option = Compose([RandomFog(always_apply=True)])
         elif option == 'sunflare':
             augmentation_option = Compose([RandomSunFlare(always_apply=True)])
+        elif option == 'gaussian':
+            augmentation_option = Compose([GaussNoise(var_limit = 1000, always_apply=True)])
+            # augmentation_option = Compose([Lambda(name = 'gaussian_noise', image = gaussian_noise, always_apply = True)])
+        elif option == 'salt&pepper':
+            augmentation_option = Compose([Lambda(name = 'salt_pepper_noise', image = salt_and_pepper_noise, always_apply = True)])
         transformed_image = augmentation_option(image=image)
         transformed_image = transformed_image["image"]
         return transformed_image

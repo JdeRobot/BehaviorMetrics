@@ -39,9 +39,10 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
         for brain_counter, brain in enumerate(app_configuration.brain_path):
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
+                camera_config = app_configuration.sensors['Cameras']['Camera_0']['CameraConfig']
                 tmp_world_generator(world, app_configuration.stats_perfect_lap[world_counter],
-                                       app_configuration.real_time_update_rate, randomize=randomize, gui=False,
-                                       launch=True)
+                                       app_configuration.real_time_update_rate, camera_config,
+                                       randomize=randomize, gui=False, launch=True)
                 pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
                 pilot.real_time_update_rate = app_configuration.real_time_update_rate
