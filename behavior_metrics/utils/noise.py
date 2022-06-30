@@ -9,21 +9,11 @@ Separate noise module can simulate various types of noises
 import numpy as np
 import random
 
-def add_noise(image, config, noise_type = "gaussian"):
-    """
-    Function to add noise
-    """
-    if noise_type == "gaussian":
-        return gaussian_noise(image, config["Mean"], config["Std_Dev"])
-    elif noise_type == "salt&pepper":
-        return salt_and_pepper_noise(image, config["Probability"])
-    else:
-        return image
-
-def salt_and_pepper_noise(image, probability = 0.2):
+def salt_and_pepper_noise(image, **kwargs):
     """
     Salt and Pepper Noise Function
     """
+    probability = 0.2
     output = image.copy()
 
     salt = np.array([255, 255, 255], dtype='uint8')
@@ -35,10 +25,12 @@ def salt_and_pepper_noise(image, probability = 0.2):
 
     return output.astype(np.uint8)
 
-def gaussian_noise(image, mean = 0, std_dev = 0.01):
+def gaussian_noise(image, **kwargs):
     """
     Gaussian Noise
     """
+    mean = 0
+    std_dev = 10.0
     noise = np.random.normal(mean, std_dev, image.shape)
     noise = noise.reshape(image.shape)
     output = image + noise
