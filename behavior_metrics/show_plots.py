@@ -97,6 +97,10 @@ class MetricsWindow(QtWidgets.QMainWindow):
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">GPU inferencing: </span>' + str(
                 self.experiment_metrics['gpu_inference']))
         self.layout.addWidget(label_gpu_inference)
+        label_suddenness_distance = QLabel(
+            '<span style=" font-size:10pt; font-weight:600; color:#000000;">Suddenness distance: </span>' + str(
+                self.experiment_metrics['suddenness_distance']))
+        self.layout.addWidget(label_suddenness_distance)
         label_frame_rate = QLabel(
             '<span style=" font-size:10pt; font-weight:600; color:#000000;">Frame rate: </span>' + str(
                 self.experiment_metrics['frame_rate']) + 'fps')

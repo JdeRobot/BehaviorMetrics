@@ -32,7 +32,6 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-
 class Pilot(threading.Thread):
     """This class handles the robot and its brain.
 
@@ -236,6 +235,7 @@ class Pilot(threading.Thread):
             mean_brain_iterations_real_time = sum(self.brain_iterations_real_time) / len(self.brain_iterations_real_time)
             brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
             target_brain_iterations_real_time = 1 / (self.time_cycle / 1000)
+            suddenness_distance = sum(self.brains.active_brain.suddenness_distance) / len(self.brains.active_brain.suddenness_distance)
         else:
             mean_brain_iterations_real_time = 0
             mean_brain_iterations_simulated_time = 0
@@ -244,6 +244,7 @@ class Pilot(threading.Thread):
             target_brain_iterations_simulated_time = 0
             brain_iterations_frequency_real_time = 0
             target_brain_iterations_real_time = 0
+            suddenness_distance = 0
         logger.info('* Brain iterations frequency simulated time ---> ' + str(brain_iterations_frequency_simulated_time) + 'it/s')
         logger.info('* Target brain iterations simulated time -> ' + str(target_brain_iterations_simulated_time) + 'it/s')
         logger.info('* Mean brain iterations real time ---> ' + str(mean_brain_iterations_real_time) + 's')
@@ -253,6 +254,7 @@ class Pilot(threading.Thread):
         logger.info('* Mean brain iterations simulated time ---> ' + str(real_time_factor))
         logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
         logger.info('* GPU inference ---> ' + str(gpu_inference))
+        logger.info('* Suddenness distance ---> ' + str(suddenness_distance))
         logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
         experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
         experiment_metrics['target_brain_iterations_simulated_time'] = target_brain_iterations_simulated_time
@@ -265,6 +267,7 @@ class Pilot(threading.Thread):
         experiment_metrics['mean_brain_iterations_simulated_time'] = mean_brain_iterations_simulated_time
         experiment_metrics['real_time_factor'] = real_time_factor
         experiment_metrics['real_time_update_rate'] = real_time_update_rate
+        experiment_metrics['suddenness_distance'] = suddenness_distance
         logger.info('Saving metrics to ROS bag')
         return experiment_metrics, first_image
 

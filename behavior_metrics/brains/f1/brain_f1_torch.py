@@ -84,6 +84,8 @@ class Brain:
         img = cv2.copyMakeBorder(img_resized.copy(),0,0,padding_left,padding_right,cv2.BORDER_CONSTANT,value=[0, 0, 0])
         return img
 
+    def unnormalize(self, x, min, max):
+        return x * (max - min) + min
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -112,9 +114,8 @@ class Brain:
                 image = FLOAT(image).to(self.device)
                 prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy() 
             self.inference_times.append(time.time() - start_time)
-            # prediction_v = prediction[0][0]*6.5
-            prediction_v = prediction[0][0]
-            prediction_w = prediction[0][1]*1.5
+            prediction_v = self.unnormalize(prediction[0][0], min=6.5, max=24)
+            prediction_w = self.unnormalize(prediction[0][1], min=-7.1, max=7.1)
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
