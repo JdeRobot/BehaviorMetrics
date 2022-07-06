@@ -5,7 +5,7 @@ import os
 
 from abc import abstractmethod
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare,
 )
 
 
@@ -90,9 +90,7 @@ class Brains(object):
                            rain_type='torrential', always_apply=True)
             ])
         elif option == 'night':
-            augmentation_option = Compose([
-                RandomBrightness([-0.5, -0.5], always_apply=True)
-            ])
+            augmentation_option = Compose([RandomBrightness([-0.5, -0.5], always_apply=True)])
         elif option == 'shadow':
             augmentation_option = Compose([RandomShadow(always_apply=True)])
         elif option == 'snow':
@@ -101,6 +99,8 @@ class Brains(object):
             augmentation_option = Compose([RandomFog(always_apply=True)])
         elif option == 'sunflare':
             augmentation_option = Compose([RandomSunFlare(always_apply=True)])
+        elif option == 'daytime':
+            augmentation_option = Compose([RandomBrightness([0.3, 0.3], always_apply=True)])
         transformed_image = augmentation_option(image=image)
         transformed_image = transformed_image["image"]
         return transformed_image
