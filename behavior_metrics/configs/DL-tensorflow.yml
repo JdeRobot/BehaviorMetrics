@@ -26,6 +26,7 @@ Behaviors:
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
+            UseOptimized: True
             ImageTranform: ''
         Type: 'f1'
     Simulation:
