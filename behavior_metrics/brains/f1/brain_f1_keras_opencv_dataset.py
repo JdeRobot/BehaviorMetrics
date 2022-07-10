@@ -68,7 +68,7 @@ class Brain:
                 self.output_index = self.net.get_output_details()[0]["index"]
             else:
                 self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
-            print(self.net.summary())
+                print(self.net.summary())
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
