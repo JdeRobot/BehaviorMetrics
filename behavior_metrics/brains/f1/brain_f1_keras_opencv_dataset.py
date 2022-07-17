@@ -74,7 +74,7 @@ class Brain:
             print("- Models path: " + PRETRAINED_MODELS)
             print("- Model: " + str(model))
 
-    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None):
+    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None, inference_time=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
@@ -102,6 +102,10 @@ class Brain:
                 cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
             else:
                 cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+        if inference_time:
+            data = np.array(data, copy=True)
+            cv2.putText(data, f'Inf time: {inference_time}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
         self.handler.update_frame(frame_id, data)
 
@@ -173,6 +177,8 @@ class Brain:
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+
+            self.update_frame('frame_3', base_image, inference_time=self.inference_times[-1])
 
             current_w_normalized = prediction_w
             if self.previous_v != None:
