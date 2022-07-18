@@ -5,10 +5,8 @@ import os
 
 from abc import abstractmethod
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare,
-    Affine
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, Affine
 )
-#albumentations.augmentations.geometric.transforms.Affine
 
 
 """ TODO: fix neural brains """
