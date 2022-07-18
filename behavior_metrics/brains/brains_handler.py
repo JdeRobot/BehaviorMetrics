@@ -6,7 +6,9 @@ import os
 from abc import abstractmethod
 from albumentations import (
     Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare,
+    Affine
 )
+#albumentations.augmentations.geometric.transforms.Affine
 
 
 """ TODO: fix neural brains """
@@ -49,11 +51,11 @@ class Brains(object):
             if robot_type == 'drone':
                 self.active_brain = Brain(handler=self, config=self.config)
             else:
-                if model: 
+                if model:
                     self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self, config=self.config)
                 elif hasattr(self, 'model'):
                     self.active_brain = Brain(self.sensors, self.actuators, model=self.model, handler=self, config=self.config)
-                else: 
+                else:
                     self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
 
     def get_image(self, camera_name):
@@ -101,6 +103,8 @@ class Brains(object):
             augmentation_option = Compose([RandomSunFlare(always_apply=True)])
         elif option == 'daytime':
             augmentation_option = Compose([RandomBrightness([0.3, 0.3], always_apply=True)])
+        elif option == 'affine':
+            augmentation_option = Compose([Affine(translate_percent={'x': -0.1, 'y': 0}, always_apply=True)])
         transformed_image = augmentation_option(image=image)
         transformed_image = transformed_image["image"]
         return transformed_image
