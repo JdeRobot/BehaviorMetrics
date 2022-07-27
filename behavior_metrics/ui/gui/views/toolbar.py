@@ -27,7 +27,6 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
 
 from ui.gui.views.stats_window import StatsWindow
 from ui.gui.views.logo import Logo
-from ui.gui.views.social import SocialMedia
 from utils import constants, environment
 
 __author__ = 'fqez'
@@ -319,9 +318,7 @@ class Toolbar(QWidget):
         self.topics_popup = TopicsPopup()
 
         logo = Logo()
-        social = SocialMedia()
 
-        self.main_layout.addWidget(social)
         self.main_layout.addWidget(logo)
         self.setLayout(self.main_layout)
 
