@@ -62,10 +62,19 @@ class Brain:
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
             if self.config['UseOptimized']:
-                self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
-                self.net.allocate_tensors()
-                self.input_index = self.net.get_input_details()[0]["index"]
-                self.output_index = self.net.get_output_details()[0]["index"]
+                if 'tflite' in model:
+                    print("Using TF lite models.....")
+                    self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
+                    self.net.allocate_tensors()
+                    self.input_index = self.net.get_input_details()[0]["index"]
+                    self.output_index = self.net.get_output_details()[0]["index"]
+                    self.inf_func = self.optim_inference
+                else:
+                    print("Using TensorRT models.....")
+                    self.net = tf.saved_model.load(PRETRAINED_MODELS + model)
+                    self.infer = self.net.signatures['serving_default']
+                    self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
+                    self.inf_func = self.tftrt_inference
             else:
                 self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
                 print(self.net.summary())
@@ -126,6 +135,23 @@ class Brain:
 
         return output
 
+
+    def tftrt_inference(self, img):
+        """ Utilize the TensorRT optimized model for inference
+
+        Arguments:
+            img {ndarray} -- Image to make prediction on
+        Return:
+            output -- prediction from the model
+        """
+        # Pre-processing
+        img = tf.convert_to_tensor(img, dtype=tf.float32)
+        # Run inference
+        output = self.infer(img)[self.output_tensorname]
+
+        return output
+
+
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
 
@@ -160,7 +186,8 @@ class Brain:
             
             if self.config['UseOptimized']:
                 start_time = time.time()
-                prediction = self.optim_inference(img)
+                # prediction = self.optim_inference(img)
+                prediction = self.inf_func(img)
                 self.inference_times.append(time.time() - start_time)
             else:
                 start_time = time.time()
