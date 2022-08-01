@@ -42,7 +42,7 @@ class Logo(QWidget):
         logo_label.setAlignment(Qt.AlignCenter)
         logo_label.setFixedHeight(50)
 
-        title_label = QLabel('Behavior Suite')
+        title_label = QLabel('Behavior Metrics')
         title_label.setFont(QFont('Techno Capture', 30))
         title_label.setStyleSheet('color: white')
         title_label.setAlignment(Qt.AlignCenter)

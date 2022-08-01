@@ -113,7 +113,7 @@ class TitleWindow(QWidget):
         self.frame_below = QLabel(self)
         self.frame_below.setGeometry(0, mid, self.width(), self.height())
         self.frame_below.setFont(font)
-        self.frame_below.setText("Welcome to Behavior Suite")
+        self.frame_below.setText("Welcome to Behavior Metrics")
         self.frame_below.setAlignment(Qt.AlignCenter)
         self.frame_below.setStyleSheet('color: white')
 
