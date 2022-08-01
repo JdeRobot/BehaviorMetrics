@@ -149,7 +149,7 @@ class Brain:
         # Run inference
         output = self.infer(img)[self.output_tensorname]
 
-        return output
+        return output.numpy()
 
 
     def execute(self):
