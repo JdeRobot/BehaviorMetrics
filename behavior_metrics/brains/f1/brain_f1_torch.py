@@ -43,8 +43,8 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.device = torch.device("cpu")
-        self.gpu_inference = torch.cuda.is_available()
+        self.gpu_inference = config['GPU']
+        self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
         self.first_image = None
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
@@ -112,7 +112,7 @@ class Brain:
             with torch.no_grad():
                 image = self.transformations(img).unsqueeze(0)
                 image = FLOAT(image).to(self.device)
-                prediction = self.net(image).numpy()
+                prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy() 
             self.inference_times.append(time.time() - start_time)
             prediction_v = self.unnormalize(prediction[0][0], min=6.5, max=24)
             prediction_w = self.unnormalize(prediction[0][1], min=-7.1, max=7.1)
