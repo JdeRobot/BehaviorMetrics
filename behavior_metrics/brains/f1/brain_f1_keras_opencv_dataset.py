@@ -193,13 +193,15 @@ class Brain:
                 self.update_frame('frame_2', base_image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
             self.previous_w_normalized = current_w_normalized
 
-            # GradCAM from image
-            i = np.argmax(prediction[0])
-            cam = GradCAM(self.net, i)
-            heatmap = cam.compute_heatmap(img)
-            heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
-            (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
-            self.update_frame('frame_1', output)
+
+            if not self.config['UseOptimized']: # not available for optimized models
+                # GradCAM from image
+                i = np.argmax(prediction[0])
+                cam = GradCAM(self.net, i)
+                heatmap = cam.compute_heatmap(img)
+                heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
+                (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
+                self.update_frame('frame_1', output)
 
         except Exception as err:
             print(err)
