@@ -19,17 +19,19 @@ Behaviors:
         BrainPath: 'brains/f1/brain_f1_torch.py'
         PilotTimeCycle: 50
         Parameters:
-            Model: 'model_pilotnet_torch_extreme.ckpt'
+            Model: 'baseline.pth'
             ImageCrop: True
+            GPU: False
+            UseOptimized: True
         Type: 'f1'
     Simulation:
-        World: '/opt/jderobot/share/jderobot/gazebo/launch/montmelo_line.launch'
+        World: '/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
     Stats:
         Out: './'
-        PerfectLap: './perfect_bags/lap-montmelo.bag'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
     Layout:
         Frame_0:
             Name: frame_0

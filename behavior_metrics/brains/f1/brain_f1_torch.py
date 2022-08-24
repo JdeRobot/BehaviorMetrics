@@ -43,8 +43,8 @@ class Brain:
         self.handler = handler
         self.cont = 0
         self.inference_times = []
-        self.device = torch.device("cpu")
-        self.gpu_inference = torch.cuda.is_available()
+        self.gpu_inference = config['GPU']
+        self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
         self.first_image = None
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
@@ -59,9 +59,13 @@ class Brain:
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
-
-            self.net = PilotNet((200,66,3), 2).to(self.device)
-            self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
+            
+            if config['UseOptimized']:
+                self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
+#                 self.clean_model()
+            else:
+                self.net = PilotNet((200,66,3), 2).to(self.device)
+                self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
         else: 
             print("Brain not loaded")
 
@@ -86,7 +90,20 @@ class Brain:
 
     def unnormalize(self, x, min, max):
         return x * (max - min) + min
+    
+#     def clean_model(self):
+#         model = self.net
+#         model.eval()
+#         remove_attributes = []
+#         for key, value in vars(model).items():
+#             if value is None:
+#                 remove_attributes.append(key)
 
+#         for key in remove_attributes:
+#             delattr(model, key)
+        
+#         self.net = model
+        
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
          
@@ -108,12 +125,14 @@ class Brain:
             show_image = image
             img = cv2.resize(image, (int(200), int(66)))
             img = Image.fromarray(img)
+            image = self.transformations(img).unsqueeze(0)
+            image = FLOAT(image).to(self.device)
+            
             start_time = time.time()
             with torch.no_grad():
-                image = self.transformations(img).unsqueeze(0)
-                image = FLOAT(image).to(self.device)
-                prediction = self.net(image).numpy()
+                prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
             self.inference_times.append(time.time() - start_time)
+            
             prediction_v = self.unnormalize(prediction[0][0], min=6.5, max=24)
             prediction_w = self.unnormalize(prediction[0][1], min=-7.1, max=7.1)
             if prediction_w != '' and prediction_w != '':
