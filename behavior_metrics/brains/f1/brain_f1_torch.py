@@ -49,6 +49,10 @@ class Brain:
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
                                     ])
+        
+        self.suddenness_distance = []
+        self.previous_v = None
+        self.previous_w = None
 
         if config:
             if 'ImageCrop' in config.keys():
@@ -135,9 +139,19 @@ class Brain:
             
             prediction_v = self.unnormalize(prediction[0][0], min=6.5, max=24)
             prediction_w = self.unnormalize(prediction[0][1], min=-7.1, max=7.1)
+            
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+            
+            if self.previous_v != None:
+                a = np.array((prediction[0][0], prediction[0][1]))
+                b = np.array((self.previous_v, self.previous_w))
+                distance = np.linalg.norm(a - b)
+                self.suddenness_distance.append(distance)
+            self.previous_v = prediction[0][0]
+            self.previous_w = prediction[0][1]
+            
 
         except Exception as err:
             print(err)
