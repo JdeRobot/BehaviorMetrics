@@ -21,7 +21,7 @@ Behaviors:
         Parameters:
             Model: 'baseline.pth'
             ImageCrop: True
-            GPU: False
+            GPU: True
             UseOptimized: True
         Type: 'f1'
     Simulation:

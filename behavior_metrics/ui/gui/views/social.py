@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """ This module shows the social media links and icons.
-
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
@@ -28,14 +27,12 @@ __license__ = 'GPLv3'
 
 class ClickableLabel(QLabel):
     """Class that extends the functionality of the default QLabel adding mouse events.
-
     Attributes:
         url {str} -- URL of the social network
     """
 
     def __init__(self, url):
         """Constructor of the class
-
         Arguments:
             url {str} -- URL of the social network
         """
@@ -59,7 +56,7 @@ class SocialMedia(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        github_label = self.create_button('https://github.com/jderobot/behaviorsuite', ':/assets/github.png')
+        github_label = self.create_button('https://github.com/JdeRobot/BehaviorMetrics', ':/assets/github.png')
         twitter_label = self.create_button('https://twitter.com/jderobot', ':/assets/twitter.png')
         youtube_label = self.create_button('https://www.youtube.com/channel/UCgmUgpircYAv_QhLQziHJOQ',
                                            ':/assets/youtube.png')
@@ -77,11 +74,9 @@ class SocialMedia(QWidget):
 
     def create_button(self, url, pixmap):
         """Function that creates a button for an specific social network
-
         Arguments:
             url {str} -- URL for the social network
             pixmap {QPixmap} -- Icon of the social network
-
         Returns:
             ui.gui.views.social.ClickableLabel -- Label with the social network logo in it.
         """

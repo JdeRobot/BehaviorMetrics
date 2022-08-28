@@ -111,7 +111,7 @@ class MainForm(npyscreen.FormMultiPage):
         }
         self.add_handlers(new_handlers)
 
-        self.name = "Welcome to Behavior Suite"
+        self.name = "Welcome to Behavior Metrics"
         self.FIX_MINIMUM_SIZE_WHEN_CREATED = True
         commands_box = self.add(
             npyscreen.BoxTitle,
