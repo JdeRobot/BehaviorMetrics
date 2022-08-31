@@ -49,6 +49,10 @@ class Brain:
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
                                     ])
+        
+        self.suddenness_distance = []
+        self.previous_v = None
+        self.previous_w = None
 
         if config:
             if 'ImageCrop' in config.keys():
@@ -59,9 +63,13 @@ class Brain:
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
-
-            self.net = PilotNet((200,66,3), 2).to(self.device)
-            self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
+            
+            if config['UseOptimized']:
+                self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
+#                 self.clean_model()
+            else:
+                self.net = PilotNet((200,66,3), 2).to(self.device)
+                self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
         else: 
             print("Brain not loaded")
 
@@ -86,7 +94,20 @@ class Brain:
 
     def unnormalize(self, x, min, max):
         return x * (max - min) + min
+    
+#     def clean_model(self):
+#         model = self.net
+#         model.eval()
+#         remove_attributes = []
+#         for key, value in vars(model).items():
+#             if value is None:
+#                 remove_attributes.append(key)
 
+#         for key in remove_attributes:
+#             delattr(model, key)
+        
+#         self.net = model
+        
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
          
@@ -108,17 +129,29 @@ class Brain:
             show_image = image
             img = cv2.resize(image, (int(200), int(66)))
             img = Image.fromarray(img)
+            image = self.transformations(img).unsqueeze(0)
+            image = FLOAT(image).to(self.device)
+            
             start_time = time.time()
             with torch.no_grad():
-                image = self.transformations(img).unsqueeze(0)
-                image = FLOAT(image).to(self.device)
-                prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy() 
+                prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
             self.inference_times.append(time.time() - start_time)
+            
             prediction_v = self.unnormalize(prediction[0][0], min=6.5, max=24)
             prediction_w = self.unnormalize(prediction[0][1], min=-7.1, max=7.1)
+            
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+            
+            if self.previous_v != None:
+                a = np.array((prediction[0][0], prediction[0][1]))
+                b = np.array((self.previous_v, self.previous_w))
+                distance = np.linalg.norm(a - b)
+                self.suddenness_distance.append(distance)
+            self.previous_v = prediction[0][0]
+            self.previous_w = prediction[0][1]
+            
 
         except Exception as err:
             print(err)
