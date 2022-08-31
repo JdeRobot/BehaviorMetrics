@@ -62,6 +62,7 @@ class Brain:
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
             if self.config['UseOptimized']:
+            
                 if 'tflite' in model:
                     print("Using TF lite models.....")
                     self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
@@ -75,9 +76,11 @@ class Brain:
                     self.infer = self.net.signatures['serving_default']
                     self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
                     self.inf_func = self.tftrt_inference
+                    
             else:
                 self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
                 print(self.net.summary())
+                
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
@@ -135,7 +138,6 @@ class Brain:
 
         return output
 
-
     def tftrt_inference(self, img):
         """ Utilize the TensorRT optimized model for inference
 
@@ -150,7 +152,6 @@ class Brain:
         output = self.infer(img)[self.output_tensorname]
 
         return output.numpy()
-
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -186,7 +187,6 @@ class Brain:
             
             if self.config['UseOptimized']:
                 start_time = time.time()
-                # prediction = self.optim_inference(img)
                 prediction = self.inf_func(img)
                 self.inference_times.append(time.time() - start_time)
             else:
@@ -220,13 +220,15 @@ class Brain:
                 self.update_frame('frame_2', base_image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
             self.previous_w_normalized = current_w_normalized
 
-            # GradCAM from image
-            i = np.argmax(prediction[0])
-            cam = GradCAM(self.net, i)
-            heatmap = cam.compute_heatmap(img)
-            heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
-            (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
-            self.update_frame('frame_1', output)
+
+            if not self.config['UseOptimized']: # not available for optimized models
+                # GradCAM from image
+                i = np.argmax(prediction[0])
+                cam = GradCAM(self.net, i)
+                heatmap = cam.compute_heatmap(img)
+                heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
+                (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
+                self.update_frame('frame_1', output)
 
         except Exception as err:
             print(err)
