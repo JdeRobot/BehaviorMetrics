@@ -55,9 +55,15 @@ class Brain:
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
-
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
-            print(self.net.summary())
+            
+            if self.config['UseOptimized']:
+                self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
+                self.net.allocate_tensors()
+                self.input_index = self.net.get_input_details()[0]["index"]
+                self.output_index = self.net.get_output_details()[0]["index"]
+            else:
+                self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+                print(self.net.summary())
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
@@ -71,6 +77,23 @@ class Brain:
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
         self.handler.update_frame(frame_id, data)
+
+    def optim_inference(self, img):
+        """ Utilize the optimized models in `.tflite` format for inference
+
+        Arguments:
+            img {ndarray} -- Image to make prediction on
+        Return:
+            output -- prediction from the model
+        """
+        # Pre-processing
+        self.net.set_tensor(self.input_index, img)
+        # Run inference.
+        self.net.invoke()
+        # Post-processing
+        output = self.net.get_tensor(self.output_index)
+
+        return output
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -102,9 +125,15 @@ class Brain:
                 img = image["image"]
 
             img = np.expand_dims(img, axis=0)
-            start_time = time.time()
-            prediction = self.net.predict(img)
-            self.inference_times.append(time.time() - start_time)
+
+            if self.config['UseOptimized']:
+                start_time = time.time()
+                prediction = self.optim_inference(img)
+                self.inference_times.append(time.time() - start_time)
+            else:
+                start_time = time.time()
+                prediction = self.net.predict(img)
+                self.inference_times.append(time.time() - start_time)
 
             if self.config['PredictionsNormalized']:
                 prediction_v = prediction[0][0] * 13

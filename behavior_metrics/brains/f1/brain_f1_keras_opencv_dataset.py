@@ -61,14 +61,20 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
-            print(self.net.summary())
+            if self.config['UseOptimized']:
+                self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
+                self.net.allocate_tensors()
+                self.input_index = self.net.get_input_details()[0]["index"]
+                self.output_index = self.net.get_output_details()[0]["index"]
+            else:
+                self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+                print(self.net.summary())
         else:
             print("** Brain not loaded **")
             print("- Models path: " + PRETRAINED_MODELS)
             print("- Model: " + str(model))
 
-    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None):
+    def update_frame(self, frame_id, data, current_angular_speed=None, previous_angular_speed=None, distance=None, inference_time=None):
         """Update the information to be shown in one of the GUI's frames.
 
         Arguments:
@@ -97,7 +103,28 @@ class Brain:
             else:
                 cv2.putText(data, distance, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
+        if inference_time:
+            data = np.array(data, copy=True)
+            cv2.putText(data, f'Inf time: {inference_time}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
         self.handler.update_frame(frame_id, data)
+
+    def optim_inference(self, img):
+        """ Utilize the optimized models in `.tflite` format for inference
+
+        Arguments:
+            img {ndarray} -- Image to make prediction on
+        Return:
+            output -- prediction from the model
+        """
+        # Pre-processing
+        self.net.set_tensor(self.input_index, img)
+        # Run inference.
+        self.net.invoke()
+        # Post-processing
+        output = self.net.get_tensor(self.output_index)
+
+        return output
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
@@ -130,9 +157,15 @@ class Brain:
                 img = image["image"]
 
             img = np.expand_dims(img, axis=0)
-            start_time = time.time()
-            prediction = self.net.predict(img)
-            self.inference_times.append(time.time() - start_time)
+            
+            if self.config['UseOptimized']:
+                start_time = time.time()
+                prediction = self.optim_inference(img)
+                self.inference_times.append(time.time() - start_time)
+            else:
+                start_time = time.time()
+                prediction = self.net.predict(img)
+                self.inference_times.append(time.time() - start_time)
 
             if self.config['PredictionsNormalized']:
                 prediction_v = prediction[0][0] * (24 - (6.5)) + (6.5)
@@ -144,6 +177,8 @@ class Brain:
             if prediction_w != '' and prediction_w != '':
                 self.motors.sendV(prediction_v)
                 self.motors.sendW(prediction_w)
+
+            self.update_frame('frame_3', base_image, inference_time=self.inference_times[-1])
 
             current_w_normalized = prediction_w
             if self.previous_v != None:
@@ -158,13 +193,15 @@ class Brain:
                 self.update_frame('frame_2', base_image, current_w_normalized, self.previous_w_normalized, str(round(distance, 4)))
             self.previous_w_normalized = current_w_normalized
 
-            # GradCAM from image
-            i = np.argmax(prediction[0])
-            cam = GradCAM(self.net, i)
-            heatmap = cam.compute_heatmap(img)
-            heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
-            (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
-            self.update_frame('frame_1', output)
+
+            if not self.config['UseOptimized']: # not available for optimized models
+                # GradCAM from image
+                i = np.argmax(prediction[0])
+                cam = GradCAM(self.net, i)
+                heatmap = cam.compute_heatmap(img)
+                heatmap = cv2.resize(heatmap, (heatmap.shape[1], heatmap.shape[0]))
+                (heatmap, output) = cam.overlay_heatmap(heatmap, orig, alpha=0.5)
+                self.update_frame('frame_1', output)
 
         except Exception as err:
             print(err)
