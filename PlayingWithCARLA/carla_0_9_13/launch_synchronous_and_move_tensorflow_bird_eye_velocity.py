@@ -233,7 +233,7 @@ def main():
             pixels_per_meter=10,
             crop_type=BirdViewCropType.FRONT_AREA_ONLY
         )
-        PRETRAINED_MODELS = "../../../"
+        PRETRAINED_MODELS = "../models/"
         model = "20221026-133123_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_cp.h5"
         model = "20221031-125557_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_cp.h5"
         model = "20221031-182622_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_town_01_cp.h5" # BEST
@@ -255,12 +255,18 @@ def main():
         #model = "20221107-143505_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_input_output_velocity_all_towns_and_extreme_vel_MAX_cp.h5"
 
         #model = "20221108-155441_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_input_output_velocity_town_01_and_extreme_vel_MAX_cp.h5"
-        model = "20221108-165842_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_prev_velocity_town_01_and_extreme_vel_MAX_cp.h5"
+        #model = "20221108-165842_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_prev_velocity_town_01_and_extreme_vel_MAX_cp.h5"
         
         net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
 
 
         previous_speed = 0
+        previous_location_x = None
+        previous_location_y = None
+        total_distance = 0
+        
+        previous_simulated_time = None
+        start_simulation_time = world.get_snapshot().timestamp.elapsed_seconds
 
         # Create a synchronous mode context.
         with CarlaSyncMode(world, camera_rgb, camera_semseg, fps=15) as sync_mode:
@@ -323,6 +329,15 @@ def main():
                 #vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0, brake=float(0.0)))
                 #print(throttle, steer, break_command)
                 #print(vehicle.get_control())
+                
+                if previous_location_x is not None and previous_location_y is not None:
+                    dist = math.sqrt( (round(vehicle_location.x, 2) - previous_location_x)**2 + (round(vehicle_location.y, 2) - previous_location_y)**2 )
+                    total_distance += dist
+                previous_location_x = round(vehicle_location.x, 2)
+                previous_location_y = round(vehicle_location.y, 2)
+                
+                
+                print(world.get_snapshot().timestamp.elapsed_seconds-start_simulation_time)
 
                 i = np.argmax(prediction[0])
                 cam = GradCAM(net, i)
@@ -343,7 +358,7 @@ def main():
                 #draw_image(display, img_base, blend=False, location=(1600,0))
                 draw_image(display, img_base, blend=False, location=(800,0))
                 draw_image(display, output, blend=False, location=(1000,0))
-                draw_image(display, np.zeros((160,300, 3)), blend=False, location=(0,0), is_black_space=True)
+                draw_image(display, np.zeros((200,300, 3)), blend=False, location=(0,0), is_black_space=True)
                 display.blit(
                     font.render('% 5d FPS (real)' % clock.get_fps(), True, (255, 255, 255)),
                     (8, 10))
@@ -353,11 +368,11 @@ def main():
                 
                 if vehicle_speed > 30:
                     display.blit(
-                        font.render('Speed: ' + str(round(vehicle_speed, 2)) + ' m/S', True, (255, 0, 0)),
+                        font.render('Speed: ' + str(round(vehicle_speed, 2)) + ' km/h', True, (255, 0, 0)),
                         (22, 46))
                 else:
                     display.blit(
-                        font.render('Speed: ' + str(round(vehicle_speed, 2)) + ' m/s', True, (255, 255, 255)),
+                        font.render('Speed: ' + str(round(vehicle_speed, 2)) + ' km/h', True, (255, 255, 255)),
                         (22, 46))
                 if mean_step_time != []:
                     display.blit(
@@ -384,9 +399,13 @@ def main():
                     font.render('World: ' + str(m.name), True, (255, 255, 255)),
                     (22, 136))
 
-               #display.blit(
-                #    font.render('Predicted previous speed: ' + str(prediction[0][3]*88), True, (255, 255, 255)),
-                #    (22, 150))
+                display.blit(
+                    font.render('Total distance: ' + str(round(total_distance, 2)) + ' m', True, (255, 255, 255)),
+                    (22, 154))
+                    
+                display.blit(
+                    font.render('Total simulated time: ' + str(round(world.get_snapshot().timestamp.elapsed_seconds-start_simulation_time, 2)) + ' s', True, (255, 255, 255)),
+                    (22, 172))
                 
                 pygame.display.flip()
                 end = time.time()
