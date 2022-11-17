@@ -1,0 +1,124 @@
+import argparse
+import os
+import sys
+import threading
+
+from pilot import Pilot
+from ui.tui.main_view import TUI
+from utils import environment, script_manager
+from utils.colors import Colors
+from utils.configuration import Config
+from utils.controller import Controller
+from utils.logger import logger
+from utils.tmp_world_generator import tmp_world_generator
+
+
+def check_args(argv):
+    """Function that handles argument checking and parsing.
+
+    Arguments:
+        argv {list} -- list of arguments from command line.
+
+    Returns:
+        dict -- dictionary with the detected configuration.
+    """
+    parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
+                                     epilog='Enjoy the program! :)')
+
+    parser.add_argument('-c',
+                        '--config',
+                        type=str,
+                        action='append',
+                        required=True,
+                        help='{}Path to the configuration file in YML format.{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-g',
+                       '--gui',
+                       action='store_true',
+                       help='{}Load the GUI (Graphic User Interface). Requires PyQt5 installed{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
+
+    group.add_argument('-t',
+                       '--tui',
+                       action='store_true',
+                       help='{}Load the TUI (Terminal User Interface). Requires npyscreen installed{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
+
+    group.add_argument('-s',
+                       '--script',
+                       action='store_true',
+                       help='{}Run Behavior Metrics as script{}'.format(
+                           Colors.OKBLUE, Colors.ENDC))
+
+    parser.add_argument('-r',
+                        '--random',
+                        action='store_true',
+                        help='{}Run Behavior Metrics F1 with random spawning{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+
+    args = parser.parse_args()
+
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False}
+    if args.config:
+        config_data['config'] = []
+        for config_file in args.config:
+            if not os.path.isfile(config_file):
+                parser.error('{}No such file {} {}'.format(Colors.FAIL, config_file, Colors.ENDC))
+
+        config_data['config'] = args.config
+
+    if args.gui:
+        config_data['gui'] = args.gui
+
+    if args.tui:
+        config_data['tui'] = args.tui
+
+    if args.script:
+        config_data['script'] = args.script
+
+    if args.random:
+        config_data['random'] = args.random
+
+    return config_data
+
+def main_win(configuration, controller):
+    """shows the Qt main window of the application
+
+    Arguments:
+        configuration {Config} -- configuration instance for the application
+        controller {Controller} -- controller part of the MVC model of the application
+    """
+    try:
+        from PyQt5.QtWidgets import QApplication
+        from ui.gui.views_controller import ParentWindow, ViewsController
+
+        app = QApplication(sys.argv)
+        main_window = ParentWindow()
+
+        views_controller = ViewsController(main_window, configuration, controller)
+        views_controller.show_main_view(True)
+
+        main_window.show()
+
+        app.exec_()
+    except Exception as e:
+        logger.error(e)
+
+
+
+current_world = 'carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch'
+
+#environment.launch_env(app_configuration.current_world)
+environment.launch_env(current_world)
+
+config_data = check_args(sys.argv)
+app_configuration = Config(config_data['config'][0])
+
+print(app_configuration.current_world)
+
+
+controller = Controller()
+main_win(app_configuration, controller)
+
