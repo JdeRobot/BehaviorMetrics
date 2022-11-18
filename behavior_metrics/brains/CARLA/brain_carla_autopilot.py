@@ -20,6 +20,10 @@ class Brain:
 
     def __init__(self, sensors, actuators, handler, config=None):
         self.camera = sensors.get_camera('camera_0')
+        self.camera_1 = sensors.get_camera('camera_1')
+        self.camera_2 = sensors.get_camera('camera_2')
+        self.camera_3 = sensors.get_camera('camera_3')
+
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
         self.config = config
@@ -42,8 +46,25 @@ class Brain:
 
         time.sleep(2)
 
+    def update_frame(self, frame_id, data):
+        """Update the information to be shown in one of the GUI's frames.
+
+        Arguments:
+            frame_id {str} -- Id of the frame that will represent the data
+            data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
+        """
+        self.handler.update_frame(frame_id, data)
 
     def execute(self):
-        print('EXECUTE')
+        image = self.camera.getImage().data
+        image_1 = self.camera_1.getImage().data
+        image_2 = self.camera_2.getImage().data
+        image_3 = self.camera_3.getImage().data
+
         #self.motors.sendW(w)
         self.motors.sendV(1)
+        self.update_frame('frame_0', image)
+        self.update_frame('frame_1', image_1)
+        self.update_frame('frame_2', image_2)
+        self.update_frame('frame_3', image_3)
+
