@@ -46,4 +46,4 @@ class Brain:
     def execute(self):
         print('EXECUTE')
         #self.motors.sendW(w)
-        self.motors.sendV(0.1)
+        self.motors.sendV(1)

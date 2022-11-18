@@ -129,3 +129,6 @@ logger.info('Executing app')
 
 main_win(app_configuration, controller)
 
+logger.info('closing all processes...')
+pilot.kill_event.set()
+environment.close_gazebo()

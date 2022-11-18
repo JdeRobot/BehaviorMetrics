@@ -3,6 +3,8 @@ from geometry_msgs.msg import Twist
 import threading
 from .threadPublisher import ThreadPublisher
 
+from carla_msgs.msg import CarlaEgoVehicleControl
+
 
 def cmdvel2Twist(vel):
 
@@ -15,6 +17,13 @@ def cmdvel2Twist(vel):
     tw.angular.z = vel.az
 
     return tw
+
+
+def cmdvel2CarlaEgoVehicleControl(vel):
+    vehicle_control = CarlaEgoVehicleControl()
+    vehicle_control.throttle = vel.vx
+    return vehicle_control
+
 
 
 class CMDVel ():
@@ -62,6 +71,87 @@ class PublisherMotors:
         tw = cmdvel2Twist(self.data)
         self.lock.release()
         self.pub.publish(tw)
+
+    def stop(self):
+        self.kill_event.set()
+        self.pub.unregister()
+
+    def start(self):
+
+        self.kill_event.clear()
+        self.thread.start()
+
+    def getTopic(self):
+        return self.topic
+
+    def getMaxW(self):
+        return self.maxW
+
+    def getMaxV(self):
+        return self.maxV
+
+    def sendVelocities(self, vel):
+
+        self.lock.acquire()
+        self.data = vel
+        self.lock.release()
+
+    def sendV(self, v):
+
+        self.sendVX(v)
+        self.v = v
+
+    def sendL(self, l):
+
+        self.sendVY(l)
+
+    def sendW(self, w):
+
+        self.sendAZ(w)
+        self.w = w
+
+    def sendVX(self, vx):
+
+        self.lock.acquire()
+        self.data.vx = vx
+        self.lock.release()
+
+    def sendVY(self, vy):
+
+        self.lock.acquire()
+        self.data.vy = vy
+        self.lock.release()
+
+    def sendAZ(self, az):
+
+        self.lock.acquire()
+        self.data.az = az
+        self.lock.release()
+
+
+class PublisherCARLAMotors:
+
+    def __init__(self, topic, maxV, maxW, v, w):
+
+        self.maxW = maxW
+        self.maxV = maxV
+        self.v = v
+        self.w = w
+        self.topic = topic
+        self.data = CMDVel()
+        self.pub = rospy.Publisher(self.topic, CarlaEgoVehicleControl, queue_size=1)
+        rospy.init_node("CARLAMotors")
+        self.lock = threading.Lock()
+        self.kill_event = threading.Event()
+        self.thread = ThreadPublisher(self, self.kill_event)
+        self.thread.daemon = True
+        self.start()
+
+    def publish(self):
+        self.lock.acquire()
+        vehicle_control = cmdvel2CarlaEgoVehicleControl(self.data)
+        self.lock.release()
+        self.pub.publish(vehicle_control)
 
     def stop(self):
         self.kill_event.set()
