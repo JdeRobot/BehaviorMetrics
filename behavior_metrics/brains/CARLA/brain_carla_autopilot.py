@@ -24,6 +24,8 @@ class Brain:
         self.camera_2 = sensors.get_camera('camera_2')
         self.camera_3 = sensors.get_camera('camera_3')
 
+        self.pose = sensors.get_pose3d('pose3d_0')
+
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
         self.config = config
@@ -55,6 +57,9 @@ class Brain:
         """
         self.handler.update_frame(frame_id, data)
 
+    def update_pose(self, pose_data):
+        self.handler.update_pose3d(pose_data)
+
     def execute(self):
         image = self.camera.getImage().data
         image_1 = self.camera_1.getImage().data
@@ -67,4 +72,6 @@ class Brain:
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)
         self.update_frame('frame_3', image_3)
+        self.update_pose(self.pose.getPose3d())
+        #print(self.pose.getPose3d())
 

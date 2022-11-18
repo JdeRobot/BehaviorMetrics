@@ -17,7 +17,7 @@ Behaviors:
             Pose3D:
                 Pose3D_0:
                     Name: 'pose3d_0'
-                    Topic: '/F1ROS/odom'
+                    Topic: '/carla/ego_vehicle/odometry'
         Actuators:
             CARLA_Motors:
                 Motors_0:
