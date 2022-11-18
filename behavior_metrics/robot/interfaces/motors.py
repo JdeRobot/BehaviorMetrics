@@ -22,6 +22,13 @@ def cmdvel2Twist(vel):
 def cmdvel2CarlaEgoVehicleControl(vel):
     vehicle_control = CarlaEgoVehicleControl()
     vehicle_control.throttle = vel.vx
+    vehicle_control.steer = vel.az
+    vehicle_control.brake = 0.0
+    vehicle_control.hand_brake = False
+    vehicle_control.reverse = False
+    vehicle_control.gear = 0
+    vehicle_control.manual_gear_shift = False
+
     return vehicle_control
 
 
