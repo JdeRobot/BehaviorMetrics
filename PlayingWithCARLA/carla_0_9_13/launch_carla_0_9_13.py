@@ -290,6 +290,7 @@ class World(object):
             #spawn_point = carla.Transform(carla.Location(x=2.0, y=70, z=1.37), carla.Rotation(pitch=0, yaw=-90, roll=0))
             # anticlockwise
             spawn_point = carla.Transform(carla.Location(x=-2.0, y=5, z=1.37), carla.Rotation(pitch=0, yaw=90, roll=0))
+            spawn_point = carla.Transform(carla.Location(x=2.0, y=20, z=1.37), carla.Rotation(pitch=0, yaw=-90, roll=0))
 
             #spawn_point = carla.Transform(carla.Location(x=10.0, y=331, z=1.37), carla.Rotation(pitch=0, yaw=0, roll=0))
             #spawn_point = carla.Transform(carla.Location(x=5.0, y=330, z=1.37), carla.Rotation(pitch=0, yaw=30, roll=0))
