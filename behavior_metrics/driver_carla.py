@@ -9,6 +9,7 @@ from utils import environment, script_manager
 from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller import Controller
+from utils.CARLAController import CARLAController
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 
@@ -108,17 +109,23 @@ def main_win(configuration, controller):
 
 
 
-current_world = 'carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch'
 
-#environment.launch_env(app_configuration.current_world)
-environment.launch_env(current_world)
 
 config_data = check_args(sys.argv)
 app_configuration = Config(config_data['config'][0])
 
-print(app_configuration.current_world)
+environment.launch_env(app_configuration.current_world)
 
 
-controller = Controller()
+controller = CARLAController()
+
+
+# Launch control
+pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+pilot.daemon = True
+pilot.start()
+logger.info('Executing app')
+
+
 main_win(app_configuration, controller)
 

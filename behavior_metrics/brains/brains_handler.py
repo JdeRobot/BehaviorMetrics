@@ -41,6 +41,10 @@ class Brains(object):
             from utils import environment
             environment.close_gazebo()
             exec(open(self.brain_path).read())
+        elif robot_type == 'CARLA':
+            module = importlib.import_module(import_name)
+            Brain = getattr(module, 'Brain')
+            self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
         else:
             if import_name in sys.modules:  # for reloading sake
                 del sys.modules[import_name]

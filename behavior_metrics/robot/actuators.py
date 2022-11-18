@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .interfaces.motors import PublisherMotors
+from .interfaces.motors import PublisherMotors, PublisherCARLAMotors
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -36,9 +36,12 @@ class Actuators:
 
         # Load motors
         motors_conf = actuators_config.get('Motors', None)
+        carla_motors_conf = actuators_config.get('CARLA_Motors', None)
         self.motors = None
         if motors_conf:
             self.motors = self.__create_actuator(motors_conf, 'motor')
+        elif carla_motors_conf:
+            self.motors = self.__create_actuator(carla_motors_conf, 'carla_motor')
 
     def __create_actuator(self, actuator_config, actuator_type):
         """Fill the motors dictionary with instances of the motors to control the robot"""
@@ -49,14 +52,16 @@ class Actuators:
             topic = actuator_config[elem]['Topic']
             vmax = actuator_config[elem]['MaxV']
             wmax = actuator_config[elem]['MaxW']
-            
+
             if 'RL' in actuator_config[elem]:
                 if actuator_config[elem]['RL'] == False:
                     if actuator_type == 'motor':
                         actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
             else:
                 if actuator_type == 'motor':
-                        actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
+                    actuator_dict[name] = PublisherMotors(topic, vmax, wmax, 0, 0)
+                elif actuator_type == 'carla_motor':
+                    actuator_dict[name] = PublisherCARLAMotors(topic, vmax, wmax, 0, 0)
         return actuator_dict
 
     def __get_actuator(self, actuator_name, actuator_type):

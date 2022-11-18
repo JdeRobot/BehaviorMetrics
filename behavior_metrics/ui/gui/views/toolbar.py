@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
 from ui.gui.views.stats_window import StatsWindow
 from ui.gui.views.logo import Logo
 from ui.gui.views.social import SocialMedia
-from utils import constants, environment
+from utils import constants, environment, CARLAController
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -664,7 +664,10 @@ class Toolbar(QWidget):
         self.confirm_brain.setStyleSheet('color: white')
 
         self.controller.pause_pilot()
-        self.controller.pause_gazebo_simulation()
+        if type(self.controller) == CARLAController.CARLAController:
+            print(type(self.controller))
+        else:
+            self.controller.pause_gazebo_simulation()
 
     def resume_simulation(self):
         """Callback that handles simulation resuming"""
@@ -684,7 +687,10 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
-        self.controller.unpause_gazebo_simulation()
+        if type(self.controller) == CARLAController.CARLAController:
+            print(type(self.controller))
+        else:
+            self.controller.unpause_gazebo_simulation()
 
     def load_brain(self):
         """Callback that handles brain reloading"""

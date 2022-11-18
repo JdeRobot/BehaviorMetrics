@@ -270,5 +270,12 @@
         "world": "/opt/jderobot/share/jderobot/gazebo/launch/roomba_1_house.launch",
         "description": "Description"
       }
+    ],
+    "CARLA": [
+      {
+        "name": "Town01",
+        "world": "/home/jderobot/carla-ros-bridge/catkin_ws/src/ros-bridge/carla_ros_bridge/launch/carla_ros_bridge_with_example_ego_vehicle.launch",
+        "description": "Description"
+      }
     ]
 }
