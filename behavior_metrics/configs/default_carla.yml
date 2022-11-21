@@ -36,7 +36,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: /home/jderobot/carla-ros-bridge/catkin_ws/src/ros-bridge/carla_ros_bridge/launch/carla_ros_bridge_with_example_ego_vehicle.launch
+        World: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/test_town_01.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

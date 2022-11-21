@@ -81,14 +81,13 @@ class Brain:
 
         #self.motors.sendW(w)
         self.motors.sendV(1)
-        #self.update_frame('frame_0', image)
-        #self.update_frame('frame_1', image_1)
-        #self.update_frame('frame_2', image_2)
-        #self.update_frame('frame_3', image_3)
+        self.update_frame('frame_0', image)
+        self.update_frame('frame_1', image_1)
+        self.update_frame('frame_2', image_2)
+        self.update_frame('frame_3', image_3)
 
-        self.update_frame('frame_0', bird_eye_view_1)
-        self.update_frame('frame_1', bird_eye_view_1)
-        self.update_frame('frame_2', bird_eye_view_1)
+        #self.update_frame('frame_0', bird_eye_view_1)
+        
 
         self.update_pose(self.pose.getPose3d())
         #print(self.pose.getPose3d())
