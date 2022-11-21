@@ -6,6 +6,7 @@ import math
 import numpy as np
 import threading
 import time
+import carla
 from albumentations import (
     Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
@@ -25,6 +26,8 @@ class Brain:
         self.camera_3 = sensors.get_camera('camera_3')
 
         self.pose = sensors.get_pose3d('pose3d_0')
+
+        self.bird_eye_view = sensors.get_bird_eye_view('bird_eye_view_0')
 
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
@@ -46,6 +49,12 @@ class Brain:
         self.previous_w_normalized = None
         self.suddenness_distance = []
 
+        client = carla.Client('localhost', 2000)
+        client.set_timeout(10.0) # seconds
+        world = client.get_world()
+        time.sleep(3)
+        self.vehicle = world.get_actors().filter('vehicle.*')[0]
+
         time.sleep(2)
 
     def update_frame(self, frame_id, data):
@@ -66,12 +75,21 @@ class Brain:
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
 
+        bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
+
+        #print(self.bird_eye_view.getImage(self.vehicle))
+
         #self.motors.sendW(w)
         self.motors.sendV(1)
-        self.update_frame('frame_0', image)
-        self.update_frame('frame_1', image_1)
-        self.update_frame('frame_2', image_2)
-        self.update_frame('frame_3', image_3)
+        #self.update_frame('frame_0', image)
+        #self.update_frame('frame_1', image_1)
+        #self.update_frame('frame_2', image_2)
+        #self.update_frame('frame_3', image_3)
+
+        self.update_frame('frame_0', bird_eye_view_1)
+        self.update_frame('frame_1', bird_eye_view_1)
+        self.update_frame('frame_2', bird_eye_view_1)
+
         self.update_pose(self.pose.getPose3d())
         #print(self.pose.getPose3d())
 

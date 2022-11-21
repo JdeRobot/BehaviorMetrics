@@ -18,6 +18,10 @@ Behaviors:
                 Pose3D_0:
                     Name: 'pose3d_0'
                     Topic: '/carla/ego_vehicle/odometry'
+            BirdEyeView:
+                BirdEyeView_0:
+                    Name: 'bird_eye_view_0'
+                    Topic: ''
         Actuators:
             CARLA_Motors:
                 Motors_0:

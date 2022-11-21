@@ -15,6 +15,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
 from robot.interfaces.pose3d import ListenerPose3d
+from robot.interfaces.birdeyeview import BirdEyeView
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -54,6 +55,12 @@ class Sensors:
         if pose3d_conf:
             self.pose3d = self.__create_sensor(pose3d_conf, 'pose3d')
 
+        # Load BirdEyeView
+        bird_eye_view_conf = sensors_config.get('BirdEyeView', None)
+        self.bird_eye_view = None
+        if bird_eye_view_conf:
+            self.bird_eye_view = self.__create_sensor(bird_eye_view_conf, 'bird_eye_view')
+
     def __create_sensor(self, sensor_config, sensor_type):
         """Fill the sensor dictionary with instances of the sensor_type and sensor_config"""
         sensor_dict = {}
@@ -66,6 +73,8 @@ class Sensors:
                 sensor_dict[name] = ListenerLaser(topic)
             elif sensor_type == 'pose3d':
                 sensor_dict[name] = ListenerPose3d(topic)
+            elif sensor_type == 'bird_eye_view':
+                sensor_dict[name] = BirdEyeView()
 
         return sensor_dict
 
@@ -80,6 +89,8 @@ class Sensors:
                 sensor = self.lasers[sensor_name]
             elif sensor_type == 'pose3d':
                 sensor = self.pose3d[sensor_name]
+            elif sensor_type == 'bird_eye_view':
+                sensor = self.bird_eye_view[sensor_name]
         except KeyError:
             return "[ERROR] No existing camera with {} name.".format(sensor_name)
 
@@ -117,6 +128,17 @@ class Sensors:
             robot.interfaces.pose3d.ListenerPose3d instance -- pose3d instance
         """
         return self.__get_sensor(pose_name, 'pose3d')
+
+    def get_bird_eye_view(self, bird_eye_view_name):
+        """Retrieve an specific existing bird eye view
+
+        Arguments:
+            bird_eye_view_name {str} -- Name of the birdeyeview to be retrieved
+
+        Returns:
+            robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
+        """
+        return self.__get_sensor(bird_eye_view_name, 'bird_eye_view')
 
     def kill(self):
         """Destroy all the running sensors"""
