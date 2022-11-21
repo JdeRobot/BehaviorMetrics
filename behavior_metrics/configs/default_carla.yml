@@ -30,7 +30,7 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
                     
-        BrainPath: 'brains/CARLA/brain_carla_autopilot.py'
+        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
         PilotTimeCycle: 50
         Parameters:
             ImageTranform: ''
