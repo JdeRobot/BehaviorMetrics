@@ -25,7 +25,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
                              QPushButton, QScrollArea, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from ui.gui.views.stats_window import StatsWindow
+from ui.gui.views.stats_window import StatsWindow, CARLAStatsWindow
 from ui.gui.views.logo import Logo
 from ui.gui.views.social import SocialMedia
 from utils import constants, environment, CARLAController
@@ -599,7 +599,10 @@ class Toolbar(QWidget):
         self.recording_stats_label.hide()
         self.controller.stop_recording_metrics()
 
-        dialog = StatsWindow(self, self.controller)
+        if type(self.controller) == CARLAController.CARLAController:
+            dialog = CARLAStatsWindow(self, self.controller)
+        else:
+            dialog = StatsWindow(self, self.controller)
         dialog.show()
 
     def selection_change_brain(self, i):
