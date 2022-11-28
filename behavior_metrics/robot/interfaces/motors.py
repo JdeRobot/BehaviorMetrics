@@ -21,8 +21,8 @@ def cmdvel2Twist(vel):
 
 def cmdvel2CarlaEgoVehicleControl(vel):
     vehicle_control = CarlaEgoVehicleControl()
-    vehicle_control.throttle = vel.vx
-    vehicle_control.steer = vel.az
+    vehicle_control.throttle = vel.throttle
+    vehicle_control.steer = vel.steer
     vehicle_control.brake = 0.0
     vehicle_control.hand_brake = False
     vehicle_control.reverse = False
@@ -33,7 +33,7 @@ def cmdvel2CarlaEgoVehicleControl(vel):
 
 
 
-class CMDVel ():
+class CMDVel():
 
     def __init__(self):
 
@@ -53,6 +53,26 @@ class CMDVel ():
         s = s + "\n   ay: " + str(self.ay) + "\n   az: " + str(self.az)
         s = s + "\n   timeStamp: " + str(self.timeStamp) + "\n}"
         return s
+
+class CARLAVel():
+
+    def __init__(self):
+
+        self.throttle = 0.0
+        self.steer = 0.0
+        self.brake = 0.0
+        self.hand_brake = False
+        self.reverse = False
+        self.gear = 0
+        self.manual_gear_shift = False
+
+    def __str__(self):
+        s = "CARLAVel: {\n   throttle: " + str(self.throttle) + "\n   steer: " + str(self.steer)
+        s = s + "\n   brake: " + str(self.brake) + "\n   hand_brake: " + str(self.hand_brake)
+        s = s + "\n   reverse: " + str(self.reverse) + "\n   gear: " + str(self.gear)
+        s = s + "\n   manual_gear_shift: " + str(self.manual_gear_shift) + "\n}"
+        return s
+
 
 
 class PublisherMotors:
@@ -145,7 +165,7 @@ class PublisherCARLAMotors:
         self.v = v
         self.w = w
         self.topic = topic
-        self.data = CMDVel()
+        self.data = CARLAVel()
         self.pub = rospy.Publisher(self.topic, CarlaEgoVehicleControl, queue_size=1)
         rospy.init_node("CARLAMotors")
         self.lock = threading.Lock()
@@ -184,34 +204,16 @@ class PublisherCARLAMotors:
         self.data = vel
         self.lock.release()
 
-    def sendV(self, v):
-
-        self.sendVX(v)
-        self.v = v
-
-    def sendL(self, l):
-
-        self.sendVY(l)
-
-    def sendW(self, w):
-
-        self.sendAZ(w)
-        self.w = w
-
-    def sendVX(self, vx):
+    def sendThrottle(self, throttle):
 
         self.lock.acquire()
-        self.data.vx = vx
+        self.data.throttle = throttle
         self.lock.release()
+        self.throttle = throttle
 
-    def sendVY(self, vy):
+    def sendSteer(self, steer):
 
         self.lock.acquire()
-        self.data.vy = vy
+        self.data.steer = steer
         self.lock.release()
-
-    def sendAZ(self, az):
-
-        self.lock.acquire()
-        self.data.az = az
-        self.lock.release()
+        self.steer = steer

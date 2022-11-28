@@ -120,15 +120,15 @@ class Brain:
         print(prediction)
 
         if vehicle_speed > 200:
-            self.motors.sendV(0)
-            self.motors.sendW(steer)
+            self.motors.sendThrottle(0)
+            self.motors.sendSteer(steer)
         else:
             if vehicle_speed < 2: 
-                self.motors.sendV(1.0)
-                self.motors.sendW(0.0)
+                self.motors.sendThrottle(1.0)
+                self.motors.sendSteer(0.0)
             else:
-                self.motors.sendV(throttle)
-                self.motors.sendW(steer)
+                self.motors.sendThrottle(throttle)
+                self.motors.sendSteer(steer)
             
 
 
