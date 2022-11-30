@@ -3,7 +3,7 @@ import os
 import sys
 import threading
 
-from pilot import Pilot
+from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
 from utils import environment, script_manager
 from utils.colors import Colors
@@ -121,7 +121,7 @@ controller = CARLAController()
 
 
 # Launch control
-pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
 pilot.daemon = True
 pilot.start()
 logger.info('Executing app')

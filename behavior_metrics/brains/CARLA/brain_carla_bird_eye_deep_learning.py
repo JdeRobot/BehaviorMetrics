@@ -57,8 +57,8 @@ class Brain:
         time.sleep(3)
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
-        model = "20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5" # WORKS!
-        self.net = tf.keras.models.load_model('/home/jderobot/Documents/Projects/BehaviorMetrics/PlayingWithCARLA/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5')
+        model = '/home/jderobot/Documents/Projects/BehaviorMetrics/PlayingWithCARLA/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'
+        self.net = tf.keras.models.load_model(model)
         self.previous_speed = 0
 
         time.sleep(2)
@@ -92,7 +92,6 @@ class Brain:
 
         self.update_frame('frame_0', bird_eye_view_1)
         
-
         self.update_pose(self.pose.getPose3d())
 
         image_shape=(50, 150)
@@ -116,14 +115,13 @@ class Brain:
         break_command = prediction[0][2]
         speed = self.vehicle.get_velocity()
         vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-        previous_speed = vehicle_speed
-        print(prediction)
+        self.previous_speed = vehicle_speed
 
-        if vehicle_speed > 200:
+        if vehicle_speed > 30:
             self.motors.sendThrottle(0)
             self.motors.sendSteer(steer)
         else:
-            if vehicle_speed < 2: 
+            if vehicle_speed < 2:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
             else:
