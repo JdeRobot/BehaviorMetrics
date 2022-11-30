@@ -201,6 +201,8 @@ class ClickableLabel(QLabel):
         # self.setStyleSheet('background-color: black')
         if self.id == 'gzcli':
             self.setPixmap(QPixmap(':/assets/gazebo_dark.png'))
+        elif self.id == 'carlacli':
+            self.setPixmap(QPixmap(':/assets/carla_black.png'))
         elif self.id == 'play_record_dataset' or self.id == 'sim':
             if self.active:
                 self.setPixmap(QPixmap(':/assets/pause_dark.png'))
@@ -215,6 +217,8 @@ class ClickableLabel(QLabel):
         # self.setStyleSheet('background-color: rgb(0, 0, 0, 0,)')
         if self.id == 'gzcli':
             self.setPixmap(QPixmap(':/assets/gazebo_light.png'))
+        elif self.id == 'carlacli':
+            self.setPixmap(QPixmap(':/assets/carla_light.png'))
         elif self.id == 'play_record_dataset' or self.id == 'sim':
             if self.active:
                 self.setPixmap(QPixmap(':/assets/pause.png'))
@@ -530,10 +534,17 @@ class Toolbar(QWidget):
         start_pause_simulation_label.setToolTip('Start/Pause the simulation')
         reset_simulation = ClickableLabel('reset', 40, QPixmap(':/assets/reload.png'), parent=self)
         reset_simulation.setToolTip('Reset the simulation')
-        show_gzclient = ClickableLabel('gzcli', 40, QPixmap(':/assets/gazebo_light.png'), parent=self)
-        show_gzclient.setToolTip('Open/Close simulator window')
+        if type(self.controller) == CARLAController.CARLAController:
+            carla_image = ClickableLabel('carlacli', 40, QPixmap(':/assets/carla_light.png'), parent=self)
+            carla_image.setToolTip('Open/Close simulator window')
+        else:
+            show_gzclient = ClickableLabel('gzcli', 40, QPixmap(':/assets/gazebo_light.png'), parent=self)
+            show_gzclient.setToolTip('Open/Close simulator window')
         pause_reset_layout = QHBoxLayout()
-        pause_reset_layout.addWidget(show_gzclient, alignment=Qt.AlignRight)
+        if type(self.controller) == CARLAController.CARLAController:
+            pause_reset_layout.addWidget(carla_image, alignment=Qt.AlignRight)
+        else:
+            pause_reset_layout.addWidget(show_gzclient, alignment=Qt.AlignRight)
         pause_reset_layout.addWidget(start_pause_simulation_label, alignment=Qt.AlignCenter)
         pause_reset_layout.addWidget(reset_simulation, alignment=Qt.AlignLeft)
 
@@ -653,7 +664,10 @@ class Toolbar(QWidget):
 
     def reset_simulation(self):
         """Callback that handles simulation resetting"""
-        self.controller.reset_gazebo_simulation()
+        if type(self.controller) == CARLAController.CARLAController:
+            self.controller.reset_carla_simulation()
+        else:
+            self.controller.reset_gazebo_simulation()
 
     def pause_simulation(self):
         """Callback that handles simulation pausing"""
@@ -668,7 +682,7 @@ class Toolbar(QWidget):
 
         self.controller.pause_pilot()
         if type(self.controller) == CARLAController.CARLAController:
-            print(type(self.controller))
+            self.controller.pause_carla_simulation()
         else:
             self.controller.pause_gazebo_simulation()
 
@@ -691,7 +705,7 @@ class Toolbar(QWidget):
         # save to configuration
         self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
         if type(self.controller) == CARLAController.CARLAController:
-            print(type(self.controller))
+            self.controller.unpause_carla_simulation()
         else:
             self.controller.unpause_gazebo_simulation()
 

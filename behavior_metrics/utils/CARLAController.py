@@ -142,30 +142,17 @@ class CARLAController:
         return self.pose3D_data
 
     # Simulation and dataset
-    '''
-    def reset_gazebo_simulation(self):
+    def reset_carla_simulation(self):
         logger.info("Restarting simulation")
-        reset_physics = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        reset_physics()
 
-    def pause_gazebo_simulation(self):
+    def pause_carla_simulation(self):
         logger.info("Pausing simulation")
-        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-        try:
-            pause_physics()
-        except Exception as ex:
-            print(ex)
         self.pilot.stop_event.set()
 
-    def unpause_gazebo_simulation(self):
+    def unpause_carla_simulation(self):
         logger.info("Resuming simulation")
-        unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-        try:
-            unpause_physics()
-        except Exception as ex:
-            print(ex)
         self.pilot.stop_event.clear()
-    '''
+
     def record_rosbag(self, topics, dataset_name):
         """Start the recording process of the dataset using rosbags
 

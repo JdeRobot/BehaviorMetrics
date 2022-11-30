@@ -129,6 +129,7 @@ class PilotCarla(threading.Thread):
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
 
+        
         control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
         control_command = CarlaControl()
         control_command.command = 1
