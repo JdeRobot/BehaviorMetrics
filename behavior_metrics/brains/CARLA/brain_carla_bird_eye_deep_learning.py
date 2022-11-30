@@ -70,6 +70,19 @@ class Brain:
             frame_id {str} -- Id of the frame that will represent the data
             data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
         """
+        if data.shape[0] != data.shape[1]:
+            if data.shape[0] > data.shape[1]:
+                difference = data.shape[0] - data.shape[1]
+                extra_left, extra_right = int(difference/2), int(difference/2)
+                extra_top, extra_bottom = 0, 0
+            else:
+                difference = data.shape[1] - data.shape[0]
+                extra_left, extra_right = 0, 0
+                extra_top, extra_bottom = int(difference/2), int(difference/2)
+                
+
+            data = np.pad(data, ((extra_top, extra_bottom), (extra_left, extra_right), (0, 0)), mode='constant', constant_values=0)
+            
         self.handler.update_frame(frame_id, data)
 
     def update_pose(self, pose_data):
