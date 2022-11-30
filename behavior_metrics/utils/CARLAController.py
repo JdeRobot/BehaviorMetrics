@@ -69,7 +69,7 @@ class CARLAController:
 
     def __collision_callback(self, data):
         intensity = math.sqrt(data.normal_impulse.x**2 + data.normal_impulse.y**2 + data.normal_impulse.z**2)
-        print('Collision with {} (impulse {})'.format(data.other_actor_id, intensity))
+        logger.info('Collision with {} (impulse {})'.format(data.other_actor_id, intensity))
 
     def __lane_invasion_callback(self, data):
         text = []
@@ -82,7 +82,7 @@ class CARLAController:
                 text.append("Solid")
             else:
                 text.append("Unknown ")
-        print('Crossed line %s' % ' and '.join(text))
+        logger.info('Crossed line %s' % ' and '.join(text))
 
     # GUI update
     def update_frame(self, frame_id, data):
@@ -259,7 +259,7 @@ class CARLAController:
         self.metrics_record_dir_path = metrics_record_dir_path
         time_str = time.strftime("%Y%m%d-%H%M%S")
         self.experiment_metrics_filename = time_str + '.bag'
-        topics = ['/carla/ego_vehicle/odometry', '/clock']
+        topics = ['/carla/ego_vehicle/odometry', '/carla/ego_vehicle/collision', '/carla/ego_vehicle/lane_invasion', '/clock']
         command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:

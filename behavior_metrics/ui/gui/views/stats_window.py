@@ -80,5 +80,9 @@ class CARLAStatsWindow(QMainWindow):
         self.layout.addWidget(self.average_speed_label)
         self.experiment_total_real_time_label = QLabel("Experiment total real time -> " + str(self.controller.experiment_metrics['experiment_total_real_time']) + 's')
         self.layout.addWidget(self.experiment_total_real_time_label)
+        self.collisions_label = QLabel("Collisions -> " + str(self.controller.experiment_metrics['collisions']))
+        self.layout.addWidget(self.collisions_label)
+        self.lane_invasions_label = QLabel("Lane invasions -> " + str(self.controller.experiment_metrics['lane_invasions']))
+        self.layout.addWidget(self.lane_invasions_label)
 
         wid.setLayout(self.layout)

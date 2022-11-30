@@ -107,9 +107,25 @@ def get_metrics(stats_filename):
     seconds_start = start_clock['clock.secs']
     seconds_end = clock_points[len(clock_points) - 1]['clock.secs']
 
+    collision_points = []
+    if '/carla/ego_vehicle/collision' in bag_reader.topics:
+        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-collision.csv'
+        dataframe_collision = pd.read_csv(data_file)
+        for index, row in dataframe_collision.iterrows():
+            collision_points.append(row)
+
+    lane_invasion_points = []
+    if '/carla/ego_vehicle/lane_invasion' in bag_reader.topics:
+        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-lane_invasion.csv'
+        dataframe_lane_invasion = pd.read_csv(data_file, on_bad_lines='skip')
+        for index, row in dataframe_lane_invasion.iterrows():
+            lane_invasion_points.append(row)
+
     if len(checkpoints) > 1:
         experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
+        experiment_metrics = get_collisions(experiment_metrics, collision_points)
+        experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
         shutil.rmtree(stats_filename.split('.bag')[0])
@@ -131,4 +147,14 @@ def get_average_speed(experiment_metrics, seconds_start, seconds_end):
     else:
         experiment_metrics['average_speed'] = 0
     logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']))
+    return experiment_metrics
+
+def get_collisions(experiment_metrics, collision_points):
+    experiment_metrics['collisions'] = len(collision_points)
+    logger.info('* Collisions ---> ' + str(experiment_metrics['collisions']))
+    return experiment_metrics
+
+def get_lane_invasions(experiment_metrics, lane_invasion_points):
+    experiment_metrics['lane_invasions'] = len(lane_invasion_points)
+    logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
     return experiment_metrics
