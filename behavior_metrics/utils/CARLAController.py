@@ -25,6 +25,7 @@ import os
 import time
 import rosbag
 import json
+import math
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
@@ -34,6 +35,8 @@ from utils.logger import logger
 from utils.constants import CIRCUITS_TIMEOUTS
 from std_msgs.msg import String
 from utils import CARLAmetrics
+from carla_msgs.msg import CarlaLaneInvasionEvent
+from carla_msgs.msg import CarlaCollisionEvent
 
 __author__ = 'sergiopaniego'
 __contributors__ = []
@@ -60,6 +63,26 @@ class CARLAController:
         self.pose3D_data = None
         self.recording = False
         self.cvbridge = CvBridge()
+        self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/collision', CarlaCollisionEvent, self.__collision_callback)
+        self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/lane_invasion', CarlaLaneInvasionEvent, self.__lane_invasion_callback)
+
+
+    def __collision_callback(self, data):
+        intensity = math.sqrt(data.normal_impulse.x**2 + data.normal_impulse.y**2 + data.normal_impulse.z**2)
+        print('Collision with {} (impulse {})'.format(data.other_actor_id, intensity))
+
+    def __lane_invasion_callback(self, data):
+        text = []
+        for marking in data.crossed_lane_markings:
+            if marking is CarlaLaneInvasionEvent.LANE_MARKING_OTHER:
+                text.append("Other")
+            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_BROKEN:
+                text.append("Broken")
+            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_SOLID:
+                text.append("Solid")
+            else:
+                text.append("Unknown ")
+        print('Crossed line %s' % ' and '.join(text))
 
     # GUI update
     def update_frame(self, frame_id, data):
