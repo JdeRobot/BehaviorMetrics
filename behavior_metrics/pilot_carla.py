@@ -80,8 +80,6 @@ class PilotCarla(threading.Thread):
         self.checkpoint_save = False
         self.max_distance = 0.5
         self.execution_completed = False
-        self.stats_thread = threading.Thread(target=self.track_stats)
-        self.stats_thread.start()
         self.ros_clock_time = 0
         self.real_time_factor = 0
         self.brain_iterations_real_time = []
@@ -129,7 +127,7 @@ class PilotCarla(threading.Thread):
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
 
-        
+
         control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
         control_command = CarlaControl()
         control_command.command = 1
@@ -165,12 +163,6 @@ class PilotCarla(threading.Thread):
                 self.real_time_factors.append(self.real_time_factor)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
-        self.clock_subscriber.unregister()
-        self.stats_process.terminate()
-        poll = self.stats_process.poll()
-        while poll is None:
-            time.sleep(1)
-            poll = self.stats_process.poll()
         self.kill()
         logger.info('Pilot: pilot killed.')
 
@@ -278,23 +270,3 @@ class PilotCarla(threading.Thread):
     def clock_callback(self, clock_data):
         self.ros_clock_time = clock_data.clock.to_sec()
 
-    def track_stats(self):
-        args = ["gz", "stats", "-p"]
-        # Prints gz statistics. "-p": Output comma-separated values containing-
-        # real-time factor (percent), simtime (sec), realtime (sec), paused (T or F)
-        self.stats_process = subprocess.Popen(args, stdout=subprocess.PIPE)
-        # bufsize=1 enables line-bufferred mode (the input buffer is flushed
-        # automatically on newlines if you would write to process.stdin )
-        poll = self.stats_process.poll()
-        while poll is not None:
-            time.sleep(1)
-            poll = self.stats_process.poll()
-
-        self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)
-        with self.stats_process.stdout:
-            for line in iter(self.stats_process.stdout.readline, b''):
-                stats_list = [x.strip() for x in line.split(b',')]
-                try:
-                    self.real_time_factor = float(stats_list[0].decode("utf-8"))
-                except Exception as ex:
-                    self.real_time_factor = 0

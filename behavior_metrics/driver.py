@@ -208,11 +208,11 @@ def main():
             # When window is closed or keypress for quit is detected, quit gracefully.
             logger.info('closing all processes...')
             pilot.kill_event.set()
-            environment.close_gazebo()
+            environment.close_ros_and_simulators()
         else:
             script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
             logger.info('closing all processes...')
-            environment.close_gazebo()
+            environment.close_ros_and_simulators()
 
     logger.info('DONE! Bye, bye :)')
 

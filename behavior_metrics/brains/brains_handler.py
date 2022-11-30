@@ -39,7 +39,7 @@ class Brains(object):
 
         if robot_type == 'f1rl':
             from utils import environment
-            environment.close_gazebo()
+            environment.close_ros_and_simulators()
             exec(open(self.brain_path).read())
         elif robot_type == 'CARLA':
             module = importlib.import_module(import_name)
