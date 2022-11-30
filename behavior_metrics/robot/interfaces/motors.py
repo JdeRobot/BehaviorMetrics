@@ -23,7 +23,7 @@ def cmdvel2CarlaEgoVehicleControl(vel):
     vehicle_control = CarlaEgoVehicleControl()
     vehicle_control.throttle = vel.throttle
     vehicle_control.steer = vel.steer
-    vehicle_control.brake = 0.0
+    vehicle_control.brake = vel.brake
     vehicle_control.hand_brake = False
     vehicle_control.reverse = False
     vehicle_control.gear = 0
@@ -217,3 +217,10 @@ class PublisherCARLAMotors:
         self.data.steer = steer
         self.lock.release()
         self.steer = steer
+
+    def sendBrake(self, brake):
+
+        self.lock.acquire()
+        self.data.brake = brake
+        self.lock.release()
+        self.brake = brake

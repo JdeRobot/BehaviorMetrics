@@ -61,7 +61,6 @@ class Brain:
         self.net = tf.keras.models.load_model(model)
         self.previous_speed = 0
 
-        time.sleep(2)
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -122,7 +121,7 @@ class Brain:
         img = new_img_vel
 
         img = np.expand_dims(img, axis=0)
-        prediction = self.net.predict(img)
+        prediction = self.net.predict(img, verbose=0)
         throttle = prediction[0][0]
         steer = prediction[0][1] * (1 - (-1)) + (-1)
         break_command = prediction[0][2]
@@ -130,16 +129,19 @@ class Brain:
         vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
         self.previous_speed = vehicle_speed
 
-        if vehicle_speed > 30:
+        if vehicle_speed > 300:
             self.motors.sendThrottle(0)
             self.motors.sendSteer(steer)
+            self.motors.sendBrake(0)
         else:
             if vehicle_speed < 2:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
+                self.motors.sendBrake(0)
             else:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
+                self.motors.sendBrake(0)
             
 
 
