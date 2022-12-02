@@ -28,7 +28,7 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def launch_env(launch_file):
+def launch_env(launch_file, carla_simulator=False):
     """Launch the environmet specified by the launch_file given in command line at launch time.
 
     Arguments:
@@ -38,6 +38,11 @@ def launch_env(launch_file):
     # close previous instances of ROS and simulators if hanged.
     close_ros_and_simulators()
     try:
+        if carla_simulator:
+            with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
+                subprocess.Popen(["/home/jderobot/Documents/Projects/carla_simulator_0_9_13/CarlaUE4.sh", "-RenderOffScreen", "-quality-level=Low"], stdout=out, stderr=err)
+            logger.info("SimulatorEnv: launching simulator server.")
+            time.sleep(5)
         with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(["roslaunch", launch_file], stdout=out, stderr=err)
         logger.info("SimulatorEnv: launching simulator server.")
@@ -92,6 +97,21 @@ def close_ros_and_simulators():
             logger.debug("SimulatorEnv: px4 killed.")
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for px4 {}".format(ce))
+    
+    if ps_output.count('CarlaUE4.sh') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "CarlaUE4.sh"])
+            logger.debug("SimulatorEnv: CARLA SERVER killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for roscore {}".format(ce))
+    
+    if ps_output.count('CarlaUE4-Linux-Shipping') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "CarlaUE4-Linux-Shipping"])
+            logger.debug("SimulatorEnv: CARLA SERVER killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for roscore {}".format(ce))
+    
 
 
 def is_gzclient_open():

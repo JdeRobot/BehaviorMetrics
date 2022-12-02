@@ -113,8 +113,7 @@ def main_win(configuration, controller):
 
 config_data = check_args(sys.argv)
 app_configuration = Config(config_data['config'][0])
-
-environment.launch_env(app_configuration.current_world)
+environment.launch_env(app_configuration.current_world, carla_simulator=True)
 
 
 controller = CARLAController()
