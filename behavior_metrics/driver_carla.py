@@ -108,26 +108,51 @@ def main_win(configuration, controller):
         logger.error(e)
 
 
+def main():
+    """Main function for the app. Handles creation and destruction of every element of the application."""
+
+    config_data = check_args(sys.argv)
+    app_configuration = Config(config_data['config'][0])
 
 
+    if not config_data['script']:
+        environment.launch_env(app_configuration.current_world, carla_simulator=True)
+        controller = CARLAController()
 
-config_data = check_args(sys.argv)
-app_configuration = Config(config_data['config'][0])
-environment.launch_env(app_configuration.current_world, carla_simulator=True)
+        # Launch control
+        pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
+        pilot.daemon = True
+        pilot.start()
+        logger.info('Executing app')
+        main_win(app_configuration, controller)
+    else:
+        for world_counter, world in enumerate(app_configuration.current_world):
+            for brain_counter, brain in enumerate(app_configuration.brain_path):
+                for repetition in range(app_configuration.experiment_repetitions):
+                    environment.launch_env(world, carla_simulator=True)
+                    controller = CARLAController()
+
+                    # Launch control
+                    pilot = PilotCarla(app_configuration, controller, brain)
+                    pilot.daemon = True
+                    pilot.start()
+                    logger.info('Executing app')
+                    controller.reload_brain(brain)
+                    controller.resume_pilot()
+                    controller.unpause_carla_simulation()
+
+                    import time
+                    time.sleep(app_configuration.experiment_timeouts[world_counter])
+                    logger.info('closing all processes...')
+                    pilot.kill_event.set()
+                    environment.close_ros_and_simulators()
+                    time.sleep(5)
 
 
-controller = CARLAController()
+    logger.info('closing all processes...')
+    pilot.kill_event.set()
+    environment.close_ros_and_simulators()
 
-
-# Launch control
-pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
-pilot.daemon = True
-pilot.start()
-logger.info('Executing app')
-
-
-main_win(app_configuration, controller)
-
-logger.info('closing all processes...')
-pilot.kill_event.set()
-environment.close_ros_and_simulators()
+if __name__ == '__main__':
+    main()
+    sys.exit(0)
