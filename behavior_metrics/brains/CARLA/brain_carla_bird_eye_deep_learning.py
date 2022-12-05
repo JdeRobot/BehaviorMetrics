@@ -54,7 +54,8 @@ class Brain:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
-        time.sleep(3)
+        time.sleep(10)
+        print(world.get_actors())
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
         model = '/home/jderobot/Documents/Projects/BehaviorMetrics/PlayingWithCARLA/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'

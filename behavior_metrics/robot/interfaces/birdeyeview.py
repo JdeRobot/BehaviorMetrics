@@ -5,7 +5,7 @@ class BirdEyeView:
 
     def __init__(self):
         client = carla.Client('localhost', 2000)
-        client.set_timeout(5.0)
+        client.set_timeout(10.0)
         self.birdview_producer = BirdViewProducer(
             client,  # carla.Client
             target_size=PixelDimensions(width=100, height=300),
