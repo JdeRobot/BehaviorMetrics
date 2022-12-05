@@ -39,7 +39,7 @@ Behaviors:
         Name: "Experiment name"
         Description: "Experiment description"
         Timeout: [10, 10] # for each world!
-        Repetitions: 1
+        Repetitions: 2
     Simulation:
         World: [
             /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_no_gui.launch,

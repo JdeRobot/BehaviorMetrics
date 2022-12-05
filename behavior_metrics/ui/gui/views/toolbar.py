@@ -596,7 +596,10 @@ class Toolbar(QWidget):
             self.recording_stats_animation_label.start_animation()
             self.recording_stats_label.show()
             self.recording_stats_animation_label.show()
-            self.controller.record_metrics(filename, dirname)
+            if type(self.controller) == CARLAController.CARLAController:
+                self.controller.record_metrics(dirname)
+            else:
+                self.controller.record_metrics(filename, dirname)
         else:
             self.stats_hint_label.setText('Select a directory to save stats first!')
             self.stats_hint_label.show()

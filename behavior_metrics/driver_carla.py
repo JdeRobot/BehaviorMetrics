@@ -128,7 +128,8 @@ def main():
     else:
         for world_counter, world in enumerate(app_configuration.current_world):
             for brain_counter, brain in enumerate(app_configuration.brain_path):
-                for repetition in range(app_configuration.experiment_repetitions):
+                for repetition_counter in range(app_configuration.experiment_repetitions):
+                    print('******************************************************************************************************************>>>>>>>>>>>>>>>>>>>>>>>>> ' + str(world_counter) + ' ' + str(brain_counter) + ' ' + str(repetition_counter))
                     environment.launch_env(world, carla_simulator=True)
                     controller = CARLAController()
 
@@ -140,13 +141,23 @@ def main():
                     controller.reload_brain(brain)
                     controller.resume_pilot()
                     controller.unpause_carla_simulation()
+                    controller.record_metrics(app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
 
                     import time
                     time.sleep(app_configuration.experiment_timeouts[world_counter])
+
+                    controller.stop_recording_metrics()
+
+                    
+                    controller.stop_pilot()
+                    controller.pause_carla_simulation()
+
                     logger.info('closing all processes...')
                     pilot.kill_event.set()
                     environment.close_ros_and_simulators()
                     time.sleep(5)
+                    while not controller.pilot.execution_completed:
+                        time.sleep(1)
 
 
     logger.info('closing all processes...')

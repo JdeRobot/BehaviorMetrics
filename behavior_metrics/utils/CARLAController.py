@@ -216,10 +216,13 @@ class CARLAController:
         self.pilot.initialize_robot()
 
 
-    def record_metrics(self, perfect_lap_filename, metrics_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
+    def record_metrics(self, metrics_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
         logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
-        self.start_time = datetime.now()
-        current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
+        self.start_time = datetime.now()        
+        if world_counter is not None:
+            current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
+        else:
+            current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world)
         if brain_counter is not None:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
         else:
