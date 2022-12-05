@@ -7,9 +7,6 @@ import numpy as np
 import threading
 import time
 import carla
-from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
-)
 from utils.constants import DATASETS_DIR, ROOT_PATH
 
 import tensorflow as tf
