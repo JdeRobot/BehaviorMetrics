@@ -37,9 +37,11 @@ class Brain:
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
+        '''
         self.lock = threading.Lock()
         self.threshold_image_lock = threading.Lock()
         self.color_image_lock = threading.Lock()
+        '''
         self.cont = 0
         self.iteration = 0
 

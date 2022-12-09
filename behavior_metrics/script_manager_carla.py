@@ -15,16 +15,7 @@ from utils.CARLAController import CARLAController
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 
-
 def check_args(argv):
-    """Function that handles argument checking and parsing.
-
-    Arguments:
-        argv {list} -- list of arguments from command line.
-
-    Returns:
-        dict -- dictionary with the detected configuration.
-    """
     parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
                                      epilog='Enjoy the program! :)')
 
@@ -61,9 +52,27 @@ def check_args(argv):
                         help='{}Run Behavior Metrics F1 with random spawning{}'.format(
                             Colors.OKBLUE, Colors.ENDC))
 
+    parser.add_argument('-world_counter',
+                        type=str,
+                        action='append',
+                        help='{}World counter{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+
+    parser.add_argument('-brain_counter',
+                        type=str,
+                        action='append',
+                        help='{}Brain counter{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+    
+    parser.add_argument('-repetition_counter',
+                        type=str,
+                        action='append',
+                        help='{}Repetition counter{}'.format(
+                            Colors.OKBLUE, Colors.ENDC))
+
     args = parser.parse_args()
 
-    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False}
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False, 'world_counter': 0, 'brain_counter': 0, 'repetition_counter': 0}
     if args.config:
         config_data['config'] = []
         for config_file in args.config:
@@ -84,59 +93,52 @@ def check_args(argv):
     if args.random:
         config_data['random'] = args.random
 
+    if args.world_counter:
+        config_data['world_counter'] = args.world_counter
+    
+    if args.brain_counter:
+        config_data['brain_counter'] = args.brain_counter
+
+    if args.repetition_counter:
+        config_data['repetition_counter'] = args.repetition_counter
+
     return config_data
 
-def main_win(configuration, controller):
-    """shows the Qt main window of the application
-
-    Arguments:
-        configuration {Config} -- configuration instance for the application
-        controller {Controller} -- controller part of the MVC model of the application
-    """
-    try:
-        from PyQt5.QtWidgets import QApplication
-        from ui.gui.views_controller import ParentWindow, ViewsController
-
-        app = QApplication(sys.argv)
-        main_window = ParentWindow()
-
-        views_controller = ViewsController(main_window, configuration, controller)
-        views_controller.show_main_view(True)
-
-        main_window.show()
-
-        app.exec_()
-    except Exception as e:
-        logger.error(e)
-
 def main():
-    """Main function for the app. Handles creation and destruction of every element of the application."""
-
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
-    if not config_data['script']:
-        environment.launch_env(app_configuration.current_world, carla_simulator=True)
-        controller = CARLAController()
 
-        # Launch control
-        pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
-        pilot.daemon = True
-        pilot.start()
-        logger.info('Executing app')
-        main_win(app_configuration, controller)
-        logger.info('closing all processes...')
-        pilot.kill_event.set()
-        environment.close_ros_and_simulators()
-    else:
-        for world_counter, world in enumerate(app_configuration.current_world):
-            for brain_counter, brain in enumerate(app_configuration.brain_path):
-                for repetition_counter in range(app_configuration.experiment_repetitions):
-                    print("python3 script_driver_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                    os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                    print("thread finished...exiting")
-                    # TODO Check when processes are finished instead of sleep.
-                    time.sleep(30)
-                    
+    world_counter = 0
+    brain_counter = 0
+    repetition_counter = 0
+
+    world = app_configuration.current_world[world_counter]
+    brain = app_configuration.brain_path[brain_counter]
+    environment.launch_env(world, carla_simulator=True)
+    controller = CARLAController()
+
+    # Launch control
+    pilot = PilotCarla(app_configuration, controller, brain)
+    pilot.daemon = True
+    pilot.start()
+    logger.info('Executing app')
+    controller.reload_brain(brain)
+    controller.resume_pilot()
+    controller.unpause_carla_simulation()
+    controller.record_metrics(app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
+
+    rospy.sleep(app_configuration.experiment_timeouts[world_counter])
+    controller.stop_recording_metrics()
+    controller.pilot.stop()
+    controller.stop_pilot()
+    controller.pause_carla_simulation()
+
+    logger.info('closing all processes...')
+    controller.pilot.kill()
+    environment.close_ros_and_simulators()
+    while not controller.pilot.execution_completed:
+        time.sleep(1)
+
 
 if __name__ == '__main__':
     main()

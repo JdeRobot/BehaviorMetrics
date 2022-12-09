@@ -63,8 +63,8 @@ class CARLAController:
         self.pose3D_data = None
         self.recording = False
         self.cvbridge = CvBridge()
-        self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/collision', CarlaCollisionEvent, self.__collision_callback)
-        self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/lane_invasion', CarlaLaneInvasionEvent, self.__lane_invasion_callback)
+        #self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/collision', CarlaCollisionEvent, self.__collision_callback)
+        #self.lane_invasion_sub = rospy.Subscriber('/carla/ego_vehicle/lane_invasion', CarlaLaneInvasionEvent, self.__lane_invasion_callback)
 
 
     def __collision_callback(self, data):

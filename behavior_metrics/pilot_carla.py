@@ -80,6 +80,8 @@ class PilotCarla(threading.Thread):
         self.checkpoint_save = False
         self.max_distance = 0.5
         self.execution_completed = False
+        self.stats_thread = threading.Thread(target=self.track_stats)
+        self.stats_thread.start()
         self.ros_clock_time = 0
         self.real_time_factor = 0
         self.brain_iterations_real_time = []
@@ -268,5 +270,8 @@ class PilotCarla(threading.Thread):
         return experiment_metrics, first_image
 
     def clock_callback(self, clock_data):
+        #(clock_data.clock.to_sec())
         self.ros_clock_time = clock_data.clock.to_sec()
 
+    def track_stats(self):
+        self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)
