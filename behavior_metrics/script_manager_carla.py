@@ -108,9 +108,11 @@ def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
 
-    world_counter = 0
-    brain_counter = 0
-    repetition_counter = 0
+    world_counter = int(config_data['world_counter'][0])
+    brain_counter = int(config_data['brain_counter'][0])
+    repetition_counter = int(config_data['repetition_counter'][0])
+
+    print(world_counter, brain_counter, repetition_counter)
 
     world = app_configuration.current_world[world_counter]
     brain = app_configuration.brain_path[brain_counter]
