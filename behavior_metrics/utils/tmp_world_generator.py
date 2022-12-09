@@ -53,13 +53,20 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
     root = tree.getroot()
 
     perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
-
+    check_point_offset = 5
     if randomize:
-        random_index = random.randint(0, int(len(perfect_lap_checkpoints)))
-        random_point = perfect_lap_checkpoints[random_index]
+        random_index = random.randint(0, int(len(perfect_lap_checkpoints) - check_point_offset - 1))
+        
+	try:
+            random_point = perfect_lap_checkpoints[random_index]
+        except Exception as exc:
+            random_index = 2
+            random_point = perfect_lap_checkpoints[random_index]
+            
+
 
         p1 = perfect_lap_checkpoints[random_index]
-        p2 = perfect_lap_checkpoints[random_index + 5]
+        p2 = perfect_lap_checkpoints[random_index + check_point_offset]
         delta_y = p2['pose.pose.position.y'] - p1['pose.pose.position.y']
         delta_x = p2['pose.pose.position.x'] - p1['pose.pose.position.x']
         result = math.atan2(delta_y, delta_x)
