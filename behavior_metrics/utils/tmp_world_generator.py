@@ -28,7 +28,7 @@ import math
 
 import numpy as np
 
-from utils import metrics
+from utils import metrics_gazebo
 from utils import environment
 from utils.logger import logger
 
@@ -52,7 +52,7 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
     tree = ET.parse(os.path.dirname(os.path.dirname(current_world)) + '/worlds/' + world_name)
     root = tree.getroot()
 
-    perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
+    perfect_lap_checkpoints, circuit_diameter = metrics_gazebo.read_perfect_lap_rosbag(stats_perfect_lap)
 
     if randomize:
         random_index = random.randint(0, int(len(perfect_lap_checkpoints)))

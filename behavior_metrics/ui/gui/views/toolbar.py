@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QFileDialog,
 from ui.gui.views.stats_window import StatsWindow, CARLAStatsWindow
 from ui.gui.views.logo import Logo
 from ui.gui.views.social import SocialMedia
-from utils import constants, environment, CARLAController
+from utils import constants, environment, controller_carla
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -534,14 +534,14 @@ class Toolbar(QWidget):
         start_pause_simulation_label.setToolTip('Start/Pause the simulation')
         reset_simulation = ClickableLabel('reset', 40, QPixmap(':/assets/reload.png'), parent=self)
         reset_simulation.setToolTip('Reset the simulation')
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             carla_image = ClickableLabel('carlacli', 40, QPixmap(':/assets/carla_light.png'), parent=self)
             carla_image.setToolTip('Open/Close simulator window')
         else:
             show_gzclient = ClickableLabel('gzcli', 40, QPixmap(':/assets/gazebo_light.png'), parent=self)
             show_gzclient.setToolTip('Open/Close simulator window')
         pause_reset_layout = QHBoxLayout()
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             pause_reset_layout.addWidget(carla_image, alignment=Qt.AlignRight)
         else:
             pause_reset_layout.addWidget(show_gzclient, alignment=Qt.AlignRight)
@@ -596,7 +596,7 @@ class Toolbar(QWidget):
             self.recording_stats_animation_label.start_animation()
             self.recording_stats_label.show()
             self.recording_stats_animation_label.show()
-            if type(self.controller) == CARLAController.CARLAController:
+            if type(self.controller) == controller_carla.ControllerCarla:
                 self.controller.record_metrics(dirname)
             else:
                 self.controller.record_metrics(filename, dirname)
@@ -613,7 +613,7 @@ class Toolbar(QWidget):
         self.recording_stats_label.hide()
         self.controller.stop_recording_metrics()
 
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             dialog = CARLAStatsWindow(self, self.controller)
         else:
             dialog = StatsWindow(self, self.controller)
@@ -667,7 +667,7 @@ class Toolbar(QWidget):
 
     def reset_simulation(self):
         """Callback that handles simulation resetting"""
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             self.controller.reset_carla_simulation()
         else:
             self.controller.reset_gazebo_simulation()
@@ -684,7 +684,7 @@ class Toolbar(QWidget):
         self.confirm_brain.setStyleSheet('color: white')
 
         self.controller.pause_pilot()
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             self.controller.pause_carla_simulation()
         else:
             self.controller.pause_gazebo_simulation()
@@ -707,7 +707,7 @@ class Toolbar(QWidget):
 
         # save to configuration
         self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
-        if type(self.controller) == CARLAController.CARLAController:
+        if type(self.controller) == controller_carla.ControllerCarla:
             self.controller.unpause_carla_simulation()
         else:
             self.controller.unpause_gazebo_simulation()

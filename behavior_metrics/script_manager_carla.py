@@ -7,11 +7,10 @@ import rospy
 
 from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
-from utils import environment, script_manager
+from utils import environment
 from utils.colors import Colors
 from utils.configuration import Config
-from utils.controller import Controller
-from utils.CARLAController import CARLAController
+from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 
@@ -117,7 +116,7 @@ def main():
     world = app_configuration.current_world[world_counter]
     brain = app_configuration.brain_path[brain_counter]
     environment.launch_env(world, carla_simulator=True)
-    controller = CARLAController()
+    controller = ControllerCarla()
 
     # Launch control
     pilot = PilotCarla(app_configuration, controller, brain)

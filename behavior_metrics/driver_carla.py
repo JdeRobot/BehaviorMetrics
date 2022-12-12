@@ -7,11 +7,10 @@ import rospy
 
 from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
-from utils import environment, script_manager
+from utils import environment
 from utils.colors import Colors
 from utils.configuration import Config
-from utils.controller import Controller
-from utils.CARLAController import CARLAController
+from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 
@@ -116,7 +115,7 @@ def main():
     app_configuration = Config(config_data['config'][0])
     if not config_data['script']:
         environment.launch_env(app_configuration.current_world, carla_simulator=True)
-        controller = CARLAController()
+        controller = ControllerCarla()
 
         # Launch control
         pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
@@ -136,6 +135,8 @@ def main():
                     print("thread finished...exiting")
                     # TODO Check when processes are finished instead of sleep.
                     time.sleep(30)
+
+    logger.info('DONE! Bye, bye :)')
                     
 
 if __name__ == '__main__':

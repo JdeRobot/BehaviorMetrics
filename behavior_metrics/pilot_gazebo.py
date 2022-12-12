@@ -32,7 +32,7 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-class Pilot(threading.Thread):
+class PilotGazebo(threading.Thread):
     """This class handles the robot and its brain.
 
     This class called Pilot that handles the initialization of the robot sensors and actuators and the
