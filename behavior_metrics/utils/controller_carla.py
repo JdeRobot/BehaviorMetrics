@@ -275,7 +275,7 @@ class ControllerCarla:
         except rosbag.bag.ROSBagException:
             logger.info("Bag was empty, Try Again")
 
-        logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time))
+        logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time) + ' s')
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
         
         time_str = time.strftime("%Y%m%d-%H%M%S")

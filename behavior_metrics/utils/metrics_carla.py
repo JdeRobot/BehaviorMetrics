@@ -24,31 +24,6 @@ from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
 
-from scipy.optimize import fmin, dual_annealing
-from scipy.interpolate import CubicSpline
-
-MIN_COMPLETED_DISTANCE_EXPERIMENT = 10
-MIN_PERCENTAGE_COMPLETED_EXPERIMENT = 0
-MIN_EXPERIMENT_TIME = 25
-LAP_COMPLETED_PERCENTAGE = 100
-
-
-def is_finish_line(point, start_point):
-    try:
-        current_point = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-    except IndexError:
-        current_point = point
-    try:
-        start_point = np.array([start_point['pose.pose.position.x'], start_point['pose.pose.position.y']])
-    except IndexError:
-        start_point = start_point
-    dist = (start_point - current_point) ** 2
-    dist = np.sum(dist, axis=0)
-    dist = np.sqrt(dist)
-    if dist <= 1.0:
-        return True
-    return False
-
 
 def circuit_distance_completed(checkpoints, lap_point):
     previous_point = []
@@ -127,7 +102,7 @@ def get_metrics(stats_filename):
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
-        logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']))
+        logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
         shutil.rmtree(stats_filename.split('.bag')[0])
         return experiment_metrics
     else:
@@ -137,16 +112,16 @@ def get_metrics(stats_filename):
 def get_distance_completed(experiment_metrics, checkpoints):
     end_point = checkpoints[len(checkpoints) - 1]
     experiment_metrics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    logger.info('* Completed distance ---> ' + str(experiment_metrics['completed_distance']))
+    logger.info('* Completed distance ---> ' + str(experiment_metrics['completed_distance']) + ' m')
     return experiment_metrics
 
 
 def get_average_speed(experiment_metrics, seconds_start, seconds_end):
     if (seconds_end - seconds_start):
-        experiment_metrics['average_speed'] = experiment_metrics['completed_distance'] / (seconds_end - seconds_start)
+        experiment_metrics['average_speed'] = (experiment_metrics['completed_distance'] / (seconds_end - seconds_start))* 3.6
     else:
         experiment_metrics['average_speed'] = 0
-    logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']))
+    logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']) + ' km/h')
     return experiment_metrics
 
 def get_collisions(experiment_metrics, collision_points):
