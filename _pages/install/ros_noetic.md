@@ -47,6 +47,7 @@ Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workfl
     2. [Installing ROS Noetic](#noetic)
     3. [Installing Jderobot's dependencies](#dependencies)
     4. [Installing Behavior Metrics](#behavior-metrics)
+    5. [Installing CARLA simulator and support](#carla-simulator)
 2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
         1. [VNC container viewer](#vnc)
@@ -153,16 +154,23 @@ pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 ```
 
-### Reinforcement Learning
+### Installing CARLA simulator and support <a name="carla-simulator"></a>
 
-To use current reinforcement brain first some variables must be loaded to the environmet.
+For installing CARLA and supporting this new simulator:
 
+1. Install [CARLA 0.9.13](https://carla.readthedocs.io/en/0.9.13/start_quickstart/)
+2. Install [CARLA ROS Bridge](https://carla.readthedocs.io/projects/ros-bridge/en/latest/ros_installation_ros1/)
+3. Install [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
 ```
-cd BehaviorMetrics/gym-gazebo/
-bash load_env.sh 
+    pip3 install carla_birdeye_view==1.1.1 # already in requirements.txt
 ```
-
-From here you are to good to go to the [Quick Start guide!](../quick_start/)
+5. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
+```
+    source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
+    export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator_0_9_13/
+    export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
+    export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg   
+```
 
 ## Installation using Docker <a name="docker-installation"></a>
 
