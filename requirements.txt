@@ -16,7 +16,7 @@ matplotlib==3.1.2
 kiwisolver==1.2
 defusedxml==0.6.0
 netifaces==0.10.9
-Pillow==9.0.1
+Pillow==9.3.0
 pyglet==1.5.0
 gym==0.17.3
 requests==2.21.0
@@ -33,6 +33,10 @@ tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
 tensorflow-gpu==2.7.2
 albumentations==1.0.3
+<<<<<<< HEAD
 protobuf==3.20
 carla_birdeye_view==1.1.1
 transforms3d==0.4.1
+=======
+protobuf==3.20.2
+>>>>>>> 56a852d12d5348da04c99ac79499485ac5d9c7a0
