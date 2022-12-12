@@ -25,10 +25,10 @@ import sys
 
 import numpy as np
 
-from utils import metrics
+from utils import metrics_gazebo
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, CIRCUITS_TIMEOUTS
-from pilot import Pilot
+from pilot_gazebo import PilotGazebo
 from utils.tmp_world_generator import tmp_world_generator
 from rosgraph_msgs.msg import Clock
 
@@ -42,7 +42,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                 tmp_world_generator(world, app_configuration.stats_perfect_lap[world_counter],
                                        app_configuration.real_time_update_rate, randomize=randomize, gui=False,
                                        launch=True)
-                pilot = Pilot(app_configuration, controller, app_configuration.brain_path[brain_counter])
+                pilot = PilotGazebo(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
                 pilot.real_time_update_rate = app_configuration.real_time_update_rate
                 controller.pilot.start()
@@ -63,7 +63,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                                           world_counter=world_counter, brain_counter=brain_counter,
                                           repetition_counter=repetition_counter)
 
-                perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(
+                perfect_lap_checkpoints, circuit_diameter = metrics_gazebo.read_perfect_lap_rosbag(
                     app_configuration.stats_perfect_lap[world_counter])
                 new_point = np.array([controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().x,
                                       controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
@@ -84,7 +84,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                                           controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().y])
                     if is_trapped(old_point, new_point):
                         is_finished = True
-                    elif metrics.is_finish_line(new_point, start_point):
+                    elif metrics_gazebo.is_finish_line(new_point, start_point):
                         is_finished = True
                     elif previous_pitch != 0 and abs(controller.pilot.sensors.get_pose3d('pose3d_0').getPose3d().pitch
                                                      - previous_pitch) > 0.2:

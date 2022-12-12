@@ -33,14 +33,14 @@ from datetime import datetime
 from utils.logger import logger
 from utils.constants import CIRCUITS_TIMEOUTS
 from std_msgs.msg import String
-from utils import metrics
+from utils import metrics_gazebo
 
 __author__ = 'fqez'
 __contributors__ = []
 __license__ = 'GPLv3'
 
 
-class Controller:
+class ControllerGazebo:
     """This class defines the controller of the architecture, responsible of the communication between the logic (model)
     and the user interface (view).
 
@@ -224,9 +224,9 @@ class Controller:
         while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
-        perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(self.perfect_lap_filename)
+        perfect_lap_checkpoints, circuit_diameter = metrics_gazebo.read_perfect_lap_rosbag(self.perfect_lap_filename)
         if not pitch_error:
-            self.experiment_metrics = metrics.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
+            self.experiment_metrics = metrics_gazebo.get_metrics(self.experiment_metrics_filename, perfect_lap_checkpoints, circuit_diameter)
             self.experiment_metrics, first_image = self.pilot.calculate_metrics(self.experiment_metrics)
 
             try:

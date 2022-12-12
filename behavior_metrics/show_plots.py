@@ -7,7 +7,7 @@ import cv2
 from cv_bridge import CvBridge
 import numpy as np
 
-from utils import metrics
+from utils import metrics_gazebo
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QGridLayout
@@ -222,7 +222,7 @@ def show_metrics(bags, bags_checkpoints, bags_metadata, bags_experiment_data, fi
         elif bags_metadata[x]['world'] == 'montmelo_line.launch':
             perfect_lap_path = 'perfect_bags/lap-montmelo.bag'
 
-        perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(perfect_lap_path)
+        perfect_lap_checkpoints, circuit_diameter = metrics_gazebo.read_perfect_lap_rosbag(perfect_lap_path)
         experiment_metrics = bags_experiment_data[x]
         experiment_metrics['experiment_metrics'] = experiment_metrics
         experiments_metrics.append(experiment_metrics)

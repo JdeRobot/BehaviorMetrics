@@ -19,12 +19,12 @@ import os
 import sys
 import threading
 
-from pilot import Pilot
+from pilot_gazebo import PilotGazebo
 from ui.tui.main_view import TUI
-from utils import environment, script_manager
+from utils import environment, script_manager_gazebo
 from utils.colors import Colors
 from utils.configuration import Config
-from utils.controller import Controller
+from utils.controller_gazebo import ControllerGazebo
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 
@@ -112,7 +112,7 @@ def conf_window(configuration):
         configuration {Config} -- configuration instance for the application
 
     Keyword Arguments:
-        controller {Controller} -- controller part of the MVC of the application (default: {None})
+        controller {ControllerGazebo} -- controller part of the MVC of the application (default: {None})
     """
     try:
 
@@ -137,7 +137,7 @@ def main_win(configuration, controller):
 
     Arguments:
         configuration {Config} -- configuration instance for the application
-        controller {Controller} -- controller part of the MVC model of the application
+        controller {ControllerGazebo} -- controller part of the MVC model of the application
     """
     try:
         from PyQt5.QtWidgets import QApplication
@@ -165,7 +165,7 @@ def main():
         app_configuration = Config(config)
 
         # Create controller of model-view
-        controller = Controller()
+        controller = ControllerGazebo()
 
         # If there's no config, configure the app through the GUI
         if app_configuration.empty and config_data['gui']:
@@ -194,7 +194,7 @@ def main():
 
         if not config_data['script']:
             # Launch control
-            pilot = Pilot(app_configuration, controller, app_configuration.brain_path)
+            pilot = PilotGazebo(app_configuration, controller, app_configuration.brain_path)
             pilot.daemon = True
             pilot.start()
             logger.info('Executing app')
@@ -208,11 +208,11 @@ def main():
             # When window is closed or keypress for quit is detected, quit gracefully.
             logger.info('closing all processes...')
             pilot.kill_event.set()
-            environment.close_gazebo()
+            environment.close_ros_and_simulators()
         else:
-            script_manager.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
+            script_manager_gazebo.run_brains_worlds(app_configuration, controller, randomize=config_data['random'])
             logger.info('closing all processes...')
-            environment.close_gazebo()
+            environment.close_ros_and_simulators()
 
     logger.info('DONE! Bye, bye :)')
 

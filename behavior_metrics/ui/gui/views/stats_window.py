@@ -62,3 +62,29 @@ class StatsWindow(QMainWindow):
             self.layout.addWidget(self.circuit_diameter_label)
 
         wid.setLayout(self.layout)
+
+
+class CARLAStatsWindow(QMainWindow):
+    def __init__(self, parent=None, controller=None):
+        super(CARLAStatsWindow, self).__init__(parent)
+
+        self.controller = controller
+        self.setWindowTitle("Metrics")
+        wid = QWidget(self)
+        self.setCentralWidget(wid)
+
+        self.layout = QVBoxLayout()
+        self.completed_distance_label = QLabel("Completed distance -> " + str(self.controller.experiment_metrics['completed_distance']) + " m")
+        self.layout.addWidget(self.completed_distance_label)
+        self.average_speed_label = QLabel("Average speed -> " + str(self.controller.experiment_metrics['average_speed']) + " km/h")
+        self.layout.addWidget(self.average_speed_label)
+        self.experiment_total_real_time_label = QLabel("Experiment total real time -> " + str(self.controller.experiment_metrics['experiment_total_real_time']) + ' s')
+        self.layout.addWidget(self.experiment_total_real_time_label)
+        self.experiment_total_simulated_time_label = QLabel("Experiment total simulated time -> " + str(self.controller.experiment_metrics['experiment_total_simulated_time']) + ' s')
+        self.layout.addWidget(self.experiment_total_simulated_time_label)
+        self.collisions_label = QLabel("Collisions -> " + str(self.controller.experiment_metrics['collisions']))
+        self.layout.addWidget(self.collisions_label)
+        self.lane_invasions_label = QLabel("Lane invasions -> " + str(self.controller.experiment_metrics['lane_invasions']))
+        self.layout.addWidget(self.lane_invasions_label)
+
+        wid.setLayout(self.layout)

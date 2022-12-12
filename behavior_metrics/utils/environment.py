@@ -18,6 +18,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 import sys
 import time
+import os
 
 from utils.logger import logger
 
@@ -28,70 +29,124 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def launch_env(launch_file):
+def launch_env(launch_file, carla_simulator=False):
     """Launch the environmet specified by the launch_file given in command line at launch time.
 
     Arguments:
         launch_file {str} -- path of the launch file to be executed
     """
 
-    # close previous instances of gazebo if hanged.
-    close_gazebo()
+    # close previous instances of ROS and simulators if hanged.
+    close_ros_and_simulators()
     try:
+        if carla_simulator:
+            with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
+                subprocess.Popen(["/home/jderobot/Documents/Projects/carla_simulator_0_9_13/CarlaUE4.sh", "-RenderOffScreen"], stdout=out, stderr=err)
+                #subprocess.Popen(["/home/jderobot/Documents/Projects/carla_simulator_0_9_13/CarlaUE4.sh", "-RenderOffScreen", "-quality-level=Low"], stdout=out, stderr=err)
+            logger.info("SimulatorEnv: launching simulator server.")
+            time.sleep(5)
         with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-            subprocess.Popen(["roslaunch", launch_file], stdout=out, stderr=err)
-        logger.info("GazeboEnv: launching gzserver.")
+            child = subprocess.Popen(["roslaunch", launch_file], stdout=out, stderr=err)
+        logger.info("SimulatorEnv: launching simulator server.")
     except OSError as oe:
-        logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
-        close_gazebo()
+        logger.error("SimulatorEnv: exception raised launching simulator server. {}".format(oe))
+        close_ros_and_simulators()
         sys.exit(-1)
 
-    # give gazebo some time to initialize
+    # give simulator some time to initialize
     time.sleep(5)
 
 
-def close_gazebo():
-    """Kill all the gazebo and ROS processes."""
+def close_ros_and_simulators():
+    """Kill all the simulators and ROS processes."""
     try:
         ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
     except subprocess.CalledProcessError as ce:
-        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
+        logger.error("SimulatorEnv: exception raised executing ps command {}".format(ce))
         sys.exit(-1)
 
     if ps_output.count('gzclient') > 0:
         try:
             subprocess.check_call(["killall", "-9", "gzclient"])
-            logger.debug("GazeboEnv: gzclient killed.")
+            logger.debug("SimulatorEnv: gzclient killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for gzclient {}".format(ce))
 
     if ps_output.count('gzserver') > 0:
         try:
             subprocess.check_call(["killall", "-9", "gzserver"])
-            logger.debug("GazeboEnv: gzserver killed.")
+            logger.debug("SimulatorEnv: gzserver killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for gzserver {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for gzserver {}".format(ce))
+
+    if ps_output.count('CarlaUE4.sh') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "CarlaUE4.sh"])
+            logger.debug("SimulatorEnv: CARLA server killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for CARLA server {}".format(ce))
+
+    if ps_output.count('CarlaUE4-Linux-Shipping') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "CarlaUE4-Linux-Shipping"])
+            logger.debug("SimulatorEnv: CarlaUE4-Linux-Shipping killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for CarlaUE4-Linux-Shipping {}".format(ce))
+
+    if ps_output.count('rosout') > 0:
+        try:
+            import rosnode
+            for node in rosnode.get_node_names():
+                if node != '/carla_ros_bridge':
+                    subprocess.check_call(["rosnode", "kill", node])
+
+            logger.debug("SimulatorEnv:rosout killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for rosout {}".format(ce))
+    
+    if ps_output.count('bridge.py') > 0:
+        try:
+            os.system("ps -ef | grep 'bridge.py' | awk '{print $2}' | xargs kill -9")
+            logger.debug("SimulatorEnv:bridge.py killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for bridge.py {}".format(ce))
+        except FileNotFoundError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for bridge.py {}".format(ce))
 
     if ps_output.count('rosmaster') > 0:
         try:
             subprocess.check_call(["killall", "-9", "rosmaster"])
-            logger.debug("GazeboEnv: rosmaster killed.")
+            logger.debug("SimulatorEnv: rosmaster killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for rosmaster {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for rosmaster {}".format(ce))
 
     if ps_output.count('roscore') > 0:
         try:
             subprocess.check_call(["killall", "-9", "roscore"])
-            logger.debug("GazeboEnv: roscore killed.")
+            logger.debug("SimulatorEnv: roscore killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for roscore {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for roscore {}".format(ce))
 
     if ps_output.count('px4') > 0:
         try:
             subprocess.check_call(["killall", "-9", "px4"])
-            logger.debug("GazeboEnv: px4 killed.")
+            logger.debug("SimulatorEnv: px4 killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for px4 {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for px4 {}".format(ce))
+
+    if ps_output.count('roslaunch') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "roslaunch"])
+            logger.debug("SimulatorEnv: roslaunch killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for roslaunch {}".format(ce))
+    
+    if ps_output.count('rosout') > 0:
+        try:
+            subprocess.check_call(["killall", "-9", "rosout"])
+            logger.debug("SimulatorEnv:rosout killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for rosout {}".format(ce))
 
 
 def is_gzclient_open():
@@ -104,7 +159,7 @@ def is_gzclient_open():
     try:
         ps_output = subprocess.check_output(["ps", "-Af"], encoding='utf8').strip("\n")
     except subprocess.CalledProcessError as ce:
-        logger.error("GazeboEnv: exception raised executing ps command {}".format(ce))
+        logger.error("SimulatorEnv: exception raised executing ps command {}".format(ce))
         sys.exit(-1)
 
     return ps_output.count('gzclient') > 0
@@ -116,9 +171,9 @@ def close_gzclient():
     if is_gzclient_open():
         try:
             subprocess.check_call(["killall", "-9", "gzclient"])
-            logger.debug("GazeboEnv: gzclient killed.")
+            logger.debug("SimulatorEnv: gzclient killed.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing killall command for gzclient {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing killall command for gzclient {}".format(ce))
 
 
 def open_gzclient():
@@ -128,6 +183,6 @@ def open_gzclient():
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
                 subprocess.Popen(["gzclient"], stdout=out, stderr=err)
-            logger.debug("GazeboEnv: gzclient started.")
+            logger.debug("SimulatorEnv: gzclient started.")
         except subprocess.CalledProcessError as ce:
-            logger.error("GazeboEnv: exception raised executing gzclient {}".format(ce))
+            logger.error("SimulatorEnv: exception raised executing gzclient {}".format(ce))

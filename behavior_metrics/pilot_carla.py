@@ -24,6 +24,7 @@ from robot.sensors import Sensors
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
 from rosgraph_msgs.msg import Clock
+from carla_msgs.msg import CarlaControl
 
 import numpy as np
 
@@ -32,10 +33,10 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-class Pilot(threading.Thread):
+class PilotCarla(threading.Thread):
     """This class handles the robot and its brain.
 
-    This class called Pilot that handles the initialization of the robot sensors and actuators and the
+    This class called PilotCarla that handles the initialization of the robot sensors and actuators and the
     brain that will control the robot. The main logic consists of an infinite loop called every 60 milliseconds that
     invoke an action from the brain.
 
@@ -90,19 +91,10 @@ class Pilot(threading.Thread):
         self.pilot_start_time = 0
         self.time_cycle = self.configuration.pilot_time_cycle
 
-    def __wait_gazebo(self):
-        """Wait for gazebo to be initialized"""
+    def __wait_carla(self):
+        """Wait for simulator to be initialized"""
 
-        # gazebo_ready = False
-        self.stop_event.set()
-
-    #         while not gazebo_ready:
-    #             try:
-    #                 self.controller.pause_gazebo_simulation()
-    #                 gazebo_ready = True
-    #                 self.stop_event.clear()
-    #             except Exception as ex:
-    #                 print(ex)
+        self.stop_event.set() 
 
     def initialize_robot(self):
         """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
@@ -116,7 +108,7 @@ class Pilot(threading.Thread):
         else:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
                                  config=self.configuration.brain_kwargs)
-        self.__wait_gazebo()
+        self.__wait_carla()
 
     def stop_interfaces(self):
         """Function that kill the current interfaces of the robot. For reloading purposes."""
@@ -136,8 +128,20 @@ class Pilot(threading.Thread):
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
+
+
+        control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
+        control_command = CarlaControl()
+        control_command.command = 1
+        control_pub.publish(control_command)
+
         while not self.kill_event.is_set():
             if not self.stop_event.is_set():
+                control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
+                control_command = CarlaControl()
+                control_command.command = 2
+                control_pub.publish(control_command)
+
                 start_time = datetime.now()
                 start_time_ros = self.ros_clock_time
                 self.execution_completed = False
@@ -161,12 +165,6 @@ class Pilot(threading.Thread):
                 self.real_time_factors.append(self.real_time_factor)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
-        self.clock_subscriber.unregister()
-        self.stats_process.terminate()
-        poll = self.stats_process.poll()
-        while poll is None:
-            time.sleep(1)
-            poll = self.stats_process.poll()
         self.kill()
         logger.info('Pilot: pilot killed.')
 
@@ -272,25 +270,8 @@ class Pilot(threading.Thread):
         return experiment_metrics, first_image
 
     def clock_callback(self, clock_data):
+        #(clock_data.clock.to_sec())
         self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):
-        args = ["gz", "stats", "-p"]
-        # Prints gz statistics. "-p": Output comma-separated values containing-
-        # real-time factor (percent), simtime (sec), realtime (sec), paused (T or F)
-        self.stats_process = subprocess.Popen(args, stdout=subprocess.PIPE)
-        # bufsize=1 enables line-bufferred mode (the input buffer is flushed
-        # automatically on newlines if you would write to process.stdin )
-        poll = self.stats_process.poll()
-        while poll is not None:
-            time.sleep(1)
-            poll = self.stats_process.poll()
-
         self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)
-        with self.stats_process.stdout:
-            for line in iter(self.stats_process.stdout.readline, b''):
-                stats_list = [x.strip() for x in line.split(b',')]
-                try:
-                    self.real_time_factor = float(stats_list[0].decode("utf-8"))
-                except Exception as ex:
-                    self.real_time_factor = 0

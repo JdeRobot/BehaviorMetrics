@@ -28,14 +28,14 @@ import math
 
 import numpy as np
 
-from utils import metrics
+from utils import metrics_gazebo
 from utils import environment
 from utils.logger import logger
 
 
 def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
                            launch=False):
-    environment.close_gazebo()
+    environment.close_ros_and_simulators()
     tree = ET.parse(current_world)
     root = tree.getroot()
     for child in root[0]:
@@ -52,7 +52,7 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
     tree = ET.parse(os.path.dirname(os.path.dirname(current_world)) + '/worlds/' + world_name)
     root = tree.getroot()
 
-    perfect_lap_checkpoints, circuit_diameter = metrics.read_perfect_lap_rosbag(stats_perfect_lap)
+    perfect_lap_checkpoints, circuit_diameter = metrics_gazebo.read_perfect_lap_rosbag(stats_perfect_lap)
 
     if randomize:
         random_index = random.randint(0, int(len(perfect_lap_checkpoints)))
@@ -103,11 +103,11 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
                 subprocess.Popen(["roslaunch", 'tmp_circuit.launch'], stdout=out, stderr=err)
-                logger.info("GazeboEnv: launching gzserver.")
+                logger.info("SimulatorEnv: launching gzserver.")
         except OSError as oe:
-            logger.error("GazeboEnv: exception raised launching gzserver. {}".format(oe))
-            environment.close_gazebo()
+            logger.error("SimulatorEnv: exception raised launching gzserver. {}".format(oe))
+            environment.close_ros_and_simulators()
             sys.exit(-1)
 
-        # give gazebo some time to initialize
+        # give simulator some time to initialize
         time.sleep(5)

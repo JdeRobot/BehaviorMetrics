@@ -34,3 +34,5 @@ tensorboard-plugin-wit==1.8.0
 tensorflow-gpu==2.7.2
 albumentations==1.0.3
 protobuf==3.20.2
+carla_birdeye_view==1.1.1
+transforms3d==0.4.1
