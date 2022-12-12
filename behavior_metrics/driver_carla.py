@@ -133,8 +133,6 @@ def main():
                     print("python3 script_driver_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                     os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                     print("thread finished...exiting")
-                    # TODO Check when processes are finished instead of sleep.
-                    time.sleep(30)
 
     logger.info('DONE! Bye, bye :)')
                     
