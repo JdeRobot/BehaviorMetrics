@@ -60,7 +60,8 @@ class Brain:
         #print(world.get_actors())
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
-        model = '/home/jderobot/Documents/Projects/BehaviorMetrics/PlayingWithCARLA/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'
+        model = '/home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'
+
         self.net = tf.keras.models.load_model(model)
         self.previous_speed = 0
 
