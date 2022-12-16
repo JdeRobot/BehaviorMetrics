@@ -79,7 +79,7 @@ class Brain:
         print(map_waypoints[0].transform)
         print(map_waypoints[0].transform.location)
         print(map_waypoints[0].transform.location.x)
-        
+        '''
         # open the file in the write mode
         f = open('town_waypoints_town_1_b.csv', 'w')
 
@@ -91,7 +91,7 @@ class Brain:
             row = [waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.location.z]
             writer.writerow(row)
         f.close()
-        
+        '''
         
         #print(m.generate_waypoints(1.5))
         print('---------------------------------------------------------------------------------------------------')

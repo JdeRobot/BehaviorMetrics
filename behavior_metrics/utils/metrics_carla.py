@@ -101,6 +101,7 @@ def get_metrics(stats_filename):
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
         shutil.rmtree(stats_filename.split('.bag')[0])
@@ -132,4 +133,44 @@ def get_collisions(experiment_metrics, collision_points):
 def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
+    return experiment_metrics
+
+def get_position_deviation(experiment_metrics, checkpoints):
+    '''
+        checkpoints --> POSE
+
+
+    '''
+    import carla
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(10.0) # seconds
+    world = client.get_world()
+    
+    print('---------------------------------------------------------------------------------------------------')
+    import random
+    m = world.get_map()
+    print(m.get_spawn_points())
+    waypoint = m.get_waypoint(m.get_spawn_points()[0].location)
+    
+    print('---------------------------------------------------------------------------------------------------')
+    print(waypoint)
+    print('---------------------------------------------------------------------------------------------------')
+    print(waypoint.next(1.5))
+    print('---------------------------------------------------------------------------------------------------')
+    
+    waypoint = random.choice(waypoint.next(1.5))
+    print(waypoint)
+    print('---------------------------------------------------------------------------------------------------')
+    map_waypoints = m.generate_waypoints(1.5)
+    
+    print(len(map_waypoints))
+
+    new_checkpoints = []
+    for i, point in enumerate(checkpoints):
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        new_checkpoint = np.array([(396.32-1.96)-current_checkpoint[0], point['pose.pose.position.y']*280/-280])
+        new_checkpoints.append(new_checkpoint)
+
+    print(new_checkpoints)
+
     return experiment_metrics
