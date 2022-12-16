@@ -41,7 +41,7 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(stats_filename):
+def get_metrics(stats_filename, map_waypoints):
     empty_metrics = {
         "completed_distance": 0, 
         "average_speed": 0,
@@ -101,7 +101,7 @@ def get_metrics(stats_filename):
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
         shutil.rmtree(stats_filename.split('.bag')[0])
@@ -135,42 +135,30 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
     return experiment_metrics
 
-def get_position_deviation(experiment_metrics, checkpoints):
-    '''
-        checkpoints --> POSE
-
-
-    '''
-    import carla
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0) # seconds
-    world = client.get_world()
-    
-    print('---------------------------------------------------------------------------------------------------')
-    import random
-    m = world.get_map()
-    print(m.get_spawn_points())
-    waypoint = m.get_waypoint(m.get_spawn_points()[0].location)
-    
-    print('---------------------------------------------------------------------------------------------------')
-    print(waypoint)
-    print('---------------------------------------------------------------------------------------------------')
-    print(waypoint.next(1.5))
-    print('---------------------------------------------------------------------------------------------------')
-    
-    waypoint = random.choice(waypoint.next(1.5))
-    print(waypoint)
-    print('---------------------------------------------------------------------------------------------------')
-    map_waypoints = m.generate_waypoints(1.5)
-    
-    print(len(map_waypoints))
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints):
+    waypoints_x = []
+    waypoints_y = []
+    for waypoint in map_waypoints:
+        waypoints_x.append(waypoint.transform.location.x)
+        waypoints_y.append(waypoint.transform.location.y)
 
     new_checkpoints = []
+    new_checkpoints_x = []
+    new_checkpoints_y= []
     for i, point in enumerate(checkpoints):
-        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        new_checkpoint = np.array([(396.32-1.96)-current_checkpoint[0], point['pose.pose.position.y']*280/-280])
-        new_checkpoints.append(new_checkpoint)
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])    
+        new_checkpoints_x.append((max(waypoints_x) + min(waypoints_x))-current_checkpoint[0])
+        new_checkpoints_y.append(-point['pose.pose.position.y'])
 
-    print(new_checkpoints)
+    
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(30,30))
+    ax = fig.add_subplot()
+    colors=["#0000FF", "#00FF00", "#FF0066"]
+    ax.scatter(waypoints_x, waypoints_y, s=10, c='b', marker="s", label='Circuit waypoints')
+    ax.scatter(new_checkpoints_x[0], new_checkpoints_y[0], s=200, marker="o", color=colors[1])
+    ax.scatter(new_checkpoints_x, new_checkpoints_y, s=10, c='r', marker="o", label='Experiment')
+    plt.legend(loc='upper left', prop={'size': 25})
+    plt.show()
 
     return experiment_metrics

@@ -99,9 +99,8 @@ class PilotCarla(threading.Thread):
     def initialize_robot(self):
         """Initialize robot interfaces (sensors and actuators) and its brain from configuration"""
         self.stop_interfaces()
-        if self.robot_type != 'drone':
-            self.actuators = Actuators(self.configuration.actuators)
-            self.sensors = Sensors(self.configuration.sensors)
+        self.actuators = Actuators(self.configuration.actuators)
+        self.sensors = Sensors(self.configuration.sensors)
         if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
                                  self.configuration.experiment_model, self.configuration.brain_kwargs)
@@ -207,67 +206,6 @@ class PilotCarla(threading.Thread):
         if dist < self.max_distance:
             return True
         return False
-
-    def calculate_metrics(self, experiment_metrics):
-        if hasattr(self.brains.active_brain, 'inference_times'):
-            self.brains.active_brain.inference_times = self.brains.active_brain.inference_times[10:-10]
-            mean_inference_time = sum(self.brains.active_brain.inference_times) / len(self.brains.active_brain.inference_times)
-            frame_rate = self.sensors.get_camera('camera_0').total_frames / experiment_metrics['experiment_total_simulated_time']
-            gpu_inference = self.brains.active_brain.gpu_inference
-            real_time_update_rate = self.real_time_update_rate
-            first_image = self.brains.active_brain.first_image
-            logger.info('* Mean network inference time ---> ' + str(mean_inference_time) + 's')
-            logger.info('* Frame rate ---> ' + str(frame_rate) + 'fps')
-        else:
-            mean_inference_time = 0
-            frame_rate = 0
-            gpu_inference = False
-            real_time_update_rate = self.real_time_update_rate
-            first_image = None
-            logger.info('No deep learning based brain')
-        if self.brain_iterations_real_time and self.brain_iterations_simulated_time and self.brain_iterations_simulated_time:
-            mean_brain_iterations_simulated_time = sum(self.brain_iterations_simulated_time) / len(self.brain_iterations_simulated_time)
-            real_time_factor = sum(self.real_time_factors) / len(self.real_time_factors)
-            brain_iterations_frequency_simulated_time = 1 / mean_brain_iterations_simulated_time
-            target_brain_iterations_simulated_time = 1000 / self.time_cycle / round(real_time_factor, 2)
-            mean_brain_iterations_real_time = sum(self.brain_iterations_real_time) / len(self.brain_iterations_real_time)
-            brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
-            target_brain_iterations_real_time = 1 / (self.time_cycle / 1000)
-            suddenness_distance = sum(self.brains.active_brain.suddenness_distance) / len(self.brains.active_brain.suddenness_distance)
-        else:
-            mean_brain_iterations_real_time = 0
-            mean_brain_iterations_simulated_time = 0
-            real_time_factor = 0
-            brain_iterations_frequency_simulated_time = 0
-            target_brain_iterations_simulated_time = 0
-            brain_iterations_frequency_real_time = 0
-            target_brain_iterations_real_time = 0
-            suddenness_distance = 0
-        logger.info('* Brain iterations frequency simulated time ---> ' + str(brain_iterations_frequency_simulated_time) + 'it/s')
-        logger.info('* Target brain iterations simulated time -> ' + str(target_brain_iterations_simulated_time) + 'it/s')
-        logger.info('* Mean brain iterations real time ---> ' + str(mean_brain_iterations_real_time) + 's')
-        logger.info('* Brain iterations frequency real time ---> ' + str(brain_iterations_frequency_real_time) + 'it/s')
-        logger.info('* Target brain iterations real time -> ' + str(target_brain_iterations_real_time) + 'it/s')
-        logger.info('* Mean brain iterations simulated time ---> ' + str(mean_brain_iterations_simulated_time) + 's')
-        logger.info('* Mean brain iterations simulated time ---> ' + str(real_time_factor))
-        logger.info('* Real time update rate ---> ' + str(real_time_update_rate))
-        logger.info('* GPU inference ---> ' + str(gpu_inference))
-        logger.info('* Suddenness distance ---> ' + str(suddenness_distance))
-        logger.info('* Saving experiment ---> ' + str(hasattr(self.controller, 'experiment_metrics_filename')))
-        experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
-        experiment_metrics['target_brain_iterations_simulated_time'] = target_brain_iterations_simulated_time
-        experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
-        experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
-        experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
-        experiment_metrics['mean_inference_time'] = mean_inference_time
-        experiment_metrics['frame_rate'] = frame_rate
-        experiment_metrics['gpu_inference'] = gpu_inference
-        experiment_metrics['mean_brain_iterations_simulated_time'] = mean_brain_iterations_simulated_time
-        experiment_metrics['real_time_factor'] = real_time_factor
-        experiment_metrics['real_time_update_rate'] = real_time_update_rate
-        experiment_metrics['suddenness_distance'] = suddenness_distance
-        logger.info('Saving metrics to ROS bag')
-        return experiment_metrics, first_image
 
     def clock_callback(self, clock_data):
         #(clock_data.clock.to_sec())
