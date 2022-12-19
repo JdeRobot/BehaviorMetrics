@@ -102,5 +102,7 @@ class CARLAStatsWindow(QMainWindow):
         self.layout.addWidget(self.mean_inference_time_label)
         self.gpu_inference_label = QLabel("GPU inference -> " + str(self.controller.experiment_metrics['gpu_inference']))
         self.layout.addWidget(self.gpu_inference_label)
+        self.suddenness_distance = QLabel("Suddenness distance -> " + str(self.controller.experiment_metrics['suddenness_distance']))
+        self.layout.addWidget(self.suddenness_distance)
 
         wid.setLayout(self.layout)

@@ -50,9 +50,9 @@ class Brain:
         # self.previous_timestamp = 0
         # self.previous_image = 0
 
-        self.previous_v = None
-        self.previous_w = None
-        self.previous_w_normalized = None
+        self.previous_commanded_throttle = None
+        self.previous_commanded_steer = None
+        self.previous_commanded_brake = None
         self.suddenness_distance = []
 
         client = carla.Client('localhost', 2000)
@@ -151,6 +151,16 @@ class Brain:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(0)
+
+        if self.previous_commanded_throttle != None:
+            a = np.array((throttle, steer, break_command))
+            b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
+            distance = np.linalg.norm(a - b)
+            self.suddenness_distance.append(distance)
+
+        self.previous_commanded_throttle = throttle
+        self.previous_commanded_steer = steer
+        self.previous_commanded_brake = break_command
             
 
 

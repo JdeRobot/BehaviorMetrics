@@ -254,6 +254,7 @@ class ControllerCarla:
         mean_brain_iterations_real_time = sum(self.pilot.brain_iterations_real_time) / len(self.pilot.brain_iterations_real_time)
         brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
+        suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
 
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
@@ -275,8 +276,8 @@ class ControllerCarla:
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
-        print(self.experiment_metrics)
-
+        self.experiment_metrics['suddenness_distance'] = suddenness_distance
+        
         try:
             self.save_metrics()
         except rosbag.bag.ROSBagException:
@@ -295,6 +296,8 @@ class ControllerCarla:
 
 
     def save_metrics(self):
+        print(self.experiment_metadata)
+        print(self.experiment_metrics)
         experiment_metadata_str = json.dumps(self.experiment_metadata)
         experiment_metrics_str = json.dumps(self.experiment_metrics)
         with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
