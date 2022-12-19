@@ -90,5 +90,11 @@ class CARLAStatsWindow(QMainWindow):
         self.layout.addWidget(self.position_deviation_mae_label)
         self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.experiment_metrics['position_deviation_total_err']))
         self.layout.addWidget(self.position_deviation_total_err_label)
+        self.mean_brain_iterations_real_time_label = QLabel("Mean brain iterations real time -> " + str(self.controller.experiment_metrics['mean_brain_iterations_real_time']) + 's')
+        self.layout.addWidget(self.mean_brain_iterations_real_time_label)
+        self.brain_iterations_frequency_real_time_label = QLabel("Brain iterations frequency real time-> " + str(self.controller.experiment_metrics['brain_iterations_frequency_real_time']) + 'it/s')
+        self.layout.addWidget(self.brain_iterations_frequency_real_time_label)
+        self.target_brain_iterations_real_time_label = QLabel("Target brain iterations real time -> " + str(self.controller.experiment_metrics['target_brain_iterations_real_time']) + 'it/s')
+        self.layout.addWidget(self.target_brain_iterations_real_time_label)
 
         wid.setLayout(self.layout)

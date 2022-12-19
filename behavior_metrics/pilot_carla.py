@@ -122,7 +122,6 @@ class PilotCarla(threading.Thread):
         "TODO: cleanup measure of ips"
         it = 0
         ss = time.time()
-        self.brain_iterations_real_time = []
         self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
@@ -162,6 +161,10 @@ class PilotCarla(threading.Thread):
                 if ms < self.time_cycle:
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
+                #print('TARGET CLIENT TIME CYCLE: ', self.time_cycle)
+                #print('Real CLIENT time cycle: ', ms / 1000)
+                #print('Real time factor: ', self.real_time_factor)
+                #print('ROS Cycle time: ', self.ros_clock_time - start_time_ros)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
         self.kill()
@@ -208,7 +211,7 @@ class PilotCarla(threading.Thread):
         return False
 
     def clock_callback(self, clock_data):
-        #(clock_data.clock.to_sec())
+        #print(clock_data.clock.to_sec())
         self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):

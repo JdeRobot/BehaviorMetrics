@@ -207,6 +207,9 @@ class ControllerCarla:
 
     def record_metrics(self, metrics_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
         logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
+
+        self.pilot.brain_iterations_real_time = []
+
         self.start_time = datetime.now()        
         if world_counter is not None:
             current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
@@ -248,6 +251,10 @@ class ControllerCarla:
         logger.info("Stopping metrics bag recording")
         end_time = time.time()
 
+        mean_brain_iterations_real_time = sum(self.pilot.brain_iterations_real_time) / len(self.pilot.brain_iterations_real_time)
+        brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
+        target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
+
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
@@ -258,6 +265,12 @@ class ControllerCarla:
             pass
 
         self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename, self.map_waypoints)
+
+        
+        self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
+        self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
+        self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
+        print(self.experiment_metrics)
 
         try:
             self.save_metrics()
