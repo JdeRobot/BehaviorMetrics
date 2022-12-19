@@ -7,21 +7,23 @@ import numpy as np
 import threading
 import time
 import carla
+from os import path
 from albumentations import (
     Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
-from utils.constants import DATASETS_DIR, ROOT_PATH
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 
 import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
   tf.config.experimental.set_memory_growth(gpu, True)
 
-PRETRAINED_MODELS = "../models/"
 
 class Brain:
 
-    def __init__(self, sensors, actuators, handler, config=None):
+    def __init__(self, sensors, actuators, handler, model, config=None):
         self.camera = sensors.get_camera('camera_0')
         self.camera_1 = sensors.get_camera('camera_1')
         self.camera_2 = sensors.get_camera('camera_2')
@@ -62,9 +64,16 @@ class Brain:
         time.sleep(5)
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
-        model = '/home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'
+        if model:
+            if not path.exists(PRETRAINED_MODELS + model):
+                print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
-        self.net = tf.keras.models.load_model(model)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+        else:
+            print("** Brain not loaded **")
+            print("- Models path: " + PRETRAINED_MODELS)
+            print("- Model: " + str(model))
+
         self.previous_speed = 0
 
 
