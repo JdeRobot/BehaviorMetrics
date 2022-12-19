@@ -57,47 +57,7 @@ class Brain:
         client.set_timeout(10.0) # seconds
         world = client.get_world()
         
-        print('---------------------------------------------------------------------------------------------------')
-        import random
-        m = world.get_map()
-        print(m.get_spawn_points())
-        waypoint = m.get_waypoint(m.get_spawn_points()[0].location)
-        
-        print('---------------------------------------------------------------------------------------------------')
-        print(waypoint)
-        print('---------------------------------------------------------------------------------------------------')
-        print(waypoint.next(1.5))
-        print('---------------------------------------------------------------------------------------------------')
-       
-        waypoint = random.choice(waypoint.next(1.5))
-        print(waypoint)
-        print('---------------------------------------------------------------------------------------------------')
-        map_waypoints = m.generate_waypoints(1.5)
-        
-        print(len(map_waypoints))
-        print(map_waypoints[0])
-        print(map_waypoints[0].transform)
-        print(map_waypoints[0].transform.location)
-        print(map_waypoints[0].transform.location.x)
-        '''
-        # open the file in the write mode
-        f = open('town_waypoints_town_1_b.csv', 'w')
-
-        # create the csv writer
-        writer = csv.writer(f)
-        header = ['x', 'y', 'z']
-        writer.writerow(header)
-        for waypoint in map_waypoints:
-            row = [waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.location.z]
-            writer.writerow(row)
-        f.close()
-        '''
-        
-        #print(m.generate_waypoints(1.5))
-        print('---------------------------------------------------------------------------------------------------')
-        
         time.sleep(5)
-        #print(world.get_actors())
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
         model = '/home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/models/20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5'
