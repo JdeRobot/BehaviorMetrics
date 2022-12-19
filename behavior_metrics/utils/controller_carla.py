@@ -70,7 +70,7 @@ class ControllerCarla:
         world = client.get_world()
 
         m = world.get_map()
-        map_waypoints = m.generate_waypoints(1.5)
+        map_waypoints = m.generate_waypoints(0.5)
         self.map_waypoints = map_waypoints
         
     # GUI update

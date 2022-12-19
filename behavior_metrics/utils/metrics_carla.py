@@ -15,6 +15,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import shutil
 import time
 import os
@@ -136,142 +137,59 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     return experiment_metrics
 
 def get_position_deviation(experiment_metrics, checkpoints, map_waypoints):
-    waypoints_x = []
-    waypoints_y = []
+    map_waypoints_tuples = []
+    map_waypoints_tuples_x = []
+    map_waypoints_tuples_y = []
     for waypoint in map_waypoints:
-        waypoints_x.append(waypoint.transform.location.x)
-        waypoints_y.append(waypoint.transform.location.y)
+        map_waypoints_tuples_x.append(waypoint.transform.location.x)
+        map_waypoints_tuples_y.append(waypoint.transform.location.y)
+        map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
 
-    new_checkpoints = []
-    new_checkpoints_x = []
-    new_checkpoints_y= []
+    checkpoints_tuples = []
+    checkpoints_tuples_x = []
+    checkpoints_tuples_y= []
     for i, point in enumerate(checkpoints):
-        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])    
-        new_checkpoints_x.append((max(waypoints_x) + min(waypoints_x))-current_checkpoint[0])
-        new_checkpoints_y.append(-point['pose.pose.position.y'])
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
+        checkpoint_y = -point['pose.pose.position.y']
+        checkpoints_tuples_x.append(checkpoint_x)
+        checkpoints_tuples_y.append(checkpoint_y)
+        checkpoints_tuples.append((checkpoint_x, checkpoint_y))
+    
+    min_dists = []
+    best_checkpoint_points_x = []
+    best_checkpoint_points_y = []
+    for error_counter, checkpoint in enumerate(checkpoints_tuples):
+        min_dist = 100
+        for x, perfect_checkpoint in enumerate(map_waypoints_tuples):
+            point_1 = np.array([checkpoint[0], checkpoint[1]])
+            point_2 = np.array([perfect_checkpoint[0], perfect_checkpoint[1]])
+            dist = (point_2 - point_1) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_dist:
+                min_dist = dist
+                best_checkpoint = x
+                best_checkpoint_point_x = point_2[0]
+                best_checkpoint_point_y = point_2[1]
+        best_checkpoint_points_x.append(best_checkpoint_point_x)
+        best_checkpoint_points_y.append(best_checkpoint_point_y)
+        if min_dist < 100:
+            min_dists.append(min_dist)
 
-    print('--------------------------------------------')
-    print(type(map_waypoints))
-    print(type(checkpoints))
-    print('--------------------------------------------')
-    df = pd.DataFrame([waypoints_x, waypoints_y]).transpose()
-    df.columns = ['waypoints_x', 'waypoints_y']
-    df.to_csv('waypoints.csv')
-
-    df = pd.DataFrame([new_checkpoints_x, new_checkpoints_y]).transpose()
-    df.columns = ['new_checkpoints_x', 'new_checkpoints_x']
-    df.to_csv('new_checkpoints.csv')
-    '''
-    import matplotlib.pyplot as plt
+    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
+    experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    logger.info('* Position deviation MAE ---> ' + str(experiment_metrics['position_deviation_mae']) + ' m')
+    logger.info('* Position deviation total error ---> ' + str(experiment_metrics['position_deviation_total_err']))
+    
     fig = plt.figure(figsize=(30,30))
     ax = fig.add_subplot()
     colors=["#0000FF", "#00FF00", "#FF0066"]
-    ax.scatter(waypoints_x, waypoints_y, s=10, c='b', marker="s", label='Circuit waypoints')
-    ax.scatter(new_checkpoints_x[0], new_checkpoints_y[0], s=200, marker="o", color=colors[1])
-    ax.scatter(new_checkpoints_x, new_checkpoints_y, s=10, c='r', marker="o", label='Experiment')
+    ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
+    ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
+    ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[1])
+    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c='r', marker="o", label='Experiment waypoints')
     plt.legend(loc='upper left', prop={'size': 25})
     plt.show()
-    '''
-    ###############################################3
-
-    from scipy.optimize import fmin, dual_annealing
-    from scipy.interpolate import CubicSpline
-
-    min_dists = []
-
-    # Get list of points
-    point_x = []
-    point_y = []
-    point_t = []
-    for x, checkpoint in enumerate(checkpoints):
-        point_x.append(checkpoint['pose.pose.position.x'])
-        point_y.append(checkpoint['pose.pose.position.y'])
-        point_t.append(x)
-
-    # Generate a natural spline from points
-    spline_x = CubicSpline(point_t, point_x, bc_type='natural')
-    spline_y = CubicSpline(point_t, point_y, bc_type='natural')
-
-    #print(len(spline_x))
-    #print(len(spline_y))
-
-    # Rotate the x and y to start according to checkpoints
-    min_dist = 100
-    index_t = -1
-    perfect_x = []
-    perfect_y = []
-    for i, waypoint in enumerate(map_waypoints):
-        x = waypoint.transform.location.x
-        y = waypoint.transform.location.y
-        #x = waypoint.transform.location.x
-        #y = waypoint.transform.location.y
-        perfect_x.append(x)
-        perfect_y.append(y)
-
-        dist = np.sqrt((point_x[0] - x) ** 2 + (point_y[0] - y) ** 2)
-        if min_dist > dist:
-            min_dist = dist
-            index_t = i
-
-    perfect_x = perfect_x[index_t:] + perfect_x[:index_t]
-    perfect_y = perfect_y[index_t:] + perfect_y[:index_t]
-
-
-    print(len(perfect_x))
-    print(len(perfect_y))
-
-
-    # Iterate through checkpoints and calculate minimum distance
-    previous_t = 0
-    perfect_index = 0
-    count_same_t = 0
-    while True:
-        x = perfect_x[perfect_index]
-        y = perfect_y[perfect_index]
-
-        point = np.array([x, y])
-        distance_function = lambda t: np.sqrt((point[0] - spline_x(t)) ** 2 + (point[1] - spline_y(t)) ** 2)
-
-        # Local Optimization for minimum distance
-        current_t = fmin(distance_function, np.array([previous_t]), disp=False)[0]
-        min_dist = distance_function(current_t)
-
-        # Global Optimization if minimum distance is greater than expected
-        # OR
-        # at start checkpoints, since the car may be at start position during initialization (NN Brain)
-        if min_dist > 1 or perfect_index in [0, 1, 2]:
-            min_bound = previous_t
-            max_bound = previous_t + 100
-            current_t = dual_annealing(distance_function, bounds=[(min_bound, max_bound)]).x[0]
-            min_dist = distance_function(current_t)
-
-        # Two termination conditions:
-        # 1. Loop only till all the available points
-        if current_t > point_t[-1] - 1:
-            break
-
-        # 2. Terminate when converging to same point on spline
-        if abs(current_t - previous_t) < 0.01:
-            count_same_t += 1
-            if count_same_t > 3:
-                logger.info("Unexpected Behavior: Converging to same point")
-                break
-        else:
-            count_same_t = 0
-
-        previous_t = current_t
-        min_dists.append(1000 ** min_dist)
-        perfect_index = (perfect_index + 1) % len(perfect_x)
-
-    if len(min_dists):
-        experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)
-    else:
-        experiment_metrics['position_deviation_mae'] = 0
-
-    print(min_dists)
-        
-    experiment_metrics['position_deviation_total_err'] = sum(min_dists)
-    logger.info('* Position deviation MAE ---> ' + str(experiment_metrics['position_deviation_mae']))
-    logger.info('* Position deviation total error ---> ' + str(experiment_metrics['position_deviation_total_err']))
 
     return experiment_metrics

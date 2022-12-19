@@ -86,5 +86,9 @@ class CARLAStatsWindow(QMainWindow):
         self.layout.addWidget(self.collisions_label)
         self.lane_invasions_label = QLabel("Lane invasions -> " + str(self.controller.experiment_metrics['lane_invasions']))
         self.layout.addWidget(self.lane_invasions_label)
+        self.position_deviation_mae_label = QLabel("Position deviation MAE -> " + str(self.controller.experiment_metrics['position_deviation_mae']) + ' m')
+        self.layout.addWidget(self.position_deviation_mae_label)
+        self.position_deviation_total_err_label = QLabel("Position deviation total error -> " + str(self.controller.experiment_metrics['position_deviation_total_err']))
+        self.layout.addWidget(self.position_deviation_total_err_label)
 
         wid.setLayout(self.layout)
