@@ -26,6 +26,7 @@ import time
 import rosbag
 import json
 import math
+import carla
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
@@ -64,14 +65,14 @@ class ControllerCarla:
         self.recording = False
         self.cvbridge = CvBridge()
 
-        import carla
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
 
-        m = world.get_map()
-        map_waypoints = m.generate_waypoints(0.5)
-        self.map_waypoints = map_waypoints
+        self.carla_map = world.get_map()
+        time.sleep(5)
+        self.ego_vehicle = world.get_actors().filter('vehicle.*')[0]
+        self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         
     # GUI update
     def update_frame(self, frame_id, data):
@@ -210,7 +211,7 @@ class ControllerCarla:
 
         self.pilot.brain_iterations_real_time = []
 
-        self.start_time = datetime.now()        
+        time_str = time.strftime("%Y%m%d-%H%M%S")       
         if world_counter is not None:
             current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
         else:
@@ -220,9 +221,12 @@ class ControllerCarla:
         else:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
         self.experiment_metadata = {
-            'world': current_world_tail,
-            'brain_path': current_brain_tail,
-            'robot_type': self.pilot.configuration.robot_type
+            'timestamp': time_str,
+            'world_launch_file': current_world_tail,
+            'brain_file': current_brain_tail,
+            'robot_type': self.pilot.configuration.robot_type,
+            'carla_map': self.carla_map.name,
+            'ego_vehicle': self.ego_vehicle.type_id
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
@@ -239,7 +243,6 @@ class ControllerCarla:
             self.experiment_metadata['experiment_repetition'] = repetition_counter
 
         self.metrics_record_dir_path = metrics_record_dir_path
-        time_str = time.strftime("%Y%m%d-%H%M%S")
         self.experiment_metrics_filename = time_str + '.bag'
         topics = ['/carla/ego_vehicle/odometry', '/carla/ego_vehicle/collision', '/carla/ego_vehicle/lane_invasion', '/clock']
         command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
