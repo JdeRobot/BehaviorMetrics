@@ -266,7 +266,12 @@ class ControllerCarla:
 
         self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename, self.map_waypoints)
 
-        
+        if hasattr(self.pilot.brains.active_brain, 'inference_times'):
+            self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
+            self.experiment_metrics['gpu_mean_inference_time'] = sum(self.pilot.brains.active_brain.inference_times) / len(self.pilot.brains.active_brain.inference_times)
+            self.experiment_metrics['gpu_inference_frequency'] = 1 / self.experiment_metrics['gpu_mean_inference_time']
+            self.experiment_metrics['gpu_inference'] = self.pilot.brains.active_brain.gpu_inference
+
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time

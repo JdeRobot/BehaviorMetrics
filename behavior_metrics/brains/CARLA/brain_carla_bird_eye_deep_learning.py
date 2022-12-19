@@ -34,6 +34,8 @@ class Brain:
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
         self.config = config
+        self.inference_times = []
+        self.gpu_inference = True if tf.test.gpu_device_name() else False
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
@@ -126,7 +128,9 @@ class Brain:
         img = new_img_vel
 
         img = np.expand_dims(img, axis=0)
+        start_time = time.time()
         prediction = self.net.predict(img, verbose=0)
+        self.inference_times.append(time.time() - start_time)
         throttle = prediction[0][0]
         steer = prediction[0][1] * (1 - (-1)) + (-1)
         break_command = prediction[0][2]
