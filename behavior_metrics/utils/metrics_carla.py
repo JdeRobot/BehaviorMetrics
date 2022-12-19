@@ -15,6 +15,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import shutil
 import time
 import os
@@ -41,7 +42,7 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(stats_filename):
+def get_metrics(stats_filename, map_waypoints):
     empty_metrics = {
         "completed_distance": 0, 
         "average_speed": 0,
@@ -101,6 +102,7 @@ def get_metrics(stats_filename):
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
         shutil.rmtree(stats_filename.split('.bag')[0])
@@ -132,4 +134,62 @@ def get_collisions(experiment_metrics, collision_points):
 def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
+    return experiment_metrics
+
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints):
+    map_waypoints_tuples = []
+    map_waypoints_tuples_x = []
+    map_waypoints_tuples_y = []
+    for waypoint in map_waypoints:
+        map_waypoints_tuples_x.append(waypoint.transform.location.x)
+        map_waypoints_tuples_y.append(waypoint.transform.location.y)
+        map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
+
+    checkpoints_tuples = []
+    checkpoints_tuples_x = []
+    checkpoints_tuples_y= []
+    for i, point in enumerate(checkpoints):
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
+        checkpoint_y = -point['pose.pose.position.y']
+        checkpoints_tuples_x.append(checkpoint_x)
+        checkpoints_tuples_y.append(checkpoint_y)
+        checkpoints_tuples.append((checkpoint_x, checkpoint_y))
+    
+    min_dists = []
+    best_checkpoint_points_x = []
+    best_checkpoint_points_y = []
+    for error_counter, checkpoint in enumerate(checkpoints_tuples):
+        min_dist = 100
+        for x, perfect_checkpoint in enumerate(map_waypoints_tuples):
+            point_1 = np.array([checkpoint[0], checkpoint[1]])
+            point_2 = np.array([perfect_checkpoint[0], perfect_checkpoint[1]])
+            dist = (point_2 - point_1) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_dist:
+                min_dist = dist
+                best_checkpoint = x
+                best_checkpoint_point_x = point_2[0]
+                best_checkpoint_point_y = point_2[1]
+        best_checkpoint_points_x.append(best_checkpoint_point_x)
+        best_checkpoint_points_y.append(best_checkpoint_point_y)
+        if min_dist < 100:
+            min_dists.append(min_dist)
+
+    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
+    experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    logger.info('* Position deviation MAE ---> ' + str(experiment_metrics['position_deviation_mae']) + ' m')
+    logger.info('* Position deviation total error ---> ' + str(experiment_metrics['position_deviation_total_err']))
+    
+    fig = plt.figure(figsize=(30,30))
+    ax = fig.add_subplot()
+    colors=["#0000FF", "#00FF00", "#FF0066"]
+    ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
+    ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
+    ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[1])
+    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c='r', marker="o", label='Experiment waypoints')
+    plt.legend(loc='upper left', prop={'size': 25})
+    plt.show()
+
     return experiment_metrics

@@ -63,27 +63,16 @@ class ControllerCarla:
         self.pose3D_data = None
         self.recording = False
         self.cvbridge = CvBridge()
-        #self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/collision', CarlaCollisionEvent, self.__collision_callback)
-        #self.lane_invasion_sub = rospy.Subscriber('/carla/ego_vehicle/lane_invasion', CarlaLaneInvasionEvent, self.__lane_invasion_callback)
 
+        import carla
+        client = carla.Client('localhost', 2000)
+        client.set_timeout(10.0) # seconds
+        world = client.get_world()
 
-    def __collision_callback(self, data):
-        intensity = math.sqrt(data.normal_impulse.x**2 + data.normal_impulse.y**2 + data.normal_impulse.z**2)
-        logger.info('Collision with {} (impulse {})'.format(data.other_actor_id, intensity))
-
-    def __lane_invasion_callback(self, data):
-        text = []
-        for marking in data.crossed_lane_markings:
-            if marking is CarlaLaneInvasionEvent.LANE_MARKING_OTHER:
-                text.append("Other")
-            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_BROKEN:
-                text.append("Broken")
-            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_SOLID:
-                text.append("Solid")
-            else:
-                text.append("Unknown ")
-        logger.info('Crossed line %s' % ' and '.join(text))
-
+        m = world.get_map()
+        map_waypoints = m.generate_waypoints(0.5)
+        self.map_waypoints = map_waypoints
+        
     # GUI update
     def update_frame(self, frame_id, data):
         """Update the data to be retrieved by the view.
@@ -268,7 +257,7 @@ class ControllerCarla:
         while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename, self.map_waypoints)
 
         try:
             self.save_metrics()
