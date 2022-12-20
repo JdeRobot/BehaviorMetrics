@@ -38,6 +38,7 @@ from std_msgs.msg import String
 from utils import metrics_carla
 from carla_msgs.msg import CarlaLaneInvasionEvent
 from carla_msgs.msg import CarlaCollisionEvent
+from PIL import Image
 
 __author__ = 'sergiopaniego'
 __contributors__ = []
@@ -211,7 +212,7 @@ class ControllerCarla:
 
         self.pilot.brain_iterations_real_time = []
 
-        time_str = time.strftime("%Y%m%d-%H%M%S")       
+        self.time_str = time.strftime("%Y%m%d-%H%M%S")       
         if world_counter is not None:
             current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
         else:
@@ -220,8 +221,8 @@ class ControllerCarla:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
         else:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
-        self.experiment_metadata = {
-            'timestamp': time_str,
+        self.experiment_metrics = {
+            'timestamp': self.time_str,
             'world_launch_file': current_world_tail,
             'brain_file': current_brain_tail,
             'robot_type': self.pilot.configuration.robot_type,
@@ -230,20 +231,21 @@ class ControllerCarla:
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
-                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
             else:
-                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
         if hasattr(self.pilot.configuration, 'experiment_name'):
-            self.experiment_metadata['experiment_name'] = self.pilot.configuration.experiment_name
-            self.experiment_metadata['experiment_description'] = self.pilot.configuration.experiment_description
+            self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
+            self.experiment_metrics['experiment_description'] = self.pilot.configuration.experiment_description
             if hasattr(self.pilot.configuration, 'experiment_timeouts'):
-                self.experiment_metadata['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+                self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             else:
-                self.experiment_metadata['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.experiment_metadata['world'])] * 1.1
-            self.experiment_metadata['experiment_repetition'] = repetition_counter
+                self.experiment_metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.experiment_metrics['world'])] * 1.1
+            self.experiment_metrics['experiment_repetition'] = repetition_counter
 
         self.metrics_record_dir_path = metrics_record_dir_path
-        self.experiment_metrics_filename = time_str + '.bag'
+        os.mkdir(self.metrics_record_dir_path + self.time_str)
+        self.experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
         topics = ['/carla/ego_vehicle/odometry', '/carla/ego_vehicle/collision', '/carla/ego_vehicle/lane_invasion', '/clock']
         command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
@@ -259,6 +261,16 @@ class ControllerCarla:
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
         suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
 
+        if self.pilot.brains.active_brain.camera_0_first_image is not None:
+            first_images = [self.pilot.brains.active_brain.camera_0_first_image,
+                            self.pilot.brains.active_brain.camera_1_first_image,
+                            self.pilot.brains.active_brain.camera_2_first_image,
+                            self.pilot.brains.active_brain.camera_3_first_image,
+                            self.pilot.brains.active_brain.camera_4_first_image
+                            ]
+        else:
+            first_images = []
+
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
@@ -268,7 +280,7 @@ class ControllerCarla:
         while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename, self.map_waypoints)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_filename, self.map_waypoints)
 
         if hasattr(self.pilot.brains.active_brain, 'inference_times'):
             self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
@@ -281,32 +293,28 @@ class ControllerCarla:
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
         self.experiment_metrics['suddenness_distance'] = suddenness_distance
         
-        try:
-            self.save_metrics()
-        except rosbag.bag.ROSBagException:
-            logger.info("Bag was empty, Try Again")
+        self.save_metrics(first_images)
 
         logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time) + ' s')
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
-        
-        time_str = time.strftime("%Y%m%d-%H%M%S")
-        
-        with open(time_str + '.json', 'w') as f:
-            json.dump(self.experiment_metrics, f)
-        logger.info("Metrics stored in JSON file")
 
         logger.info("Stopping metrics bag recording")
 
 
-    def save_metrics(self):
-        print(self.experiment_metadata)
-        print(self.experiment_metrics)
-        experiment_metadata_str = json.dumps(self.experiment_metadata)
-        experiment_metrics_str = json.dumps(self.experiment_metrics)
-        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
-            experiment_metadata_msg = String(data=experiment_metadata_str)
-            experiment_metrics_msg = String(data=experiment_metrics_str)
-            bag.write('/metadata', experiment_metadata_msg, rospy.Time(bag.get_end_time()))
-            bag.write('/experiment_metrics', experiment_metrics_msg, rospy.Time(bag.get_end_time()))
-        bag.close()
+    def save_metrics(self, first_images):        
+        with open(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.json', 'w') as f:
+            json.dump(self.experiment_metrics, f)
+        logger.info("Metrics stored in JSON file")
+
+        im = Image.fromarray(first_images[0])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_1.jpeg")
+        im = Image.fromarray(first_images[1])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_2.jpeg")
+        im = Image.fromarray(first_images[2])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_3.jpeg")
+        im = Image.fromarray(first_images[3])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_4.jpeg")
+        im = Image.fromarray(first_images[4])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_5.jpeg")
+
 

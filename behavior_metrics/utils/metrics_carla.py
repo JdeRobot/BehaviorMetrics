@@ -42,26 +42,19 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(stats_filename, map_waypoints):
-    empty_metrics = {
-        "completed_distance": 0, 
-        "average_speed": 0,
-        "experiment_total_simulated_time": 0
-    }
-    experiment_metrics = {}
-    
+def get_metrics(experiment_metrics, stats_filename, map_waypoints):
     time_counter = 5
     while not os.path.exists(stats_filename):
         time.sleep(1)
         time_counter -= 1
         if time_counter <= 0:
             ValueError(f"{stats_filename} isn't a file!")
-            return empty_metrics
+            return {}
 
     try:
         bag_reader = bagreader(stats_filename)
     except rosbag.bag.ROSBagException:
-        return empty_metrics
+        return {}
 
     csv_files = []
     for topic in bag_reader.topics:
@@ -108,7 +101,7 @@ def get_metrics(stats_filename, map_waypoints):
         shutil.rmtree(stats_filename.split('.bag')[0])
         return experiment_metrics
     else:
-        return empty_metrics
+        return {}
 
 
 def get_distance_completed(experiment_metrics, checkpoints):

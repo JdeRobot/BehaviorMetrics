@@ -24,10 +24,15 @@ for gpu in gpus:
 class Brain:
 
     def __init__(self, sensors, actuators, handler, model, config=None):
-        self.camera = sensors.get_camera('camera_0')
+        self.camera_0 = sensors.get_camera('camera_0')
         self.camera_1 = sensors.get_camera('camera_1')
         self.camera_2 = sensors.get_camera('camera_2')
         self.camera_3 = sensors.get_camera('camera_3')
+        self.camera_0_first_image = None
+        self.camera_1_first_image = None
+        self.camera_2_first_image = None
+        self.camera_3_first_image = None
+        self.camera_4_first_image = None
 
         self.pose = sensors.get_pose3d('pose3d_0')
 
@@ -104,12 +109,19 @@ class Brain:
 
     def execute(self):
         #print(self.vehicle.get_location())
-        image = self.camera.getImage().data
+        image = self.camera_0.getImage().data
         image_1 = self.camera_1.getImage().data
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
+
+        if self.camera_0_first_image is None:
+            self.camera_0_first_image = image
+            self.camera_1_first_image = image_1
+            self.camera_2_first_image = image_2
+            self.camera_3_first_image = image_3
+            self.camera_4_first_image = bird_eye_view_1
 
         #print(self.bird_eye_view.getImage(self.vehicle))
 
