@@ -268,8 +268,15 @@ class ControllerCarla:
                             self.pilot.brains.active_brain.camera_3_first_image,
                             self.pilot.brains.active_brain.camera_4_first_image
                             ]
+            last_images = [self.pilot.brains.active_brain.camera_0_last_image,
+                            self.pilot.brains.active_brain.camera_1_last_image,
+                            self.pilot.brains.active_brain.camera_2_last_image,
+                            self.pilot.brains.active_brain.camera_3_last_image,
+                            self.pilot.brains.active_brain.camera_4_last_image
+                            ]
         else:
             first_images = []
+            last_images = []
 
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
@@ -280,7 +287,7 @@ class ControllerCarla:
         while os.path.isfile(self.experiment_metrics_filename + '.active'):
             pass
 
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_filename, self.map_waypoints)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_filename, self.map_waypoints, self.metrics_record_dir_path + self.time_str + '/' + self.time_str)
 
         if hasattr(self.pilot.brains.active_brain, 'inference_times'):
             self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
@@ -293,7 +300,7 @@ class ControllerCarla:
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
         self.experiment_metrics['suddenness_distance'] = suddenness_distance
         
-        self.save_metrics(first_images)
+        self.save_metrics(first_images, last_images)
 
         logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time) + ' s')
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
@@ -301,20 +308,31 @@ class ControllerCarla:
         logger.info("Stopping metrics bag recording")
 
 
-    def save_metrics(self, first_images):        
+    def save_metrics(self, first_images, last_images):        
         with open(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.json', 'w') as f:
             json.dump(self.experiment_metrics, f)
         logger.info("Metrics stored in JSON file")
 
         im = Image.fromarray(first_images[0])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_1.jpeg")
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_1.jpeg")
         im = Image.fromarray(first_images[1])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_2.jpeg")
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_2.jpeg")
         im = Image.fromarray(first_images[2])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_3.jpeg")
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_3.jpeg")
         im = Image.fromarray(first_images[3])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_4.jpeg")
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_4.jpeg")
         im = Image.fromarray(first_images[4])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_image_5.jpeg")
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_5.jpeg")
+
+        im = Image.fromarray(first_images[0])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_1.jpeg")
+        im = Image.fromarray(first_images[1])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_2.jpeg")
+        im = Image.fromarray(first_images[2])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_3.jpeg")
+        im = Image.fromarray(first_images[3])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_4.jpeg")
+        im = Image.fromarray(first_images[4])
+        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_5.jpeg")
 
 

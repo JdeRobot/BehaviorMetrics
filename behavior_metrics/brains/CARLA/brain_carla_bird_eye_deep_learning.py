@@ -123,6 +123,12 @@ class Brain:
             self.camera_3_first_image = image_3
             self.camera_4_first_image = bird_eye_view_1
 
+        self.camera_0_last_image = image
+        self.camera_1_last_image = image_1
+        self.camera_2_last_image = image_2
+        self.camera_3_last_image = image_3
+        self.camera_4_last_image = bird_eye_view_1
+
         #print(self.bird_eye_view.getImage(self.vehicle))
 
         #self.update_frame('frame_0', image)

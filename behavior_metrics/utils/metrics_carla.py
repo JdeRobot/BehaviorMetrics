@@ -42,7 +42,7 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(experiment_metrics, stats_filename, map_waypoints):
+def get_metrics(experiment_metrics, stats_filename, map_waypoints, stats_filename_2):
     time_counter = 5
     while not os.path.exists(stats_filename):
         time.sleep(1)
@@ -95,7 +95,7 @@ def get_metrics(experiment_metrics, stats_filename, map_waypoints):
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, stats_filename_2)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
         shutil.rmtree(stats_filename.split('.bag')[0])
@@ -129,7 +129,7 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
     return experiment_metrics
 
-def get_position_deviation(experiment_metrics, checkpoints, map_waypoints):
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, stats_filename_2):
     map_waypoints_tuples = []
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
@@ -184,5 +184,6 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints):
     ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c='r', marker="o", label='Experiment waypoints')
     plt.legend(loc='upper left', prop={'size': 25})
     plt.show()
+    fig.savefig(stats_filename_2 + '.png', dpi=fig.dpi)
 
     return experiment_metrics
