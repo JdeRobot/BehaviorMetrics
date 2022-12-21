@@ -130,9 +130,9 @@ def main():
         for world_counter, world in enumerate(app_configuration.current_world):
             for brain_counter, brain in enumerate(app_configuration.brain_path):
                 for repetition_counter in range(app_configuration.experiment_repetitions):
-                    print("python3 script_driver_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
+                    logger.info("Launching: python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                     os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                    print("thread finished...exiting")
+                    logger.info("Python process finished.")
 
     logger.info('DONE! Bye, bye :)')
                     

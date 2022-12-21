@@ -33,6 +33,6 @@ tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
 tensorflow-gpu==2.9.3
 albumentations==1.0.3
-protobuf==3.19
+protobuf==3.19.5
 carla_birdeye_view==1.1.1
 transforms3d==0.4.1

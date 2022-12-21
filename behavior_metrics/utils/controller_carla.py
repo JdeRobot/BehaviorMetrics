@@ -26,17 +26,18 @@ import time
 import rosbag
 import json
 import math
+import carla
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from datetime import datetime
 from utils.logger import logger
-from utils.constants import CIRCUITS_TIMEOUTS
 from std_msgs.msg import String
 from utils import metrics_carla
 from carla_msgs.msg import CarlaLaneInvasionEvent
 from carla_msgs.msg import CarlaCollisionEvent
+from PIL import Image
 
 __author__ = 'sergiopaniego'
 __contributors__ = []
@@ -63,27 +64,17 @@ class ControllerCarla:
         self.pose3D_data = None
         self.recording = False
         self.cvbridge = CvBridge()
-        #self.collision_sub = rospy.Subscriber('/carla/ego_vehicle/collision', CarlaCollisionEvent, self.__collision_callback)
-        #self.lane_invasion_sub = rospy.Subscriber('/carla/ego_vehicle/lane_invasion', CarlaLaneInvasionEvent, self.__lane_invasion_callback)
 
+        client = carla.Client('localhost', 2000)
+        client.set_timeout(10.0) # seconds
+        self.world = client.get_world()
 
-    def __collision_callback(self, data):
-        intensity = math.sqrt(data.normal_impulse.x**2 + data.normal_impulse.y**2 + data.normal_impulse.z**2)
-        logger.info('Collision with {} (impulse {})'.format(data.other_actor_id, intensity))
-
-    def __lane_invasion_callback(self, data):
-        text = []
-        for marking in data.crossed_lane_markings:
-            if marking is CarlaLaneInvasionEvent.LANE_MARKING_OTHER:
-                text.append("Other")
-            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_BROKEN:
-                text.append("Broken")
-            elif marking is CarlaLaneInvasionEvent.LANE_MARKING_SOLID:
-                text.append("Solid")
-            else:
-                text.append("Unknown ")
-        logger.info('Crossed line %s' % ' and '.join(text))
-
+        self.carla_map = self.world.get_map()
+        time.sleep(5)
+        self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
+        self.map_waypoints = self.carla_map.generate_waypoints(0.5)
+        self.weather = self.world.get_weather()
+        
     # GUI update
     def update_frame(self, frame_id, data):
         """Update the data to be retrieved by the view.
@@ -218,7 +209,9 @@ class ControllerCarla:
 
     def record_metrics(self, metrics_record_dir_path, world_counter=None, brain_counter=None, repetition_counter=None):
         logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
-        self.start_time = datetime.now()        
+
+        self.pilot.brain_iterations_real_time = []
+        self.time_str = time.strftime("%Y%m%d-%H%M%S")       
         if world_counter is not None:
             current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
         else:
@@ -227,30 +220,47 @@ class ControllerCarla:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path[brain_counter])
         else:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
-        self.experiment_metadata = {
-            'world': current_world_tail,
-            'brain_path': current_brain_tail,
-            'robot_type': self.pilot.configuration.robot_type
+        self.experiment_metrics = {
+            'timestamp': self.time_str,
+            'experiment_configuration': self.pilot.configuration.__dict__,
+            'world_launch_file': current_world_tail,
+            'brain_file': current_brain_tail,
+            'robot_type': self.pilot.configuration.robot_type,
+            'carla_map': self.carla_map.name,
+            'ego_vehicle': self.ego_vehicle.type_id,
+            'vehicles_number': len(self.world.get_actors().filter('vehicle.*')),
+            'weather': {
+                'cloudiness': self.weather.cloudiness,
+                'precipitation': self.weather.precipitation,
+                'precipitation_deposits': self.weather.precipitation_deposits,
+                'wind_intensity': self.weather.wind_intensity,
+                'sun_azimuth_angle': self.weather.sun_azimuth_angle,
+                'sun_altitude_angle': self.weather.sun_altitude_angle,
+                'fog_density': self.weather.fog_density,
+                'fog_distance': self.weather.fog_distance,
+                'fog_falloff': self.weather.fog_falloff,
+                'wetness': self.weather.wetness,
+                'scattering_intensity': self.weather.scattering_intensity,
+                'mie_scattering_scale': self.weather.mie_scattering_scale,
+                'rayleigh_scattering_scale': self.weather.rayleigh_scattering_scale,
+                },
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
-                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
             else:
-                self.experiment_metadata['experiment_model'] = self.pilot.configuration.experiment_model
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
         if hasattr(self.pilot.configuration, 'experiment_name'):
-            self.experiment_metadata['experiment_name'] = self.pilot.configuration.experiment_name
-            self.experiment_metadata['experiment_description'] = self.pilot.configuration.experiment_description
-            if hasattr(self.pilot.configuration, 'experiment_timeouts'):
-                self.experiment_metadata['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
-            else:
-                self.experiment_metadata['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.experiment_metadata['world'])] * 1.1
-            self.experiment_metadata['experiment_repetition'] = repetition_counter
+            self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
+            self.experiment_metrics['experiment_description'] = self.pilot.configuration.experiment_description
+            self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
+            self.experiment_metrics['experiment_repetition'] = repetition_counter
 
         self.metrics_record_dir_path = metrics_record_dir_path
-        time_str = time.strftime("%Y%m%d-%H%M%S")
-        self.experiment_metrics_filename = time_str + '.bag'
+        os.mkdir(self.metrics_record_dir_path + self.time_str)
+        self.experiment_metrics_bag_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
         topics = ['/carla/ego_vehicle/odometry', '/carla/ego_vehicle/collision', '/carla/ego_vehicle/lane_invasion', '/clock']
-        command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
+        command = "rosbag record -O " + self.experiment_metrics_bag_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
@@ -259,41 +269,63 @@ class ControllerCarla:
         logger.info("Stopping metrics bag recording")
         end_time = time.time()
 
+        mean_brain_iterations_real_time = sum(self.pilot.brain_iterations_real_time) / len(self.pilot.brain_iterations_real_time)
+        brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
+        target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
+        suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
+
+        if self.pilot.brains.active_brain.cameras_first_images != []:
+            first_images =  self.pilot.brains.active_brain.cameras_first_images
+            last_images = self.pilot.brains.active_brain.cameras_last_images
+        else:
+            first_images = []
+            last_images = []
+
         command = "rosnode kill /behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while os.path.isfile(self.experiment_metrics_filename + '.active'):
+        while os.path.isfile(self.experiment_metrics_bag_filename + '.active'):
             pass
+        
+        experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
 
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics_filename)
+        if hasattr(self.pilot.brains.active_brain, 'inference_times'):
+            self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
+            self.experiment_metrics['gpu_mean_inference_time'] = sum(self.pilot.brains.active_brain.inference_times) / len(self.pilot.brains.active_brain.inference_times)
+            self.experiment_metrics['gpu_inference_frequency'] = 1 / self.experiment_metrics['gpu_mean_inference_time']
+            self.experiment_metrics['gpu_inference'] = self.pilot.brains.active_brain.gpu_inference
 
-        try:
-            self.save_metrics()
-        except rosbag.bag.ROSBagException:
-            logger.info("Bag was empty, Try Again")
+        self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
+        self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
+        self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
+        self.experiment_metrics['suddenness_distance'] = suddenness_distance
+        
+        self.save_metrics(first_images, last_images)
 
-        logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time) + ' s')
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
-        
-        time_str = time.strftime("%Y%m%d-%H%M%S")
-        
-        with open(time_str + '.json', 'w') as f:
+
+        for key, value in self.experiment_metrics.items():
+            logger.info('* ' + str(key) + ' ---> ' + str(value))
+
+        logger.info("Stopped metrics bag recording")
+
+
+    def save_metrics(self, first_images, last_images):        
+        with open(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.json', 'w') as f:
             json.dump(self.experiment_metrics, f)
         logger.info("Metrics stored in JSON file")
 
-        logger.info("Stopping metrics bag recording")
+        for counter, image in enumerate(first_images):
+            im = Image.fromarray(image)
+            im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_" + str(counter) + ".jpeg")
+
+        for counter, image in enumerate(last_images):
+            im = Image.fromarray(image)
+            im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_" + str(counter) + ".jpeg")
 
 
-    def save_metrics(self):
-        experiment_metadata_str = json.dumps(self.experiment_metadata)
-        experiment_metrics_str = json.dumps(self.experiment_metrics)
-        with rosbag.Bag(self.experiment_metrics_filename, 'a') as bag:
-            experiment_metadata_msg = String(data=experiment_metadata_str)
-            experiment_metrics_msg = String(data=experiment_metrics_str)
-            bag.write('/metadata', experiment_metadata_msg, rospy.Time(bag.get_end_time()))
-            bag.write('/experiment_metrics', experiment_metrics_msg, rospy.Time(bag.get_end_time()))
-        bag.close()
 

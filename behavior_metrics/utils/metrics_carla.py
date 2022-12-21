@@ -15,6 +15,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import shutil
 import time
 import os
@@ -41,39 +42,32 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(stats_filename):
-    empty_metrics = {
-        "completed_distance": 0, 
-        "average_speed": 0,
-        "experiment_total_simulated_time": 0
-    }
-    experiment_metrics = {}
-    
+def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoints, experiment_metrics_filename):
     time_counter = 5
-    while not os.path.exists(stats_filename):
+    while not os.path.exists(experiment_metrics_bag_filename):
         time.sleep(1)
         time_counter -= 1
         if time_counter <= 0:
-            ValueError(f"{stats_filename} isn't a file!")
-            return empty_metrics
+            ValueError(f"{experiment_metrics_bag_filename} isn't a file!")
+            return {}
 
     try:
-        bag_reader = bagreader(stats_filename)
+        bag_reader = bagreader(experiment_metrics_bag_filename)
     except rosbag.bag.ROSBagException:
-        return empty_metrics
+        return {}
 
     csv_files = []
     for topic in bag_reader.topics:
         data = bag_reader.message_by_topic(topic)
         csv_files.append(data)
 
-    data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-odometry.csv'
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-odometry.csv'
     dataframe_pose = pd.read_csv(data_file)
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
 
-    data_file = stats_filename.split('.bag')[0] + '/clock.csv'
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/clock.csv'
     dataframe_pose = pd.read_csv(data_file)
     clock_points = []
     for index, row in dataframe_pose.iterrows():
@@ -84,14 +78,14 @@ def get_metrics(stats_filename):
 
     collision_points = []
     if '/carla/ego_vehicle/collision' in bag_reader.topics:
-        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-collision.csv'
+        data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-collision.csv'
         dataframe_collision = pd.read_csv(data_file)
         for index, row in dataframe_collision.iterrows():
             collision_points.append(row)
 
     lane_invasion_points = []
     if '/carla/ego_vehicle/lane_invasion' in bag_reader.topics:
-        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-lane_invasion.csv'
+        data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-lane_invasion.csv'
         dataframe_lane_invasion = pd.read_csv(data_file, on_bad_lines='skip')
         for index, row in dataframe_lane_invasion.iterrows():
             lane_invasion_points.append(row)
@@ -101,18 +95,17 @@ def get_metrics(stats_filename):
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
-        logger.info('* Experiment total simulated time ---> ' + str(experiment_metrics['experiment_total_simulated_time']) + ' s')
-        shutil.rmtree(stats_filename.split('.bag')[0])
+        shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
     else:
-        return empty_metrics
+        return {}
 
 
 def get_distance_completed(experiment_metrics, checkpoints):
     end_point = checkpoints[len(checkpoints) - 1]
     experiment_metrics['completed_distance'] = circuit_distance_completed(checkpoints, end_point)
-    logger.info('* Completed distance ---> ' + str(experiment_metrics['completed_distance']) + ' m')
     return experiment_metrics
 
 
@@ -121,15 +114,69 @@ def get_average_speed(experiment_metrics, seconds_start, seconds_end):
         experiment_metrics['average_speed'] = (experiment_metrics['completed_distance'] / (seconds_end - seconds_start))* 3.6
     else:
         experiment_metrics['average_speed'] = 0
-    logger.info('* Average speed ---> ' + str(experiment_metrics['average_speed']) + ' km/h')
     return experiment_metrics
 
 def get_collisions(experiment_metrics, collision_points):
     experiment_metrics['collisions'] = len(collision_points)
-    logger.info('* Collisions ---> ' + str(experiment_metrics['collisions']))
     return experiment_metrics
 
 def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
-    logger.info('* Lane invasions ---> ' + str(experiment_metrics['lane_invasions']))
+    return experiment_metrics
+
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename):
+    map_waypoints_tuples = []
+    map_waypoints_tuples_x = []
+    map_waypoints_tuples_y = []
+    for waypoint in map_waypoints:
+        map_waypoints_tuples_x.append(waypoint.transform.location.x)
+        map_waypoints_tuples_y.append(waypoint.transform.location.y)
+        map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
+
+    checkpoints_tuples = []
+    checkpoints_tuples_x = []
+    checkpoints_tuples_y= []
+    for i, point in enumerate(checkpoints):
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
+        checkpoint_y = -point['pose.pose.position.y']
+        checkpoints_tuples_x.append(checkpoint_x)
+        checkpoints_tuples_y.append(checkpoint_y)
+        checkpoints_tuples.append((checkpoint_x, checkpoint_y))
+    
+    min_dists = []
+    best_checkpoint_points_x = []
+    best_checkpoint_points_y = []
+    for error_counter, checkpoint in enumerate(checkpoints_tuples):
+        min_dist = 100
+        for x, perfect_checkpoint in enumerate(map_waypoints_tuples):
+            point_1 = np.array([checkpoint[0], checkpoint[1]])
+            point_2 = np.array([perfect_checkpoint[0], perfect_checkpoint[1]])
+            dist = (point_2 - point_1) ** 2
+            dist = np.sum(dist, axis=0)
+            dist = np.sqrt(dist)
+            if dist < min_dist:
+                min_dist = dist
+                best_checkpoint = x
+                best_checkpoint_point_x = point_2[0]
+                best_checkpoint_point_y = point_2[1]
+        best_checkpoint_points_x.append(best_checkpoint_point_x)
+        best_checkpoint_points_y.append(best_checkpoint_point_y)
+        if min_dist < 100:
+            min_dists.append(min_dist)
+
+    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
+    experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    
+    fig = plt.figure(figsize=(30,30))
+    ax = fig.add_subplot()
+    colors=["#00FF00", "#FF0000"]
+    ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
+    ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
+    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c='r', marker="o", label='Experiment waypoints')
+    ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
+    ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
+    plt.legend(loc='upper left', prop={'size': 25})
+    fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
+
     return experiment_metrics
