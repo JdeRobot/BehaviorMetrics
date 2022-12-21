@@ -74,6 +74,7 @@ class ControllerCarla:
         time.sleep(5)
         self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
+        self.weather = self.world.get_weather()
         
     # GUI update
     def update_frame(self, frame_id, data):
@@ -229,6 +230,21 @@ class ControllerCarla:
             'carla_map': self.carla_map.name,
             'ego_vehicle': self.ego_vehicle.type_id,
             'vehicles_number': len(self.world.get_actors().filter('vehicle.*')),
+            'weather': {
+                'cloudiness': self.weather.cloudiness,
+                'precipitation': self.weather.precipitation,
+                'precipitation_deposits': self.weather.precipitation_deposits,
+                'wind_intensity': self.weather.wind_intensity,
+                'sun_azimuth_angle': self.weather.sun_azimuth_angle,
+                'sun_altitude_angle': self.weather.sun_altitude_angle,
+                'fog_density': self.weather.fog_density,
+                'fog_distance': self.weather.fog_distance,
+                'fog_falloff': self.weather.fog_falloff,
+                'wetness': self.weather.wetness,
+                'scattering_intensity': self.weather.scattering_intensity,
+                'mie_scattering_scale': self.weather.mie_scattering_scale,
+                'rayleigh_scattering_scale': self.weather.rayleigh_scattering_scale,
+                },
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
