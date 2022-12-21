@@ -12,6 +12,7 @@ from albumentations import (
     Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from utils.logger import logger
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 
@@ -19,7 +20,6 @@ import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
   tf.config.experimental.set_memory_growth(gpu, True)
-
 
 class Brain:
 
@@ -68,13 +68,13 @@ class Brain:
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
-                print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
+                logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
 
             self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
         else:
-            print("** Brain not loaded **")
-            print("- Models path: " + PRETRAINED_MODELS)
-            print("- Model: " + str(model))
+            logger.info("** Brain not loaded **")
+            logger.info("- Models path: " + PRETRAINED_MODELS)
+            logger.info("- Model: " + str(model))
 
         self.previous_speed = 0
 
@@ -105,7 +105,6 @@ class Brain:
         self.handler.update_pose3d(pose_data)
 
     def execute(self):
-        #print(self.vehicle.get_location())
         image = self.camera_0.getImage().data
         image_1 = self.camera_1.getImage().data
         image_2 = self.camera_2.getImage().data
@@ -128,10 +127,6 @@ class Brain:
             bird_eye_view_1
         ]
 
-
-        #print(self.bird_eye_view.getImage(self.vehicle))
-
-        #self.update_frame('frame_0', image)
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)
         self.update_frame('frame_3', image_3)

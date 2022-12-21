@@ -42,17 +42,17 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(experiment_metrics, stats_filename, map_waypoints, stats_filename_2):
+def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoints, experiment_metrics_filename):
     time_counter = 5
-    while not os.path.exists(stats_filename):
+    while not os.path.exists(experiment_metrics_bag_filename):
         time.sleep(1)
         time_counter -= 1
         if time_counter <= 0:
-            ValueError(f"{stats_filename} isn't a file!")
+            ValueError(f"{experiment_metrics_bag_filename} isn't a file!")
             return {}
 
     try:
-        bag_reader = bagreader(stats_filename)
+        bag_reader = bagreader(experiment_metrics_bag_filename)
     except rosbag.bag.ROSBagException:
         return {}
 
@@ -61,13 +61,13 @@ def get_metrics(experiment_metrics, stats_filename, map_waypoints, stats_filenam
         data = bag_reader.message_by_topic(topic)
         csv_files.append(data)
 
-    data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-odometry.csv'
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-odometry.csv'
     dataframe_pose = pd.read_csv(data_file)
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
 
-    data_file = stats_filename.split('.bag')[0] + '/clock.csv'
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/clock.csv'
     dataframe_pose = pd.read_csv(data_file)
     clock_points = []
     for index, row in dataframe_pose.iterrows():
@@ -78,14 +78,14 @@ def get_metrics(experiment_metrics, stats_filename, map_waypoints, stats_filenam
 
     collision_points = []
     if '/carla/ego_vehicle/collision' in bag_reader.topics:
-        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-collision.csv'
+        data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-collision.csv'
         dataframe_collision = pd.read_csv(data_file)
         for index, row in dataframe_collision.iterrows():
             collision_points.append(row)
 
     lane_invasion_points = []
     if '/carla/ego_vehicle/lane_invasion' in bag_reader.topics:
-        data_file = stats_filename.split('.bag')[0] + '/carla-ego_vehicle-lane_invasion.csv'
+        data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-lane_invasion.csv'
         dataframe_lane_invasion = pd.read_csv(data_file, on_bad_lines='skip')
         for index, row in dataframe_lane_invasion.iterrows():
             lane_invasion_points.append(row)
@@ -95,9 +95,9 @@ def get_metrics(experiment_metrics, stats_filename, map_waypoints, stats_filenam
         experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, stats_filename_2)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
-        shutil.rmtree(stats_filename.split('.bag')[0])
+        shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
     else:
         return {}
@@ -124,7 +124,7 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     return experiment_metrics
 
-def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, stats_filename_2):
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename):
     map_waypoints_tuples = []
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
@@ -177,6 +177,6 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, stats
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
     plt.legend(loc='upper left', prop={'size': 25})
-    fig.savefig(stats_filename_2 + '.png', dpi=fig.dpi)
+    fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
     return experiment_metrics

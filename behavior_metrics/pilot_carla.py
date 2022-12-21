@@ -120,13 +120,10 @@ class PilotCarla(threading.Thread):
     def run(self):
         """Main loop of the class. Calls a brain action every self.time_cycle"""
         "TODO: cleanup measure of ips"
-        #it = 0
-        #ss = time.time()
         self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
-
 
         control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
         control_command = CarlaControl()

@@ -258,9 +258,9 @@ class ControllerCarla:
 
         self.metrics_record_dir_path = metrics_record_dir_path
         os.mkdir(self.metrics_record_dir_path + self.time_str)
-        self.experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
+        self.experiment_metrics_bag_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
         topics = ['/carla/ego_vehicle/odometry', '/carla/ego_vehicle/collision', '/carla/ego_vehicle/lane_invasion', '/clock']
-        command = "rosbag record -O " + self.experiment_metrics_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
+        command = "rosbag record -O " + self.experiment_metrics_bag_filename + " " + " ".join(topics) + " __name:=behav_metrics_bag"
         command = shlex.split(command)
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
@@ -287,10 +287,11 @@ class ControllerCarla:
             subprocess.Popen(command, stdout=out, stderr=err)
 
         # Wait for rosbag file to be closed. Otherwise it causes error
-        while os.path.isfile(self.experiment_metrics_filename + '.active'):
+        while os.path.isfile(self.experiment_metrics_bag_filename + '.active'):
             pass
-
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_filename, self.map_waypoints, self.metrics_record_dir_path + self.time_str + '/' + self.time_str)
+        
+        experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
 
         if hasattr(self.pilot.brains.active_brain, 'inference_times'):
             self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
