@@ -120,14 +120,10 @@ class PilotCarla(threading.Thread):
     def run(self):
         """Main loop of the class. Calls a brain action every self.time_cycle"""
         "TODO: cleanup measure of ips"
-        it = 0
-        ss = time.time()
-        self.brain_iterations_real_time = []
         self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
-
 
         control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
         control_command = CarlaControl()
@@ -149,16 +145,12 @@ class PilotCarla(threading.Thread):
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
+                except Exception as e:
+                    logger.error(e)
 
                 dt = datetime.now() - start_time
                 ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
                 self.brain_iterations_real_time.append(ms / 1000)
-                elapsed = time.time() - ss
-                if elapsed < 1:
-                    it += 1
-                else:
-                    ss = time.time()
-                    it = 0
                 if ms < self.time_cycle:
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
@@ -208,7 +200,6 @@ class PilotCarla(threading.Thread):
         return False
 
     def clock_callback(self, clock_data):
-        #(clock_data.clock.to_sec())
         self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):

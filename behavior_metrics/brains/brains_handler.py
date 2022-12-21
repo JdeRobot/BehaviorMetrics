@@ -44,7 +44,10 @@ class Brains(object):
         elif robot_type == 'CARLA':
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
-            self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
+            if self.model:
+                self.active_brain = Brain(self.sensors, self.actuators, handler=self, model=self.model, config=self.config)
+            else:
+                self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
         else:
             if import_name in sys.modules:  # for reloading sake
                 del sys.modules[import_name]
