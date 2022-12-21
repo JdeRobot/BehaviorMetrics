@@ -1,18 +1,30 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import csv
 import cv2
-import math
 import numpy as np
-import threading
 import time
-from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
+import yaml
+import gym
+
+from gym.envs.registration import register
+
+
+# F1 envs
+register(
+    id="F1Env-v0",
+    entry_point="brains.f1.rl_utils.models:F1Env",
+    # More arguments here
 )
-from utils.constants import DATASETS_DIR, ROOT_PATH
 
 
-GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
+from pydantic import BaseModel
+class InferenceExecutorValidator(BaseModel):
+    settings: dict
+    agent: dict
+    environment: dict
+    algorithm: dict
+    inference: dict
+    # gazebo: dict
 
 
 class Brain:
@@ -23,7 +35,86 @@ class Brain:
         self.handler = handler
         self.config = config
 
+
+        args = {
+            'algorithm': 'qlearn',
+            'environment': 'simple', 
+            'agent': 'f1',
+            'filename': '/home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/config_f1_qlearn.yaml'
+        }
+        
+        f = open(args['filename'], "r")
+        read_file = f.read()
+        #print(read_file)
+
+        config_file = yaml.load(read_file, Loader=yaml.FullLoader)
+        #print(config_file)
+
+        inference_params = {
+            "settings": self.get_settings(config_file),
+            "algorithm": self.get_algorithm(config_file, args['algorithm']),
+            "inference": self.get_inference(config_file, args['algorithm']),
+            "environment": self.get_environment(config_file, args['environment']),
+            "agent": self.get_agent(config_file, args['agent']),
+        }
+
+        params = InferenceExecutorValidator(**inference_params)
+
+        self.env_name = params.environment["params"]["env_name"]
+        env_params = params.environment["params"]
+        actions = params.environment["actions"]
+        env_params["actions"] = actions
+
+        print(self.env_name)
+        print(env_params)
+
+        self.env = gym.make(self.env_name, **env_params)
+
+        outdir = "./logs/f1_qlearn_gym_experiments/"
+        env = gym.wrappers.Monitor(self.env, outdir, force=True)
+        observation = env.reset()
+        self.state = "".join(map(str, observation))
+
         time.sleep(2)
+
+    def get_algorithm(self, config_file: dict, input_algorithm: str) -> dict:
+        return {
+            "name": input_algorithm,
+            "params": config_file["algorithm"][input_algorithm],
+        }
+
+
+    def get_environment(self, config_file: dict, input_env: str) -> dict:
+        return {
+            "name": input_env,
+            "params": config_file["environments"][input_env],
+            "actions": config_file["actions"]
+            .get("available_actions", None)
+            .get(config_file["actions"].get("actions_set", None), None),
+            "actions_set": config_file["actions"].get("actions_set", None),
+            "actions_number": config_file["actions"].get("actions_number", None),
+        }
+
+
+    def get_agent(self, config_file: dict, input_agent: str) -> dict:
+        return {
+            "name": input_agent,
+            "params": config_file["agent"][input_agent],
+        }
+
+
+    def get_inference(self, config_file: dict, input_inference: str) -> dict:
+        return {
+            "name": input_inference,
+            "params": config_file["inference"][input_inference],
+        }
+
+
+    def get_settings(self, config_file: dict) -> dict:
+        return {
+            "name": "settings",
+            "params": config_file["settings"],
+        }
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -37,6 +128,15 @@ class Brain:
 
 
     def execute(self):
+        self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
+        action = self.inferencer.inference(state)
+        # Execute the action and get feedback
+        observation, reward, done, info = env.step(action)
+        #cumulated_reward += reward
+
+        self.state = "".join(map(str, observation))
+
+
         image = self.camera.getImage().data
 
         v, w = 0, 0
