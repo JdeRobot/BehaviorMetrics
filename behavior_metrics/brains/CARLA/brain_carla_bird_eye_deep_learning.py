@@ -156,38 +156,42 @@ class Brain:
 
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
-        prediction = self.net.predict(img, verbose=0)
-        self.inference_times.append(time.time() - start_time)
-        throttle = prediction[0][0]
-        steer = prediction[0][1] * (1 - (-1)) + (-1)
-        break_command = prediction[0][2]
-        speed = self.vehicle.get_velocity()
-        vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-        self.previous_speed = vehicle_speed
+        try:
+            prediction = self.net.predict(img, verbose=0)
+            self.inference_times.append(time.time() - start_time)
+            throttle = prediction[0][0]
+            steer = prediction[0][1] * (1 - (-1)) + (-1)
+            break_command = prediction[0][2]
+            speed = self.vehicle.get_velocity()
+            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+            self.previous_speed = vehicle_speed
 
-        if vehicle_speed > 300:
-            self.motors.sendThrottle(0)
-            self.motors.sendSteer(steer)
-            self.motors.sendBrake(0)
-        else:
-            if vehicle_speed < 2:
-                self.motors.sendThrottle(1.0)
-                self.motors.sendSteer(0.0)
-                self.motors.sendBrake(0)
-            else:
-                self.motors.sendThrottle(throttle)
+            if vehicle_speed > 300:
+                self.motors.sendThrottle(0)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(0)
+            else:
+                if vehicle_speed < 2:
+                    self.motors.sendThrottle(1.0)
+                    self.motors.sendSteer(0.0)
+                    self.motors.sendBrake(0)
+                else:
+                    self.motors.sendThrottle(throttle)
+                    self.motors.sendSteer(steer)
+                    self.motors.sendBrake(0)
 
-        if self.previous_commanded_throttle != None:
-            a = np.array((throttle, steer, break_command))
-            b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
-            distance = np.linalg.norm(a - b)
-            self.suddenness_distance.append(distance)
+            if self.previous_commanded_throttle != None:
+                a = np.array((throttle, steer, break_command))
+                b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
+                distance = np.linalg.norm(a - b)
+                self.suddenness_distance.append(distance)
 
-        self.previous_commanded_throttle = throttle
-        self.previous_commanded_steer = steer
-        self.previous_commanded_brake = break_command
+            self.previous_commanded_throttle = throttle
+            self.previous_commanded_steer = steer
+            self.previous_commanded_brake = break_command
+        except Exception as ex:
+            raise Exception(ex)
+        
             
 
 

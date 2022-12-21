@@ -120,8 +120,8 @@ class PilotCarla(threading.Thread):
     def run(self):
         """Main loop of the class. Calls a brain action every self.time_cycle"""
         "TODO: cleanup measure of ips"
-        it = 0
-        ss = time.time()
+        #it = 0
+        #ss = time.time()
         self.brain_iterations_simulated_time = []
         self.real_time_factors = []
         self.sensors.get_camera('camera_0').total_frames = 0
@@ -148,23 +148,15 @@ class PilotCarla(threading.Thread):
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
+                except Exception as e:
+                    logger.error(e)
 
                 dt = datetime.now() - start_time
                 ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
                 self.brain_iterations_real_time.append(ms / 1000)
-                elapsed = time.time() - ss
-                if elapsed < 1:
-                    it += 1
-                else:
-                    ss = time.time()
-                    it = 0
                 if ms < self.time_cycle:
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
-                #print('TARGET CLIENT TIME CYCLE: ', self.time_cycle)
-                #print('Real CLIENT time cycle: ', ms / 1000)
-                #print('Real time factor: ', self.real_time_factor)
-                #print('ROS Cycle time: ', self.ros_clock_time - start_time_ros)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
         self.execution_completed = True
         self.kill()
@@ -211,7 +203,6 @@ class PilotCarla(threading.Thread):
         return False
 
     def clock_callback(self, clock_data):
-        #print(clock_data.clock.to_sec())
         self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):
