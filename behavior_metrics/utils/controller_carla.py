@@ -33,7 +33,6 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from datetime import datetime
 from utils.logger import logger
-from utils.constants import CIRCUITS_TIMEOUTS
 from std_msgs.msg import String
 from utils import metrics_carla
 from carla_msgs.msg import CarlaLaneInvasionEvent
@@ -212,7 +211,6 @@ class ControllerCarla:
         logger.info("Recording metrics bag at: {}".format(metrics_record_dir_path))
 
         self.pilot.brain_iterations_real_time = []
-
         self.time_str = time.strftime("%Y%m%d-%H%M%S")       
         if world_counter is not None:
             current_world_head, current_world_tail = os.path.split(self.pilot.configuration.current_world[world_counter])
@@ -224,6 +222,7 @@ class ControllerCarla:
             current_brain_head, current_brain_tail = os.path.split(self.pilot.configuration.brain_path)
         self.experiment_metrics = {
             'timestamp': self.time_str,
+            'experiment_configuration': self.pilot.configuration.__dict__,
             'world_launch_file': current_world_tail,
             'brain_file': current_brain_tail,
             'robot_type': self.pilot.configuration.robot_type,
@@ -254,10 +253,7 @@ class ControllerCarla:
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.experiment_metrics['experiment_description'] = self.pilot.configuration.experiment_description
-            if hasattr(self.pilot.configuration, 'experiment_timeouts'):
-                self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
-            else:
-                self.experiment_metrics['experiment_timeout'] = CIRCUITS_TIMEOUTS[os.path.basename(self.experiment_metrics['world'])] * 1.1
+            self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             self.experiment_metrics['experiment_repetition'] = repetition_counter
 
         self.metrics_record_dir_path = metrics_record_dir_path
