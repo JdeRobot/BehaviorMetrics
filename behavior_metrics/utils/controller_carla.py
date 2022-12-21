@@ -68,11 +68,11 @@ class ControllerCarla:
 
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
-        world = client.get_world()
+        self.world = client.get_world()
 
-        self.carla_map = world.get_map()
+        self.carla_map = self.world.get_map()
         time.sleep(5)
-        self.ego_vehicle = world.get_actors().filter('vehicle.*')[0]
+        self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         
     # GUI update
@@ -227,7 +227,8 @@ class ControllerCarla:
             'brain_file': current_brain_tail,
             'robot_type': self.pilot.configuration.robot_type,
             'carla_map': self.carla_map.name,
-            'ego_vehicle': self.ego_vehicle.type_id
+            'ego_vehicle': self.ego_vehicle.type_id,
+            'vehicles_number': len(self.world.get_actors().filter('vehicle.*')),
         }
         if hasattr(self.pilot.configuration, 'experiment_model'):
             if brain_counter is not None:
@@ -261,19 +262,9 @@ class ControllerCarla:
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
         suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
 
-        if self.pilot.brains.active_brain.camera_0_first_image is not None:
-            first_images = [self.pilot.brains.active_brain.camera_0_first_image,
-                            self.pilot.brains.active_brain.camera_1_first_image,
-                            self.pilot.brains.active_brain.camera_2_first_image,
-                            self.pilot.brains.active_brain.camera_3_first_image,
-                            self.pilot.brains.active_brain.camera_4_first_image
-                            ]
-            last_images = [self.pilot.brains.active_brain.camera_0_last_image,
-                            self.pilot.brains.active_brain.camera_1_last_image,
-                            self.pilot.brains.active_brain.camera_2_last_image,
-                            self.pilot.brains.active_brain.camera_3_last_image,
-                            self.pilot.brains.active_brain.camera_4_last_image
-                            ]
+        if self.pilot.brains.active_brain.cameras_first_images != []:
+            first_images =  self.pilot.brains.active_brain.cameras_first_images
+            last_images = self.pilot.brains.active_brain.cameras_last_images
         else:
             first_images = []
             last_images = []
@@ -302,10 +293,12 @@ class ControllerCarla:
         
         self.save_metrics(first_images, last_images)
 
-        logger.info("* Experiment total real time -> " + str(end_time - self.pilot.pilot_start_time) + ' s')
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
 
-        logger.info("Stopping metrics bag recording")
+        for key, value in self.experiment_metrics.items():
+            logger.info('* ' + str(key) + ' ---> ' + str(value))
+
+        logger.info("Stopped metrics bag recording")
 
 
     def save_metrics(self, first_images, last_images):        
@@ -313,26 +306,13 @@ class ControllerCarla:
             json.dump(self.experiment_metrics, f)
         logger.info("Metrics stored in JSON file")
 
-        im = Image.fromarray(first_images[0])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_1.jpeg")
-        im = Image.fromarray(first_images[1])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_2.jpeg")
-        im = Image.fromarray(first_images[2])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_3.jpeg")
-        im = Image.fromarray(first_images[3])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_4.jpeg")
-        im = Image.fromarray(first_images[4])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_5.jpeg")
+        for counter, image in enumerate(first_images):
+            im = Image.fromarray(image)
+            im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_first_image_" + str(counter) + ".jpeg")
 
-        im = Image.fromarray(first_images[0])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_1.jpeg")
-        im = Image.fromarray(first_images[1])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_2.jpeg")
-        im = Image.fromarray(first_images[2])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_3.jpeg")
-        im = Image.fromarray(first_images[3])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_4.jpeg")
-        im = Image.fromarray(first_images[4])
-        im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_5.jpeg")
+        for counter, image in enumerate(last_images):
+            im = Image.fromarray(image)
+            im.save(self.metrics_record_dir_path + self.time_str + '/' + self.time_str + "_last_image_" + str(counter) + ".jpeg")
+
 
 
