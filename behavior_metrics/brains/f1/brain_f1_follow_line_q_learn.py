@@ -8,6 +8,8 @@ import gym
 
 from gym.envs.registration import register
 
+from brains.f1.rl_utils.inference import InferencerWrapper
+
 
 # F1 envs
 register(
@@ -34,6 +36,7 @@ class Brain:
         self.motors = actuators.get_motor('motors_0')
         self.handler = handler
         self.config = config
+        self.suddenness_distance = [0]
 
 
         args = {
@@ -71,9 +74,15 @@ class Brain:
         self.env = gym.make(self.env_name, **env_params)
 
         outdir = "./logs/f1_qlearn_gym_experiments/"
-        env = gym.wrappers.Monitor(self.env, outdir, force=True)
-        observation = env.reset()
+        self.env = gym.wrappers.Monitor(self.env, outdir, force=True)
+        observation = self.env.reset()
         self.state = "".join(map(str, observation))
+
+        self.inference_file = params.inference["params"]["inference_file"]
+        self.actions_file = params.inference["params"]["actions_file"]
+
+
+        self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
 
         time.sleep(2)
 
@@ -128,20 +137,13 @@ class Brain:
 
 
     def execute(self):
-        self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
-        action = self.inferencer.inference(state)
+        action = self.inferencer.inference(self.state)
         # Execute the action and get feedback
-        observation, reward, done, info = env.step(action)
-        #cumulated_reward += reward
+        observation, reward, done, info = self.env.step(action)
 
         self.state = "".join(map(str, observation))
 
-
         image = self.camera.getImage().data
-
-        v, w = 0, 0
-        self.motors.sendV(v)
-        self.motors.sendW(w)
-
+        
         self.update_frame('frame_0', image)
         

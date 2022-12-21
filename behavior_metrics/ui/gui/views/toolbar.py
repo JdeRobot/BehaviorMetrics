@@ -702,8 +702,8 @@ class Toolbar(QWidget):
         brain = self.brain_combobox.currentText() + '.py'
 
         # load brain from controller
-        if type(self.controller) != controller_carla.ControllerCarla:
-            self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
+        #if type(self.controller) != controller_carla.ControllerCarla:
+        #    self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
         self.controller.resume_pilot()
 
         # save to configuration
