@@ -13,7 +13,6 @@ class F1Env(gazebo_envs.GazeboEnv):
         self.circuit_name = config.get("circuit_name")
         self.circuit_positions_set = config.get("circuit_positions_set")
         self.alternate_pose = config.get("alternate_pose")
-        self.model_state_name = config.get("model_state_name")
 
         self.vel_pub = rospy.Publisher("/F1ROS/cmd_vel", Twist, queue_size=5)
         self.unpause = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
@@ -24,9 +23,6 @@ class F1Env(gazebo_envs.GazeboEnv):
             "/gazebo/get_model_state", GetModelState
         )
         self.position = None
-        # self.start_pose = np.array(config.get("start_pose"))
-        self.start_pose = np.array(config.get("gazebo_start_pose"))
-        self.start_random_pose = config.get("gazebo_random_start_pose")
 
         self._seed()
 

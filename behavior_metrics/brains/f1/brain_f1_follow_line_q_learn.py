@@ -140,6 +140,7 @@ class Brain:
         action = self.inferencer.inference(self.state)
         # Execute the action and get feedback
         observation, reward, done, info = self.env.step(action)
+        print(info)
 
         self.state = "".join(map(str, observation))
 

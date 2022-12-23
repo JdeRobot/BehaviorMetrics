@@ -63,19 +63,6 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
         ]
         centrals = list(map(self.get_center, lines))
 
-        if self.config.telemetry_mask:
-            for idx, point in enumerate(centrals):
-                cv2.line(
-                    img_proc,
-                    (int(point), int(self.config.x_row[idx])),
-                    (int(point), int(self.config.x_row[idx])),
-                    (255, 255, 255),
-                    thickness=3,
-                )
-
-            cv2.imshow("MASK + POINT", img_proc)
-            cv2.waitKey(1)
-
         return centrals
 
     def calculate_observation(self, state: list) -> list:
