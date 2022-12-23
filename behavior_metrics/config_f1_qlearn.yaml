@@ -1,33 +1,5 @@
-#####################################################################################
-# General configuration file to configure RL-Studio in the training or inference mode
-#####################################################################################
-
-#####################################################################################
-# settings: General parameters
-#
-# Most relevant params:
-#   model_state_name: agent name
-#   total_episodes: training epochs
-#   training_time: in hours
-#   save_episodes: variable for TensorFlow savings
-#####################################################################################
-
 settings:
   output_dir: "./logs/"
-
-#####################################################################################
-# agent: every agent configures states, rewards and sensors
-#
-# Most relevant params:
-#   image_resizing: percentage of image redimension to feed neural nets. I.e. 10 means a width of 64 pixels and height of 48 pixels
-#   num_regions: in simplified perception, number of image vertical divisions in which every state falls
-#   new_image_size: every image size is fixed in to feed neural net. I.e. 32 means a size of 32x32 pixels
-#   state_space: configurates how input data is feeding. Image means raw data from camera sensor. sp1,...spn means simplified perception of 1 to n points. 
-#   image: 0: distance from image midline down in pixels
-#   sp1, sp3, sp5, spn: simplified perception with 1, 3, 5 or n points respectively. Every number represents pixels from image midline down
-#   reward_function: discrete_follow_line represents a hardcoded reward function in follow line project, linear_follow_line means regression function in follow line project
-#
-#####################################################################################
 
 agent:
   f1:
@@ -45,19 +17,6 @@ agent:
       sp1: 
         0: [10]
 
-
-#####################################################################################
-# actions: mainly divided into continuous and discrete sets of actions. In continuous for plannar agents it is divided in min and max.
-# In other cases, we create a set of actions, 3, 5 or more, where every one is [linear velocity, angular velocity]
-#
-#   actions_number: for plannar agents, two actions are executed
-#   simple: 
-#         0: [3 m/sec, 0 rad/sec]
-#         1: [2 m/sec, 1 rad/sec]
-#         2: [2 m/sec, -1 rad/sec]
-#
-#####################################################################################
-
 actions:
     actions_number: 3
     actions_set: simple #simple
@@ -67,33 +26,16 @@ actions:
         1: [ 2, 1 ]
         2: [ 2, -1 ]
 
-#####################################################################################
-# environments: configurates every param in all envs. 
-#
-# Most relevant params:
-#   env_name: F1Env-v0, RobotMeshEnv-v0, myCartpole-v0, MyMountainCarEnv-v0
-#   training_type: qlearn_camera, qlearn_laser, dqn, manual, ddpg
-
-#####################################################################################
-
 environments:
   simple:
     env_name: F1Env-v0
     training_type: qlearn_camera_follow_line #qlearn_camera_follow_lane, dqn_follow_line, dqn_follow_lane, ddpg_follow_line, ddpg_follow_lane
 
-#####################################################################################
-# inference: loading training files
-
-#####################################################################################
 inference:
   qlearn:
     inference_file: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/1_20221128_0938_act_set_simple_epsilon_0.97_QTABLE.pkl
     actions_file: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/actions_set_20221128_0938
 
-#####################################################################################
-# algorithm: every particular param
-
-#####################################################################################
 algorithm:
     qlearn:
       alpha: 0.2

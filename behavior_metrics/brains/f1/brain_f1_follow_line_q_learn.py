@@ -42,7 +42,7 @@ class Brain:
             'algorithm': 'qlearn',
             'environment': 'simple', 
             'agent': 'f1',
-            'filename': '/home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/config_f1_qlearn.yaml'
+            'filename': 'config_f1_qlearn.yaml'
         }
         
         f = open(args['filename'], "r")
