@@ -12,7 +12,6 @@ from sensor_msgs.msg import Image
 from brains.f1.rl_utils.settings import QLearnConfig
 from brains.f1.rl_utils.image_f1 import ListenerCamera
 from brains.f1.rl_utils.models.f1_env import F1Env
-from brains.f1.rl_utils.gazebo_utils import set_new_pose
 
 
 
@@ -117,10 +116,7 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
         return state, reward, done, {}
 
     def reset(self):
-        if self.alternate_pose:
-            pos_number = set_new_pose(self.circuit_positions_set)
-        else:
-            self._gazebo_reset()
+        self._gazebo_reset()
 
 
         # Get camera info
