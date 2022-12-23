@@ -19,9 +19,7 @@ class F1Env(gazebo_envs.GazeboEnv):
         self.pause = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
         self.reset_proxy = rospy.ServiceProxy("/gazebo/reset_simulation", Empty)
         self.reward_range = (-np.inf, np.inf)
-        self.model_coordinates = rospy.ServiceProxy(
-            "/gazebo/get_model_state", GetModelState
-        )
+        self.model_coordinates = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
         self.position = None
 
         self._seed()

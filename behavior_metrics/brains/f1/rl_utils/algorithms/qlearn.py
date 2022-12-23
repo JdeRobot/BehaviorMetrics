@@ -54,10 +54,6 @@ class QLearn:
             return action, q
         return action
 
-    def learn(self, state1, action1, reward, state2):
-        maxqnew = max([self.getQValues(state2, a) for a in self.actions])
-        self.learnQ(state1, action1, reward, reward + self.gamma * maxqnew)
-
     def reset(self):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
@@ -93,7 +89,3 @@ class QLearn:
         print(f"\n\nMODEL LOADED.")
         print(f"    - Loading:    {file_path}")
         print(f"    - Model size: {len(self.q)}")
-
-    def updateEpsilon(self, epsilon):
-        self.epsilon = epsilon
-        return self.epsilon

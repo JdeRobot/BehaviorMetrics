@@ -74,8 +74,6 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
         return final_state
 
     def step(self, action) -> Tuple:
-        self._gazebo_unpause()
-
         vel_cmd = Twist()
         vel_cmd.linear.x = self.actions[action][0]
         vel_cmd.angular.z = self.actions[action][1]
@@ -95,7 +93,6 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
         
         self.previous_image = f1_image_camera.data
 
-        self._gazebo_pause()
         points = self.processed_image(f1_image_camera.data)
         state = self.calculate_observation(points)
         center = float(self.config.center_image - points[0]) / (
@@ -118,14 +115,13 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
             reward = -100
 
         return state, reward, done, {}
-    
+
     def reset(self):
         if self.alternate_pose:
             pos_number = set_new_pose(self.circuit_positions_set)
         else:
             self._gazebo_reset()
 
-        self._gazebo_unpause()
 
         # Get camera info
         start = time.time()
@@ -143,44 +139,5 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
 
         points = self.processed_image(f1_image_camera.data)
         state = self.calculate_observation(points)
-
-        self._gazebo_pause()
 
         return state
-    
-    def inference(self, action):
-        self._gazebo_unpause()
-
-        vel_cmd = Twist()
-        vel_cmd.linear.x = self.config.ACTIONS_SET[action][0]
-        vel_cmd.angular.z = self.config.ACTIONS_SET[action][1]
-        self.vel_pub.publish(vel_cmd)
-        
-        # Get camera info
-        start = time.time()
-        f1_image_camera = self.image.getImage()
-
-        while np.array_equal(self.previous_image, f1_image_camera.data):
-            if (time.time() - start) > 0.1:
-                vel_cmd = Twist()
-                vel_cmd.linear.x = 0
-                vel_cmd.angular.z = 0
-                self.vel_pub.publish(vel_cmd)
-            f1_image_camera = self.image.getImage()
-        
-        self.previous_image = f1_image_camera.data
-
-        self._gazebo_pause()
-
-        points = self.processed_image(f1_image_camera.data)
-        state = self.calculate_observation(points)
-
-        center = float(self.config.center_image - points[0]) / (float(self.config.width) // 2)
-
-        done = False
-        center = abs(center)
-
-        if center > 0.9:
-            done = True
-
-        return state, done

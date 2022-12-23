@@ -11,7 +11,6 @@ class GazeboEnv(gym.Env):
         # Resets the state of the environment and returns an initial observation.
         rospy.wait_for_service("/gazebo/reset_simulation")
         try:
-            # reset_proxy.call()
             self.reset_proxy()
             self.unpause()
         except rospy.ServiceException as e:

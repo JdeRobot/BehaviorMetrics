@@ -7,7 +7,6 @@ import yaml
 import gym
 
 from gym.envs.registration import register
-
 from brains.f1.rl_utils.inference import InferencerWrapper
 
 
@@ -48,10 +47,8 @@ class Brain:
         
         f = open(args['filename'], "r")
         read_file = f.read()
-        #print(read_file)
 
         config_file = yaml.load(read_file, Loader=yaml.FullLoader)
-        #print(config_file)
 
         inference_params = {
             "settings": self.get_settings(config_file),
@@ -68,9 +65,6 @@ class Brain:
         actions = params.environment["actions"]
         env_params["actions"] = actions
 
-        print(self.env_name)
-        print(env_params)
-
         self.env = gym.make(self.env_name, **env_params)
 
         outdir = "./logs/f1_qlearn_gym_experiments/"
@@ -84,7 +78,7 @@ class Brain:
 
         self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
 
-        time.sleep(2)
+        #time.sleep(2)
 
     def get_algorithm(self, config_file: dict, input_algorithm: str) -> dict:
         return {
@@ -140,7 +134,6 @@ class Brain:
         action = self.inferencer.inference(self.state)
         # Execute the action and get feedback
         observation, reward, done, info = self.env.step(action)
-        print(info)
 
         self.state = "".join(map(str, observation))
 
