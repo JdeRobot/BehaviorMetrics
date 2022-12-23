@@ -37,7 +37,6 @@ class Brain:
         self.config = config
         self.suddenness_distance = [0]
 
-
         args = {
             'algorithm': 'qlearn',
             'environment': 'simple', 
@@ -75,10 +74,7 @@ class Brain:
         self.inference_file = params.inference["params"]["inference_file"]
         self.actions_file = params.inference["params"]["actions_file"]
 
-
         self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
-
-        #time.sleep(2)
 
     def get_algorithm(self, config_file: dict, input_algorithm: str) -> dict:
         return {

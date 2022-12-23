@@ -9,8 +9,6 @@ class InferencerFactory:
         inference_file_name = config.inference_file
 
         if algorithm == AlgorithmsType.QLEARN.value:
-            
-
             actions_file_name = config.actions_file
 
             brain = QLearn(config)
