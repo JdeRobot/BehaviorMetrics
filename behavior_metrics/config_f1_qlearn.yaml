@@ -33,8 +33,8 @@ environments:
 
 inference:
   qlearn:
-    inference_file: 1_20221128_0938_act_set_simple_epsilon_0.97_QTABLE.pkl
-    actions_file: actions_set_20221128_0938
+    inference_file: models/rl_models/1_20221128_0938_act_set_simple_epsilon_0.97_QTABLE.pkl
+    actions_file: models/rl_models/actions_set_20221128_0938
 
 algorithm:
     qlearn:
