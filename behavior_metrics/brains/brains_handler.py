@@ -37,11 +37,7 @@ class Brains(object):
         module_name = path_split[-1][:-3]  # removing .py extension
         import_name = 'brains.' + robot_type + '.' + module_name
 
-        if robot_type == 'f1rl':
-            from utils import environment
-            environment.close_ros_and_simulators()
-            exec(open(self.brain_path).read())
-        elif robot_type == 'CARLA':
+        if robot_type == 'CARLA':
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
             if self.model:

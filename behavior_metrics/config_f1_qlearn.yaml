@@ -1,0 +1,45 @@
+settings:
+  output_dir: "./logs/"
+
+agent:
+  f1:
+    agent_name: f1
+    camera_params:
+      width: 640
+      height: 480
+      center_image: 320
+      raw_image: False
+      image_resizing: 100
+      new_image_size: 32
+      num_regions: 16
+    states:
+      state_space: sp1 #sp1
+      sp1: 
+        0: [10]
+
+actions:
+    actions_number: 3
+    actions_set: simple #simple
+    available_actions:
+      simple:
+        0: [ 3, 0 ]
+        1: [ 2, 1 ]
+        2: [ 2, -1 ]
+
+environments:
+  simple:
+    env_name: F1Env-v0
+    training_type: qlearn_camera_follow_line #qlearn_camera_follow_lane, dqn_follow_line, dqn_follow_lane, ddpg_follow_line, ddpg_follow_lane
+
+inference:
+  qlearn:
+    inference_file: models/rl_models/1_20221128_0938_act_set_simple_epsilon_0.97_QTABLE.pkl
+    actions_file: models/rl_models/actions_set_20221128_0938
+
+algorithm:
+    qlearn:
+      alpha: 0.2
+      epsilon: 0.95
+      epsilon_min: 0.05      
+      gamma: 0.9
+
