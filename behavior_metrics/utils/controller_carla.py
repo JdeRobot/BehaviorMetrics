@@ -70,7 +70,9 @@ class ControllerCarla:
         self.world = client.get_world()
 
         self.carla_map = self.world.get_map()
-        time.sleep(5)
+        while len(self.world.get_actors().filter('vehicle.*')) == 0:
+            logger.info("Waiting for vehicles!")
+            time.sleep(1)
         self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
