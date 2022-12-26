@@ -16,6 +16,7 @@ import threading
 import time
 import rospy
 import subprocess
+import os
 
 from datetime import datetime
 from brains.brains_handler import Brains
@@ -145,8 +146,12 @@ class PilotCarla(threading.Thread):
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
-                except Exception as e:
-                    logger.error(e)
+                except Exception as ex:
+                    logger.warning(type(ex).__name__)
+                    logger.warning('ERROR Pilot Carla!')
+                    self.stop()
+                    self.kill()
+                    os._exit(-1)
 
                 dt = datetime.now() - start_time
                 ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0

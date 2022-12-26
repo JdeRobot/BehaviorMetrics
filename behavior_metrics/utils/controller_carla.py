@@ -68,7 +68,7 @@ class ControllerCarla:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         self.world = client.get_world()
-
+        time.sleep(5)
         self.carla_map = self.world.get_map()
         while len(self.world.get_actors().filter('vehicle.*')) == 0:
             logger.info("Waiting for vehicles!")

@@ -135,12 +135,7 @@ def main():
                         logger.info("Launching: python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                         success = os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                         if success != 0:
-                            logger.info(success)
-                            logger.info(success)
-                            logger.info(success)
                             logger.info("Python process finished with error! Repeating experiment")
-                            logger.info(success)
-                            logger.info(success)
                         logger.info("Python process finished.")
 
     logger.info('DONE! Bye, bye :)')
