@@ -157,7 +157,7 @@ def main():
                     logger.info('Experiments information: ')
                     logger.info(experiments_information)
                     logger.info('Last experiment folder: ')
-                    logger.info(max(glob.glob(os.path.join(directory, '*/')), key=os.path.getmtime))
+                    logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
     logger.info('DONE! Bye, bye :)')
                     
 
