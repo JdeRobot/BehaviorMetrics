@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 import rospy
+import glob
 
 from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
@@ -153,7 +154,10 @@ def main():
                             success = 0
                             logger.info("Too many failed attempts for this experiment.")
                         logger.info("Python process finished.")
+                    logger.info('Experiments information: ')
                     logger.info(experiments_information)
+                    logger.info('Last experiment folder: ')
+                    logger.info(max(glob.glob(os.path.join(directory, '*/')), key=os.path.getmtime))
     logger.info('DONE! Bye, bye :)')
                     
 
