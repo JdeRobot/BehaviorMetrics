@@ -69,8 +69,9 @@ class Brain:
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
-
+            logger.info("** Load TF model **")
             self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
             logger.info("- Models path: " + PRETRAINED_MODELS)
