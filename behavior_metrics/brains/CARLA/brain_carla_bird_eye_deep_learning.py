@@ -13,9 +13,11 @@ from albumentations import (
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
+from traceback import print_exc
 
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 
+from tensorflow.python.framework.errors_impl import NotFoundError
 import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
@@ -69,8 +71,9 @@ class Brain:
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
-
+            logger.info("** Load TF model **")
             self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
             logger.info("- Models path: " + PRETRAINED_MODELS)
@@ -184,8 +187,17 @@ class Brain:
             self.previous_commanded_throttle = throttle
             self.previous_commanded_steer = steer
             self.previous_commanded_brake = break_command
-        except Exception as ex:
+        except NotFoundError as ex:
+            logger.info('Error inside brain: NotFoundError!')
+            logger.warning(type(ex).__name__)
+            print_exc()
             raise Exception(ex)
+        except Exception as ex:
+            logger.info('Error inside brain: Exception!')
+            logger.warning(type(ex).__name__)
+            print_exc()
+            raise Exception(ex)
+            
         
             
 

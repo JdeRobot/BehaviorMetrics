@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 import rospy
+import glob
 
 from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
@@ -127,13 +128,36 @@ def main():
         pilot.kill_event.set()
         environment.close_ros_and_simulators()
     else:
+        experiments_information = {'world_counter': {}}
         for world_counter, world in enumerate(app_configuration.current_world):
+            experiments_information['world_counter'][world_counter] = {'brain_counter': {}}
             for brain_counter, brain in enumerate(app_configuration.brain_path):
+                experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter] = {'repetition_counter': {}}
                 for repetition_counter in range(app_configuration.experiment_repetitions):
-                    logger.info("Launching: python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                    os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                    logger.info("Python process finished.")
-
+                    success = -1
+                    experiment_attempts = 0
+                    while success != 0:
+                        experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter]['repetition_counter'][repetition_counter] = experiment_attempts
+                        logger.info("Launching: python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
+                        success = os.system("python3 script_manager_carla.py -c configs/default_carla_multiple.yml -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
+                        if success != 0:
+                            root = './'
+                            folders = list(os.walk(root))[1:]
+                            for folder in folders:
+                                if len(folder[0].split('/')) == 2 and not folder[1] and not folder[2]:
+                                    logger.info("Removing empty folder: " + folder[0])
+                                    os.rmdir(folder[0])
+                        if success != 0 and experiment_attempts <= 5:
+                            experiment_attempts += 1
+                            logger.info("Python process finished with error! Repeating experiment")
+                        elif success != 0 and experiment_attempts > 5:
+                            success = 0
+                            logger.info("Too many failed attempts for this experiment.")
+                        logger.info("Python process finished.")
+                    logger.info('Experiments information: ')
+                    logger.info(experiments_information)
+                    logger.info('Last experiment folder: ')
+                    logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
     logger.info('DONE! Bye, bye :)')
                     
 
