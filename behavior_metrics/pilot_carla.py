@@ -49,7 +49,7 @@ class PilotCarla(threading.Thread):
         brains {brains.brains_handler.Brains} -- Brains controller instance
     """
 
-    def __init__(self, configuration, controller, brain_path):
+    def __init__(self, configuration, controller, brain_path, experiment_model=None):
         """Constructor of the pilot class
 
         Arguments:
@@ -68,13 +68,10 @@ class PilotCarla(threading.Thread):
         self.sensors = None
         self.actuators = None
         self.brains = None
+        self.experiment_model = experiment_model
         self.initialize_robot()
-        if self.robot_type == 'drone':
-            self.pose3d = self.brains.active_brain.getPose3d()
-            self.start_pose = np.array([self.pose3d[0], self.pose3d[1]])
-        else:
-            self.pose3d = self.sensors.get_pose3d('pose3d_0')
-            self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        self.pose3d = self.sensors.get_pose3d('pose3d_0')
+        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
         self.previous = datetime.now()
         self.checkpoints = []
         self.metrics = {}
@@ -102,9 +99,9 @@ class PilotCarla(threading.Thread):
         self.stop_interfaces()
         self.actuators = Actuators(self.configuration.actuators)
         self.sensors = Sensors(self.configuration.sensors)
-        if hasattr(self.configuration, 'experiment_model') and type(self.configuration.experiment_model) != list:
+        if self.experiment_model:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
-                                 self.configuration.experiment_model, self.configuration.brain_kwargs)
+                                 self.experiment_model, self.configuration.brain_kwargs)
         else:
             self.brains = Brains(self.sensors, self.actuators, self.brain_path, self.controller,
                                  config=self.configuration.brain_kwargs)
