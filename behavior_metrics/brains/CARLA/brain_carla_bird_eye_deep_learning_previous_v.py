@@ -149,9 +149,9 @@ class Brain:
         img = image["image"]
 
         #velocity_dim = np.full((150, 50), 0.5)
-        #velocity_dim = np.full((150, 50), self.previous_speed/30)
-        #new_img_vel = np.dstack((img, velocity_dim))
-        #img = new_img_vel
+        velocity_dim = np.full((150, 50), self.previous_speed/30)
+        new_img_vel = np.dstack((img, velocity_dim))
+        img = new_img_vel
 
         img = np.expand_dims(img, axis=0)
         start_time = time.time()

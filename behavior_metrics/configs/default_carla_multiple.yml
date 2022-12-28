@@ -30,10 +30,22 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
                     
-        BrainPath: ['brains/CARLA/brain_carla_bird_eye_deep_learning.py']
+        BrainPath: [
+            'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
+            'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
+            'brains/CARLA/brain_carla_bird_eye_deep_learning_x3.py',
+            'brain_carla_bird_eye_deep_learning_previous_v.py',
+            'brain_carla_bird_eye_deep_learning_previous_v.py'
+            ]
         PilotTimeCycle: 100
         Parameters:
-            Model: ['20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5']
+            Model: [
+                '20221214-102121_pilotnet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_PAPER_cp.h5',
+                '20221214-102705_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_PAPER_cp.h5',
+                '20221214-111624_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_PAPER_cp.h5',
+                '20221104-143528_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_cp.h5',
+                '20221116-153910_deepestLSTMTinyPilotNet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_PAPER.h5'
+                ]
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -45,12 +57,14 @@ Behaviors:
     Experiment:
         Name: "Experiment name"
         Description: "Experiment description"
-        Timeout: [10, 10] # for each world!
-        Repetitions: 1
+        Timeout: [120, 120, 120, 120] # for each world!
+        Repetitions: 2
     Simulation:
         World: [
             /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_02_no_gui.launch
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_02_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_03_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_no_gui.launch
             ]
     Dataset:
         In: '/tmp/my_bag.bag'
