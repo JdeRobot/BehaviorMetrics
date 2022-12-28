@@ -82,6 +82,10 @@ class Brain:
 
         self.previous_speed = 0
 
+        self.image_1 = 0
+        self.image_2 = 0
+        self.image_3 = 0
+
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -148,61 +152,67 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        #velocity_dim = np.full((150, 50), 0.5)
-        #velocity_dim = np.full((150, 50), self.previous_speed/30)
-        #new_img_vel = np.dstack((img, velocity_dim))
-        #img = new_img_vel
+        if type(self.image_1) is int:
+            self.image_1 = img
+        if type(self.image_2) is int:
+            self.image_2 = img
+        else:
+            self.image_1 = self.image_2
+            self.image_2 = self.image_1
+            self.image_3 = img
+            img = [self.image_3, self.image_2 , self.image_1]
 
-        img = np.expand_dims(img, axis=0)
-        start_time = time.time()
-        try:
-            prediction = self.net.predict(img, verbose=0)
-            self.inference_times.append(time.time() - start_time)
-            throttle = prediction[0][0]
-            steer = prediction[0][1] * (1 - (-1)) + (-1)
-            break_command = prediction[0][2]
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
 
-            if vehicle_speed > 300:
-                self.motors.sendThrottle(0)
-                self.motors.sendSteer(steer)
-                self.motors.sendBrake(0)
-            else:
-                if vehicle_speed < 2:
-                    self.motors.sendThrottle(1.0)
-                    self.motors.sendSteer(0.0)
-                    self.motors.sendBrake(0)
-                else:
-                    self.motors.sendThrottle(throttle)
+            img = np.expand_dims(img, axis=0)
+            start_time = time.time()
+            try:
+                prediction = self.net.predict(img, verbose=0)
+                self.inference_times.append(time.time() - start_time)
+                throttle = prediction[0][0]
+                steer = prediction[0][1] * (1 - (-1)) + (-1)
+                break_command = prediction[0][2]
+                speed = self.vehicle.get_velocity()
+                vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+                self.previous_speed = vehicle_speed
+
+                if vehicle_speed > 300:
+                    self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(0)
+                else:
+                    if vehicle_speed < 2:
+                        self.motors.sendThrottle(1.0)
+                        self.motors.sendSteer(0.0)
+                        self.motors.sendBrake(0)
+                    else:
+                        self.motors.sendThrottle(throttle)
+                        self.motors.sendSteer(steer)
+                        self.motors.sendBrake(0)
 
-            if self.previous_commanded_throttle != None:
-                a = np.array((throttle, steer, break_command))
-                b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
-                distance = np.linalg.norm(a - b)
-                self.suddenness_distance.append(distance)
+                if self.previous_commanded_throttle != None:
+                    a = np.array((throttle, steer, break_command))
+                    b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
+                    distance = np.linalg.norm(a - b)
+                    self.suddenness_distance.append(distance)
 
-            self.previous_commanded_throttle = throttle
-            self.previous_commanded_steer = steer
-            self.previous_commanded_brake = break_command
-        except NotFoundError as ex:
-            logger.info('Error inside brain: NotFoundError!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
-        except UnimplementedError as ex:
-            logger.info('Error inside brain: UnimplementedError!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
-        except Exception as ex:
-            logger.info('Error inside brain: Exception!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
+                self.previous_commanded_throttle = throttle
+                self.previous_commanded_steer = steer
+                self.previous_commanded_brake = break_command
+            except NotFoundError as ex:
+                logger.info('Error inside brain: NotFoundError!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
+            except UnimplementedError as ex:
+                logger.info('Error inside brain: UnimplementedError!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
+            except Exception as ex:
+                logger.info('Error inside brain: Exception!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
             
         
             
