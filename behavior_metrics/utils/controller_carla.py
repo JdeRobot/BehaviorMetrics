@@ -254,6 +254,12 @@ class ControllerCarla:
                 self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
+            if brain_counter is not None:
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
+            else:
+                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
+        if hasattr(self.pilot.configuration, 'experiment_name'):
+            self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.experiment_metrics['experiment_description'] = self.pilot.configuration.experiment_description
             self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             self.experiment_metrics['experiment_repetition'] = repetition_counter

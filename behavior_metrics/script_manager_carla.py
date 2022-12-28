@@ -115,11 +115,12 @@ def main():
 
     world = app_configuration.current_world[world_counter]
     brain = app_configuration.brain_path[brain_counter]
+    experiment_model = app_configuration.experiment_model[brain_counter]
     environment.launch_env(world, carla_simulator=True)
     controller = ControllerCarla()
 
     # Launch control
-    pilot = PilotCarla(app_configuration, controller, brain)
+    pilot = PilotCarla(app_configuration, controller, brain, experiment_model=experiment_model)
     pilot.daemon = True
     pilot.start()
     logger.info('Executing app')

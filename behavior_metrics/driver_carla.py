@@ -119,7 +119,11 @@ def main():
         controller = ControllerCarla()
 
         # Launch control
-        pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
+        if hasattr(app_configuration, 'experiment_model'):
+            experiment_model = app_configuration.experiment_model
+            pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path, experiment_model=experiment_model)
+        else:
+            pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
         pilot.daemon = True
         pilot.start()
         logger.info('Executing app')

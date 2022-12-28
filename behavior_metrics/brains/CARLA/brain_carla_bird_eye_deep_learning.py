@@ -18,6 +18,7 @@ from traceback import print_exc
 PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 
 from tensorflow.python.framework.errors_impl import NotFoundError
+from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
@@ -189,6 +190,11 @@ class Brain:
             self.previous_commanded_brake = break_command
         except NotFoundError as ex:
             logger.info('Error inside brain: NotFoundError!')
+            logger.warning(type(ex).__name__)
+            print_exc()
+            raise Exception(ex)
+        except UnimplementedError as ex:
+            logger.info('Error inside brain: UnimplementedError!')
             logger.warning(type(ex).__name__)
             print_exc()
             raise Exception(ex)
