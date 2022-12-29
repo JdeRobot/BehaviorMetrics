@@ -138,8 +138,15 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     checkpoints_tuples_y= []
     for i, point in enumerate(checkpoints):
         current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
-        checkpoint_y = -point['pose.pose.position.y']
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
+            checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
+            checkpoint_y = -point['pose.pose.position.y']
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town07' or experiment_metrics['carla_map'] == 'Carla/Maps/Town06'):
+            checkpoint_x = current_checkpoint[0]
+            checkpoint_y = -current_checkpoint[1]
+        else:
+            checkpoint_x = current_checkpoint[0]
+            checkpoint_y = current_checkpoint[1]
         checkpoints_tuples_x.append(checkpoint_x)
         checkpoints_tuples_y.append(checkpoint_y)
         checkpoints_tuples.append((checkpoint_x, checkpoint_y))
