@@ -30,10 +30,14 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
                     
-        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
+        BrainPath: [
+            'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
+            ]
         PilotTimeCycle: 100
         Parameters:
-            Model: '20221214-102705_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_PAPER_cp.h5'
+            Model: [
+                '20221214-102705_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_PAPER_cp.h5',
+                ]
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -42,8 +46,27 @@ Behaviors:
             UseOptimized: True
             ImageTranform: ''
         Type: 'CARLA'
+    Experiment:
+        Name: "Experiment name"
+        Description: "Experiment description"
+        Timeout: [10, 10, 10, 10, 10, 10, 10, 10] # for each world!
+        Repetitions: 1
     Simulation:
-        World: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_anticlockwise.launch
+        World: [
+
+
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
+
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
+
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
+
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
+            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
+            ]
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
