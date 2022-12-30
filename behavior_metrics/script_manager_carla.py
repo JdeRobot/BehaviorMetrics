@@ -124,7 +124,6 @@ def main():
     pilot.daemon = True
     pilot.start()
     logger.info('Executing app')
-    controller.reload_brain(brain)
     controller.resume_pilot()
     controller.unpause_carla_simulation()
     controller.record_metrics(app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
