@@ -129,9 +129,14 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
     for waypoint in map_waypoints:
-        map_waypoints_tuples_x.append(waypoint.transform.location.x)
-        map_waypoints_tuples_y.append(waypoint.transform.location.y)
-        map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
+        if (experiment_metrics['carla_map'] != 'Carla/Maps/Town06'):
+            map_waypoints_tuples_x.append(waypoint.transform.location.x)
+            map_waypoints_tuples_y.append(waypoint.transform.location.y)
+            map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
+        else:
+            map_waypoints_tuples_x.append(waypoint.transform.location.x)
+            map_waypoints_tuples_y.append(-waypoint.transform.location.y)
+            map_waypoints_tuples.append((waypoint.transform.location.x, -waypoint.transform.location.y))
 
     checkpoints_tuples = []
     checkpoints_tuples_x = []
@@ -141,7 +146,7 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
         if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town07' or experiment_metrics['carla_map'] == 'Carla/Maps/Town06'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
             checkpoint_x = current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:
