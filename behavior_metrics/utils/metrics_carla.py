@@ -90,9 +90,15 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         for index, row in dataframe_lane_invasion.iterrows():
             lane_invasion_points.append(row)
 
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-speedometer.csv'
+    dataframe_speedometer = pd.read_csv(data_file)
+    speedometer_points = []
+    for index, row in dataframe_speedometer.iterrows():
+        speedometer_points.append(row)
+
     if len(checkpoints) > 1:
         experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
-        experiment_metrics = get_average_speed(experiment_metrics, seconds_start, seconds_end)
+        experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
         experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename)
@@ -109,11 +115,12 @@ def get_distance_completed(experiment_metrics, checkpoints):
     return experiment_metrics
 
 
-def get_average_speed(experiment_metrics, seconds_start, seconds_end):
-    if (seconds_end - seconds_start):
-        experiment_metrics['average_speed'] = (experiment_metrics['completed_distance'] / (seconds_end - seconds_start))* 3.6
-    else:
-        experiment_metrics['average_speed'] = 0
+def get_average_speed(experiment_metrics, speedometer_points):
+    speedometer_points_sum = 0
+    for point in speedometer_points:
+        speedometer_points_sum += point.data
+
+    experiment_metrics['average_speed'] = (speedometer_points_sum/len(speedometer_points))*3.6
     return experiment_metrics
 
 def get_collisions(experiment_metrics, collision_points):
