@@ -16,6 +16,7 @@ from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
 from robot.interfaces.pose3d import ListenerPose3d
 from robot.interfaces.birdeyeview import BirdEyeView
+from robot.interfaces.speedometer import ListenerSpeedometer
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -61,6 +62,12 @@ class Sensors:
         if bird_eye_view_conf:
             self.bird_eye_view = self.__create_sensor(bird_eye_view_conf, 'bird_eye_view')
 
+        # Load speedometer
+        speedometer_conf = sensors_config.get('Speedometer', None)
+        self.speedometer = None
+        if speedometer_conf:
+            self.speedometer = self.__create_sensor(speedometer_conf, 'speedometer')
+
     def __create_sensor(self, sensor_config, sensor_type):
         """Fill the sensor dictionary with instances of the sensor_type and sensor_config"""
         sensor_dict = {}
@@ -75,6 +82,8 @@ class Sensors:
                 sensor_dict[name] = ListenerPose3d(topic)
             elif sensor_type == 'bird_eye_view':
                 sensor_dict[name] = BirdEyeView()
+            elif sensor_type == 'speedometer':
+                sensor_dict[name] = ListenerSpeedometer(topic)
 
         return sensor_dict
 
@@ -91,6 +100,8 @@ class Sensors:
                 sensor = self.pose3d[sensor_name]
             elif sensor_type == 'bird_eye_view':
                 sensor = self.bird_eye_view[sensor_name]
+            elif sensor_type == 'speedometer':
+                sensor = self.speedometer[sensor_name]
         except KeyError:
             return "[ERROR] No existing camera with {} name.".format(sensor_name)
 

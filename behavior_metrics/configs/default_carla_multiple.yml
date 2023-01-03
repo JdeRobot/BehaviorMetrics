@@ -22,6 +22,10 @@ Behaviors:
                 BirdEyeView_0:
                     Name: 'bird_eye_view_0'
                     Topic: ''
+            Speedometer:
+                Speedometer_0:
+                    Name: 'speedometer_0'
+                    Topic: '/carla/ego_vehicle/speedometer'
         Actuators:
             CARLA_Motors:
                 Motors_0:
@@ -34,8 +38,8 @@ Behaviors:
             'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
             'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
             'brains/CARLA/brain_carla_bird_eye_deep_learning_x3.py',
-            'brain_carla_bird_eye_deep_learning_previous_v.py',
-            'brain_carla_bird_eye_deep_learning_previous_v.py'
+            'brains/CARLA/brain_carla_bird_eye_deep_learning_previous_v.py',
+            'brains/CARLA/brain_carla_bird_eye_deep_learning_previous_v.py'
             ]
         PilotTimeCycle: 100
         Parameters:

@@ -22,6 +22,10 @@ Behaviors:
                 BirdEyeView_0:
                     Name: 'bird_eye_view_0'
                     Topic: ''
+            Speedometer:
+                Speedometer_0:
+                    Name: 'speedometer_0'
+                    Topic: '/carla/ego_vehicle/speedometer'
         Actuators:
             CARLA_Motors:
                 Motors_0:
@@ -43,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_anticlockwise.launch
+        World: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_anticlockwise.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
