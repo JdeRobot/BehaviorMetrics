@@ -160,13 +160,12 @@ class Brain:
             self.image_1 = self.image_2
             self.image_2 = self.image_1
             self.image_3 = img
-
+            
             velocity_dim = np.full((150, 50), self.previous_speed/30)
-            self.image_1 = np.dstack((self.image_1, velocity_dim))
-            self.image_2 = np.dstack((self.image_2, velocity_dim))
-            self.image_3 = np.dstack((self.image_3, velocity_dim))
-
-            img = [self.image_3, self.image_2 , self.image_1]
+            image_1 = np.dstack((self.image_1, velocity_dim))
+            image_2 = np.dstack((self.image_2, velocity_dim))
+            image_3 = np.dstack((self.image_3, velocity_dim))
+            img = [image_3, image_2 , image_1]
 
             img = np.expand_dims(img, axis=0)
             start_time = time.time()
@@ -179,7 +178,6 @@ class Brain:
                 speed = self.vehicle.get_velocity()
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
                 self.previous_speed = vehicle_speed
-
                 if vehicle_speed > 300:
                     self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
