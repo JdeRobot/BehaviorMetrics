@@ -279,6 +279,10 @@ class ControllerCarla:
 
         mean_brain_iterations_real_time = sum(self.pilot.brain_iterations_real_time) / len(self.pilot.brain_iterations_real_time)
         brain_iterations_frequency_real_time = 1 / mean_brain_iterations_real_time
+
+        mean_brain_iterations_simulated_time = sum(self.pilot.brain_iterations_simulated_time) / len(self.pilot.brain_iterations_simulated_time)
+        brain_iterations_frequency_simulated_time = 1 / mean_brain_iterations_simulated_time
+
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
         suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
 
@@ -310,6 +314,12 @@ class ControllerCarla:
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
+
+
+        self.experiment_metrics['mean_brain_iterations_simulated_time'] = mean_brain_iterations_simulated_time
+        self.experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
+
+
         self.experiment_metrics['suddenness_distance'] = suddenness_distance
         
         self.save_metrics(first_images, last_images)
