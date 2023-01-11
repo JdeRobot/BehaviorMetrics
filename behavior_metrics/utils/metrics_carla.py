@@ -204,11 +204,8 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=18)
 
     plt.grid(True)
-    #plt.subplots_adjust(left=0.5)
     plt.subplots_adjust(bottom=0.4)
-
     plt.title(experiment_metrics['experiment_model'], fontsize=25)
-
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
     return experiment_metrics
