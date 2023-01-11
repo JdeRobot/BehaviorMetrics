@@ -196,6 +196,16 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
     plt.legend(loc='upper left', prop={'size': 25})
+    
+    full_text = ''
+    for key, value in experiment_metrics.items():
+        print(key, value)
+        full_text += ' * ' + str(key) + ' : ' + str(value) + '\n'
+    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=18)
+
+    plt.grid(True)
+    plt.subplots_adjust(bottom=0.4)
+    plt.title(experiment_metrics['experiment_model'], fontsize=25)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
     return experiment_metrics

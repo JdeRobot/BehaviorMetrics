@@ -302,8 +302,7 @@ class ControllerCarla:
         while os.path.isfile(self.experiment_metrics_bag_filename + '.active'):
             pass
         
-        experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
+        
 
         if hasattr(self.pilot.brains.active_brain, 'inference_times'):
             self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
@@ -314,17 +313,14 @@ class ControllerCarla:
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
-
-
         self.experiment_metrics['mean_brain_iterations_simulated_time'] = mean_brain_iterations_simulated_time
         self.experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
-
-
         self.experiment_metrics['suddenness_distance'] = suddenness_distance
-        
-        self.save_metrics(first_images, last_images)
-
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
+
+        experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
+        self.save_metrics(first_images, last_images)
 
         for key, value in self.experiment_metrics.items():
             logger.info('* ' + str(key) + ' ---> ' + str(value))
