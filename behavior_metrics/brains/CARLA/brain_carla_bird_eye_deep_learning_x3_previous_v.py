@@ -154,11 +154,13 @@ class Brain:
 
         if type(self.image_1) is int:
             self.image_1 = img
-        if type(self.image_2) is int:
+        elif type(self.image_2) is int:
             self.image_2 = img
+        elif type(self.image_3) is int:
+            self.image_3 = img
         else:
             self.image_1 = self.image_2
-            self.image_2 = self.image_1
+            self.image_2 = self.image_3
             self.image_3 = img
             
             velocity_dim = np.full((150, 50), self.previous_speed/30)

@@ -20,9 +20,13 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
+
+#import os
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
-  tf.config.experimental.set_memory_growth(gpu, True)
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 class Brain:
 
@@ -73,7 +77,7 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
@@ -149,23 +153,25 @@ class Brain:
         img = image["image"]
 
         #velocity_dim = np.full((150, 50), 0.5)
-        velocity_dim = np.full((150, 50), self.previous_speed/30)
-        new_img_vel = np.dstack((img, velocity_dim))
-        img = new_img_vel
+        #velocity_dim = np.full((150, 50), self.previous_speed/30)
+        #new_img_vel = np.dstack((img, velocity_dim))
+        #img = new_img_vel
 
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
         try:
-            prediction = self.net.predict(img, verbose=0)
+            prediction = self.net.predict(img, verbose=1)
             self.inference_times.append(time.time() - start_time)
-            throttle = prediction[0][0]
-            steer = prediction[0][1] * (1 - (-1)) + (-1)
-            break_command = prediction[0][2]
+
+            throttle = prediction[0][0][0]
+            steer = prediction[1][0][0] * (1 - (-1)) + (-1)
+            break_command = prediction[2][0][0]
+
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
             self.previous_speed = vehicle_speed
 
-            if vehicle_speed > 300:
+            if vehicle_speed > 30:
                 self.motors.sendThrottle(0)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(0)
