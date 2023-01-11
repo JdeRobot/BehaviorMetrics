@@ -85,6 +85,13 @@ class Brain:
         self.image_1 = 0
         self.image_2 = 0
         self.image_3 = 0
+        self.image_4 = 0
+        self.image_5 = 0
+        self.image_6 = 0
+        self.image_7 = 0
+        self.image_8 = 0
+        self.image_9 = 0
+        self.image_10 = 0
 
 
     def update_frame(self, frame_id, data):
@@ -154,16 +161,20 @@ class Brain:
 
         if type(self.image_1) is int:
             self.image_1 = img
-        if type(self.image_2) is int:
+        elif type(self.image_2) is int:
             self.image_2 = img
+        elif type(self.image_3) is int:
+            self.image_3 = img
         else:
             self.image_1 = self.image_2
-            self.image_2 = self.image_1
+            self.image_2 = self.image_3
             self.image_3 = img
-            img = [self.image_3, self.image_2 , self.image_1]
-
+            
+            img = [self.image_3, self.image_2, self.image_1]
+            #img = [self.image_3, self.image_3 , self.image_3]
 
             img = np.expand_dims(img, axis=0)
+
             start_time = time.time()
             try:
                 prediction = self.net.predict(img, verbose=0)
@@ -175,10 +186,10 @@ class Brain:
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
                 self.previous_speed = vehicle_speed
 
-                if vehicle_speed > 300:
+                if vehicle_speed > 30:
                     self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
-                    self.motors.sendBrake(0)
+                    self.motors.sendBrake(break_command)
                 else:
                     if vehicle_speed < 2:
                         self.motors.sendThrottle(1.0)
@@ -187,7 +198,7 @@ class Brain:
                     else:
                         self.motors.sendThrottle(throttle)
                         self.motors.sendSteer(steer)
-                        self.motors.sendBrake(0)
+                        self.motors.sendBrake(break_command)
 
                 if self.previous_commanded_throttle != None:
                     a = np.array((throttle, steer, break_command))
