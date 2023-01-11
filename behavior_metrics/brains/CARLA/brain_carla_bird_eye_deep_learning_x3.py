@@ -159,22 +159,6 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        '''
-        elif type(self.image_4) is int:
-            self.image_4 = img
-        elif type(self.image_5) is int:
-            self.image_5 = img
-        elif type(self.image_6) is int:
-            self.image_6 = img
-        elif type(self.image_7) is int:
-            self.image_7 = img
-        elif type(self.image_8) is int:
-            self.image_8 = img
-        elif type(self.image_9) is int:
-            self.image_9 = img
-        elif type(self.image_10) is int:
-            self.image_10 = img
-        '''
         if type(self.image_1) is int:
             self.image_1 = img
         elif type(self.image_2) is int:
@@ -185,29 +169,14 @@ class Brain:
             self.image_1 = self.image_2
             self.image_2 = self.image_3
             self.image_3 = img
-            '''
-            self.image_1 = self.image_2
-            self.image_2 = self.image_3
-            self.image_3 = self.image_4
-            self.image_4 = self.image_5
-            self.image_5 = self.image_6
-            self.image_6 = self.image_7
-            self.image_7 = self.image_8
-            self.image_8 = self.image_9
-            self.image_9 = self.image_10
-            self.image_10 = img
-            '''
             
             img = [self.image_3, self.image_2, self.image_1]
-            #img = [self.image_3, self.image_3 , self.image_3] # MEJOR!
-
-            #img = [self.image_10, self.image_5, self.image_1]
+            #img = [self.image_3, self.image_3 , self.image_3]
 
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()
             try:
-                #print(img.shape)
                 prediction = self.net.predict(img, verbose=0)
                 self.inference_times.append(time.time() - start_time)
                 throttle = prediction[0][0]
@@ -217,7 +186,6 @@ class Brain:
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
                 self.previous_speed = vehicle_speed
 
-                #print(prediction)
                 if vehicle_speed > 30:
                     self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
@@ -228,7 +196,6 @@ class Brain:
                         self.motors.sendSteer(0.0)
                         self.motors.sendBrake(0)
                     else:
-                        #print(throttle, steer)
                         self.motors.sendThrottle(throttle)
                         self.motors.sendSteer(steer)
                         self.motors.sendBrake(break_command)
