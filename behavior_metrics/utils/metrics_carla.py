@@ -101,7 +101,7 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points)
+        experiment_metrics = get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
@@ -131,7 +131,7 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     return experiment_metrics
 
-def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer):
+def get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer):
     map_waypoints_tuples = []
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
@@ -168,6 +168,8 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     min_dists = []
     best_checkpoint_points_x = []
     best_checkpoint_points_y = []
+
+    covered_checkpoints = []
     for error_counter, checkpoint in enumerate(checkpoints_tuples):
         min_dist = 100
         for x, perfect_checkpoint in enumerate(map_waypoints_tuples):
@@ -185,7 +187,10 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
         best_checkpoint_points_y.append(best_checkpoint_point_y)
         if min_dist < 100:
             min_dists.append(min_dist)
+            if len(covered_checkpoints) == 0 or (len(covered_checkpoints) > 0 and covered_checkpoints[len(covered_checkpoints)-1][0] != best_checkpoint_point_x and covered_checkpoints[len(covered_checkpoints)-1][1] != best_checkpoint_point_y):
+                covered_checkpoints.append((best_checkpoint_point_x, best_checkpoint_point_y))
 
+    experiment_metrics['effective_completed_distance'] = len(covered_checkpoints)*0.5
     experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
     
