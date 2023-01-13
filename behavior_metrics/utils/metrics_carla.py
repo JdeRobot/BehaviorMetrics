@@ -101,7 +101,7 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename)
+        experiment_metrics = get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
@@ -131,7 +131,7 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points):
     experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     return experiment_metrics
 
-def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename):
+def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer):
     map_waypoints_tuples = []
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
@@ -147,9 +147,10 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
 
     checkpoints_tuples = []
     checkpoints_tuples_x = []
-    checkpoints_tuples_y= []
+    checkpoints_tuples_y = []
+    checkpoints_speeds = []
     for i, point in enumerate(checkpoints):
-        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y'], speedometer[i]['data']*3.6])
         if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
@@ -161,7 +162,8 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
             checkpoint_y = current_checkpoint[1]
         checkpoints_tuples_x.append(checkpoint_x)
         checkpoints_tuples_y.append(checkpoint_y)
-        checkpoints_tuples.append((checkpoint_x, checkpoint_y))
+        checkpoints_speeds.append(current_checkpoint[2])
+        checkpoints_tuples.append((checkpoint_x, checkpoint_y, current_checkpoint[2]))
     
     min_dists = []
     best_checkpoint_points_x = []
@@ -192,7 +194,8 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     colors=["#00FF00", "#FF0000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
     ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
-    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c='r', marker="o", label='Experiment waypoints')
+    color = [(30-item) for item in checkpoints_speeds]
+    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=color, cmap='hot', marker="o", label='Experiment waypoints')
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
     plt.legend(loc='upper left', prop={'size': 25})
