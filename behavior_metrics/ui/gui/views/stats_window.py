@@ -76,6 +76,8 @@ class CARLAStatsWindow(QMainWindow):
         self.layout = QVBoxLayout()
         self.completed_distance_label = QLabel("Completed distance -> " + str(self.controller.experiment_metrics['completed_distance']) + " m")
         self.layout.addWidget(self.completed_distance_label)
+        self.effective_completed_distance_label = QLabel("Effective completed distance -> " + str(self.controller.experiment_metrics['effective_completed_distance']) + " m")
+        self.layout.addWidget(self.effective_completed_distance_label)
         self.average_speed_label = QLabel("Average speed -> " + str(self.controller.experiment_metrics['average_speed']) + " km/h")
         self.layout.addWidget(self.average_speed_label)
         self.experiment_total_real_time_label = QLabel("Experiment total real time -> " + str(self.controller.experiment_metrics['experiment_total_real_time']) + ' s')
