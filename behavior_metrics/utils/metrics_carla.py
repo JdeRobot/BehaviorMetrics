@@ -189,6 +189,10 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
     
+    create_experiment_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds)
+    return experiment_metrics
+
+def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds):
     fig = plt.figure(figsize=(30,30))
     ax = fig.add_subplot()
     colors=["#00FF00", "#FF0000"]
@@ -210,5 +214,3 @@ def get_position_deviation(experiment_metrics, checkpoints, map_waypoints, exper
     plt.subplots_adjust(bottom=0.4)
     plt.title(experiment_metrics['experiment_model'], fontsize=25)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
-
-    return experiment_metrics
