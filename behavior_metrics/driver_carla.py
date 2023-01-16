@@ -126,7 +126,59 @@ def is_config_correct(app_configuration):
 
     return is_correct
 
+def generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times):
+    result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
 
+    experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
+    experiments_starting_time_str = str(experiments_starting_time_dt.strftime("%Y%m%d-%H%M%S")) + '_experiments_metrics'
+
+    os.mkdir(experiments_starting_time_str)
+
+    experiments_metrics_and_titles = [
+        {
+            'metric': 'completed_distance',
+            'title': 'Total distance per experiment'
+        }, 
+        {
+            'metric': 'average_speed',
+            'title': 'Average speed per experiment'
+        },
+        {
+            'metric': 'collisions',
+            'title': 'Total collisions per experiment'
+        },
+        {
+            'metric': 'lane_invasions',
+            'title': 'Total lane invasions per experiment'
+        },
+        {
+            'metric': 'position_deviation_mae',
+            'title': 'Position deviation per experiment'
+        },
+        {
+            'metric': 'gpu_inference_frequency',
+            'title': 'GPU inference frequency per experiment'
+        },
+        {
+            'metric': 'brain_iterations_frequency_real_time',
+            'title': 'Brain frequency per experiment'
+        },
+    ]
+
+    metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+    metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+
+    with open(experiments_starting_time_str + '/' + 'experiment_elapsed_times.json', 'w') as f:
+        json.dump(experiments_elapsed_times, f)
+
+    df = pd.DataFrame(experiments_elapsed_times)
+    fig = plt.figure(figsize=(20,10))
+    df['elapsed_time'].plot.bar()
+    plt.title('Experiments elapsed time || Experiments total time: ' + str(experiments_elapsed_times['total_experiments_elapsed_time']) + ' secs.')
+    fig.tight_layout()
+    plt.xticks(rotation=90)
+    plt.savefig(experiments_starting_time_str + '/' + 'experiment_elapsed_times.png')
+    plt.close()
 
 def main():
     """Main function for the app. Handles creation and destruction of every element of the application."""
@@ -197,58 +249,7 @@ def main():
                         logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
             
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
-            result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
-
-            experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
-            experiments_starting_time_str = str(experiments_starting_time_dt.strftime("%Y%m%d-%H%M%S")) + '_experiments_metrics'
-
-            os.mkdir(experiments_starting_time_str)
-
-            experiments_metrics_and_titles = [
-                {
-                    'metric': 'completed_distance',
-                    'title': 'Total distance per experiment'
-                }, 
-                {
-                    'metric': 'average_speed',
-                    'title': 'Average speed per experiment'
-                },
-                {
-                    'metric': 'collisions',
-                    'title': 'Total collisions per experiment'
-                },
-                {
-                    'metric': 'lane_invasions',
-                    'title': 'Total lane invasions per experiment'
-                },
-                {
-                    'metric': 'position_deviation_mae',
-                    'title': 'Position deviation per experiment'
-                },
-                {
-                    'metric': 'gpu_inference_frequency',
-                    'title': 'GPU inference frequency per experiment'
-                },
-                {
-                    'metric': 'brain_iterations_frequency_real_time',
-                    'title': 'Brain frequency per experiment'
-                },
-            ]
-
-            metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
-            metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
-
-            with open(experiments_starting_time_str + '/' + 'experiment_elapsed_times.json', 'w') as f:
-                json.dump(experiments_elapsed_times, f)
-
-            df = pd.DataFrame(experiments_elapsed_times)
-            fig = plt.figure(figsize=(20,10))
-            df['elapsed_time'].plot.bar()
-            plt.title('Experiments elapsed time || Experiments total time: ' + str(experiments_elapsed_times['total_experiments_elapsed_time']) + ' secs.')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-            plt.savefig(experiments_starting_time_str + '/' + 'experiment_elapsed_times.png')
-            plt.close()
+            generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
 
     logger.info('DONE! Bye, bye :)')
                     
