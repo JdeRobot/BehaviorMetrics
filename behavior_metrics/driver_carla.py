@@ -14,6 +14,8 @@ from utils.configuration import Config
 from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
+from utils import metrics_carla
+from datetime import datetime                        
 
 
 def check_args(argv):
@@ -120,6 +122,8 @@ def is_config_correct(app_configuration):
 
     return is_correct
 
+
+
 def main():
     """Main function for the app. Handles creation and destruction of every element of the application."""
 
@@ -176,198 +180,20 @@ def main():
                                 logger.info("Too many failed attempts for this experiment.")
                             logger.info("Python process finished.")
 
-                        import re
-                        import pandas as pd
-                        import matplotlib.pyplot as plt
-                        import matplotlib.patches as mpatches
-                        from datetime import datetime
-
-                        current_experiment_folders = []
-                        root = './'
-                        folders = list(os.walk(root))[1:]
-                        for folder in folders:
-                            if len(folder[0].split('/')) == 2 and folder[2] and experiments_starting_time < os.stat(folder[0]).st_mtime:
-                                current_experiment_folders.append(folder)
-
-                        dataframes = []
-                        for folder in current_experiment_folders:
-                            try:
-                                r = re.compile(".*\.json")
-                                json_list = list(filter(r.match, folder[2])) # Read Note below
-                                df = pd.read_json(folder[0] + '/' + json_list[0], orient='index').T
-                                dataframes.append(df)
-                            except:
-                                print('Broken experiment: ' + folder[0])
-                        
                         logger.info('Experiments information: ')
                         logger.info(experiments_information)
                         logger.info('Last experiment folder: ')
                         logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
-
-            result = pd.concat(dataframes)
-            result.index = result['timestamp'].values.tolist()
+            
+            result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
 
             experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
             experiments_starting_time_str = str(experiments_starting_time_dt.strftime("%Y%m%d-%H%M%S")) + '_experiments_metrics'
 
             os.mkdir(experiments_starting_time_str)
 
-            maps_colors = {
-                'Carla/Maps/Town01': 'red', 
-                'Carla/Maps/Town02': 'green', 
-                'Carla/Maps/Town03': 'blue', 
-                'Carla/Maps/Town04': 'grey', 
-                'Carla/Maps/Town05': 'black', 
-                'Carla/Maps/Town06': 'pink', 
-                'Carla/Maps/Town07': 'orange', 
-            }
-            colors = []
-            for i in result['carla_map']:
-                colors.append(maps_colors[i])
-
-            # COMPLETED DISTANCE
-            fig = plt.figure(figsize=(20,10))
-            result['completed_distance'].plot.bar(color=colors)
-            plt.title('Total distance per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            red_patch = mpatches.Patch(color='red', label='Map01')
-            green_patch = mpatches.Patch(color='green', label='Map02')
-            blue_patch = mpatches.Patch(color='blue',  label='Map03')
-            grey_patch = mpatches.Patch(color='grey',  label='Map04')
-            black_patch = mpatches.Patch(color='black',  label='Map05')
-            pink_patch = mpatches.Patch(color='pink',  label='Map06')
-            orange_patch = mpatches.Patch(color='orange',  label='Map07')
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'completed_distance.png')
-
-            # AVERAGE SPEED
-            fig = plt.figure(figsize=(20,10))
-            result['average_speed'].plot.bar(color=colors)
-            plt.title('Average speed per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'average_speed.png')
-
-            # TOTAL COLLISIONS
-            fig = plt.figure(figsize=(20,10))
-            result['collisions'].plot.bar(color=colors)
-            plt.title('Total collisions per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'collisions.png')
-
-            # TOTAL LANE INVASIONS
-            fig = plt.figure(figsize=(20,10))
-            result['lane_invasions'].plot.bar(color=colors)
-            plt.title('Total lane invasions per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'lane_invasions.png')
-
-            # POSITION DEVIATION
-            fig = plt.figure(figsize=(20,10))
-            result['position_deviation_mae'].plot.bar(color=colors)
-            plt.title('Position deviation per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'position_deviation_mae.png')
-
-            # GPU inference frequency
-            fig = plt.figure(figsize=(20,10))
-            result['gpu_inference_frequency'].plot.bar(color=colors)
-            plt.title('GPU inference frequency per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'gpu_inference_frequency.png')
-
-            # BRAIN frequency
-            fig = plt.figure(figsize=(20,10))
-            result['brain_iterations_frequency_real_time'].plot.bar(color=colors)
-            plt.title('Brain frequency per experiment')
-            fig.tight_layout()
-            plt.xticks(rotation=90)
-
-            plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-            plt.savefig(experiments_starting_time_str + '/' + 'brain_iterations_frequency_real_time.png')
-
-            unique_experiment_models = result['experiment_model'].unique()
-            
-            for unique_experiment_model in unique_experiment_models:
-                unique_model_experiments = result.loc[result['experiment_model'].eq(unique_experiment_model)]
-                
-                # AVERAGE SPEED
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['average_speed'].plot.bar(color=colors)
-                plt.title('Average speed per experiment')
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_average_speed.png')
-
-                # TOTAL COLLISIONS
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['collisions'].plot.bar(color=colors)
-                plt.title('Total collisions per experiment')
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_collisions.png')
-
-                # TOTAL LANE INVASIONS
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['lane_invasions'].plot.bar(color=colors)
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.title('Total lane invasions per experiment')
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_lane_invasions.png')
-
-                # POSITION DEVIATION
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['position_deviation_mae'].plot.bar(color=colors)
-                plt.title('Position deviation per experiment')
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_position_deviation_mae.png')
-
-                # GPU inference frequency
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['gpu_inference_frequency'].plot.bar(color=colors)
-                plt.title('GPU inference frequency per experiment')
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_gpu_inference_frequency.png')
-
-                # BRAIN frequency
-                fig = plt.figure(figsize=(20,10))
-                unique_model_experiments['brain_iterations_frequency_real_time'].plot.bar(color=colors)
-                plt.title('Brain frequency per experiment')
-                fig.tight_layout()
-                plt.xticks(rotation=90)
-
-                plt.legend(handles=[red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch])
-                plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_brain_iterations_frequency_real_time.png')
-
+            metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str)
+            metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str)
 
     logger.info('DONE! Bye, bye :)')
                     
