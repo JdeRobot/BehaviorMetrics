@@ -21,7 +21,6 @@ import time
 import os
 import rosbag
 
-from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
 
