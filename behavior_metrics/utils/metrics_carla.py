@@ -20,10 +20,14 @@ import shutil
 import time
 import os
 import rosbag
+import re
 
-from datetime import datetime
 from bagpy import bagreader
 from utils.logger import logger
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 
 def circuit_distance_completed(checkpoints, lap_point):
@@ -219,3 +223,90 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     plt.subplots_adjust(bottom=0.4)
     plt.title(experiment_metrics['experiment_model'], fontsize=25)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
+
+
+def get_aggregated_experiments_list(experiments_starting_time):
+    current_experiment_folders = []
+    root = './'
+    folders = list(os.walk(root))[1:]
+    for folder in folders:
+        if len(folder[0].split('/')) == 2 and folder[2] and experiments_starting_time < os.stat(folder[0]).st_mtime:
+            current_experiment_folders.append(folder)
+
+    dataframes = []
+    for folder in current_experiment_folders:
+        try:
+            r = re.compile(".*\.json")
+            json_list = list(filter(r.match, folder[2])) # Read Note below
+            df = pd.read_json(folder[0] + '/' + json_list[0], orient='index').T
+            dataframes.append(df)
+        except:
+            print('Broken experiment: ' + folder[0])
+
+    result = pd.concat(dataframes)
+    result.index = result['timestamp'].values.tolist()
+
+    return result
+
+def get_maps_colors():
+    maps_colors = {
+        'Carla/Maps/Town01': 'red', 
+        'Carla/Maps/Town02': 'green', 
+        'Carla/Maps/Town03': 'blue', 
+        'Carla/Maps/Town04': 'grey', 
+        'Carla/Maps/Town05': 'black', 
+        'Carla/Maps/Town06': 'pink', 
+        'Carla/Maps/Town07': 'orange', 
+    }
+    return maps_colors
+
+def get_color_handles():
+    red_patch = mpatches.Patch(color='red', label='Map01')
+    green_patch = mpatches.Patch(color='green', label='Map02')
+    blue_patch = mpatches.Patch(color='blue',  label='Map03')
+    grey_patch = mpatches.Patch(color='grey',  label='Map04')
+    black_patch = mpatches.Patch(color='black',  label='Map05')
+    pink_patch = mpatches.Patch(color='pink',  label='Map06')
+    orange_patch = mpatches.Patch(color='orange',  label='Map07')
+    color_handles = [red_patch, green_patch, blue_patch, grey_patch, black_patch, pink_patch, orange_patch]
+
+    return color_handles
+
+
+def get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles):
+    maps_colors = get_maps_colors()
+    color_handles = get_color_handles()
+    colors = []
+    for i in result['carla_map']:
+        colors.append(maps_colors[i])
+
+    for experiment_metric_and_title in experiments_metrics_and_titles:
+        fig = plt.figure(figsize=(20,10))
+        result[experiment_metric_and_title['metric']].plot.bar(color=colors)
+        plt.title(experiment_metric_and_title['title'])
+        fig.tight_layout()
+        plt.xticks(rotation=90)
+        plt.legend(handles=color_handles)
+        plt.savefig(experiments_starting_time_str + '/' + experiment_metric_and_title['metric'] + '.png')
+        plt.close()
+
+def get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles):
+    maps_colors = get_maps_colors()
+    color_handles = get_color_handles()
+    unique_experiment_models = result['experiment_model'].unique()
+            
+    for unique_experiment_model in unique_experiment_models:
+        unique_model_experiments = result.loc[result['experiment_model'].eq(unique_experiment_model)]
+        colors = []
+        for i in unique_model_experiments['carla_map']:
+            colors.append(maps_colors[i])
+
+        for experiment_metric_and_title in experiments_metrics_and_titles:
+            fig = plt.figure(figsize=(20,10))
+            unique_model_experiments[experiment_metric_and_title['metric']].plot.bar(color=colors)
+            plt.title(experiment_metric_and_title['title'])
+            fig.tight_layout()
+            plt.xticks(rotation=90)
+            plt.legend(handles=color_handles)
+            plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_ ' + experiment_metric_and_title['metric'] + '.png')
+            plt.close()
