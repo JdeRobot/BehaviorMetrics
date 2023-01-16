@@ -192,8 +192,39 @@ def main():
 
             os.mkdir(experiments_starting_time_str)
 
-            metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str)
-            metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str)
+            experiments_metrics_and_titles = [
+                {
+                    'metric': 'completed_distance',
+                    'title': 'Total distance per experiment'
+                }, 
+                {
+                    'metric': 'average_speed',
+                    'title': 'Average speed per experiment'
+                },
+                {
+                    'metric': 'collisions',
+                    'title': 'Total collisions per experiment'
+                },
+                {
+                    'metric': 'lane_invasions',
+                    'title': 'Total lane invasions per experiment'
+                },
+                {
+                    'metric': 'position_deviation_mae',
+                    'title': 'Position deviation per experiment'
+                },
+                {
+                    'metric': 'gpu_inference_frequency',
+                    'title': 'GPU inference frequency per experiment'
+                },
+                {
+                    'metric': 'brain_iterations_frequency_real_time',
+                    'title': 'Brain frequency per experiment'
+                },
+            ]
+
+            metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+            metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
 
     logger.info('DONE! Bye, bye :)')
                     
