@@ -5,6 +5,7 @@ import threading
 import time
 import rospy
 import glob
+import json
 
 from pilot_carla import PilotCarla
 from ui.tui.main_view import TUI
@@ -15,7 +16,10 @@ from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 from utils import metrics_carla
-from datetime import datetime                        
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def check_args(argv):
@@ -122,7 +126,59 @@ def is_config_correct(app_configuration):
 
     return is_correct
 
+def generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times):
+    result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
 
+    experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
+    experiments_starting_time_str = str(experiments_starting_time_dt.strftime("%Y%m%d-%H%M%S")) + '_experiments_metrics'
+
+    os.mkdir(experiments_starting_time_str)
+
+    experiments_metrics_and_titles = [
+        {
+            'metric': 'completed_distance',
+            'title': 'Total distance per experiment'
+        }, 
+        {
+            'metric': 'average_speed',
+            'title': 'Average speed per experiment'
+        },
+        {
+            'metric': 'collisions',
+            'title': 'Total collisions per experiment'
+        },
+        {
+            'metric': 'lane_invasions',
+            'title': 'Total lane invasions per experiment'
+        },
+        {
+            'metric': 'position_deviation_mae',
+            'title': 'Position deviation per experiment'
+        },
+        {
+            'metric': 'gpu_inference_frequency',
+            'title': 'GPU inference frequency per experiment'
+        },
+        {
+            'metric': 'brain_iterations_frequency_real_time',
+            'title': 'Brain frequency per experiment'
+        },
+    ]
+
+    metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+    metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+
+    with open(experiments_starting_time_str + '/' + 'experiment_elapsed_times.json', 'w') as f:
+        json.dump(experiments_elapsed_times, f)
+
+    df = pd.DataFrame(experiments_elapsed_times)
+    fig = plt.figure(figsize=(20,10))
+    df['elapsed_time'].plot.bar()
+    plt.title('Experiments elapsed time || Experiments total time: ' + str(experiments_elapsed_times['total_experiments_elapsed_time']) + ' secs.')
+    fig.tight_layout()
+    plt.xticks(rotation=90)
+    plt.savefig(experiments_starting_time_str + '/' + 'experiment_elapsed_times.png')
+    plt.close()
 
 def main():
     """Main function for the app. Handles creation and destruction of every element of the application."""
@@ -149,6 +205,8 @@ def main():
     else:
         if is_config_correct(app_configuration):
             experiments_starting_time = time.time()
+            experiment_counter = 0
+            experiments_elapsed_times = {'experiment_counter': [], 'elapsed_time': []}
             experiments_information = {'world_counter': {}}
             for world_counter, world in enumerate(app_configuration.current_world):
                 experiments_information['world_counter'][world_counter] = {'brain_counter': {}}
@@ -161,6 +219,7 @@ def main():
                             experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter]['repetition_counter'][repetition_counter] = experiment_attempts
                             logger.info("Launching: python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                             logger.info("Experiment attempt: " + str(experiment_attempts+1))
+                            current_experiment_starting_time = time.time()
                             success = os.system("python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
                             if success != 0:
                                 root = './'
@@ -178,6 +237,10 @@ def main():
                             elif success != 0 and experiment_attempts >= 5:
                                 success = 0
                                 logger.info("Too many failed attempts for this experiment.")
+                            else:
+                                experiments_elapsed_times['experiment_counter'].append(experiment_counter)
+                                experiments_elapsed_times['elapsed_time'].append(time.time() - current_experiment_starting_time)
+                                experiment_counter += 1
                             logger.info("Python process finished.")
 
                         logger.info('Experiments information: ')
@@ -185,46 +248,8 @@ def main():
                         logger.info('Last experiment folder: ')
                         logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
             
-            result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
-
-            experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
-            experiments_starting_time_str = str(experiments_starting_time_dt.strftime("%Y%m%d-%H%M%S")) + '_experiments_metrics'
-
-            os.mkdir(experiments_starting_time_str)
-
-            experiments_metrics_and_titles = [
-                {
-                    'metric': 'completed_distance',
-                    'title': 'Total distance per experiment'
-                }, 
-                {
-                    'metric': 'average_speed',
-                    'title': 'Average speed per experiment'
-                },
-                {
-                    'metric': 'collisions',
-                    'title': 'Total collisions per experiment'
-                },
-                {
-                    'metric': 'lane_invasions',
-                    'title': 'Total lane invasions per experiment'
-                },
-                {
-                    'metric': 'position_deviation_mae',
-                    'title': 'Position deviation per experiment'
-                },
-                {
-                    'metric': 'gpu_inference_frequency',
-                    'title': 'GPU inference frequency per experiment'
-                },
-                {
-                    'metric': 'brain_iterations_frequency_real_time',
-                    'title': 'Brain frequency per experiment'
-                },
-            ]
-
-            metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
-            metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+            experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
+            generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
 
     logger.info('DONE! Bye, bye :)')
                     
