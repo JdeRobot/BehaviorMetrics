@@ -66,39 +66,6 @@ RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888
 	cd Sophus && mkdir build && cd build && \
 	cmake ../ && make && make install
 
-# Installing Gym-Gazebo
-RUN apt-get update && apt-get install -y \
-	libbluetooth-dev \
-	libcwiid-dev \
-	libftdi-dev \
-	libspnav-dev \
-	libsdl-dev \
-	libsdl-image1.2-dev \
- 	libusb-dev \
-	ros-noetic-octomap-msgs        \
-	ros-noetic-geodesy             \
-	ros-noetic-octomap-ros         \
-	ros-noetic-control-toolbox     \
-	ros-noetic-pluginlib	       \
-	ros-noetic-trajectory-msgs     \
-	ros-noetic-control-msgs	       \
-	ros-noetic-std-srvs 	       \
-	ros-noetic-nodelet	       \
-	ros-noetic-urdf		       \
-	ros-noetic-rviz		       \
-	ros-noetic-kdl-conversions     \
-	ros-noetic-eigen-conversions   \
-	ros-noetic-tf2-sensor-msgs     \
-	ros-noetic-pcl-ros \
-	ros-noetic-navigation \
-    ros-noetic-mavros \
-    ros-noetic-mavros-extras && \
-    cd root/BehaviorMetrics/gym-gazebo/ && \
-    pip3 install -e . && \
-    pip3 install rospkg --upgrade && \
-    apt-get upgrade -y && \
-    rm -rf /var/lib/apt/lists/*
-
 RUN cd /root/ && \
     wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh && \
     chmod +x install_geographiclib_datasets.sh && \
