@@ -86,6 +86,10 @@ class Brain:
         self.image_2 = 0
         self.image_3 = 0
 
+        self.image_1_V = 0
+        self.image_2_V = 0
+        self.image_3_V = 0
+
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -154,19 +158,39 @@ class Brain:
 
         if type(self.image_1) is int:
             self.image_1 = img
+            self.image_1_V = 0
+            speed = self.vehicle.get_velocity()
+            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+            self.previous_speed = vehicle_speed
         elif type(self.image_2) is int:
             self.image_2 = img
+            self.image_2_V = self.previous_speed
+            speed = self.vehicle.get_velocity()
+            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+            self.previous_speed = vehicle_speed
         elif type(self.image_3) is int:
             self.image_3 = img
+            self.image_3_V = self.previous_speed
+            speed = self.vehicle.get_velocity()
+            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+            self.previous_speed = vehicle_speed
         else:
             self.image_1 = self.image_2
             self.image_2 = self.image_3
             self.image_3 = img
+
+            self.image_1_V = self.image_2_V
+            self.image_2_V = self.image_3_V
+            self.image_3_V = self.previous_speed
             
-            velocity_dim = np.full((150, 50), self.previous_speed/30)
-            image_1 = np.dstack((self.image_1, velocity_dim))
-            image_2 = np.dstack((self.image_2, velocity_dim))
-            image_3 = np.dstack((self.image_3, velocity_dim))
+            velocity_dim_1 = np.full((150, 50), self.image_1_V/30)
+            image_1 = np.dstack((self.image_1, velocity_dim_1))
+            velocity_dim_2 = np.full((150, 50), self.image_2_V/30)
+            image_2 = np.dstack((self.image_2, velocity_dim_2))
+
+            velocity_dim_3 = np.full((150, 50), self.image_3_V/30)
+            image_3 = np.dstack((self.image_3, velocity_dim_3))
+
             img = [image_3, image_2 , image_1]
 
             img = np.expand_dims(img, axis=0)
