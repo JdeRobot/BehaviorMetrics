@@ -304,7 +304,7 @@ def get_per_model_aggregated_metrics(result, experiments_starting_time_str, expe
         for experiment_metric_and_title in experiments_metrics_and_titles:
             fig = plt.figure(figsize=(20,10))
             unique_model_experiments[experiment_metric_and_title['metric']].plot.bar(color=colors)
-            plt.title(experiment_metric_and_title['title'])
+            plt.title(experiment_metric_and_title['title'] + ' with ' + unique_experiment_model)
             fig.tight_layout()
             plt.xticks(rotation=90)
             plt.legend(handles=color_handles)
