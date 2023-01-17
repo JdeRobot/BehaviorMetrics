@@ -136,6 +136,46 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
 
     experiments_metrics_and_titles = [
         {
+            'metric': 'experiment_total_simulated_time',
+            'title': 'Experiment total simulated time per experiment'
+        },
+        {
+            'metric': 'position_deviation_total_err',
+            'title': 'Position deviation total error per experiment'
+        },
+        {
+            'metric': 'effective_completed_distance',
+            'title': 'Effective completed distance per experiment'
+        },
+        {
+            'metric': 'experiment_total_real_time',
+            'title': 'Experiment total real time per experiment'
+        },
+        {
+            'metric': 'suddenness_distance',
+            'title': 'Suddennes distance per experiment'
+        },
+        {
+            'metric': 'brain_iterations_frequency_simulated_time',
+            'title': 'Brain itertions frequency simulated time per experiment'
+        },
+        {
+            'metric': 'mean_brain_iterations_simulated_time',
+            'title': 'Mean brain iterations simulated time per experiment'
+        }, 
+        {
+            'metric': 'gpu_mean_inference_time',
+            'title': 'GPU mean inference time per experiment'
+        }, 
+        {
+            'metric': 'mean_brain_iterations_real_time',
+            'title': 'Mean brain iterations real time per experiment'
+        },
+        {
+            'metric': 'target_brain_iterations_real_time',
+            'title': 'Target brain iterations real time per experiment'
+        },
+        {
             'metric': 'completed_distance',
             'title': 'Total distance per experiment'
         }, 
