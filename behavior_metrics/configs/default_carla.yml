@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_01_anticlockwise.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
