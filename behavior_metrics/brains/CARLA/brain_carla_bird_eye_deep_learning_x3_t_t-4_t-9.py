@@ -166,15 +166,32 @@ class Brain:
             self.image_2 = img
         elif type(self.image_3) is int:
             self.image_3 = img
+        elif type(self.image_4) is int:
+            self.image_4 = img
+        elif type(self.image_5) is int:
+            self.image_5 = img
+        elif type(self.image_6) is int:
+            self.image_6 = img
+        elif type(self.image_7) is int:
+            self.image_7 = img
+        elif type(self.image_8) is int:
+            self.image_8 = img
+        elif type(self.image_9) is int:
+            self.image_9 = img
         else:
+
             self.image_1 = self.image_2
             self.image_2 = self.image_3
-            self.image_3 = img
-            
-            #img = [self.image_3, self.image_2, self.image_1]
-            img = [self.image_1, self.image_2, self.image_3]
-            #img = [self.image_3, self.image_3 , self.image_3]
+            self.image_3 = self.image_4
+            self.image_4 = self.image_5
+            self.image_5 = self.image_6
+            self.image_6 = self.image_7
+            self.image_7 = self.image_8
+            self.image_8 = self.image_9
+            self.image_9 = img
 
+            #img = [self.image_9, self.image_4, self.image_1]
+            img = [self.image_1, self.image_4, self.image_9]
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()
@@ -191,7 +208,7 @@ class Brain:
                 if vehicle_speed > 30:
                     self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
-                    self.motors.sendBrake(break_command)
+                    self.motors.sendBrake(1.0)
                 else:
                     if vehicle_speed < 2:
                         self.motors.sendThrottle(1.0)
@@ -226,8 +243,3 @@ class Brain:
                 logger.warning(type(ex).__name__)
                 print_exc()
                 raise Exception(ex)
-            
-        
-            
-
-

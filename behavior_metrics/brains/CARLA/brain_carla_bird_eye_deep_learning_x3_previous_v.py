@@ -191,7 +191,8 @@ class Brain:
             velocity_dim_3 = np.full((150, 50), self.image_3_V/30)
             image_3 = np.dstack((self.image_3, velocity_dim_3))
 
-            img = [image_3, image_2 , image_1]
+            #img = [image_3, image_2 , image_1]
+            img = [image_1, image_2 , image_3]
 
             img = np.expand_dims(img, axis=0)
             start_time = time.time()
