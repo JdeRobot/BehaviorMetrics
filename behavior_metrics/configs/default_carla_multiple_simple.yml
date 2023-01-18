@@ -55,17 +55,17 @@ Behaviors:
         World: [
 
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
+            configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
             ]
     Dataset:
         In: '/tmp/my_bag.bag'

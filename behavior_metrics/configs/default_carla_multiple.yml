@@ -65,26 +65,26 @@ Behaviors:
         Repetitions: 2
     Simulation:
         World: [
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_01_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_01_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_01_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_02_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_02_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_02_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_02_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_03_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_03_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_03_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_03_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
 
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
-            /home/jderobot/Documents/Projects/BehaviorMetrics/behavior_metrics/configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
+            configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
             ]
     Dataset:
         In: '/tmp/my_bag.bag'
