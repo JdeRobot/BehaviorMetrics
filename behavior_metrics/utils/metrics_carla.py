@@ -105,8 +105,8 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
         experiment_metrics = get_lane_invasions(experiment_metrics, lane_invasion_points)
-        experiment_metrics = get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
+        experiment_metrics = get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points)
         shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
     else:
@@ -192,7 +192,8 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         if min_dist < 100:
             min_dists.append(min_dist)
             if len(covered_checkpoints) == 0 or (len(covered_checkpoints) > 0 and covered_checkpoints[len(covered_checkpoints)-1][0] != best_checkpoint_point_x and covered_checkpoints[len(covered_checkpoints)-1][1] != best_checkpoint_point_y):
-                covered_checkpoints.append((best_checkpoint_point_x, best_checkpoint_point_y))
+                if min_dist < 1:
+                    covered_checkpoints.append((best_checkpoint_point_x, best_checkpoint_point_y))
 
     experiment_metrics['effective_completed_distance'] = len(covered_checkpoints)*0.5
     experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
@@ -211,13 +212,13 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=color, cmap='hot', marker="o", label='Experiment waypoints')
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
-    plt.legend(loc='upper left', prop={'size': 25})
+    plt.legend(loc='upper left', prop={'size': 20})
     
     full_text = ''
     for key, value in experiment_metrics.items():
         print(key, value)
         full_text += ' * ' + str(key) + ' : ' + str(value) + '\n'
-    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=18)
+    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=16)
 
     plt.grid(True)
     plt.subplots_adjust(bottom=0.4)
