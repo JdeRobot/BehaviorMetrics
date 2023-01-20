@@ -126,6 +126,9 @@ class Config:
             if 'Timeout' in config_data['Behaviors']['Experiment']:
                 self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
             self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
+        
+        if 'RandomSpawnPoint' in config_data['Behaviors']['Robot']:
+            self.experiment_random_spawn_point = config_data['Behaviors']['Robot']['RandomSpawnPoint']
 
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']
