@@ -73,7 +73,7 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
@@ -166,30 +166,49 @@ class Brain:
             self.image_2 = img
         elif type(self.image_3) is int:
             self.image_3 = img
+        elif type(self.image_4) is int:
+            self.image_4 = img
+        elif type(self.image_5) is int:
+            self.image_5 = img
+        elif type(self.image_6) is int:
+            self.image_6 = img
+        elif type(self.image_7) is int:
+            self.image_7 = img
+        elif type(self.image_8) is int:
+            self.image_8 = img
+        elif type(self.image_9) is int:
+            self.image_9 = img
         else:
+
             self.image_1 = self.image_2
             self.image_2 = self.image_3
-            self.image_3 = img
-            
-            img = [self.image_3, self.image_2, self.image_1]
+            self.image_3 = self.image_4
+            self.image_4 = self.image_5
+            self.image_5 = self.image_6
+            self.image_6 = self.image_7
+            self.image_7 = self.image_8
+            self.image_8 = self.image_9
+            self.image_9 = img
 
+            #img = [self.image_9, self.image_4, self.image_1]
+            img = [self.image_1, self.image_4, self.image_9]
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()
             try:
                 prediction = self.net.predict(img, verbose=0)
                 self.inference_times.append(time.time() - start_time)
-                throttle = prediction[0][0][0]
-                steer = prediction[1][0][0] * (1 - (-1)) + (-1)
-                break_command = prediction[2][0][0]
+                throttle = prediction[0][0]
+                steer = prediction[0][1] * (1 - (-1)) + (-1)
+                break_command = prediction[0][2]
                 speed = self.vehicle.get_velocity()
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
                 self.previous_speed = vehicle_speed
 
-                if vehicle_speed > 20:
+                if vehicle_speed > 30:
                     self.motors.sendThrottle(0)
                     self.motors.sendSteer(steer)
-                    self.motors.sendBrake(break_command)
+                    self.motors.sendBrake(1.0)
                 else:
                     if vehicle_speed < 2:
                         self.motors.sendThrottle(1.0)
@@ -224,8 +243,3 @@ class Brain:
                 logger.warning(type(ex).__name__)
                 print_exc()
                 raise Exception(ex)
-            
-        
-            
-
-

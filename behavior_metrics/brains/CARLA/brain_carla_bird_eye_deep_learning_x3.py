@@ -126,6 +126,7 @@ class Brain:
         image_3 = self.camera_3.getImage().data
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
+        bird_eye_view_1 = cv2.cvtColor(bird_eye_view_1, cv2.COLOR_BGR2RGB)
 
         if self.cameras_first_images == []:
             self.cameras_first_images.append(image)
@@ -170,7 +171,8 @@ class Brain:
             self.image_2 = self.image_3
             self.image_3 = img
             
-            img = [self.image_3, self.image_2, self.image_1]
+            #img = [self.image_3, self.image_2, self.image_1]
+            img = [self.image_1, self.image_2, self.image_3]
             #img = [self.image_3, self.image_3 , self.image_3]
 
             img = np.expand_dims(img, axis=0)
