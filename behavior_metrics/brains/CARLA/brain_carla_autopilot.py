@@ -76,6 +76,7 @@ class Brain:
         image_3 = self.camera_3.getImage().data
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
+        bird_eye_view_1 = cv2.cvtColor(bird_eye_view_1, cv2.COLOR_BGR2RGB)
 
         #print(self.bird_eye_view.getImage(self.vehicle))
 
