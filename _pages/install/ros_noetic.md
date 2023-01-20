@@ -1,11 +1,10 @@
 ---
-permalink: /install/ros_noetic
+permalink: /install/
 
-title: "Installation with the ROS Noetic version"
+title: "Installation and use"
 
 sidebar:
   nav: "docs"
-
 
 gallery:
   - url: /install/ros_noetic
@@ -129,12 +128,6 @@ cd Sophus && mkdir build && cd build
 cmake ../ && make && make install
 ```
 
-#### Gym-gazebo
-
-```bash
-sudo apt-get install libbluetooth-dev libcwiid-dev libftdi-dev libspnav-dev libsdl-dev libsdl-image1.2-dev libusb-dev ros-noetic-octomap-msgs ros-noetic-geodesy ros-noetic-octomap-ros ros-noetic-control-toolbox ros-noetic-pluginlib	ros-noetic-trajectory-msgs ros-noetic-control-msgs ros-noetic-std-srvs ros-noetic-nodelet ros-noetic-urdf ros-noetic-rviz ros-noetic-kdl-conversions ros-noetic-eigen-conversions ros-noetic-tf2-sensor-msgs ros-noetic-pcl-ros ros-noetic-navigation
-```
-
 ### Installing Behavior Metrics <a name="behavior-metrics"></a>
 
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
@@ -143,8 +136,6 @@ This application depends on some third party libraries, most of them are include
 git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics
 cd BehaviorMetrics
 pip3 install -r requirements.txt
-cd gym-gazebo
-pip3 install -e .
 ```
 
 If you are going to use the GUI you need to create the resources file for the application. 

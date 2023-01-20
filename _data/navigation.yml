@@ -24,11 +24,6 @@ docs:
 
   - title: Installation
     url: /install/
-    children:
-      - title: ROS Noetic
-        url: /install/ros_noetic/
-      - title: ROS Melodic
-        url: /install/ros_melodic/
 
   - title: Documentation
     url: /documentation/
