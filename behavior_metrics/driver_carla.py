@@ -226,7 +226,7 @@ def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
     if not config_data['script']:
-        environment.launch_env(app_configuration.current_world, carla_simulator=True)
+        environment.launch_env(app_configuration.current_world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
         controller = ControllerCarla()
 
         # Launch control
@@ -290,7 +290,8 @@ def main():
             
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
             generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
-
+    if app_configuration.experiment_random_spawn_point == True:
+        os.remove('tmp_circuit.launch')
     logger.info('DONE! Bye, bye :)')
                     
 

@@ -46,6 +46,8 @@ Behaviors:
             UseOptimized: True
             ImageTranform: ''
         Type: 'CARLA'
+
+        RandomSpawnPoint: True
     Experiment:
         Name: "Experiment name"
         Description: "Experiment description"

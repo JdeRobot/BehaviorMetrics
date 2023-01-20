@@ -19,9 +19,12 @@ import subprocess
 import sys
 import time
 import os
+import random
 
 from utils.logger import logger
-from utils.constants import ROOT_PATH
+from utils.constants import ROOT_PATH, CARLA_TOWNS_SPAWN_POINTS
+
+import xml.etree.ElementTree as ET
 
 # TODO: remove absolute paths
 
@@ -30,7 +33,7 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def launch_env(launch_file, carla_simulator=False):
+def launch_env(launch_file, random_spawn_point=False, carla_simulator=False):
     """Launch the environmet specified by the launch_file given in command line at launch time.
 
     Arguments:
@@ -41,13 +44,27 @@ def launch_env(launch_file, carla_simulator=False):
     close_ros_and_simulators()
     try:
         if carla_simulator:
+            if random_spawn_point:
+                tree = ET.parse(ROOT_PATH + '/' + launch_file)
+                root = tree.getroot()
+                town = root.find(".//*[@name=\"town\"]")
+                if town is None:
+                    town=root.find(".//*[@name='town']")
+                spawn_point = root.find(".//*[@name=\"spawn_point\"]")
+                if spawn_point is None:
+                    spawn_point=root.find(".//*[@name='spawn_point']")
+                spawn_point.attrib['default'] = random.choice(CARLA_TOWNS_SPAWN_POINTS[town.attrib['default']])
+                tree.write('tmp_circuit.launch')
             with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
                 subprocess.Popen([os.environ["CARLA_ROOT"] + "CarlaUE4.sh", "-RenderOffScreen"], stdout=out, stderr=err)                
                 #subprocess.Popen(["/home/jderobot/Documents/Projects/carla_simulator_0_9_13/CarlaUE4.sh", "-RenderOffScreen", "-quality-level=Low"], stdout=out, stderr=err)
             logger.info("SimulatorEnv: launching simulator server.")
             time.sleep(5)
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                child = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + launch_file], stdout=out, stderr=err)
+                if random_spawn_point:
+                    child = subprocess.Popen(["roslaunch", ROOT_PATH + '/tmp_circuit.launch'], stdout=out, stderr=err)
+                else:
+                    child = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + launch_file], stdout=out, stderr=err)
         else:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
                 child = subprocess.Popen(["roslaunch", launch_file], stdout=out, stderr=err)

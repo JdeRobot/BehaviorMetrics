@@ -9,10 +9,39 @@
   <arg name='role_name' default='ego_vehicle'/>
   <arg name="vehicle_filter" default='vehicle.*'/>
   <!--<arg name="spawn_point" default=""/>--><!-- use comma separated format "x,y,z,roll,pitch,yaw" -->
-  <arg name="spawn_point" default="40.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
+  <!--ANTICLOCKWISE-->
+  <!--<arg name="spawn_point" default="10.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>-->
+  <!--<arg name="spawn_point" default="40.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>-->
+
   <!--<arg name="spawn_point" default="-2.0, -10.0, 1.37, 0.0, 0.0, -90.0"/>-->
+  <!--<arg name="spawn_point" default="-2.0, -100.0, 1.37, 0.0, 0.0, -90.0"/>-->
   <!--<arg name="spawn_point" default="-2.0, -280.0, 1.37, 0.0, 0.0, -90.0"/>-->
-  
+
+  <!--<arg name="spawn_point" default="20.0, -330.0, 1.37, 0.0, 0.0, 0.0"/>-->
+  <!--<arg name="spawn_point" default="300.0, -330.0, 1.37, 0.0, 0.0, 0.0"/>-->
+
+  <!--<arg name="spawn_point" default="397.0, -310.0, 1.37, 0.0, 0.0, 90.0"/>-->
+  <!--<arg name="spawn_point" default="397.0, -50.0, 1.37, 0.0, 0.0, 90.0"/>-->
+
+
+  <!--CLOCKWISE-->
+  <!--<arg name="spawn_point" default="20.0, -2.0, 1.37, 0.0, 0.0, 0.0"/>-->
+  <!--<arg name="spawn_point" default="200.0, -2.0, 1.37, 0.0, 0.0, 0.0"/>-->
+  <!--<arg name="spawn_point" default="300.0, -2.0, 1.37, 0.0, 0.0, 0.0"/>-->
+  <!--<arg name="spawn_point" default="350.0, -2.0, 1.37, 0.0, 0.0, 0.0"/>-->
+
+
+  <!--<arg name="spawn_point" default="392.0, -50.0, 1.37, 0.0, 0.0, -90.0"/>-->
+  <!--<arg name="spawn_point" default="392.0, -300.0, 1.37, 0.0, 0.0, -90.0"/>-->
+
+  <!--<arg name="spawn_point" default="300.0, -327.0, 1.37, 0.0, 0.0, 180.0"/>-->
+  <!--<arg name="spawn_point" default="20.0, -327.0, 1.37, 0.0, 0.0, 180.0"/>-->
+
+  <!--<arg name="spawn_point" default="2.0, -280.0, 1.37, 0.0, 0.0, 90.0"/>-->
+  <arg name="spawn_point" default="2.0, -20.0, 1.37, 0.0, 0.0, 90.0"/>
+
+
+
   <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
   <arg name="town" default='Town01'/>
 
