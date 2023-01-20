@@ -48,7 +48,7 @@ Behaviors:
         Type: 'CARLA'
         RandomSpawnPoint: False
     Simulation:
-        World: configs/CARLA_launch_files/town_02_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_07_anticlockwise.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

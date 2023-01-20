@@ -9,8 +9,11 @@
   <arg name='role_name' default='ego_vehicle'/>
   <arg name="vehicle_filter" default='vehicle.*'/>
   <!--<arg name="spawn_point" default=""/>--><!-- use comma separated format "x,y,z,roll,pitch,yaw" -->
-  <!--<arg name="spawn_point" default="248.7, 371.2, 1.37, 0.0, 0.0, 0.0"/>-->
-  <arg name="spawn_point" default="-16.0, -184.6, 1.37, 0.0, 0.0, -90.0"/>
+
+ 
+  <arg name="spawn_point" default="248.7, 371.2, 1.37, 0.0, 0.0, 0.0"/>
+  <!--<arg name="spawn_point" default="-16.0, -184.6, 1.37, 0.0, 0.0, -90.0"/>-->
+
   
   
   <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
