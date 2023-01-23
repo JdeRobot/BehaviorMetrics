@@ -268,19 +268,14 @@ class Brain:
                 speed = self.vehicle.get_velocity()
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
                 self.previous_speed = vehicle_speed
-                if vehicle_speed > 300:
-                    self.motors.sendThrottle(0)
-                    self.motors.sendSteer(steer)
+                if vehicle_speed < 5:
+                    self.motors.sendThrottle(1.0)
+                    self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
                 else:
-                    if vehicle_speed < 2:
-                        self.motors.sendThrottle(1.0)
-                        self.motors.sendSteer(0.0)
-                        self.motors.sendBrake(0)
-                    else:
-                        self.motors.sendThrottle(throttle)
-                        self.motors.sendSteer(steer)
-                        self.motors.sendBrake(0)
+                    self.motors.sendThrottle(throttle)
+                    self.motors.sendSteer(steer)
+                    self.motors.sendBrake(break_command)
 
                 if self.previous_commanded_throttle != None:
                     a = np.array((throttle, steer, break_command))
