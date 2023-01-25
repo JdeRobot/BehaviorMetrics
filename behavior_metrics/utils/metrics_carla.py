@@ -101,6 +101,9 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         speedometer_points.append(row)
 
     if len(checkpoints) > 1:
+        starting_point = checkpoints[0]
+        starting_point = (starting_point['pose.pose.position.x'], starting_point['pose.pose.position.y'])
+        experiment_metrics['starting_point'] = starting_point
         experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
         experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
         experiment_metrics = get_collisions(experiment_metrics, collision_points)
@@ -198,6 +201,8 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
     experiment_metrics['effective_completed_distance'] = len(covered_checkpoints)*0.5
     experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    starting_point_map = (checkpoints_tuples_x[0], checkpoints_tuples_y[0])
+    experiment_metrics['starting_point_map'] = starting_point_map
     
     create_experiment_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds)
     return experiment_metrics

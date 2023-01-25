@@ -302,8 +302,6 @@ class ControllerCarla:
         while os.path.isfile(self.experiment_metrics_bag_filename + '.active'):
             pass
         
-        
-
         if hasattr(self.pilot.brains.active_brain, 'inference_times'):
             self.pilot.brains.active_brain.inference_times = self.pilot.brains.active_brain.inference_times[10:-10]
             self.experiment_metrics['gpu_mean_inference_time'] = sum(self.pilot.brains.active_brain.inference_times) / len(self.pilot.brains.active_brain.inference_times)
