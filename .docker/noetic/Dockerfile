@@ -67,12 +67,6 @@ RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888
 	cmake ../ && make && make install
 
 RUN cd /root/ && \
-    wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh && \
-    chmod +x install_geographiclib_datasets.sh && \
-    sudo ./install_geographiclib_datasets.sh && \
-    rm ./install_geographiclib_datasets.sh
-
-RUN cd /root/ && \
     mkdir /root/repos && cd /root/repos && \
     git clone --recursive https://github.com/PX4/PX4-Autopilot.git -b v1.11.3 && \
     cd /root/repos/PX4-Autopilot/Tools/setup/ && \
