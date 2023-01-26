@@ -238,6 +238,7 @@ def get_aggregated_experiments_list(experiments_starting_time):
     for folder in folders:
         if len(folder[0].split('/')) == 2 and folder[2] and experiments_starting_time < os.stat(folder[0]).st_mtime:
             current_experiment_folders.append(folder)
+    current_experiment_folders.sort()
 
     dataframes = []
     for folder in current_experiment_folders:
