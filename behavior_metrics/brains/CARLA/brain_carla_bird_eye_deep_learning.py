@@ -106,7 +106,7 @@ class Brain:
                 
 
             data = np.pad(data, ((extra_top, extra_bottom), (extra_left, extra_right), (0, 0)), mode='constant', constant_values=0)
-            
+
         self.handler.update_frame(frame_id, data)
 
     def update_pose(self, pose_data):
