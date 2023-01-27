@@ -161,7 +161,7 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
             checkpoint_x = current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:
