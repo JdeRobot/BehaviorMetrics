@@ -143,15 +143,19 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
     for waypoint in map_waypoints:
-        if (experiment_metrics['carla_map'] != 'Carla/Maps/Town06'):
-            map_waypoints_tuples_x.append(waypoint.transform.location.x)
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+            map_waypoints_tuples_x.append(-waypoint.transform.location.x)
             map_waypoints_tuples_y.append(waypoint.transform.location.y)
-            map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
-        else:
+            map_waypoints_tuples.append((-waypoint.transform.location.x, waypoint.transform.location.y))
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town06'):
             map_waypoints_tuples_x.append(waypoint.transform.location.x)
             map_waypoints_tuples_y.append(-waypoint.transform.location.y)
             map_waypoints_tuples.append((waypoint.transform.location.x, -waypoint.transform.location.y))
-
+        else:
+            map_waypoints_tuples_x.append(waypoint.transform.location.x)
+            map_waypoints_tuples_y.append(waypoint.transform.location.y)
+            map_waypoints_tuples.append((waypoint.transform.location.x, waypoint.transform.location.y))
+            
     checkpoints_tuples = []
     checkpoints_tuples_x = []
     checkpoints_tuples_y = []
@@ -161,8 +165,11 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
             checkpoint_x = current_checkpoint[0]
+            checkpoint_y = -current_checkpoint[1]
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+            checkpoint_x = -current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:
             checkpoint_x = current_checkpoint[0]
