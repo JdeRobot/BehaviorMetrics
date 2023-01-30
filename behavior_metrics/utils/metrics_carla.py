@@ -256,6 +256,7 @@ def get_aggregated_experiments_list(experiments_starting_time):
             dataframes.append(df)
         except:
             print('Broken experiment: ' + folder[0])
+            shutil.rmtree(folder[0])
 
     result = pd.concat(dataframes)
     result.index = result['timestamp'].values.tolist()
