@@ -176,7 +176,7 @@ class Brain:
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
             else:
-                if vehicle_speed < 2:
+                if vehicle_speed < 5:
                     self.motors.sendThrottle(1.0)
                     self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
