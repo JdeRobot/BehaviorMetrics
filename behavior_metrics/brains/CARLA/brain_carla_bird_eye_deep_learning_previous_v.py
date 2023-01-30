@@ -166,7 +166,7 @@ class Brain:
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
             self.previous_speed = vehicle_speed
 
-            if vehicle_speed < 2:
+            if vehicle_speed < 5:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
                 self.motors.sendBrake(0)
