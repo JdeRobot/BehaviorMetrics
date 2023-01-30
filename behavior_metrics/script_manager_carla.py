@@ -13,6 +13,7 @@ from utils.configuration import Config
 from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
+from utils.constants import CARLA_TOWNS_TIMEOUTS
 
 def check_args(argv):
     parser = argparse.ArgumentParser(description='Neural Behaviors Suite',
@@ -127,8 +128,12 @@ def main():
     controller.resume_pilot()
     controller.unpause_carla_simulation()
     controller.record_metrics(app_configuration.stats_out, world_counter=world_counter, brain_counter=brain_counter, repetition_counter=repetition_counter)
+    if app_configuration.use_world_timeouts:
+        experiment_timeout = CARLA_TOWNS_TIMEOUTS[controller.carla_map.name]
+    else:
+        experiment_timeout = app_configuration.experiment_timeouts[world_counter]
 
-    rospy.sleep(app_configuration.experiment_timeouts[world_counter])
+    rospy.sleep(experiment_timeout)
     controller.stop_recording_metrics()
     controller.pilot.stop()
     controller.stop_pilot()

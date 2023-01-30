@@ -130,3 +130,13 @@ CARLA_TOWNS_SPAWN_POINTS = {
             "-184.5, -107.2, 1.37, 0.0, 0.0, 180.0"
         ],
 }
+
+CARLA_TOWNS_TIMEOUTS = {
+    "Carla/Maps/Town01": 210,
+    "Carla/Maps/Town02": 120,
+    "Carla/Maps/Town03": 210,
+    "Carla/Maps/Town04": 180,
+    "Carla/Maps/Town05": 230,
+    "Carla/Maps/Town06": 210,
+    "Carla/Maps/Town07": 120,
+}
