@@ -21,8 +21,7 @@ class Brains(object):
         self.controller = controller
         self.brain_path = brain_path
         self.config = config
-        if model:
-            self.model = model
+        self.model = model
         try:
             if brain_path:
                 self.load_brain(brain_path)
