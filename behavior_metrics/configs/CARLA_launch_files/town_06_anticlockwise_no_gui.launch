@@ -9,7 +9,6 @@
   <arg name='role_name' default='ego_vehicle'/>
   <arg name="vehicle_filter" default='vehicle.*'/>
   <!--<arg name="spawn_point" default=""/>--><!-- use comma separated format "x,y,z,roll,pitch,yaw" -->
-  <!--<arg name="spawn_point" default="502.1, -45.2, 1.37, 0.0, 0.0, 0.0"/>-->
   <!--<arg name="spawn_point" default="351.5, 10.5, 1.37, 0.0, 0.0, 0.0"/>-->
   <arg name="spawn_point" default="351.5, 24.5, 1.37, 0.0, 0.0, 180.0"/>
   
