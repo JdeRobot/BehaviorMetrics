@@ -220,10 +220,10 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     colors=["#00FF00", "#FF0000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
     ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
-    color = [(30-item) for item in checkpoints_speeds]
-    ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=color, cmap='hot', marker="o", label='Experiment waypoints')
+    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=30)
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
+    fig.colorbar(plot, shrink=0.5)
     plt.legend(loc='upper left', prop={'size': 20})
     
     full_text = ''
