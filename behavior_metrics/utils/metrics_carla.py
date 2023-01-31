@@ -215,14 +215,34 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
     return experiment_metrics
 
 def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds):
+    difference_x = 0
+    difference_y = 0
+    starting_point_landmark = 0
+    while difference_x < 1 and difference_y < 1:
+        difference_x = checkpoints_tuples_x[starting_point_landmark] - checkpoints_tuples_x[0]
+        difference_y = checkpoints_tuples_y[starting_point_landmark] - checkpoints_tuples_y[0]
+        if difference_x < 1 and difference_y < 1:
+            starting_point_landmark += 1
+
+    difference_x = 0
+    difference_y = 0
+    finish_point_landmark = len(checkpoints_tuples_x)-1
+    while difference_x < 1 and difference_y < 1:
+        difference_x = abs(checkpoints_tuples_x[finish_point_landmark] - checkpoints_tuples_x[len(checkpoints_tuples_x)-1])
+        difference_y = abs(checkpoints_tuples_y[finish_point_landmark] - checkpoints_tuples_y[len(checkpoints_tuples_x)-1])
+        if difference_x < 1 and difference_y < 1:
+            finish_point_landmark -= 1
+
     fig = plt.figure(figsize=(30,30))
     ax = fig.add_subplot()
-    colors=["#00FF00", "#FF0000"]
+    colors=["#00FF00", "#FF0000", "#000000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
     ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
     plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=30)
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
+    ax.scatter(checkpoints_tuples_x[starting_point_landmark], checkpoints_tuples_y[starting_point_landmark], s=100, marker="o", color=colors[2])
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
+    ax.scatter(checkpoints_tuples_x[finish_point_landmark], checkpoints_tuples_y[finish_point_landmark], s=100, marker="o", color=colors[2])
     fig.colorbar(plot, shrink=0.5)
     plt.legend(loc='upper left', prop={'size': 20})
     
