@@ -263,7 +263,7 @@ def get_aggregated_experiments_list(experiments_starting_time):
     root = './'
     folders = list(os.walk(root))[1:]
     for folder in folders:
-        if len(folder[0].split('/')) == 2 and folder[2] and experiments_starting_time < os.stat(folder[0]).st_mtime:
+        if len(folder[0].split('/')) == 2 and folder[2] and experiments_starting_time < os.stat(folder[0]).st_mtime and re.search("\./[0-9]+-[0-9]+", folder[0]):
             current_experiment_folders.append(folder)
     current_experiment_folders.sort()
 
