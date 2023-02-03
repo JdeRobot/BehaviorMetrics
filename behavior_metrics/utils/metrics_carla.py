@@ -219,8 +219,8 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     difference_y = 0
     starting_point_landmark = 0
     while difference_x < 1 and difference_y < 1 and starting_point_landmark < len(checkpoints_tuples_x)-1:
-        difference_x = checkpoints_tuples_x[starting_point_landmark] - checkpoints_tuples_x[0]
-        difference_y = checkpoints_tuples_y[starting_point_landmark] - checkpoints_tuples_y[0]
+        difference_x = abs(checkpoints_tuples_x[starting_point_landmark] - checkpoints_tuples_x[0])
+        difference_y = abs(checkpoints_tuples_y[starting_point_landmark] - checkpoints_tuples_y[0])
         if difference_x < 1 and difference_y < 1:
             starting_point_landmark += 1
 
