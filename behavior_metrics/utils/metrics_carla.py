@@ -244,7 +244,7 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
     ax.scatter(checkpoints_tuples_x[finish_point_landmark], checkpoints_tuples_y[finish_point_landmark], s=100, marker="o", color=colors[2])
     fig.colorbar(plot, shrink=0.5)
-    plt.legend(loc='upper left', prop={'size': 20})
+    plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left', prop={'size': 20})
     
     full_text = ''
     for key, value in experiment_metrics.items():
@@ -254,7 +254,7 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
 
     plt.grid(True)
     plt.subplots_adjust(bottom=0.4)
-    plt.title(experiment_metrics['experiment_model'], fontsize=25)
+    plt.title(experiment_metrics['experiment_model'], fontsize=20)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
 
