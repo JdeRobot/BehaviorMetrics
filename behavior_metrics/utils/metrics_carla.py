@@ -250,7 +250,7 @@ def create_experiment_map(experiment_metrics, experiment_metrics_filename, map_w
     for key, value in experiment_metrics.items():
         print(key, value)
         full_text += ' * ' + str(key) + ' : ' + str(value) + '\n'
-    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=16)
+    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=12)
 
     plt.grid(True)
     plt.subplots_adjust(bottom=0.4)
