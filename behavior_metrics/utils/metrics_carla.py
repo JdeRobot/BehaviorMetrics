@@ -265,8 +265,11 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     plt.title(experiment_metrics['experiment_model'], fontsize=20)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
-    ################################# Collisions###################################################
+    create_collisions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, collision_points)
+    create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, lane_invasion_checkpoints)
 
+
+def create_collisions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, collision_points):
     collision_checkpoints_tuples_x = []
     collision_checkpoints_tuples_y = []
     for i, point in enumerate(collision_points):
@@ -301,12 +304,11 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     fig.colorbar(plot, shrink=0.5)
     plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left', prop={'size': 20})
     plt.grid(True)
-    plt.title(experiment_metrics['experiment_model'], fontsize=20)
+    plt.title(experiment_metrics['experiment_model'] + ' Collisions', fontsize=20)
     fig.savefig(experiment_metrics_filename + '_collisions.png', dpi=fig.dpi)
 
 
-    ###################################Lane invasions#################################################
-
+def create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, lane_invasion_checkpoints):
     lane_invasion_checkpoints_tuples_x = []
     lane_invasion_checkpoints_tuples_y = []
     for i, point in enumerate(lane_invasion_checkpoints):
@@ -341,10 +343,8 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     fig.colorbar(plot, shrink=0.5)
     plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left', prop={'size': 20})
     plt.grid(True)
-    plt.title(experiment_metrics['experiment_model'], fontsize=20)
+    plt.title(experiment_metrics['experiment_model'] + ' Lane invasions', fontsize=20)
     fig.savefig(experiment_metrics_filename + '_lane_invasion.png', dpi=fig.dpi)
-
-
 
 
 def get_aggregated_experiments_list(experiments_starting_time):
