@@ -33,11 +33,10 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-                    
-        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_t_t-4_t-9.py'
-        PilotTimeCycle: 300
+        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
+        PilotTimeCycle: 100
         Parameters:
-            Model: '20230117-175128_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_t_5_t_10_dataset_PAPER_cp.h5'
+            Model: '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -48,7 +47,7 @@ Behaviors:
         Type: 'CARLA'
         RandomSpawnPoint: False
     Simulation:
-        World: configs/CARLA_launch_files/town_07_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_01_anticlockwise.launch
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
