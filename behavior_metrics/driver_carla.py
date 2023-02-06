@@ -192,8 +192,12 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Total lane invasions per experiment'
         },
         {
-            'metric': 'position_deviation_mae',
-            'title': 'Position deviation per experiment'
+            'metric': 'position_deviation_mean',
+            'title': 'Mean position deviation per experiment'
+        },
+        {
+            'metric': 'position_deviation_mean_per_km',
+            'title': 'Mean position deviation per km per experiment'
         },
         {
             'metric': 'gpu_inference_frequency',
@@ -202,6 +206,14 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
         {
             'metric': 'brain_iterations_frequency_real_time',
             'title': 'Brain frequency per experiment'
+        },
+        {
+            'metric': 'collisions_per_km',
+            'title': 'Collisions per km per experiment'
+        },
+        {
+            'metric': 'lane_invasions_per_km',
+            'title': 'Lane invasions per experiment'
         },
     ]
 

@@ -214,10 +214,19 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
                     covered_checkpoints.append((best_checkpoint_point_x, best_checkpoint_point_y))
 
     experiment_metrics['effective_completed_distance'] = len(covered_checkpoints)*0.5
-    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
+    experiment_metrics['position_deviation_mean'] = sum(min_dists) / len(min_dists)  
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    experiment_metrics['position_deviation_mean_per_km'] = experiment_metrics['position_deviation_mean'] / (experiment_metrics['effective_completed_distance']/1000)
     starting_point_map = (checkpoints_tuples_x[0], checkpoints_tuples_y[0])
     experiment_metrics['starting_point_map'] = starting_point_map
+    if experiment_metrics['collisions'] > 0:
+        experiment_metrics['collisions_per_km'] = experiment_metrics['collisions'] / (experiment_metrics['effective_completed_distance']/1000)
+    else:
+        experiment_metrics['collisions_per_km'] = 0
+    if experiment_metrics['lane_invasions'] > 0:
+        experiment_metrics['lane_invasions_per_km'] = experiment_metrics['lane_invasions'] / (experiment_metrics['effective_completed_distance']/1000)
+    else: 
+        experiment_metrics['lane_invasions_per_km'] = 0
     
     create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, collision_points, lane_invasion_checkpoints)
     return experiment_metrics
@@ -265,8 +274,10 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     plt.title(experiment_metrics['experiment_model'], fontsize=20)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
-    create_collisions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, collision_points)
-    create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, lane_invasion_checkpoints)
+    if experiment_metrics['collisions'] > 0:
+        create_collisions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, collision_points)
+    if experiment_metrics['lane_invasions'] > 0:
+        create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, lane_invasion_checkpoints)
 
 
 def create_collisions_map(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, starting_point_landmark, finish_point_landmark, collision_points):
