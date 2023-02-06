@@ -110,6 +110,48 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics, lane_invasion_checkpoints = get_lane_invasions(experiment_metrics, lane_invasion_points, dataframe_pose)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
         experiment_metrics = get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points, collisions_checkpoints, lane_invasion_checkpoints)
+        
+
+        ### Check if lap is completed.
+        '''
+        Get first checkpoint and iterate over the checkpoints starting on the 50th point. 
+        If a point is close enough, consider it a completed lap
+        Once a lap completed is found, start over 50 points ahead.
+
+        '''
+        points_to_start_count = 50
+        for x, checkpoint in enumerate(checkpoints):
+            '''
+            if points_to_start_count < 50:
+                points_to_start_count -= 1
+            else:
+                point_1 = np.array([checkpoint[0], checkpoint[1]])
+                point_2 = np.array([starting_point[0], starting_point[1]])
+                dist = (point_2 - point_1) ** 2
+                dist = np.sum(dist, axis=0)
+                dist = np.sqrt(dist)
+                print(dist)
+            '''
+            if points_to_start_count < 50:
+                points_to_start_count -= 1
+            else:
+                point_1 = np.array([checkpoint['pose.pose.position.x'], checkpoint['pose.pose.position.y']])
+                point_2 = np.array([starting_point[0], starting_point[1]])
+                dist = (point_2 - point_1) ** 2
+                dist = np.sum(dist, axis=0)
+                dist = np.sqrt(dist)
+                print('-----')
+                #print(point_1)
+                #print(point_2)
+                print(dist)
+                print('-----')
+                if dist < 0.5:
+                    print('-----')
+                    print('Lap completed')
+                    print('-----')
+
+        #experiment_metrics = checkpoints
+        
         shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
         return experiment_metrics
     else:
