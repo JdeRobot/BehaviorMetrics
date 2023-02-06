@@ -203,6 +203,14 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'metric': 'brain_iterations_frequency_real_time',
             'title': 'Brain frequency per experiment'
         },
+        {
+            'metric': 'collisions_per_km',
+            'title': 'Collisions per km per experiment'
+        },
+        {
+            'metric': 'lane_invasions_per_km',
+            'title': 'Lane invasions per experiment'
+        },
     ]
 
     metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
