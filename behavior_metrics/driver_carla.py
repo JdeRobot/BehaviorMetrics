@@ -192,8 +192,12 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Total lane invasions per experiment'
         },
         {
-            'metric': 'position_deviation_mae',
-            'title': 'Position deviation per experiment'
+            'metric': 'position_deviation_mean',
+            'title': 'Mean position deviation per experiment'
+        },
+        {
+            'metric': 'position_deviation_mean_per_km',
+            'title': 'Mean position deviation per km per experiment'
         },
         {
             'metric': 'gpu_inference_frequency',

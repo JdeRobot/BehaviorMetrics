@@ -214,8 +214,9 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
                     covered_checkpoints.append((best_checkpoint_point_x, best_checkpoint_point_y))
 
     experiment_metrics['effective_completed_distance'] = len(covered_checkpoints)*0.5
-    experiment_metrics['position_deviation_mae'] = sum(min_dists) / len(min_dists)  
+    experiment_metrics['position_deviation_mean'] = sum(min_dists) / len(min_dists)  
     experiment_metrics['position_deviation_total_err'] = sum(min_dists)
+    experiment_metrics['position_deviation_mean_per_km'] = experiment_metrics['position_deviation_mean'] / (experiment_metrics['effective_completed_distance']/1000)
     starting_point_map = (checkpoints_tuples_x[0], checkpoints_tuples_y[0])
     experiment_metrics['starting_point_map'] = starting_point_map
     if experiment_metrics['collisions'] > 0:
