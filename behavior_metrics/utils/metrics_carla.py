@@ -463,3 +463,24 @@ def get_per_model_aggregated_metrics(result, experiments_starting_time_str, expe
             plt.legend(handles=color_handles)
             plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_ ' + experiment_metric_and_title['metric'] + '.png')
             plt.close()
+
+def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_time_str, experiments_metrics_and_titles):
+    dataframes = []
+    max_value = 0
+    for x, model_name in enumerate(result['experiment_model'].unique()):
+        com_dict = {'model_name': model_name, model_name: result.loc[result['experiment_model']==model_name]['completed_distance'].tolist()}
+        df = pd.DataFrame(data=com_dict)
+        dataframes.append(df)
+        if df[model_name].max()> max_value:
+            max_value = df[model_name].max()
+
+    result_by_experiment_model = pd.concat(dataframes)
+
+    plt.figure(figsize=(20,10))
+    result_by_experiment_model.boxplot(column=result['experiment_model'].unique().tolist(), showfliers=True, sym='k.')
+
+    plt.xticks(rotation=90)
+    plt.ylim(0, max_value+max_value*0.1)
+    plt.title('completed_distance_boxplot')
+    plt.savefig(experiments_starting_time_str + '/completed_distance_boxplot.png')
+    plt.close()

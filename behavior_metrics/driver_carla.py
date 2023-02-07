@@ -219,6 +219,7 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
 
     metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
     metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
+    metrics_carla.get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_time_str, experiments_metrics_and_titles)
 
     with open(experiments_starting_time_str + '/' + 'experiment_elapsed_times.json', 'w') as f:
         json.dump(experiments_elapsed_times, f)
