@@ -485,8 +485,8 @@ def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_
 
         full_list = []
         colors = []
-        for experiment_model in result['experiment_model'].unique().tolist():
-            for carla_map in result['carla_map'].unique().tolist():
+        for carla_map in result['carla_map'].unique().tolist():
+            for experiment_model in result['experiment_model'].unique().tolist():
                 full_list.append(experiment_model+'-'+carla_map)
                 colors.append(maps_colors[carla_map])
 
