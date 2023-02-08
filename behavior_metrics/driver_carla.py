@@ -156,6 +156,18 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Suddennes distance per experiment'
         },
         {
+            'metric': 'suddenness_distance_throttle',
+            'title': 'Suddennes distance throttle per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_steer',
+            'title': 'Suddennes distance steer per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_break_command',
+            'title': 'Suddennes distance break per experiment'
+        },
+        {
             'metric': 'brain_iterations_frequency_simulated_time',
             'title': 'Brain itertions frequency simulated time per experiment'
         },

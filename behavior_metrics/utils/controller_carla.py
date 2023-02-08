@@ -286,6 +286,10 @@ class ControllerCarla:
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
         suddenness_distance = sum(self.pilot.brains.active_brain.suddenness_distance) / len(self.pilot.brains.active_brain.suddenness_distance)
 
+        suddenness_distance_throttle = sum(self.pilot.brains.active_brain.suddenness_distance_throttle) / len(self.pilot.brains.active_brain.suddenness_distance_throttle)
+        suddenness_distance_steer = sum(self.pilot.brains.active_brain.suddenness_distance_steer) / len(self.pilot.brains.active_brain.suddenness_distance_steer)
+        suddenness_distance_break_command = sum(self.pilot.brains.active_brain.suddenness_distance_break_command) / len(self.pilot.brains.active_brain.suddenness_distance_break_command)
+
         if self.pilot.brains.active_brain.cameras_first_images != []:
             first_images =  self.pilot.brains.active_brain.cameras_first_images
             last_images = self.pilot.brains.active_brain.cameras_last_images
@@ -314,6 +318,9 @@ class ControllerCarla:
         self.experiment_metrics['mean_brain_iterations_simulated_time'] = mean_brain_iterations_simulated_time
         self.experiment_metrics['brain_iterations_frequency_simulated_time'] = brain_iterations_frequency_simulated_time
         self.experiment_metrics['suddenness_distance'] = suddenness_distance
+        self.experiment_metrics['suddenness_distance_throttle'] = suddenness_distance_throttle
+        self.experiment_metrics['suddenness_distance_steer'] = suddenness_distance_steer
+        self.experiment_metrics['suddenness_distance_break_command'] = suddenness_distance_break_command
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
 
         experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
