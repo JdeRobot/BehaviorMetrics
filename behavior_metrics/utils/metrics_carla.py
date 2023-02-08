@@ -465,21 +465,43 @@ def get_per_model_aggregated_metrics(result, experiments_starting_time_str, expe
             plt.close()
 
 def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_time_str, experiments_metrics_and_titles):
+    maps_colors = get_maps_colors()
+    color_handles = get_color_handles()
     for experiment_metric_and_title in experiments_metrics_and_titles:
         fig = plt.figure(figsize=(20,10))
         dataframes = []
         max_value = 0
         for x, model_name in enumerate(result['experiment_model'].unique()):
-            com_dict = {'model_name': model_name, model_name: result.loc[result['experiment_model']==model_name][experiment_metric_and_title['metric']].tolist()}
-            df = pd.DataFrame(data=com_dict)
-            dataframes.append(df)
-            if df[model_name].max()> max_value:
-                max_value = df[model_name].max()
+            for y, carla_map in enumerate(result['carla_map'].unique()):
+                com_dict = {
+                    'model_name': model_name,
+                    model_name+'-'+carla_map: result.loc[(result['experiment_model']==model_name) & (result['carla_map']==carla_map)]['completed_distance'].tolist(),
+                    'carla_map': carla_map
+                }
+                df = pd.DataFrame(data=com_dict)
+                dataframes.append(df)
+                if df[model_name+'-'+carla_map].max()> max_value:
+                    max_value = df[model_name+'-'+carla_map].max()
+
+        full_list = []
+        colors = []
+        for experiment_model in result['experiment_model'].unique().tolist():
+            for carla_map in result['carla_map'].unique().tolist():
+                full_list.append(experiment_model+'-'+carla_map)
+                colors.append(maps_colors[carla_map])
+
         result_by_experiment_model = pd.concat(dataframes)
-        result_by_experiment_model.boxplot(column=result['experiment_model'].unique().tolist(), showfliers=True, sym='k.')
-        plt.title(experiment_metric_and_title['title'] + '_boxplot')
-        fig.tight_layout()
+        ax,props = result_by_experiment_model.boxplot(column=full_list, showfliers=True, sym='k.', return_type='both', patch_artist=True)
+
+        plt.title(experiment_metric_and_title['title'] + ' boxplot')
+
+        for patch,color in zip(props['boxes'],colors):
+            patch.set_facecolor(color)
+
+        plt.legend(handles=color_handles)
+        
         plt.xticks(rotation=90)
-        plt.legend()
-        plt.savefig(experiments_starting_time_str + '/' + experiment_metric_and_title['metric'] + '_boxplot.png')
+        if max_value > 0:
+            plt.ylim(0, max_value+max_value*0.1)
+        plt.savefig(experiments_starting_time_str + '/' + experiment_metric_and_title['metric'] + '_boxplot.png', bbox_inches='tight')
         plt.close()

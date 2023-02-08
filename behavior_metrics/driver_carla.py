@@ -304,7 +304,8 @@ def main():
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
             generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
     if app_configuration.experiment_random_spawn_point == True:
-        os.remove('tmp_circuit.launch')
+        if os.path.isfile('tmp_circuit.launch'):
+            os.remove('tmp_circuit.launch')
     logger.info('DONE! Bye, bye :)')
                     
 
