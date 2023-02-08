@@ -398,7 +398,7 @@ def get_aggregated_experiments_list(experiments_starting_time):
 
     result = pd.concat(dataframes)
     result.index = result['timestamp'].values.tolist()
-    result.loc[result['collisions'] > 0, 'position_deviation_mean'] = 0
+    result.loc[result['collisions'] > 0, 'position_deviation_mean'] = float("nan")
 
     return result
 
