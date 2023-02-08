@@ -475,7 +475,7 @@ def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_
             for y, carla_map in enumerate(result['carla_map'].unique()):
                 com_dict = {
                     'model_name': model_name,
-                    model_name+'-'+carla_map: result.loc[(result['experiment_model']==model_name) & (result['carla_map']==carla_map)]['completed_distance'].tolist(),
+                    model_name+'-'+carla_map: result.loc[(result['experiment_model']==model_name) & (result['carla_map']==carla_map)][experiment_metric_and_title['metric']].tolist(),
                     'carla_map': carla_map
                 }
                 df = pd.DataFrame(data=com_dict)
