@@ -227,6 +227,10 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'metric': 'lane_invasions_per_km',
             'title': 'Lane invasions per experiment'
         },
+        {
+            'metric': 'completed_laps',
+            'title': 'Completed laps per experiment'
+        },
     ]
 
     metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
