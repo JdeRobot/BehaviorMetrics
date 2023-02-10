@@ -168,6 +168,22 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Suddennes distance break per experiment'
         },
         {
+            'metric': 'suddenness_distance_per_km',
+            'title': 'Suddennes distance per km per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_throttle_per_km',
+            'title': 'Suddennes distance throttle per km per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_steer_per_km',
+            'title': 'Suddennes distance steer per km per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_break_command_per_km',
+            'title': 'Suddennes distance break per km per experiment'
+        },
+        {
             'metric': 'brain_iterations_frequency_simulated_time',
             'title': 'Brain itertions frequency simulated time per experiment'
         },
@@ -226,6 +242,14 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
         {
             'metric': 'lane_invasions_per_km',
             'title': 'Lane invasions per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_speed',
+            'title': 'Suddenness distance speed per experiment'
+        },
+        {
+            'metric': 'suddenness_distance_speed_per_km',
+            'title': 'uddenness distance speed per km per experiment'
         },
         {
             'metric': 'completed_laps',
