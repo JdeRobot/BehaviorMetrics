@@ -141,11 +141,20 @@ def get_distance_completed(experiment_metrics, checkpoints):
 
 
 def get_average_speed(experiment_metrics, speedometer_points):
+    previous_speed = 0
     speedometer_points_sum = 0
+    suddenness_distance_speeds = []
     for point in speedometer_points:
         speedometer_points_sum += point.data
+        a = np.array(point.data)
+        b = np.array(previous_speed)
+        suddenness_distance_speed = np.linalg.norm(a - b)
+        suddenness_distance_speeds.append(suddenness_distance_speed)
+        previous_speed = point.data
 
     experiment_metrics['average_speed'] = (speedometer_points_sum/len(speedometer_points))*3.6
+    suddenness_distance_speed = sum(suddenness_distance_speeds) / len(suddenness_distance_speeds)
+    experiment_metrics['suddenness_distance_speed'] = suddenness_distance_speed
     return experiment_metrics
 
 def get_collisions(experiment_metrics, collision_points, df_checkpoints):
@@ -245,6 +254,13 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         experiment_metrics['lane_invasions_per_km'] = experiment_metrics['lane_invasions'] / (experiment_metrics['effective_completed_distance']/1000)
     else: 
         experiment_metrics['lane_invasions_per_km'] = 0
+
+
+    experiment_metrics['suddenness_distance_per_km'] = experiment_metrics['suddenness_distance'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_throttle_per_km'] = experiment_metrics['suddenness_distance_throttle'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_steer_per_km'] = experiment_metrics['suddenness_distance_steer'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_break_command_per_km'] = experiment_metrics['suddenness_distance_break_command'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_speed_per_km'] = experiment_metrics['suddenness_distance_speed'] / (experiment_metrics['effective_completed_distance']/1000)
     
     create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, collision_points, lane_invasion_checkpoints)
     return experiment_metrics
