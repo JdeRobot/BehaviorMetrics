@@ -26,23 +26,24 @@ import time
 import rosbag
 import json
 import math
+
+from utils.logger import logger
 try:
     import carla
 except ModuleNotFoundError as ex:
-    print('CARLA is not supported')
+    logger.error('CARLA is not supported')
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from datetime import datetime
-from utils.logger import logger
 from std_msgs.msg import String
 from utils import metrics_carla
 try:
     from carla_msgs.msg import CarlaLaneInvasionEvent
     from carla_msgs.msg import CarlaCollisionEvent
 except ModuleNotFoundError as ex:
-    print('CARLA is not supported')
+    logger.error('CARLA is not supported')
 from PIL import Image
 
 __author__ = 'sergiopaniego'
