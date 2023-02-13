@@ -95,19 +95,22 @@ If you'd like to train your own brain, we provide you with the [datasets](datase
 To run the application with GUI (Graphic User Interface) just run:
 
 ```bash
-python3 driver.py -c ./configs/default.yml -g
+# If using CARLA:
+python3 driver_carla.py -c configs/default_carla.yml -g
+# If using Gazebo:
+python3 driver_gazebo.py -c ./configs/default.yml -g
 ```
 
 To run the application with TUI (Terminal User Interface) just run:
 
 ```bash
-python3 driver.py -c ./configs/default.yml -t
+python3 driver_gazebo.py -c ./configs/default.yml -t
 ```
 
 To run the application as a script to run several worlds/brains at the same time  run:
 
 ```bash
-python3 driver.py -c ./configs/default-multiple.yml -s
+python3 driver_gazebo.py -c ./configs/default-multiple.yml -s
 ```
 
 ## Reference times for each circuit
@@ -136,7 +139,7 @@ pyrcc5 -o ui/gui/resources/resources.py ui/gui/resources/resources.qrc
 To launch the application just run the python script as follows:
 
 ```bash
-python3 driver.py -c ./configs/default.yml -g
+python3 driver_gazebo.py -c ./configs/default.yml -g
 ```
 
 This command will launch the application with the default configuration:
@@ -159,7 +162,7 @@ For more information run `help driver.py` in a terminal.
 Furthermore, the iris drone counterparts are based on `JdeRobot/drones` and the corresponding DroneWrapper. All low level drone control and reading sensor data functionalities can be directly used from the wrapper. To launch a similar case of simulating the line following task based on OpenCV for drones, execute:
 
 ```bash
-python3 driver.py -c ./configs/default-drone.yml -g
+python3 driver_gazebo.py -c ./configs/default-drone.yml -g
 ```
 
 

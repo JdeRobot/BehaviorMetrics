@@ -80,7 +80,7 @@ and how to train the model. Using the examples shown there should be fine for th
 5. Execute Behavior Studio with the command.
 
 ```bash
-python3 driver.py -c configs/default.yml -g
+python3 driver_gazebo.py -c configs/default.yml -g
 ```
 
 and your done. Press the **PLAY** button shown on the GUI and the f1 should be running!

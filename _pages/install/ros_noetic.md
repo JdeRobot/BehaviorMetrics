@@ -164,13 +164,18 @@ For installing CARLA and supporting this new simulator:
 ```
     pip3 install carla_birdeye_view==1.1.1 # already in requirements.txt
 ```
-5. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
+4. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
 ```
     source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
-    export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator_0_9_13/
+    export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg   
 ```
+5. Test that everything is correctly set up running the example configuration file:
+```bash
+  python3 driver_carla.py -c configs/default_carla.yml -g
+```
+
 
 ## Installation using Docker <a name="docker-installation"></a>
 
@@ -294,7 +299,7 @@ and this window will behave as any other Ubuntu terminal, so you are ready to ru
 
 ```bash
 cd BehaviorMetrics/behavior_metrics/
-python3 driver.py -c configs/default.yml -g
+python3 driver_gazebo.py -c configs/default.yml -g
 ```
 
 This command will open the Gazebo Simulation in the VNC window. You can also directly run the previous command inside VNC window in a terminal.
