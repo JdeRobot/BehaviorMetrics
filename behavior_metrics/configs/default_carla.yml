@@ -45,9 +45,9 @@ Behaviors:
             UseOptimized: True
             ImageTranform: ''
         Type: 'CARLA'
-        RandomSpawnPoint: False
     Simulation:
         World: configs/CARLA_launch_files/town_01_anticlockwise.launch
+        RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
