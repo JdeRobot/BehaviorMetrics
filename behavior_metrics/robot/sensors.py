@@ -15,7 +15,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
 from robot.interfaces.pose3d import ListenerPose3d
-from robot.interfaces.birdeyeview import BirdEyeView
+try:
+    from robot.interfaces.birdeyeview import BirdEyeView
+except ModuleNotFoundError as ex:
+    print('CARLA is not supported')
 from robot.interfaces.speedometer import ListenerSpeedometer
 
 __author__ = 'fqez'

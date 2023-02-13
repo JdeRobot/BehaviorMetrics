@@ -3,7 +3,10 @@ from geometry_msgs.msg import Twist
 import threading
 from .threadPublisher import ThreadPublisher
 
-from carla_msgs.msg import CarlaEgoVehicleControl
+try:
+    from carla_msgs.msg import CarlaEgoVehicleControl
+except ModuleNotFoundError as ex:
+    print('CARLA is not supported')
 
 
 def cmdvel2Twist(vel):
