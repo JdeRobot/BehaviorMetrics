@@ -152,8 +152,8 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Experiment total real time per experiment'
         },
         {
-            'metric': 'suddenness_distance',
-            'title': 'Suddennes distance per experiment'
+            'metric': 'suddenness_distance_control_commands',
+            'title': 'Suddennes distance control commands per experiment'
         },
         {
             'metric': 'suddenness_distance_throttle',
@@ -164,12 +164,12 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Suddennes distance steer per experiment'
         },
         {
-            'metric': 'suddenness_distance_break_command',
-            'title': 'Suddennes distance break per experiment'
+            'metric': 'suddenness_distance_brake_command',
+            'title': 'Suddennes distance brake per experiment'
         },
         {
-            'metric': 'suddenness_distance_per_km',
-            'title': 'Suddennes distance per km per experiment'
+            'metric': 'suddenness_distance_control_command_per_km',
+            'title': 'Suddennes distance control commands per km per experiment'
         },
         {
             'metric': 'suddenness_distance_throttle_per_km',
@@ -180,8 +180,8 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'title': 'Suddennes distance steer per km per experiment'
         },
         {
-            'metric': 'suddenness_distance_break_command_per_km',
-            'title': 'Suddennes distance break per km per experiment'
+            'metric': 'suddenness_distance_brake_command_per_km',
+            'title': 'Suddennes distance brake per km per experiment'
         },
         {
             'metric': 'brain_iterations_frequency_simulated_time',
