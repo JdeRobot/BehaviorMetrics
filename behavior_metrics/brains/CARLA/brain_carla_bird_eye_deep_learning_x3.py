@@ -54,17 +54,6 @@ class Brain:
         self.cont = 0
         self.iteration = 0
 
-        # self.previous_timestamp = 0
-        # self.previous_image = 0
-
-        self.previous_commanded_throttle = None
-        self.previous_commanded_steer = None
-        self.previous_commanded_brake = None
-        self.suddenness_distance = []
-        self.suddenness_distance_throttle = []
-        self.suddenness_distance_steer = []
-        self.suddenness_distance_break_command = []
-
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
@@ -205,30 +194,6 @@ class Brain:
                         self.motors.sendSteer(steer)
                         self.motors.sendBrake(break_command)
 
-                if self.previous_commanded_throttle != None:
-                    a = np.array((throttle, steer, break_command))
-                    b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
-                    distance = np.linalg.norm(a - b)
-                    self.suddenness_distance.append(distance)
-
-                    a = np.array((throttle))
-                    b = np.array((self.previous_commanded_throttle))
-                    distance_throttle = np.linalg.norm(a - b)
-                    self.suddenness_distance_throttle.append(distance_throttle)
-
-                    a = np.array((steer))
-                    b = np.array((self.previous_commanded_steer))
-                    distance_steer = np.linalg.norm(a - b)
-                    self.suddenness_distance_steer.append(distance_steer)
-
-                    a = np.array((break_command))
-                    b = np.array((self.previous_commanded_brake))
-                    distance_break_command = np.linalg.norm(a - b)
-                    self.suddenness_distance_break_command.append(distance_break_command)
-
-                self.previous_commanded_throttle = throttle
-                self.previous_commanded_steer = steer
-                self.previous_commanded_brake = break_command
             except NotFoundError as ex:
                 logger.info('Error inside brain: NotFoundError!')
                 logger.warning(type(ex).__name__)

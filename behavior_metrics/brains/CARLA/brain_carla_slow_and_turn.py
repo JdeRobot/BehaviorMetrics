@@ -44,7 +44,6 @@ class Brain:
         self.previous_v = None
         self.previous_w = None
         self.previous_w_normalized = None
-        self.suddenness_distance = []
 
         time.sleep(2)
 
