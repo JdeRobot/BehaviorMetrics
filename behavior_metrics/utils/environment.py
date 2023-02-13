@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """This module contains the environment handler.
-
 This module is in charge of loading and stopping gazebo and ros processes such as gazebo and ros launch files.
-
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
@@ -33,9 +31,8 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def launch_env(launch_file, random_spawn_point=False, carla_simulator=False):
+def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, config_spawn_point=None):
     """Launch the environmet specified by the launch_file given in command line at launch time.
-
     Arguments:
         launch_file {str} -- path of the launch file to be executed
     """
@@ -53,7 +50,10 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False):
                 spawn_point = root.find(".//*[@name=\"spawn_point\"]")
                 if spawn_point is None:
                     spawn_point=root.find(".//*[@name='spawn_point']")
-                spawn_point.attrib['default'] = random.choice(CARLA_TOWNS_SPAWN_POINTS[town.attrib['default']])
+                if config_spawn_point:
+                    spawn_point.attrib['default'] = config_spawn_point
+                else:
+                    spawn_point.attrib['default'] = random.choice(CARLA_TOWNS_SPAWN_POINTS[town.attrib['default']])
                 tree.write('tmp_circuit.launch')
             with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
                 subprocess.Popen([os.environ["CARLA_ROOT"] + "CarlaUE4.sh", "-RenderOffScreen"], stdout=out, stderr=err)                
@@ -172,7 +172,6 @@ def close_ros_and_simulators():
 
 def is_gzclient_open():
     """Determine if there is an instance of Gazebo GUI running
-
     Returns:
         bool -- True if there is an instance running, False otherwise
     """

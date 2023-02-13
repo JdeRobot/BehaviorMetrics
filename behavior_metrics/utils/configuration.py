@@ -128,8 +128,12 @@ class Config:
                 self.use_world_timeouts = config_data['Behaviors']['Experiment']['UseWorldTimeouts']
             self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
-        if 'RandomSpawnPoint' in config_data['Behaviors']['Robot']:
-            self.experiment_random_spawn_point = config_data['Behaviors']['Robot']['RandomSpawnPoint']
+        if 'RandomSpawnPoint' in config_data['Behaviors']['Simulation']:
+            self.experiment_random_spawn_point = config_data['Behaviors']['Simulation']['RandomSpawnPoint']
+        if 'SpawnPoints' in config_data['Behaviors']['Simulation']:
+            self.spawn_points = config_data['Behaviors']['Simulation']['SpawnPoints']
+        else:
+            self.spawn_points = []
 
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']

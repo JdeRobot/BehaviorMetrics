@@ -117,7 +117,12 @@ def main():
     world = app_configuration.current_world[world_counter]
     brain = app_configuration.brain_path[brain_counter]
     experiment_model = app_configuration.experiment_model[brain_counter]
-    environment.launch_env(world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
+
+    if app_configuration.spawn_points:
+        spawn_point = app_configuration.spawn_points[world_counter][repetition_counter]
+        environment.launch_env(world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True, config_spawn_point=app_configuration.spawn_points[world_counter][repetition_counter])
+    else:
+        environment.launch_env(world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
     controller = ControllerCarla()
 
     # Launch control
