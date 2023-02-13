@@ -169,7 +169,6 @@ def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
     previous_commanded_throttle = 0
     previous_commanded_steer = 0
     previous_commanded_brake = 0
-
     suddenness_distance_control_commands = []
     suddenness_distance_throttle = []
     suddenness_distance_steer = []
@@ -203,7 +202,6 @@ def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
         previous_commanded_throttle = throttle
         previous_commanded_steer = steer
         previous_commanded_brake = brake_command
-
 
     experiment_metrics['suddenness_distance_control_commands'] = sum(suddenness_distance_control_commands) / len(suddenness_distance_control_commands)
     experiment_metrics['suddenness_distance_throttle'] = sum(suddenness_distance_throttle) / len(suddenness_distance_throttle)
@@ -309,8 +307,6 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         experiment_metrics['lane_invasions_per_km'] = experiment_metrics['lane_invasions'] / (experiment_metrics['effective_completed_distance']/1000)
     else: 
         experiment_metrics['lane_invasions_per_km'] = 0
-
-
     experiment_metrics['suddenness_distance_control_command_per_km'] = experiment_metrics['suddenness_distance_control_commands'] / (experiment_metrics['effective_completed_distance']/1000)
     experiment_metrics['suddenness_distance_throttle_per_km'] = experiment_metrics['suddenness_distance_throttle'] / (experiment_metrics['effective_completed_distance']/1000)
     experiment_metrics['suddenness_distance_steer_per_km'] = experiment_metrics['suddenness_distance_steer'] / (experiment_metrics['effective_completed_distance']/1000)
