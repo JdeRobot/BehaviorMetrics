@@ -53,8 +53,6 @@ class Brains(object):
             else:
                 if model:
                     self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self, config=self.config)
-                elif hasattr(self, 'model'):
-                    self.active_brain = Brain(self.sensors, self.actuators, model=self.model, handler=self, config=self.config)
                 else:
                     self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
 
