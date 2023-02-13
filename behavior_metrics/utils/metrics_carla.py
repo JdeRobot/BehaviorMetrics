@@ -356,7 +356,7 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
 
     plt.grid(True)
     plt.subplots_adjust(bottom=0.4)
-    plt.title(experiment_metrics['experiment_model'], fontsize=20)
+    plt.title(experiment_metrics['experiment_model'], fontsize=16)
     fig.savefig(experiment_metrics_filename + '.png', dpi=fig.dpi)
 
     if experiment_metrics['collisions'] > 0:
@@ -400,7 +400,7 @@ def create_collisions_map(experiment_metrics, experiment_metrics_filename, map_w
     fig.colorbar(plot, shrink=0.5)
     plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left', prop={'size': 20})
     plt.grid(True)
-    plt.title(experiment_metrics['experiment_model'] + ' Collisions', fontsize=20)
+    plt.title(experiment_metrics['experiment_model'] + ' Collisions', fontsize=16)
     fig.savefig(experiment_metrics_filename + '_collisions.png', dpi=fig.dpi)
 
 
@@ -439,7 +439,7 @@ def create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, m
     fig.colorbar(plot, shrink=0.5)
     plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left', prop={'size': 20})
     plt.grid(True)
-    plt.title(experiment_metrics['experiment_model'] + ' Lane invasions', fontsize=20)
+    plt.title(experiment_metrics['experiment_model'] + ' Lane invasions', fontsize=16)
     fig.savefig(experiment_metrics_filename + '_lane_invasion.png', dpi=fig.dpi)
 
 
@@ -466,6 +466,21 @@ def get_aggregated_experiments_list(experiments_starting_time):
     result = pd.concat(dataframes)
     result.index = result['timestamp'].values.tolist()
     result.loc[result['collisions'] > 0, 'position_deviation_mean'] = float("nan")
+    result.loc[result['collisions'] > 0, 'effective_completed_distance'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_control_commands'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_throttle'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_steer'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_brake_command'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_control_command_per_km'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_throttle_per_km'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_steer_per_km'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_brake_command_per_km'] = float("nan")
+    result.loc[result['collisions'] > 0, 'completed_distance'] = float("nan")
+    result.loc[result['collisions'] > 0, 'average_speed'] = float("nan")
+    result.loc[result['collisions'] > 0, 'position_deviation_mean'] = float("nan")
+    result.loc[result['collisions'] > 0, 'position_deviation_mean_per_km'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_speed'] = float("nan")
+    result.loc[result['collisions'] > 0, 'suddenness_distance_speed_per_km'] = float("nan")
 
     return result
 
@@ -502,7 +517,7 @@ def get_all_experiments_aggregated_metrics(result, experiments_starting_time_str
         colors.append(maps_colors[i])
 
     for experiment_metric_and_title in experiments_metrics_and_titles:
-        fig = plt.figure(figsize=(20,10))
+        fig = plt.figure(figsize=(40,10))
         result[experiment_metric_and_title['metric']].plot.bar(color=colors)
         plt.title(experiment_metric_and_title['title'])
         fig.tight_layout()
@@ -523,7 +538,7 @@ def get_per_model_aggregated_metrics(result, experiments_starting_time_str, expe
             colors.append(maps_colors[i])
 
         for experiment_metric_and_title in experiments_metrics_and_titles:
-            fig = plt.figure(figsize=(20,10))
+            fig = plt.figure(figsize=(40,10))
             unique_model_experiments[experiment_metric_and_title['metric']].plot.bar(color=colors)
             plt.title(experiment_metric_and_title['title'] + ' with ' + unique_experiment_model)
             fig.tight_layout()
@@ -536,7 +551,7 @@ def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_
     maps_colors = get_maps_colors()
     color_handles = get_color_handles()
     for experiment_metric_and_title in experiments_metrics_and_titles:
-        fig = plt.figure(figsize=(20,10))
+        fig = plt.figure(figsize=(40,10))
         dataframes = []
         max_value = 0
         for x, model_name in enumerate(result['experiment_model'].unique()):
