@@ -47,8 +47,7 @@ class Brain:
         self.previous_v = None
         self.previous_w = None
         self.previous_w_normalized = None
-        self.suddenness_distance = []
-
+        
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
@@ -63,7 +62,6 @@ class Brain:
         for traffic_light in traffic_lights:
             traffic_light.set_green_time(20000)
             traffic_light.set_state(carla.TrafficLightState.Green)
-            print(success)
 
         for speed_limit in traffic_speed_limits:
             success = speed_limit.destroy()

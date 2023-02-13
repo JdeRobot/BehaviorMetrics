@@ -100,12 +100,19 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
     for index, row in dataframe_speedometer.iterrows():
         speedometer_points.append(row)
 
+    data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-ego_vehicle-vehicle_status.csv'
+    dataframe_vehicle_status = pd.read_csv(data_file)
+    vehicle_status_points = []
+    for index, row in dataframe_vehicle_status.iterrows():
+        vehicle_status_points.append(row)
+
     if len(checkpoints) > 1:
         starting_point = checkpoints[0]
         starting_point = (starting_point['pose.pose.position.x'], starting_point['pose.pose.position.y'])
         experiment_metrics['starting_point'] = starting_point
         experiment_metrics = get_distance_completed(experiment_metrics, checkpoints)
         experiment_metrics = get_average_speed(experiment_metrics, speedometer_points)
+        experiment_metrics = get_suddenness_control_commands(experiment_metrics, vehicle_status_points)
         experiment_metrics, collisions_checkpoints = get_collisions(experiment_metrics, collision_points, dataframe_pose)
         experiment_metrics, lane_invasion_checkpoints = get_lane_invasions(experiment_metrics, lane_invasion_points, dataframe_pose)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
@@ -156,6 +163,52 @@ def get_average_speed(experiment_metrics, speedometer_points):
     suddenness_distance_speed = sum(suddenness_distance_speeds) / len(suddenness_distance_speeds)
     experiment_metrics['suddenness_distance_speed'] = suddenness_distance_speed
     return experiment_metrics
+
+
+def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
+    previous_commanded_throttle = 0
+    previous_commanded_steer = 0
+    previous_commanded_brake = 0
+    suddenness_distance_control_commands = []
+    suddenness_distance_throttle = []
+    suddenness_distance_steer = []
+    suddenness_distance_brake_command = []
+
+    for point in vehicle_status_points:
+        throttle = point['control.throttle']
+        steer = point['control.steer']
+        brake_command = point['control.brake']
+
+        a = np.array((throttle, steer, brake_command))
+        b = np.array((previous_commanded_throttle, previous_commanded_steer, previous_commanded_brake))
+        distance = np.linalg.norm(a - b)
+        suddenness_distance_control_commands.append(distance)
+
+        a = np.array((throttle))
+        b = np.array((previous_commanded_throttle))
+        distance_throttle = np.linalg.norm(a - b)
+        suddenness_distance_throttle.append(distance_throttle)
+
+        a = np.array((steer))
+        b = np.array((previous_commanded_steer))
+        distance_steer = np.linalg.norm(a - b)
+        suddenness_distance_steer.append(distance_steer)
+
+        a = np.array((brake_command))
+        b = np.array((previous_commanded_brake))
+        distance_brake_command = np.linalg.norm(a - b)
+        suddenness_distance_brake_command.append(distance_brake_command)
+
+        previous_commanded_throttle = throttle
+        previous_commanded_steer = steer
+        previous_commanded_brake = brake_command
+
+    experiment_metrics['suddenness_distance_control_commands'] = sum(suddenness_distance_control_commands) / len(suddenness_distance_control_commands)
+    experiment_metrics['suddenness_distance_throttle'] = sum(suddenness_distance_throttle) / len(suddenness_distance_throttle)
+    experiment_metrics['suddenness_distance_steer'] = sum(suddenness_distance_steer) / len(suddenness_distance_steer)
+    experiment_metrics['suddenness_distance_brake_command'] = sum(suddenness_distance_brake_command) / len(suddenness_distance_brake_command)
+    return experiment_metrics
+
 
 def get_collisions(experiment_metrics, collision_points, df_checkpoints):
     experiment_metrics['collisions'] = len(collision_points)
@@ -254,12 +307,10 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         experiment_metrics['lane_invasions_per_km'] = experiment_metrics['lane_invasions'] / (experiment_metrics['effective_completed_distance']/1000)
     else: 
         experiment_metrics['lane_invasions_per_km'] = 0
-
-
-    experiment_metrics['suddenness_distance_per_km'] = experiment_metrics['suddenness_distance'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_control_command_per_km'] = experiment_metrics['suddenness_distance_control_commands'] / (experiment_metrics['effective_completed_distance']/1000)
     experiment_metrics['suddenness_distance_throttle_per_km'] = experiment_metrics['suddenness_distance_throttle'] / (experiment_metrics['effective_completed_distance']/1000)
     experiment_metrics['suddenness_distance_steer_per_km'] = experiment_metrics['suddenness_distance_steer'] / (experiment_metrics['effective_completed_distance']/1000)
-    experiment_metrics['suddenness_distance_break_command_per_km'] = experiment_metrics['suddenness_distance_break_command'] / (experiment_metrics['effective_completed_distance']/1000)
+    experiment_metrics['suddenness_distance_brake_command_per_km'] = experiment_metrics['suddenness_distance_brake_command'] / (experiment_metrics['effective_completed_distance']/1000)
     experiment_metrics['suddenness_distance_speed_per_km'] = experiment_metrics['suddenness_distance_speed'] / (experiment_metrics['effective_completed_distance']/1000)
     
     create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_waypoints_tuples_x, map_waypoints_tuples_y, best_checkpoint_points_x, best_checkpoint_points_y, checkpoints_tuples_x, checkpoints_tuples_y, checkpoints_speeds, collision_points, lane_invasion_checkpoints)
