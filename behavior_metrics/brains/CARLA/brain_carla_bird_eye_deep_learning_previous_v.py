@@ -21,12 +21,12 @@ from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
-#import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#for gpu in gpus:
+#    tf.config.experimental.set_memory_growth(gpu, True)
 
 
 class Brain:
@@ -71,6 +71,9 @@ class Brain:
             logger.info("- Model: " + str(model))
 
         self.previous_speed = 0
+        self.previous_bird_eye_view_image = 0
+        self.bird_eye_view_images = 0
+        self.bird_eye_view_unique_images = 0
 
 
     def update_frame(self, frame_id, data):
@@ -139,7 +142,11 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        #velocity_dim = np.full((150, 50), 0.5)
+        self.bird_eye_view_images += 1
+        if (self.previous_bird_eye_view_image==img).all() == False:
+            self.bird_eye_view_unique_images += 1
+        self.previous_bird_eye_view_image = img
+
         velocity_dim = np.full((150, 50), self.previous_speed/30)
         new_img_vel = np.dstack((img, velocity_dim))
         img = new_img_vel
