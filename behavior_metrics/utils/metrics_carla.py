@@ -116,6 +116,11 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics, collisions_checkpoints = get_collisions(experiment_metrics, collision_points, dataframe_pose)
         experiment_metrics, lane_invasion_checkpoints = get_lane_invasions(experiment_metrics, lane_invasion_points, dataframe_pose)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
+
+        if 'bird_eye_view_images' in experiment_metrics:
+            experiment_metrics['bird_eye_view_images_per_second'] = experiment_metrics['bird_eye_view_images'] / experiment_metrics['experiment_total_simulated_time']
+            experiment_metrics['bird_eye_view_unique_images_per_second'] = experiment_metrics['bird_eye_view_unique_images'] / experiment_metrics['experiment_total_simulated_time']
+
         experiment_metrics = get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer_points, collisions_checkpoints, lane_invasion_checkpoints)
         experiment_metrics['completed_laps'] = get_completed_laps(checkpoints, starting_point)
         shutil.rmtree(experiment_metrics_bag_filename.split('.bag')[0])
@@ -151,6 +156,7 @@ def get_average_speed(experiment_metrics, speedometer_points):
     previous_speed = 0
     speedometer_points_sum = 0
     suddenness_distance_speeds = []
+    speed_points = []
     for point in speedometer_points:
         speedometer_points_sum += point.data
         a = np.array(point.data)
@@ -158,10 +164,13 @@ def get_average_speed(experiment_metrics, speedometer_points):
         suddenness_distance_speed = np.linalg.norm(a - b)
         suddenness_distance_speeds.append(suddenness_distance_speed)
         previous_speed = point.data
+        speed_points.append(point.data)
 
     experiment_metrics['average_speed'] = (speedometer_points_sum/len(speedometer_points))*3.6
     suddenness_distance_speed = sum(suddenness_distance_speeds) / len(suddenness_distance_speeds)
     experiment_metrics['suddenness_distance_speed'] = suddenness_distance_speed
+    experiment_metrics['max_speed'] = max(speed_points)
+    experiment_metrics['min_speed'] = min(speed_points)
     return experiment_metrics
 
 
@@ -340,7 +349,7 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     colors=["#00FF00", "#FF0000", "#000000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
     ax.scatter(best_checkpoint_points_x, best_checkpoint_points_y, s=10, c='g', marker="o", label='Map waypoints for position deviation')
-    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=30)
+    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=(experiment_metrics['max_speed'] if experiment_metrics['max_speed']>30 else 30))
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[starting_point_landmark], checkpoints_tuples_y[starting_point_landmark], s=100, marker="o", color=colors[2])
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
@@ -390,7 +399,7 @@ def create_collisions_map(experiment_metrics, experiment_metrics_filename, map_w
     ax = fig.add_subplot()
     colors=["#00FF00", "#FF0000", "#000000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
-    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=30)
+    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=(experiment_metrics['max_speed'] if experiment_metrics['max_speed']>30 else 30))
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[starting_point_landmark], checkpoints_tuples_y[starting_point_landmark], s=100, marker="o", color=colors[2])
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')
@@ -429,7 +438,7 @@ def create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, m
     ax = fig.add_subplot()
     colors=["#00FF00", "#FF0000", "#000000"]
     ax.scatter(map_waypoints_tuples_x, map_waypoints_tuples_y, s=10, c='b', marker="s", label='Map waypoints')
-    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=30)
+    plot = ax.scatter(checkpoints_tuples_x, checkpoints_tuples_y, s=10, c=checkpoints_speeds, cmap='hot_r', marker="o", label='Experiment waypoints', vmin=0, vmax=(experiment_metrics['max_speed'] if experiment_metrics['max_speed']>30 else 30))
     ax.scatter(checkpoints_tuples_x[0], checkpoints_tuples_y[0], s=200, marker="o", color=colors[0], label='Experiment starting point')
     ax.scatter(checkpoints_tuples_x[starting_point_landmark], checkpoints_tuples_y[starting_point_landmark], s=100, marker="o", color=colors[2])
     ax.scatter(checkpoints_tuples_x[len(checkpoints_tuples_x)-1], checkpoints_tuples_y[len(checkpoints_tuples_x)-1], s=200, marker="o", color=colors[1], label='Experiment finish point')

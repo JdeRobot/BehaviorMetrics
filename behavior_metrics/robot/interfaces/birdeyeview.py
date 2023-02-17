@@ -17,5 +17,6 @@ class BirdEyeView:
         birdview = self.birdview_producer.produce(
             agent_vehicle=vehicle  # carla.Actor (spawned vehicle)
         )
+        # Mask to RGB image
         image = BirdViewProducer.as_rgb(birdview)
         return image

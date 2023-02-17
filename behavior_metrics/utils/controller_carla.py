@@ -323,6 +323,12 @@ class ControllerCarla:
             self.experiment_metrics['gpu_inference_frequency'] = 1 / self.experiment_metrics['gpu_mean_inference_time']
             self.experiment_metrics['gpu_inference'] = self.pilot.brains.active_brain.gpu_inference
 
+        if hasattr(self.pilot.brains.active_brain, 'bird_eye_view_images'):
+            self.experiment_metrics['brain_iterations_simulated_time'] = len(self.pilot.brain_iterations_simulated_time)
+            self.experiment_metrics['bird_eye_view_images'] = self.pilot.brains.active_brain.bird_eye_view_images
+            self.experiment_metrics['bird_eye_view_unique_images'] = self.pilot.brains.active_brain.bird_eye_view_unique_images
+            self.experiment_metrics['bird_eye_view_unique_images_percentage'] = self.experiment_metrics['bird_eye_view_unique_images'] / self.experiment_metrics['bird_eye_view_images']
+
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
