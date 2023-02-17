@@ -21,12 +21,12 @@ from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
-#import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#for gpu in gpus:
+#    tf.config.experimental.set_memory_growth(gpu, True)
 
 
 class Brain:
@@ -71,6 +71,9 @@ class Brain:
             logger.info("- Model: " + str(model))
 
         self.previous_speed = 0
+        self.previous_bird_eye_view_image = 0
+        self.bird_eye_view_images = 0
+        self.bird_eye_view_unique_images = 0
 
         self.image_1 = 0
         self.image_2 = 0
@@ -159,6 +162,10 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
+        self.bird_eye_view_images += 1
+        if (self.previous_bird_eye_view_image==img).all() == False:
+            self.bird_eye_view_unique_images += 1
+        self.previous_bird_eye_view_image = img
 
         if type(self.image_1) is int:
             self.image_1 = img
