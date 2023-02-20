@@ -1,7 +1,7 @@
 ---
-title: Circuit and weather selection
+title: Circuit and weather selection Gazebo
 layout: posts
-permalink: /documentation/circuit_and_weather/
+permalink: /documentation/circuit_and_weather_gazebo/
 
 collection: posts
 

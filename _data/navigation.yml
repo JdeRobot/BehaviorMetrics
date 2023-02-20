@@ -32,6 +32,8 @@ docs:
       url: /documentation/status/
     - title: Contributing
       url: /documentation/contributing/
-    - title: Circuits and weather selection
-      url: /documentation/circuit_and_weather/
+    - title: Circuits and weather selection Gazebo
+      url: /documentation/circuit_and_weather_gazebo/
+    - title: Circuits and vehicles selection CARLA
+      url: /documentation/circuit_and_vehicle_carla/
   
