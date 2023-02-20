@@ -1,5 +1,5 @@
 ---
-permalink: /install
+permalink: /install/
 
 title: "Installation and use"
 
@@ -93,20 +93,16 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Installing Python 3.7 and creating a virtualenv
+### Creating a virtualenv
 
 It is recommended to use virtual environment for Behavior Metrics.
 
 ```bash
-sudo apt install software-properties-common python3-pip python3-virtualenv
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.7
-
 # Create virtualenv
-virtualenv -p python3.7 .behavior-metrics
+virtualenv -p python3 .behavior-metrics
 source .behavior-metrics/bin/activate
 pip install empy
-sudo apt-get install python3.7-dev
+sudo apt-get install python3-dev
 ```
 
 ### Installing dependencies <a name="dependencies"></a>
