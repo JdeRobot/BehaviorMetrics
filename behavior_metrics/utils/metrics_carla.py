@@ -220,11 +220,22 @@ def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
 
 
 def get_collisions(experiment_metrics, collision_points, df_checkpoints):
-    experiment_metrics['collisions'] = len(collision_points)
     collisions_checkpoints = []
+    collisions_checkpoints_different = []
+    previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = 0, 0
     for point in collision_points:
         collision_point = df_checkpoints.loc[df_checkpoints['Time'] == point['Time']]
         collisions_checkpoints.append(collision_point)
+        point_1 = np.array([collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']])
+        point_2 = np.array([previous_collisions_checkpoints_x, previous_collisions_checkpoints_y])
+        dist = (point_2 - point_1) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist > 1:
+            collisions_checkpoints_different.append(collision_point)
+        previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']
+
+    experiment_metrics['collisions'] = len(collisions_checkpoints_different)
     return experiment_metrics, collisions_checkpoints
 
 def get_lane_invasions(experiment_metrics, lane_invasion_points, df_checkpoints):
