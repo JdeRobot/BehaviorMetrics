@@ -122,6 +122,8 @@ class Brain:
         image_1 = self.camera_1.getImage().data
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
+        
+        cropped = image[230:-1,:]
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
         bird_eye_view_1 = cv2.cvtColor(bird_eye_view_1, cv2.COLOR_BGR2RGB)
@@ -150,7 +152,7 @@ class Brain:
         self.update_pose(self.pose.getPose3d())
 
         image_shape=(200, 66)
-        img = cv2.resize(image, image_shape)/255.0
+        img = cv2.resize(cropped, image_shape)/255.0
         
         """AUGMENTATIONS_TEST = Compose([
             Normalize()
