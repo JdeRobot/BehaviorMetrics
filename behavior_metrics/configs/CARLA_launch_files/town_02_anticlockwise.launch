@@ -20,7 +20,7 @@
 
   <!--<arg name="spawn_point" default="10.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
   <!--<arg name="spawn_point" default="100.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
-  <!--<arg name="spawn_point" default="150.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
+  <arg name="spawn_point" default="150.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>
 
   <!--<arg name="spawn_point" default="193.0, -290.0, 1.37, 0.0, 0.0, 90.0"/>-->
   <!--<arg name="spawn_point" default="193.0, -150.6, 1.37, 0.0, 0.0, 90.0"/>-->
@@ -35,7 +35,7 @@
 
   <!--<arg name="spawn_point" default="10.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
   <!--<arg name="spawn_point" default="100.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
-  <arg name="spawn_point" default="150.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>
+  <!--<arg name="spawn_point" default="150.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
 
   <!--<arg name="spawn_point" default="190.0, -290.0, 1.37, 0.0, 0.0, -90.0"/>-->
   <!--<arg name="spawn_point" default="190.0, -150.0, 1.37, 0.0, 0.0, -90.0"/>-->
@@ -55,7 +55,7 @@
   <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
     <arg name='host' value='$(arg host)'/>
     <arg name='port' value='$(arg port)'/>
-    <arg name='town' value='$(arg town)'/>
+    <arg name='town' value='$(arg town)_Opt'/>
     <arg name='timeout' value='$(arg timeout)'/>
     <arg name='passive' value='$(arg passive)'/>
     <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>

@@ -23,11 +23,11 @@ from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-"""gpus = tf.config.experimental.list_physical_devices('GPU')
+gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)"""
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 
 class Brain:
@@ -74,6 +74,7 @@ class Brain:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
+        world.unload_map_layer(carla.MapLayer.Buildings)
         
         time.sleep(5)
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
@@ -169,7 +170,6 @@ class Brain:
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
         try:
-            print(img.shape)
             prediction = self.net.predict(img)
             self.inference_times.append(time.time() - start_time)
             throttle_brake_val = np.interp(prediction[0][0], (0, 1), (-1, 1))
