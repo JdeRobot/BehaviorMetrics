@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -21,12 +21,12 @@ from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
-#import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#for gpu in gpus:
+#    tf.config.experimental.set_memory_growth(gpu, True)
 
 class Brain:
 
@@ -77,7 +77,9 @@ class Brain:
             logger.info("- Models path: " + PRETRAINED_MODELS)
             logger.info("- Model: " + str(model))
 
-        self.previous_speed = 0
+        self.previous_bird_eye_view_image = 0
+        self.bird_eye_view_images = 0
+        self.bird_eye_view_unique_images = 0
 
     def optim_inference(self, img):
         """ Utilize the optimized models in `.tflite` format for inference
@@ -162,10 +164,10 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        #velocity_dim = np.full((150, 50), 0.5)
-        #velocity_dim = np.full((150, 50), self.previous_speed/30)
-        #new_img_vel = np.dstack((img, velocity_dim))
-        #img = new_img_vel
+        self.bird_eye_view_images += 1
+        if (self.previous_bird_eye_view_image==img).all() == False:
+            self.bird_eye_view_unique_images += 1
+        self.previous_bird_eye_view_image = img
 
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
@@ -178,7 +180,6 @@ class Brain:
 
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
 
             if vehicle_speed > 30:
                 self.motors.sendThrottle(0)
@@ -211,5 +212,7 @@ class Brain:
             
         
             
+
+
 
 
