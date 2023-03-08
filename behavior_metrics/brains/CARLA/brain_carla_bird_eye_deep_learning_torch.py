@@ -1,15 +1,3 @@
-"""
-    Robot: F1
-    Framework: torch
-    Number of networks: 1
-    Network type: None
-    Predicionts:
-        linear speed(v)
-        angular speed(w)
-
-"""
-
-
 from torchvision import transforms
 from PIL import Image
 from brains.f1.torch_utils.pilotnet import PilotNet
@@ -30,7 +18,7 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 FLOAT = torch.FloatTensor
 
 class Brain:
-    """Specific brain for the f1 robot. See header."""
+    """Specific brain for the CARLA robot. See header."""
 
     def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         """Constructor of the class.
