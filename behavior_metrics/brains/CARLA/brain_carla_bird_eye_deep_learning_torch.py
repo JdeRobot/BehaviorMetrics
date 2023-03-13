@@ -58,10 +58,6 @@ class Brain:
                 self.cropImage = True
 
         if model:
-            print('LLEGA!!!!!!!')
-            print('LLEGA!!!!!!!')
-            print('LLEGA!!!!!!!')
-            print('LLEGA!!!!!!!')
             if not path.exists(PRETRAINED_MODELS + model):
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             
