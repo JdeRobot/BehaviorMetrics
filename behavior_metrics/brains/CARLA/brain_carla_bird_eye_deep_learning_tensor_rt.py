@@ -63,13 +63,12 @@ class Brain:
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
 
-            print("Using TensorRT models.....")
+            logger.info("Using TensorRT models.....")
             self.net = tf.saved_model.load(PRETRAINED_MODELS + model)
             self.infer = self.net.signatures['serving_default']
             self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
             self.inf_func = self.tftrt_inference
 
-            #self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")

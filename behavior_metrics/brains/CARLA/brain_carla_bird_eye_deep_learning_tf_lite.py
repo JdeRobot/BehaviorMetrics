@@ -63,14 +63,13 @@ class Brain:
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
 
-            print("Using TF lite models.....")
+            logger.info("Using TF lite models.....")
             self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
             self.net.allocate_tensors()
             self.input_index = self.net.get_input_details()[0]["index"]
             self.output_index = self.net.get_output_details()[0]["index"]
             self.inf_func = self.optim_inference
 
-            #self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
