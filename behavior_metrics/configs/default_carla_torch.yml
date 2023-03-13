@@ -33,7 +33,7 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_bird_eye_view_deep_learning_torch.py'
+        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning_torch.py'
         PilotTimeCycle: 100
         Parameters:
             Model: 'pilot_net_model_best_123.pth'
