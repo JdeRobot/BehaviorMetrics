@@ -37,4 +37,5 @@ protobuf==3.19.5
 transforms3d==0.4.1
 pydantic==1.10.2
 seaborn==0.12.2
-pandas==1.5.3
+pandas
+scikit-learn==1.0.2

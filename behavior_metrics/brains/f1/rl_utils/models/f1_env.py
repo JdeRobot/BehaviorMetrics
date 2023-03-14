@@ -2,6 +2,7 @@ import rospy
 from gazebo_msgs.srv import GetModelState
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
+import numpy as np
 
 from brains.f1.rl_utils import gazebo_envs
 
@@ -15,6 +16,8 @@ class F1Env(gazebo_envs.GazeboEnv):
         self.pause = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
         self.reset_proxy = rospy.ServiceProxy("/gazebo/reset_simulation", Empty)
         self.model_coordinates = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+        self.start_pose = np.array(config.get("gazebo_start_pose"))
+        self.model_state_name = config.get("model_state_name")
 
         self._seed()
 
