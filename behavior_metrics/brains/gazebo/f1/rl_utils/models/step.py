@@ -1,6 +1,5 @@
 from geometry_msgs.msg import Twist
 import numpy as np
-import time
 from brains.gazebo.f1.rl_utils.models.f1_env import F1Env
 
 
@@ -29,7 +28,6 @@ class StepFollowLine(F1Env):
             self.point = points_in_red_line[0]
 
         center = abs(float(self.center_image - self.point) / (float(self.width) // 2))
-        # center = float(self.center_image - self.point) / (float(self.width) // 2)
 
         ##==== get State
         ##==== image as observation
@@ -103,7 +101,6 @@ class StepFollowLine(F1Env):
             self.point = points_in_red_line[0]
 
         center = abs(float(self.center_image - self.point) / (float(self.width) // 2))
-        # center = float(self.center_image - self.point) / (float(self.width) // 2)
 
         ##==== get State
         state = np.array(
@@ -125,18 +122,20 @@ class StepFollowLine(F1Env):
         return state, reward, done, {}
 
     def step_followline_state_sp_actions_continuous(self, action, step):
-        self._gazebo_unpause()
         vel_cmd = Twist()
-        vel_cmd.linear.x = action[0][0]
-        vel_cmd.angular.z = action[0][1]
-        self.vel_pub.publish(vel_cmd)
+        vel_cmd.linear.x = action[0]
+        vel_cmd.angular.z = action[1]
 
+        self.vel_pub.publish(vel_cmd)
         ##==== get image from sensor camera
         f1_image_camera, _ = self.f1gazeboimages.get_camera_info()
-        self._gazebo_pause()
+
+        self.previous_image = f1_image_camera
+        while np.array_equal(self.previous_image, f1_image_camera.data):
+            f1_image_camera, _ = self.f1gazeboimages.get_camera_info()
 
         ##==== get center
-        points_in_red_line, _ = self.simplifiedperception.processed_image(
+        points_in_red_line, centrals_normalized = self.simplifiedperception.processed_image(
             f1_image_camera.data, self.height, self.width, self.x_row, self.center_image
         )
         if self.state_space == "spn":
@@ -144,26 +143,13 @@ class StepFollowLine(F1Env):
         else:
             self.point = points_in_red_line[0]
 
-        center = abs(float(self.center_image - self.point) / (float(self.width) // 2))
-        # center = float(self.center_image - self.point) / (float(self.width) // 2)
-
         ##==== get State
         ##==== simplified perception as observation
-        state = self.simplifiedperception.calculate_observation(
-            points_in_red_line, self.center_image, self.pixel_region
-        )
+        # state = self.simplifiedperception.calculate_observation(
+        #     points_in_red_line, self.center_image, self.pixel_region
+        # )
 
-        ##==== get Rewards
-        if self.reward_function == "followline_center":
-            reward, done = self.f1gazeborewards.rewards_followline_center(
-                center, self.rewards
-            )
-        else:
-            reward, done = self.f1gazeborewards.rewards_followline_v_w_centerline(
-                vel_cmd, center, self.rewards, self.beta_1, self.beta_0
-            )
-
-        return state, reward, done, {}
+        return centrals_normalized, 0, False, None
 
 
 class StepFollowLane(F1Env):
@@ -190,35 +176,13 @@ class StepFollowLane(F1Env):
         else:
             self.point = centrals_in_lane[0]
 
-        # center = abs(float(self.center_image - self.point) / (float(self.width) // 2))
-        #center = float(self.center_image - self.point) / (float(self.width) // 2)
-
-        #print(f"\n{centrals_in_lane = }")
-        #print(f"\n{centrals_in_lane_normalized = }")
-        #print(f"\n{self.point = }")
-        #print(f"\n{center = }")
-
         ##==== get State
         ##==== simplified perception as observation
         state = self.simplifiedperception.calculate_observation(
             centrals_in_lane, self.center_image, self.pixel_region
         )
 
-        ##==== get Rewards
-        if self.reward_function == "follow_right_lane_center_v_step":
-            reward, done = self.f1gazeborewards.rewards_followlane_v_centerline_step(
-                vel_cmd, centrals_in_lane_normalized[0], step, self.rewards
-            )
-        else:
-            reward, done = self.f1gazeborewards.rewards_followlane_centerline(
-                centrals_in_lane_normalized[0], self.rewards
-            )
-
-        return state, reward, done, {}
-
-
-
-
+        return state, 0, False, {}
 
     def step_followlane_state_image_actions_discretes(self, action, step):
         self._gazebo_unpause()

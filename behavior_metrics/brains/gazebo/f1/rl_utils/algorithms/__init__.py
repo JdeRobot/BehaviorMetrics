@@ -1,6 +1,7 @@
 from brains.gazebo.f1.rl_utils.algorithms.algorithms_type import AlgorithmsType
 from brains.gazebo.f1.rl_utils.algorithms.qlearn_f1 import QLearnF1
 from brains.gazebo.f1.rl_utils.algorithms.dqn_f1 import DQNF1
+from brains.gazebo.f1.rl_utils.algorithms.ddpg_f1 import DDPGF1
 
 class InferencerFactory:
     def __new__(cls, config):
@@ -17,6 +18,13 @@ class InferencerFactory:
 
         if algorithm == AlgorithmsType.DQN.value:
             brain = DQNF1(config.env)
+            brain.load_inference_model(inference_file_name)
+
+            return brain
+
+
+        if algorithm == AlgorithmsType.DDPG.value:
+            brain = DDPGF1(config.env)
             brain.load_inference_model(inference_file_name)
 
             return brain
