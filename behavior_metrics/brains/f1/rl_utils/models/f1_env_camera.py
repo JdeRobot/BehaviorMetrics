@@ -94,24 +94,9 @@ class QlearnF1FollowLineEnvGazebo(F1Env):
 
         points = self.processed_image(f1_image_camera.data)
         state = self.calculate_observation(points)
-        center = float(self.config.center_image - points[0]) / (
-                float(self.config.width) // 2
-        )
 
         done = False
-        center = abs(center)
-
-        if center > 0.9:
-            done = True
-        if not done:
-            if 0 <= center <= 0.2:
-                reward = 10
-            elif 0.2 < center <= 0.4:
-                reward = 2
-            else:
-                reward = 1
-        else:
-            reward = -100
+        reward = 0
 
         return state, reward, done, {}
 

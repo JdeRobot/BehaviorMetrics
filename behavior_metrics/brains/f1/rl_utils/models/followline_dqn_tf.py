@@ -30,7 +30,6 @@ class FollowLineDQNF1GazeboTF(F1Env):
             return Reset.reset_f1_state_image(self)
         else:
             return Reset.reset_f1_state_sp(self)
-            return Reset.reset_f1_state_sp(self)
 
     def step(self, action, step):
         from .step import (
