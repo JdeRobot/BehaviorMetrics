@@ -48,7 +48,8 @@ RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed && \
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
     cd BehaviorMetrics && \
-    pip3 install --no-deps -r requirements.txt && \
+    pip3 install -r requirements.txt && \
+    pip3 install --no-deps carla_birdeye_view==1.1.1 && \
     pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
