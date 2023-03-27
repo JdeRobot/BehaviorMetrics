@@ -2,6 +2,7 @@ import importlib
 import sys
 import subprocess
 import os
+import traceback
 
 from abc import abstractmethod
 from albumentations import (
@@ -27,6 +28,7 @@ class Brains(object):
                 self.load_brain(brain_path)
         except AttributeError as e:
             print('Invalid brain path: {}\n[ERROR] {}'.format(brain_path, e))
+            traceback.print_exc()
             exit(1)
 
     def load_brain(self, path, model=None):
@@ -40,7 +42,8 @@ class Brains(object):
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
             if self.model:
-                self.active_brain = Brain(self.sensors, self.actuators, handler=self, model=self.model, config=self.config)
+                self.active_brain = Brain(self.sensors, self.actuators, handler=self, model=self.model,
+                                          config=self.config)
             else:
                 self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
         else:
@@ -52,7 +55,8 @@ class Brains(object):
                 self.active_brain = Brain(handler=self, config=self.config)
             else:
                 if model:
-                    self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self, config=self.config)
+                    self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self,
+                                              config=self.config)
                 else:
                     self.active_brain = Brain(self.sensors, self.actuators, handler=self, config=self.config)
 
