@@ -16,4 +16,4 @@ For more information about the project you can consult the [website of Behavior 
 If you want to contribute, please first check out [CONTRIBUTING.md](CONTRIBUTING.md) section.
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:20%;" />
-<img src="./assets/behavior_metrics_full_architecture.png" alt="architecture" style="zoom:20%;" />
+<img src="./assets/behavior_metrics_full_architecture.png" alt="architecture" style="background: whitesmoke" />
