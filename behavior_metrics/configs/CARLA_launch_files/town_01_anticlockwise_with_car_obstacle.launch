@@ -1,0 +1,54 @@
+<!-- -->
+<launch>
+  <!-- CARLA connection -->
+  <arg name='host' default='localhost'/>
+  <arg name='port' default='2000'/>
+  <arg name='timeout' default='10'/>
+
+  <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
+  <arg name="town" default='Town01'/>
+
+  <!-- Enable/disable passive mode -->
+  <arg name='passive' default=''/>
+
+  <!-- Synchronous mode-->
+  <arg name='synchronous_mode_wait_for_vehicle_control_command' default='False'/>
+  <arg name='fixed_delta_seconds' default='0.05'/>  
+
+  <!-- CARLA ROS Bridge -->
+  <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
+    <arg name='host' value='$(arg host)' unless="$(eval host == '')"/>
+    <arg name='port' value='$(arg port)' unless="$(eval port == '')"/>
+    <arg name='town' value='$(arg town)'/>
+    <arg name='timeout' value='$(arg timeout)' unless="$(eval timeout == '')"/>
+    <arg name='passive' value='$(arg passive)'/>
+    <arg name='synchronous_mode' value="true"/>
+    <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>
+    <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
+    <arg name="register_all_sensors" value="true"/>
+  </include>
+
+  <!-- the object json file that configures objects to spawn -->
+  <arg name="objects_definition_file" default='configs/CARLA_object_files/objects_obstacle.json'/>
+
+  <!-- Ego vehicle -->
+  <arg name='ego_role_name' default='ego_vehicle'/>
+  <arg name="ego_spawn_point" default="20.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
+  
+  <!-- Obstacle Vehicle -->
+  <arg name='obstacle_role_name' default='obstacle_vehicle'/>
+  <arg name="obstacle_spawn_point" default="10.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
+
+  <!-- spawn the objects -->
+  <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
+    <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
+    <param name="spawn_point_$(arg ego_role_name)" value="$(arg ego_spawn_point)"/>
+    <param name="spawn_point_$(arg obstacle_role_name)" value="$(arg obstacle_spawn_point)" />
+    <param name="spawn_sensors_only" value="false"/>
+  </node>
+
+  <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
+    <arg name='role_name' value='$(arg ego_role_name)'/>
+  </include>
+
+</launch>
