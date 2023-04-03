@@ -1,5 +1,5 @@
 ---
-permalink: /install
+permalink: /install/
 
 title: "Installation and use"
 
@@ -48,6 +48,7 @@ Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workfl
     3. [Installing Jderobot's dependencies](#dependencies)
     4. [Installing Behavior Metrics](#behavior-metrics)
     5. [Installing CARLA simulator and support](#carla-simulator)
+    6. [(Optional) Installing for Drone](#optional-installing-for-drone)
 2. [Installation using Docker](#docker-installation)
     1. [Starting Docker Container](#starting-docker)
         1. [VNC container viewer](#vnc)
@@ -93,20 +94,16 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Installing Python 3.7 and creating a virtualenv
+### Creating a virtualenv
 
 It is recommended to use virtual environment for Behavior Metrics.
 
 ```bash
-sudo apt install software-properties-common python3-pip python3-virtualenv
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.7
-
 # Create virtualenv
-virtualenv -p python3.7 .behavior-metrics
+virtualenv -p python3 .behavior-metrics
 source .behavior-metrics/bin/activate
 pip install empy
-sudo apt-get install python3.7-dev
+sudo apt-get install python3-dev
 ```
 
 ### Installing dependencies <a name="dependencies"></a>
@@ -168,6 +165,72 @@ For installing CARLA and supporting this new simulator:
   python3 driver_carla.py -c configs/default_carla.yml -g
 ```
 
+## (Optional) Installing for Drone <a name="drone-simulation"></a>
+
+For installing and launching drone:
+
+1. Install [JDE-drone](https://github.com/JdeRobot/drones/tree/noetic-devel). do source install, inside your ROS workspace.
+```
+git clone https://github.com/JdeRobot/drones.git -b noetic-devel
+cd ~/catkin_ws/src && ln -s drones/drone_wrapper .
+cd ~/catkin_ws/src && ln -s drones/drone_assets .
+cd ~/catkin_ws/src && ln -s drones/rqt_drone_teleop .
+source ~/catkin_ws/devel/setup.bash
+cd /drones/drone_circuit_assets && mkdir build && cd build
+cmake .. && make
+sudo make install
+```
+Add environment variables
+```
+echo 'export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:/usr/share/gazebo-11' >> ~/.bashrc
+echo 'export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/catkin_ws/drones/drone_assets/models' >> ~/.bashrc
+source ~/.bashrc
+```
+
+2. Install [PX4](https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html)
+
+To install PX4 toolchain :
+
+a. Download PX4 source Code, specifically v1.11.3
+
+```
+git clone --recursive https://github.com/PX4/PX4-Autopilot.git -b v1.11.3
+```
+b. Run the ubuntu.sh with no arguments (in a bash shell) to install everything:
+```
+bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+```
+Acknowledge any prompts as the script progress.
+
+You can use the --no-nuttx and --no-sim-tools options to omit the NuttX and/or simulation tools.
+
+Then restart your computer.
+
+c. Build PX4
+```
+cd  ~/PX4-Autopilot
+DONT_RUN=1 make px4_sitl gazebo
+```
+
+d. Export Environment variables
+
+```
+echo 'source ~/PX4-Autopilot/Tools/simulation/gazebo-classic/setup_gazebo.bash ~/PX4-Autopilot ~/PX4-Autopilot/build/px4_sitl_default' >> ~/.bashrc
+echo 'export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic' >> ~/.bashrc
+source ~/.bashrc
+```
+e. Try launching PX4 simulation (optional)
+
+```
+roslaunch px4 mavros_posix_sitl.launch
+pxh> commander arm # when launching finishes
+```
+
+3. Launch drone inside behaviour metrics
+```
+cd  < path to BehaviorMetrics >
+python3 driver_gazebo.py -c ./configs/default-drone.yml -g
+```
 
 ## Installation using Docker <a name="docker-installation"></a>
 
