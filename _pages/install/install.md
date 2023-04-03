@@ -191,10 +191,10 @@ source ~/.bashrc
 
 To install PX4 toolchain :
 
-a. Download PX4 source Code, specifically v1.11.3
+a. Download PX4 source Code
 
 ```
-git clone --recursive https://github.com/PX4/PX4-Autopilot.git -b v1.11.3
+git clone --recursive https://github.com/PX4/PX4-Autopilot.git 
 ```
 b. Run the ubuntu.sh with no arguments (in a bash shell) to install everything:
 ```
