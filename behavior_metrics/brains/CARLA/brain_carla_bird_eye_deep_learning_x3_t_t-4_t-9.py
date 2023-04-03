@@ -65,6 +65,7 @@ class Brain:
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
             self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
+            print(self.net.summary())
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
