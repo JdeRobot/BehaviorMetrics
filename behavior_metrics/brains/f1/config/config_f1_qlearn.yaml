@@ -29,11 +29,11 @@ actions:
 environments:
   simple:
     env_name: F1Env-v0
-    training_type: qlearn_camera_follow_line #qlearn_camera_follow_lane, dqn_follow_line, dqn_follow_lane, ddpg_follow_line, ddpg_follow_lane
+    task: qlearn_camera_follow_line #qlearn_camera_follow_lane, dqn_follow_line, dqn_follow_lane, ddpg_follow_line, ddpg_follow_lane
 
 inference:
   qlearn:
-    inference_file: models/rl_models/1_20221128_0938_act_set_simple_epsilon_0.97_QTABLE.pkl
+    inference_file: models/rl_models/qlearn/20230216-170351_Circuit-simple_States-sp1_Actions-simple_Rewards-followline_center_epsilon-0.05_epoch-4751_step-15001_reward-139266-qtable.npy
     actions_file: models/rl_models/actions_set_20221128_0938
 
 algorithm:

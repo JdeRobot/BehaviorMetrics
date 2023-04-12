@@ -11,11 +11,14 @@ from brains.f1.rl_utils.inference import InferencerWrapper
 
 
 # F1 envs
-register(
-    id="F1Env-v0",
-    entry_point="brains.f1.rl_utils.models:F1Env",
-    # More arguments here
-)
+if 'F1Env-v0' not in gym.envs.registry.env_specs:
+    gym.envs.register(
+        id='F1Env-v0',
+        entry_point='brains.f1.rl_utils.models:F1Env',
+        # More arguments here
+    )
+else:
+    print("Environment F1Env-v0 is already registered.")
 
 
 from pydantic import BaseModel
@@ -41,7 +44,7 @@ class Brain:
             'algorithm': 'qlearn',
             'environment': 'simple', 
             'agent': 'f1',
-            'filename': 'config_f1_qlearn.yaml'
+            'filename': 'brains/f1/config/config_f1_qlearn.yaml'
         }
         
         f = open(args['filename'], "r")
@@ -75,6 +78,8 @@ class Brain:
         self.actions_file = params.inference["params"]["actions_file"]
 
         self.inferencer = InferencerWrapper("qlearn", self.inference_file, self.actions_file)
+
+
 
     def get_algorithm(self, config_file: dict, input_algorithm: str) -> dict:
         return {

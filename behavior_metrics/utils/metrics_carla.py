@@ -158,15 +158,16 @@ def get_average_speed(experiment_metrics, speedometer_points):
     suddenness_distance_speeds = []
     speed_points = []
     for point in speedometer_points:
-        speedometer_points_sum += point.data
-        a = np.array(point.data)
+        speed_point = point.data*3.6
+        speedometer_points_sum += speed_point
+        a = np.array(speed_point)
         b = np.array(previous_speed)
         suddenness_distance_speed = np.linalg.norm(a - b)
         suddenness_distance_speeds.append(suddenness_distance_speed)
-        previous_speed = point.data
-        speed_points.append(point.data)
+        previous_speed = speed_point
+        speed_points.append(speed_point)
 
-    experiment_metrics['average_speed'] = (speedometer_points_sum/len(speedometer_points))*3.6
+    experiment_metrics['average_speed'] = (speedometer_points_sum/len(speedometer_points))
     suddenness_distance_speed = sum(suddenness_distance_speeds) / len(suddenness_distance_speeds)
     experiment_metrics['suddenness_distance_speed'] = suddenness_distance_speed
     experiment_metrics['max_speed'] = max(speed_points)
@@ -220,19 +221,43 @@ def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
 
 
 def get_collisions(experiment_metrics, collision_points, df_checkpoints):
-    experiment_metrics['collisions'] = len(collision_points)
     collisions_checkpoints = []
+    collisions_checkpoints_different = []
+    previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = 0, 0
     for point in collision_points:
         collision_point = df_checkpoints.loc[df_checkpoints['Time'] == point['Time']]
         collisions_checkpoints.append(collision_point)
+        point_1 = np.array([collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']])
+        point_2 = np.array([previous_collisions_checkpoints_x, previous_collisions_checkpoints_y])
+        dist = (point_2 - point_1) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist > 1:
+            collisions_checkpoints_different.append(collision_point)
+        previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']
+
+    experiment_metrics['collisions'] = len(collisions_checkpoints_different)
     return experiment_metrics, collisions_checkpoints
 
 def get_lane_invasions(experiment_metrics, lane_invasion_points, df_checkpoints):
-    experiment_metrics['lane_invasions'] = len(lane_invasion_points)
     lane_invasion_checkpoints = []
+    lane_invasion_checkpoints_different = []
+    previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y = 0, 0
+    previous_time = 0
     for point in lane_invasion_points:
         lane_invasion_point = df_checkpoints.loc[df_checkpoints['Time'] == point['Time']]
         lane_invasion_checkpoints.append(lane_invasion_point)
+        point_1 = np.array([lane_invasion_point.iloc[0]['pose.pose.position.x'], lane_invasion_point.iloc[0]['pose.pose.position.y']])
+        point_2 = np.array([previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y])
+        dist = (point_2 - point_1) ** 2
+        dist = np.sum(dist, axis=0)
+        dist = np.sqrt(dist)
+        if dist > 1 and point['Time'] - previous_time > 0.5:
+            lane_invasion_checkpoints_different.append(lane_invasion_point)
+        previous_time = point['Time']
+        previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y = lane_invasion_point.iloc[0]['pose.pose.position.x'], lane_invasion_point.iloc[0]['pose.pose.position.y']
+
+    experiment_metrics['lane_invasions'] = len(lane_invasion_checkpoints_different)
     return experiment_metrics, lane_invasion_checkpoints
 
 def get_position_deviation_and_effective_completed_distance(experiment_metrics, checkpoints, map_waypoints, experiment_metrics_filename, speedometer, collision_points, lane_invasion_checkpoints):
@@ -240,11 +265,11 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
     map_waypoints_tuples_x = []
     map_waypoints_tuples_y = []
     for waypoint in map_waypoints:
-        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04_Opt'):
             map_waypoints_tuples_x.append(-waypoint.transform.location.x)
             map_waypoints_tuples_y.append(waypoint.transform.location.y)
             map_waypoints_tuples.append((-waypoint.transform.location.x, waypoint.transform.location.y))
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town06'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town06' or experiment_metrics['carla_map'] == 'Carla/Maps/Town06_Opt'):
             map_waypoints_tuples_x.append(waypoint.transform.location.x)
             map_waypoints_tuples_y.append(-waypoint.transform.location.y)
             map_waypoints_tuples.append((waypoint.transform.location.x, -waypoint.transform.location.y))
@@ -259,13 +284,15 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
     checkpoints_speeds = []
     for i, point in enumerate(checkpoints):
         current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y'], speedometer[i]['data']*3.6])
-        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town01_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02_Opt'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town03_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07_Opt'):
             checkpoint_x = current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04_Opt'):
             checkpoint_x = -current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:
@@ -361,7 +388,7 @@ def create_experiment_maps(experiment_metrics, experiment_metrics_filename, map_
     for key, value in experiment_metrics.items():
         print(key, value)
         full_text += ' * ' + str(key) + ' : ' + str(value) + '\n'
-    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=11)
+    plt.figtext(0.1, 0.01, full_text, wrap=True, horizontalalignment='left', fontsize=10)
 
     plt.grid(True)
     plt.subplots_adjust(bottom=0.4)
@@ -379,13 +406,15 @@ def create_collisions_map(experiment_metrics, experiment_metrics_filename, map_w
     collision_checkpoints_tuples_y = []
     for i, point in enumerate(collision_points):
         current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town01_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02_Opt'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town03_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07_Opt'):
             checkpoint_x = current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04_Opt'):
             checkpoint_x = -current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:
@@ -418,13 +447,15 @@ def create_lane_invasions_map(experiment_metrics, experiment_metrics_filename, m
     lane_invasion_checkpoints_tuples_y = []
     for i, point in enumerate(lane_invasion_checkpoints):
         current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
-        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02'):
+        if (experiment_metrics['carla_map'] == 'Carla/Maps/Town01' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town01_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town02_Opt'):
             checkpoint_x = (max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x))-current_checkpoint[0]
             checkpoint_y = -point['pose.pose.position.y']
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town03' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07' or \
+            experiment_metrics['carla_map'] == 'Carla/Maps/Town03_Opt' or experiment_metrics['carla_map'] == 'Carla/Maps/Town07_Opt'):
             checkpoint_x = current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
-        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04'):
+        elif (experiment_metrics['carla_map'] == 'Carla/Maps/Town04' or experiment_metrics['carla_map'] == 'Carla/Maps/Town04_Opt'):
             checkpoint_x = -current_checkpoint[0]
             checkpoint_y = -current_checkpoint[1]
         else:

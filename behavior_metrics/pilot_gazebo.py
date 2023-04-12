@@ -16,6 +16,7 @@ import threading
 import time
 import rospy
 import subprocess
+import traceback
 
 from datetime import datetime
 from brains.brains_handler import Brains
@@ -136,6 +137,7 @@ class PilotGazebo(threading.Thread):
                 try:
                     self.brains.active_brain.execute()
                 except AttributeError as e:
+                    traceback.print_exc()
                     logger.warning('No Brain selected')
                     logger.error(e)
 

@@ -1,6 +1,6 @@
 from brains.f1.rl_utils.algorithms.algorithms_type import AlgorithmsType
-from brains.f1.rl_utils.algorithms.exceptions import NoValidAlgorithmType
-from brains.f1.rl_utils.algorithms.qlearn import QLearn
+from brains.f1.rl_utils.algorithms.qlearn_f1 import QLearnF1
+from brains.f1.rl_utils.algorithms.dqn_f1 import DQNF1
 
 class InferencerFactory:
     def __new__(cls, config):
@@ -9,10 +9,16 @@ class InferencerFactory:
         inference_file_name = config.inference_file
 
         if algorithm == AlgorithmsType.QLEARN.value:
-            actions_file_name = config.actions_file
 
-            brain = QLearn(config)
-            brain.load_model(inference_file_name, actions_file_name)
+            brain = QLearnF1()
+            brain.load_table(inference_file_name)
 
             return brain
+
+        if algorithm == AlgorithmsType.DQN.value:
+            brain = DQNF1(config.env)
+            brain.load_inference_model(inference_file_name)
+
+            return brain
+
 
