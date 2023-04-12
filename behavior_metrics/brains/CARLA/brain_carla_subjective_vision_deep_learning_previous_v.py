@@ -73,11 +73,11 @@ class Brain:
 
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
-        world = client.get_world()
-        world.unload_map_layer(carla.MapLayer.Buildings)
+        self.world = client.get_world()
+        self.world.unload_map_layer(carla.MapLayer.Buildings)
         
         time.sleep(5)
-        self.vehicle = world.get_actors().filter('vehicle.*')[0]
+        self.vehicle = self.world.get_actors().filter('vehicle.*')[0]
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
@@ -125,6 +125,8 @@ class Brain:
         image_3 = self.camera_3.getImage().data
         
         cropped = image[230:-1,:]
+        if self.cont < 20:
+            self.cont += 1
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
         bird_eye_view_1 = cv2.cvtColor(bird_eye_view_1, cv2.COLOR_BGR2RGB)
@@ -185,7 +187,7 @@ class Brain:
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
             self.previous_speed = vehicle_speed
 
-            if vehicle_speed < 10:
+            if self.cont < 20:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
                 self.motors.sendBrake(0)
