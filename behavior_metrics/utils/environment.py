@@ -78,7 +78,7 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
     time.sleep(5)
 
 
-def close_ros_and_simulators():
+def close_ros_and_simulators(close_ros_resources=True):
     """Kill all the simulators and ROS processes."""
     try:
         ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
@@ -114,17 +114,17 @@ def close_ros_and_simulators():
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for CarlaUE4-Linux-Shipping {}".format(ce))
 
-    # if ps_output.count('rosout') > 0:
-    #     try:
-    #         import rosnode
-    #         for node in rosnode.get_node_names():
-    #             if node != '/carla_ros_bridge':
-    #                 subprocess.check_call(["rosnode", "kill", node])
-    #
-    #         logger.debug("SimulatorEnv:rosout killed.")
-    #     except subprocess.CalledProcessError as ce:
-    #         logger.error("SimulatorEnv: exception raised executing killall command for rosout {}".format(ce))
-    #
+    if ps_output.count('rosout') > 0 and close_ros_resources:
+        try:
+            import rosnode
+            for node in rosnode.get_node_names():
+                if node != '/carla_ros_bridge':
+                    subprocess.check_call(["rosnode", "kill", node])
+
+            logger.debug("SimulatorEnv:rosout killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for rosout {}".format(ce))
+
     if ps_output.count('bridge.py') > 0:
         try:
             os.system("ps -ef | grep 'bridge.py' | awk '{print $2}' | xargs kill -9")
@@ -134,19 +134,19 @@ def close_ros_and_simulators():
         except FileNotFoundError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for bridge.py {}".format(ce))
 
-    # if ps_output.count('rosmaster') > 0:
-    #     try:
-    #         subprocess.check_call(["killall", "-9", "rosmaster"])
-    #         logger.debug("SimulatorEnv: rosmaster killed.")
-    #     except subprocess.CalledProcessError as ce:
-    #         logger.error("SimulatorEnv: exception raised executing killall command for rosmaster {}".format(ce))
-    #
-    # if ps_output.count('roscore') > 0:
-    #     try:
-    #         subprocess.check_call(["killall", "-9", "roscore"])
-    #         logger.debug("SimulatorEnv: roscore killed.")
-    #     except subprocess.CalledProcessError as ce:
-    #         logger.error("SimulatorEnv: exception raised executing killall command for roscore {}".format(ce))
+    if ps_output.count('rosmaster') > 0 and close_ros_resources:
+        try:
+            subprocess.check_call(["killall", "-9", "rosmaster"])
+            logger.debug("SimulatorEnv: rosmaster killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for rosmaster {}".format(ce))
+
+    if ps_output.count('roscore') > 0 and close_ros_resources:
+        try:
+            subprocess.check_call(["killall", "-9", "roscore"])
+            logger.debug("SimulatorEnv: roscore killed.")
+        except subprocess.CalledProcessError as ce:
+            logger.error("SimulatorEnv: exception raised executing killall command for roscore {}".format(ce))
 
     if ps_output.count('px4') > 0:
         try:
@@ -155,14 +155,14 @@ def close_ros_and_simulators():
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for px4 {}".format(ce))
 
-    if ps_output.count('roslaunch') > 0:
+    if ps_output.count('roslaunch') > 0 and close_ros_resources:
         try:
             subprocess.check_call(["killall", "-9", "roslaunch"])
             logger.debug("SimulatorEnv: roslaunch killed.")
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for roslaunch {}".format(ce))
     
-    if ps_output.count('rosout') > 0:
+    if ps_output.count('rosout') > 0 and close_ros_resources:
         try:
             subprocess.check_call(["killall", "-9", "rosout"])
             logger.debug("SimulatorEnv:rosout killed.")

@@ -29,8 +29,8 @@ Behaviors:
     Experiment:
         Name: "Experiment name"
         Description: "Experiment description"
-        Timeout: [400, 400]
-        UseWorldTimeouts: [400, 400]
+        Timeout: [5, 5]
+        UseWorldTimeouts: [5, 5]
         Repetitions: 5
     Simulation:
         World: ['/opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch', '/opt/jderobot/share/jderobot/gazebo/launch/many_curves.launch']

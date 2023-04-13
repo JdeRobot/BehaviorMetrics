@@ -67,7 +67,7 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                             f" for brain {brain} in world {world}")
                 tmp_world_generator(world, app_configuration.stats_perfect_lap[world_counter],
                                     app_configuration.real_time_update_rate, randomize=randomize, gui=False,
-                                    launch=True)
+                                    launch=True, close_ros_resources=False)
                 pilot = PilotGazebo(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
                 pilot.real_time_update_rate = app_configuration.real_time_update_rate

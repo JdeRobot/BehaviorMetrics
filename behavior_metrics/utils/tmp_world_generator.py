@@ -34,8 +34,8 @@ from utils.logger import logger
 
 
 def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
-                           launch=False):
-    environment.close_ros_and_simulators()
+                           launch=False, close_ros_resources=True):
+    environment.close_ros_and_simulators(close_ros_resources)
     tree = ET.parse(current_world)
     root = tree.getroot()
     for child in root[0]:
