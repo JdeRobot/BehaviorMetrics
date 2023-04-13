@@ -159,7 +159,10 @@ For installing CARLA and supporting this new simulator:
     export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg   
+    export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
 ```
+Note: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../quick_start/)
+
 5. Test that everything is correctly set up running the example configuration file:
 ```bash
   python3 driver_carla.py -c configs/default_carla.yml -g
