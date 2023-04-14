@@ -48,13 +48,10 @@ class StepFollowLine(F1Env):
         return state, reward, done, {}
 
     def step_followline_state_sp_actions_discretes(self, action, step):
-        # self._gazebo_unpause()
         vel_cmd = Twist()
         vel_cmd.linear.x = self.actions[action][0]
         vel_cmd.angular.z = self.actions[action][1]
         self.vel_pub.publish(vel_cmd)
-        # time.sleep(0.1)
-        # self._gazebo_pause()
 
         ##==== get image from sensor camera
         f1_image_camera, _ = self.f1gazeboimages.get_camera_info()

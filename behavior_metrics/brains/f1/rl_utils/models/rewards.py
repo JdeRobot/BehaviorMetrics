@@ -75,15 +75,7 @@ class F1GazeboRewards:
         original for Following Line
         """
         done = False
-        if center > 0.9:
-            done = True
-            reward = rewards["penal"]
-        elif 0 <= center <= 0.2:
-            reward = rewards["from_10"]
-        elif 0.2 < center <= 0.4:
-            reward = rewards["from_02"]
-        else:
-            reward = rewards["from_01"]
+        reward = 0
 
         return reward, done
 
