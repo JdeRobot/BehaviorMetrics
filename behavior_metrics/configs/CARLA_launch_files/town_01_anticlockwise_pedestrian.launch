@@ -21,23 +21,21 @@
 
 
   <!-- the object json file that configures objects to spawn -->
-  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/pedestrian.json'/>
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/pedestrian_objects.json'/>
 
   <!-- Ego Vehicle -->
   <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
   <arg name="ego_spawn_point" default="40.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
 
-  <!-- Parked Vehicle -->
-  <arg name='parked_bike_role_name' default='parked_bike'/>
-  <arg name="parked_bike_spawn_point" default="35.0, 2.0, 1.37, 0.0, 0.0, 180.0"/> 
-  <arg name='parked_car_role_name' default='parked_car'/>
-  <arg name="parked_car_spawn_point" default="30.0, 2.0, 1.37, 0.0, 0.0, 180.0"/> 
+  <!-- Pedestrian-->
+'<arg name="pedestrian_role_name" default="pedestrian"/>
+ <arg name="pedestrian_spawn_point" default="35.0, -2.0, 1.37, 0.0, 0.0, 180.0"/>
 '
   <!-- spawn the objects -->
   <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
     <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
     <param name="spawn_point_$(arg ego_vehicle_role_name)" value="$(arg ego_spawn_point)"/>
-    <param name="spawn_point_$(arg parked_car_role_name)" value="$(arg parked_car_spawn_point)" />
+    <param name="spawn_point_$(arg pedestrian_role_name)" value="$(arg pedestrian_spawn_point)" />
     <param name="spawn_sensors_only" value="false"/>
   </node>
 
