@@ -82,6 +82,112 @@ class ControllerCarla:
             time.sleep(1)
         self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
+
+        print(type(self.map_waypoints))
+
+        print('ID ' + str(self.map_waypoints[0].id))
+        print('transform ' + str(self.map_waypoints[0].transform))
+        print('road_id ' + str(self.map_waypoints[0].road_id))
+        print('section_id ' + str(self.map_waypoints[0].section_id))
+        print('is_junction ' + str(self.map_waypoints[0].is_junction))
+        print('lane_id ' + str(self.map_waypoints[0].lane_id))
+        print('s ' + str(self.map_waypoints[0].s))
+        print('lane_width ' + str(self.map_waypoints[0].lane_width))
+        print('lane_change ' + str(self.map_waypoints[0].lane_change))
+        print('lane_type ' + str(self.map_waypoints[0].lane_type))
+        print('right_lane_marking ' + str(self.map_waypoints[0].right_lane_marking))
+        print('left_lane_marking ' + str(self.map_waypoints[0].left_lane_marking))
+
+        print('next ' + str(self.map_waypoints[0].next(1)))
+        print('next_until_lane_end ' + str(self.map_waypoints[0].next_until_lane_end(1)))
+        #print(self.map_waypoints[0].left_lane_marking)
+
+
+
+        print()
+        print()
+        print()
+        
+        print(self.ego_vehicle.get_location())
+
+        print(self.carla_map.get_waypoint(self.ego_vehicle.get_location()))
+
+        vehicle_waypoint = self.carla_map.get_waypoint(self.ego_vehicle.get_location())
+        last_waypoint = vehicle_waypoint.next_until_lane_end(1)[-1]
+        next_waypoints = last_waypoint.next(1)
+        
+        next_waypoint = next_waypoints[1]
+
+        print(vehicle_waypoint.next_until_lane_end(1)[-1])
+        print(next_waypoints)
+        print(next_waypoint)
+        print(vehicle_waypoint.next_until_lane_end(1)[-1].lane_change)
+        print(next_waypoints[1].lane_change)
+        print(next_waypoints[0].lane_change)
+
+        print(vehicle_waypoint.next_until_lane_end(1)[-1].is_junction)
+        print(next_waypoints[1].is_junction)
+        print(next_waypoints[0].is_junction)
+        print()
+        print(vehicle_waypoint.next_until_lane_end(1)[-1])
+        print(next_waypoints[1])
+        print(next_waypoints[0])
+
+        start_waypoint = vehicle_waypoint.next(1)[0]
+
+        import numpy as np
+        end = False
+        counter = 0
+        while start_waypoint.transform.location.x != vehicle_waypoint.transform.location.x and \
+            start_waypoint.transform.location.y != vehicle_waypoint.transform.location.y and end is False and counter < 10:
+
+            for w in start_waypoint.next_until_lane_end(1):
+                point_1 = np.array([w.transform.location.x, w.transform.location.y])
+                point_2 = np.array([vehicle_waypoint.transform.location.x, vehicle_waypoint.transform.location.y])
+                dist = (point_2 - point_1) ** 2
+                dist = np.sum(dist, axis=0)
+                dist = np.sqrt(dist)
+                if dist < 3 and counter > 0:
+
+                    end = True
+
+                self.world.debug.draw_point(w.transform.location, size=0.1, color=carla.Color(r=0, g=255, b=0), life_time=0)
+            last_waypoint = start_waypoint.next_until_lane_end(1)[-1]
+            next_waypoints = last_waypoint.next(1)
+            if len(next_waypoints) > 1:
+                equal_waypoints = True
+                first_w = next_waypoints[0]
+                for w in next_waypoints:
+                    if first_w.transform.rotation.pitch != w.transform.rotation.pitch or \
+                        first_w.transform.rotation.yaw != w.transform.rotation.yaw or \
+                        first_w.transform.rotation.roll != w.transform.rotation.roll:
+                        equal_waypoints = False
+                        break
+                if equal_waypoints:
+                    next_waypoints = last_waypoint.next(2)
+
+                if equal_waypoints is False:
+                    found = False
+                    i = 0
+                    while found is False  and i < len(next_waypoints):
+
+                        
+                        if next_waypoints[i].transform.rotation.pitch == last_waypoint.transform.rotation.pitch and \
+                            next_waypoints[i].transform.rotation.yaw == last_waypoint.transform.rotation.yaw and \
+                            next_waypoints[i].transform.rotation.roll == last_waypoint.transform.rotation.roll:
+                                found = True
+                        else: 
+                            i += 1
+
+                    start_waypoint = next_waypoints[i]
+                else:
+                    start_waypoint = next_waypoints[1]
+                
+            else:
+                start_waypoint = next_waypoints[0]
+
+            counter += 1
+
         self.weather = self.world.get_weather()
         
     # GUI update
