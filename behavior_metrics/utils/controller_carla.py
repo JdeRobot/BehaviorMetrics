@@ -238,6 +238,7 @@ class ControllerCarla:
             'carla_map': self.carla_map.name,
             'ego_vehicle': self.ego_vehicle.type_id,
             'vehicles_number': len(self.world.get_actors().filter('vehicle.*')),
+            'async_mode': self.pilot.configuration.async_mode,
             'weather': {
                 'cloudiness': self.weather.cloudiness,
                 'precipitation': self.weather.precipitation,
