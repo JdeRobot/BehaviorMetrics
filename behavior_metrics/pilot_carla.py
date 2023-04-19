@@ -88,6 +88,7 @@ class PilotCarla(threading.Thread):
         self.real_time_update_rate = 1000
         self.pilot_start_time = 0
         self.time_cycle = self.configuration.pilot_time_cycle
+        self.async_mode = self.configuration.async_mode
 
     def __wait_carla(self):
         """Wait for simulator to be initialized"""
@@ -125,14 +126,17 @@ class PilotCarla(threading.Thread):
 
         control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
         control_command = CarlaControl()
-        control_command.command = 1
+        control_command.command = 1 # PAUSE
         control_pub.publish(control_command)
 
         while not self.kill_event.is_set():
             if not self.stop_event.is_set():
                 control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
                 control_command = CarlaControl()
-                control_command.command = 2
+                if self.async_mode:
+                    control_command.command = 2 # STEP_ONCE
+                else:
+                    control_command.command = 0 # PLAY
                 control_pub.publish(control_command)
 
                 start_time = datetime.now()

@@ -35,6 +35,7 @@ Behaviors:
                     MaxW: 0.3
         BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning_tf_lite.py'
         PilotTimeCycle: 1
+        AsyncMode: False
         Parameters:
             Model: 'optimized_pilotnet_models/pilotnet_dynamic_quant.tflite'
             ImageCropped: True
