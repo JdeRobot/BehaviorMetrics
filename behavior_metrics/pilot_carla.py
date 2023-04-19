@@ -134,7 +134,6 @@ class PilotCarla(threading.Thread):
                 control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
                 control_command = CarlaControl()
                 if self.async_mode:
-                    print('entra!')
                     control_command.command = 2 # STEP_ONCE
                 else:
                     control_command.command = 0 # PLAY
