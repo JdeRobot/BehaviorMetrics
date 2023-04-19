@@ -116,31 +116,31 @@ class ControllerCarla:
         last_waypoint = vehicle_waypoint.next_until_lane_end(1)[-1]
         next_waypoints = last_waypoint.next(1)
         
-        next_waypoint = next_waypoints[1]
+        #next_waypoint = next_waypoints[1]
 
         print(vehicle_waypoint.next_until_lane_end(1)[-1])
         print(next_waypoints)
-        print(next_waypoint)
+        #print(next_waypoint)
         print(vehicle_waypoint.next_until_lane_end(1)[-1].lane_change)
-        print(next_waypoints[1].lane_change)
+        #print(next_waypoints[1].lane_change)
         print(next_waypoints[0].lane_change)
 
         print(vehicle_waypoint.next_until_lane_end(1)[-1].is_junction)
-        print(next_waypoints[1].is_junction)
+        #print(next_waypoints[1].is_junction)
         print(next_waypoints[0].is_junction)
         print()
         print(vehicle_waypoint.next_until_lane_end(1)[-1])
-        print(next_waypoints[1])
+        #print(next_waypoints[1])
         print(next_waypoints[0])
 
-        start_waypoint = vehicle_waypoint.next(1)[0]
+        start_waypoint = vehicle_waypoint.next(2)[0]
 
         import numpy as np
         end = False
         counter = 0
-        while start_waypoint.transform.location.x != vehicle_waypoint.transform.location.x and \
-            start_waypoint.transform.location.y != vehicle_waypoint.transform.location.y and end is False and counter < 10:
 
+        while (start_waypoint.transform.location.x != vehicle_waypoint.transform.location.x or \
+            start_waypoint.transform.location.y != vehicle_waypoint.transform.location.y) and end is False and counter < 20:
             for w in start_waypoint.next_until_lane_end(1):
                 point_1 = np.array([w.transform.location.x, w.transform.location.y])
                 point_2 = np.array([vehicle_waypoint.transform.location.x, vehicle_waypoint.transform.location.y])
@@ -148,12 +148,10 @@ class ControllerCarla:
                 dist = np.sum(dist, axis=0)
                 dist = np.sqrt(dist)
                 if dist < 3 and counter > 0:
-
                     end = True
-
                 self.world.debug.draw_point(w.transform.location, size=0.1, color=carla.Color(r=0, g=255, b=0), life_time=0)
             last_waypoint = start_waypoint.next_until_lane_end(1)[-1]
-            next_waypoints = last_waypoint.next(1)
+            next_waypoints = last_waypoint.next(5)
             if len(next_waypoints) > 1:
                 equal_waypoints = True
                 first_w = next_waypoints[0]
@@ -164,25 +162,37 @@ class ControllerCarla:
                         equal_waypoints = False
                         break
                 if equal_waypoints:
-                    next_waypoints = last_waypoint.next(2)
+                    next_waypoints = last_waypoint.next(5)
 
                 if equal_waypoints is False:
                     found = False
                     i = 0
                     while found is False  and i < len(next_waypoints):
-
-                        
                         if next_waypoints[i].transform.rotation.pitch == last_waypoint.transform.rotation.pitch and \
                             next_waypoints[i].transform.rotation.yaw == last_waypoint.transform.rotation.yaw and \
                             next_waypoints[i].transform.rotation.roll == last_waypoint.transform.rotation.roll:
                                 found = True
+                        elif abs(int(next_waypoints[i].transform.rotation.yaw)) >= 360:
+                            if next_waypoints[i].transform.rotation.pitch == last_waypoint.transform.rotation.pitch and \
+                                abs(int(next_waypoints[i].transform.rotation.yaw)) - 360 == int(last_waypoint.transform.rotation.yaw) and \
+                                next_waypoints[i].transform.rotation.roll == last_waypoint.transform.rotation.roll:
+                                found = True
+                            else:
+                                i += 1
                         else: 
                             i += 1
-
+                    if not found:
+                        i = 0
+                        while found is False  and i < len(next_waypoints)-1:
+                            if next_waypoints[i].transform.location.x != last_waypoint.transform.location.x or \
+                                next_waypoints[i].transform.location.y != last_waypoint.transform.location.y or \
+                                next_waypoints[i].transform.location.z != last_waypoint.transform.location.z:
+                                    found = True
+                            else: 
+                                i += 1
                     start_waypoint = next_waypoints[i]
                 else:
                     start_waypoint = next_waypoints[1]
-                
             else:
                 start_waypoint = next_waypoints[0]
 
