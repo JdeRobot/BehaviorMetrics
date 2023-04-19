@@ -35,8 +35,9 @@ Behaviors:
                     MaxW: 0.3
         BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning_torch.py'
         PilotTimeCycle: 100
+        AsyncMode: False
         Parameters:
-            Model: 'pilot_net_model_best_123.pth'
+            Model: 'pilot_net_model_best_17_04_c_3.pth'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
