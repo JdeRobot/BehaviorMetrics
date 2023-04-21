@@ -48,19 +48,20 @@ Behaviors:
             'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_previous_v_t_t-4_t-9.py',
             ]
         PilotTimeCycle: 100
+        AsyncMode: False
         Parameters:
             Model: [
                 '20230125-120238_pilotnet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_adam_AFFINE_PAPER.h5',
                 '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5',
 
-                '20230130-113041_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_t_5_t_10_dataset_AFFINE_PAPER_cp.h5',
-                '20230127-175740_memDCCP_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_AFFINE_PAPER_cp.h5',
+                '20230220-105422_pilotnet_small_more_more_LSTM_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_t_5_t_10_dataset_AFFINE_PAPER_cp.h5',
+                '20230222-110851_memDCCP_small_LSTM_2_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_AFFINE_PAPER_cp.h5',
 
                 '20230127-180655_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_AFFINE.h5',
                 '20230127-180856_deepestLSTMTinyPilotNet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_AFFINE_PAPER.h5',
 
-                '20230130-122642_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5',
-                '20230128-113936_memDCCP_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5'
+                '20230221-162112_pilotnet_x3_small_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5',
+                '20230221-175351_memDCCP_small_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5'
                 ]
             ImageCropped: True
             ImageSize: [ 100,50 ]

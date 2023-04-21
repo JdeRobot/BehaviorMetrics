@@ -22,7 +22,7 @@ import os
 import rospy
 import random
 import sys
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 from utils import metrics_gazebo
@@ -30,18 +30,44 @@ from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, CIRCUITS_TIMEOUTS
 from pilot_gazebo import PilotGazebo
 from utils.tmp_world_generator import tmp_world_generator
-from rosgraph_msgs.msg import Clock
-
 
 def run_brains_worlds(app_configuration, controller, randomize=False):
+    worlds = enumerate(app_configuration.current_world)
+    worlds_list = list(worlds)
+    length_worlds = len(worlds_list)
+
+    # In case any other metric is needed. The available metrics can be found in metrics_gazebo.py > get_metrics
+    aggregated_metrics = {
+        "average_speed": "meters/s",
+        "percentage_completed": "%",
+        "position_deviation_mae": "meters",
+    }
+    metrics_len = len(aggregated_metrics)
+
+    fig, axs = plt.subplots(length_worlds, metrics_len, figsize=(10, 5))
+
     # Start Behavior Metrics app
     for world_counter, world in enumerate(app_configuration.current_world):
+        parts = world.split('/')[-1]
+        # Get the keyword "dqn" from the file name
+        world_name = parts.split('.')[0]
+        brain_names = []
+
+        brains_metrics = {}
         for brain_counter, brain in enumerate(app_configuration.brain_path):
+            # Split the string by "/"
+            parts = brain.split('/')[-1]
+            # Get the keyword "dqn" from the file name
+            brain_name = parts.split('_')[-1].split('.')[0]
+            brain_names.append(brain_name)
+            brains_metrics[brain_name] = []
             repetition_counter = 0
             while repetition_counter < app_configuration.experiment_repetitions:
+                logger.info(f"repetition {repetition_counter+1} of {app_configuration.experiment_repetitions}"
+                            f" for brain {brain} in world {world}")
                 tmp_world_generator(world, app_configuration.stats_perfect_lap[world_counter],
-                                       app_configuration.real_time_update_rate, randomize=randomize, gui=False,
-                                       launch=True)
+                                    app_configuration.real_time_update_rate, randomize=randomize, gui=False,
+                                    launch=True, close_ros_resources=False)
                 pilot = PilotGazebo(app_configuration, controller, app_configuration.brain_path[brain_counter])
                 pilot.daemon = True
                 pilot.real_time_update_rate = app_configuration.real_time_update_rate
@@ -104,11 +130,46 @@ def run_brains_worlds(app_configuration, controller, randomize=False):
                     logger.info('* Model ---> ' + app_configuration.experiment_model[brain_counter])
                 if not pitch_error:
                     logger.info('* Metrics ---> ' + str(controller.experiment_metrics))
-                repetition_counter += 1
+                    brains_metrics[brain_name].append(controller.experiment_metrics)
+
                 os.remove('tmp_circuit.launch')
                 os.remove('tmp_world.launch')
                 while not controller.pilot.execution_completed:
                     time.sleep(1)
+
+                repetition_counter += 1
+
+        positions = list(range(1, len(brain_names) + 1))
+        key_counter = 0
+        for key in aggregated_metrics:
+            brains_metrics_names = []
+            brains_metrics_data = []
+            for brain_key in brains_metrics:
+                brain_metric_data = []
+                for repetition_metrics in brains_metrics[brain_key]:
+                    brain_metric_data.append(repetition_metrics[key])
+                brains_metrics_names.append(brain_key)
+                brains_metrics_data.append(brain_metric_data)
+
+            if length_worlds > 1:
+                # Create a boxplot for all metrics in the same axis
+                axs[world_counter, key_counter].boxplot(brains_metrics_data)
+                axs[world_counter, key_counter].set_xticks(positions)
+                axs[world_counter, key_counter].set_xticklabels(brains_metrics_names, fontsize=8)
+                axs[world_counter, key_counter].set_title(f"{key} in {world_name}")
+                axs[world_counter, key_counter].set_ylabel(aggregated_metrics[key])
+                key_counter += 1
+            else:
+                # Create a boxplot for all metrics in the same axis
+                axs[key_counter].boxplot(brains_metrics_data, positions=positions)
+                axs[key_counter].set_xticks(positions)
+                axs[key_counter].set_xticklabels(brains_metrics_names, fontsize=8)
+                axs[key_counter].set_title(f"{key} in {world_name}")
+                axs[key_counter].set_ylabel(aggregated_metrics[key])
+                key_counter += 1
+
+    # Display the chart
+    plt.show()
     controller.stop_pilot()
 
 

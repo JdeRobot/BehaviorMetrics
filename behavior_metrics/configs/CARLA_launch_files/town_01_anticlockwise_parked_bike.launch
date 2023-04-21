@@ -1,0 +1,59 @@
+<!-- -->
+<launch>
+  <!-- CARLA connection -->
+  <arg name='host' default='localhost'/>
+  <arg name='port' default='2000'/>
+  <arg name='timeout' default='10'/>
+  
+  <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
+  <arg name="town" default='Town01'/>
+
+  <!-- Enable/disable passive mode -->
+  <arg name='passive' default=''/>
+
+  <!-- Synchronous mode-->
+  <arg name='synchronous_mode' default='True'/>
+  <arg name='synchronous_mode_wait_for_vehicle_control_command' default='False'/>
+  <arg name='fixed_delta_seconds' default='0.05'/>
+
+  <!-- the role names of vehicles that are controllable from within ROS-->
+  <arg name='ego_vehicles' default='["ego_vehicle"]'/>
+
+  <!-- launch carla ros bridge node -->
+  <node pkg="carla_ros_bridge" name="carla_ros_bridge" type="bridge.py" output="screen" required="true">
+    <param name="host" value="$(arg host)" unless="$(eval host == '')"/>
+    <param name="port" value="$(arg port)" unless="$(eval port == '')"/>
+    <param name="timeout" value="$(arg timeout)" unless="$(eval timeout == '')"/>
+    <param name="passive" value="$(arg passive)"/>
+    <param name="synchronous_mode" value="$(arg synchronous_mode)"/>
+    <param name="synchronous_mode_wait_for_vehicle_control_command" value="$(arg synchronous_mode_wait_for_vehicle_control_command)"/>
+    <param name="fixed_delta_seconds" value="$(arg fixed_delta_seconds)"/>
+    <param name="register_all_sensors" value="true"/>
+    <param name="town" value="$(arg town)"/>
+    <param name="ego_vehicle_role_name" value="$(arg ego_vehicles)"/>
+  </node>
+
+  <!-- the object json file that configures objects to spawn -->
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/parked_bike_objects.json'/>
+
+  <!-- Ego Vehicle -->
+  <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
+  <arg name="ego_spawn_point" default="40.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
+
+  <!-- Parked Vehicle -->
+  <arg name='parked_bike_role_name' default='parked_bike'/>
+  <arg name="parked_spawn_point" default="32.0, 2.0, 1.37, 0.0, 0.0, 180.0"/> 
+  
+  <!-- spawn the objects -->
+  <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
+    <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
+    <param name="spawn_point_$(arg ego_vehicle_role_name)" value="$(arg ego_spawn_point)"/>
+    <param name="spawn_point_$(arg parked_bike_role_name)" value="$(arg parked_spawn_point)" />
+    <param name="spawn_sensors_only" value="false"/>
+  </node>
+
+  <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
+    <arg name='role_name' value='$(arg ego_vehicle_role_name)'/>
+  </include>
+
+</launch>

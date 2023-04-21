@@ -99,6 +99,8 @@ class Config:
             self.real_time_update_rate = config_data['Behaviors']['Simulation']['RealTimeUpdateRate']
         else:
             self.real_time_update_rate = 1000
+        if 'AsyncMode' in robot:
+            self.async_mode = robot['AsyncMode']
 
         self.actuators = robot['Actuators']
         self.sensors = robot['Sensors']
