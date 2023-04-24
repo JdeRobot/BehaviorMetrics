@@ -35,6 +35,7 @@ Behaviors:
                     MaxW: 0.3
         BrainPath: 'brains/CARLA/brain_carla_subjective_vision_deep_learning_previous_v.py'
         PilotTimeCycle: 100
+        AsyncMode: False
         Parameters:
             Model: '20230107-205705_rgb_brakingsimple_71_58k.h5'
             ImageCropped: True
