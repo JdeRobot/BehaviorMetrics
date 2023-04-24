@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout, GaussNoise
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -147,7 +147,8 @@ class Brain:
 
         
         AUGMENTATIONS_TEST = Compose([
-            GridDropout(p=1.0, ratio=0.9)
+            #GridDropout(p=1.0, ratio=0.5),
+            GaussNoise(p=1.0, var_limit=(500.0, 1500.0))
         ])
         
         bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
