@@ -95,6 +95,10 @@ class Config:
         self.robot_type = robot['Type']
         self.pilot_time_cycle = robot['PilotTimeCycle']
         self.current_world = config_data['Behaviors']['Simulation']['World']
+        if 'WaypointPublisher' in config_data['Behaviors']['Simulation']:
+            self.waypoint_publisher_path = config_data['Behaviors']['Simulation']['WaypointPublisher']
+        else:
+            self.waypoint_publisher_path = None
         if 'RealTimeUpdateRate' in config_data['Behaviors']['Simulation']:
             self.real_time_update_rate = config_data['Behaviors']['Simulation']['RealTimeUpdateRate']
         else:

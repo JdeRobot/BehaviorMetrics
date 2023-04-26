@@ -73,14 +73,23 @@ class ControllerCarla:
         self.cvbridge = CvBridge()
 
         client = carla.Client('localhost', 2000)
-        client.set_timeout(10.0) # seconds
+        client.set_timeout(100.0) # seconds
         self.world = client.get_world()
         time.sleep(5)
         self.carla_map = self.world.get_map()
         while len(self.world.get_actors().filter('vehicle.*')) == 0:
             logger.info("Waiting for vehicles!")
             time.sleep(1)
-        self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
+        ego_vehicle_role_name = "ego_vehicle"
+        self.ego_vehicle = None
+        while self.ego_vehicle is None:
+            for vehicle in self.world.get_actors().filter('vehicle.*'):
+                if vehicle.attributes.get('role_name') == ego_vehicle_role_name:
+                    self.ego_vehicle = vehicle
+                    break
+            if self.ego_vehicle is None:
+                logger.info("Waiting for vehicle with role_name 'ego_vehicle'")
+                time.sleep(1)  # sleep for 1 second before checking again
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
         

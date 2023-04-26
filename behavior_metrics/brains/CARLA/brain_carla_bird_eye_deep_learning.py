@@ -56,7 +56,10 @@ class Brain:
         world = client.get_world()
         
         time.sleep(5)
-        self.vehicle = world.get_actors().filter('vehicle.*')[0]
+        for vehicle in world.get_actors().filter('vehicle.*'):
+            if vehicle.attributes.get('role_name') == 'ego_vehicle':
+                self.vehicle = vehicle
+                break
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
