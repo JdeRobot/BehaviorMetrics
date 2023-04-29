@@ -52,7 +52,13 @@ class Brains(object):
             module = importlib.import_module(import_name)
             Brain = getattr(module, 'Brain')
             if robot_type == 'drone':
-                self.active_brain = Brain(handler=self, config=self.config)
+                # self.active_brain = Brain(handler=self, config=self.config)
+                if model: 
+                    self.active_brain = Brain(model=model, handler=self, config=self.config)
+                elif hasattr(self, 'model'):
+                    self.active_brain = Brain(model=self.model, handler=self, config=self.config)
+                else: 
+                    self.active_brain = Brain(handler=self, config=self.config)
             else:
                 if model:
                     self.active_brain = Brain(self.sensors, self.actuators, model=model, handler=self,

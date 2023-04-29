@@ -152,7 +152,7 @@ class Brain:
         try:
             #cv2.imwrite(SAVE_DIR + 'many_curves_data/Images/image{}.png'.format(self.iteration), cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             #print('written many_curves_data/Images/image{}.png'.format(self.iteration))
-            image_cropped = image[230:, :, :]
+            image_cropped = image[120:240,0:320]
             image_hsv = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2HSV)
             lower_red = np.array([0,50,50])
             upper_red = np.array([180,255,255])
