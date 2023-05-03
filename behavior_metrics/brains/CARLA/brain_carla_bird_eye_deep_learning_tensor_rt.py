@@ -64,7 +64,12 @@ class Brain:
             logger.info("** Load TF model **")
 
             logger.info("Using TensorRT models.....")
+            print()
+            print(tf.__file__)
+            print()
+            print(PRETRAINED_MODELS + model)
             self.net = tf.saved_model.load(PRETRAINED_MODELS + model)
+            print('llega!')
             self.infer = self.net.signatures['serving_default']
             self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
             self.inf_func = self.tftrt_inference
