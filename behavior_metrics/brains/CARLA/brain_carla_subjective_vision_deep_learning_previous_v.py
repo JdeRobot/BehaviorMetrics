@@ -74,7 +74,7 @@ class Brain:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         self.world = client.get_world()
-        self.world.unload_map_layer(carla.MapLayer.Buildings)
+        self.world.unload_map_layer(carla.MapLayer.Particles)
         
         time.sleep(5)
         self.vehicle = self.world.get_actors().filter('vehicle.*')[0]
