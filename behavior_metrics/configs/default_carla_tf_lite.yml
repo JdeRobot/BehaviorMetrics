@@ -37,7 +37,7 @@ Behaviors:
         PilotTimeCycle: 1
         AsyncMode: False
         Parameters:
-            Model: 'optimized_pilotnet_models/pilotnet_dynamic_quant.tflite'
+            Model: 'optimized_pilotnet_models_tensorflow/28_04_pilotnet_dynamic_quant.tflite'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True

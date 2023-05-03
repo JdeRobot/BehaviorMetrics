@@ -41,7 +41,7 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inference = config['GPU']
-        self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
+        self.device = torch.device('cuda')
         self.first_image = None
         self.transformations = transforms.Compose([
                                         transforms.ToTensor()
@@ -72,8 +72,6 @@ class Brain:
                                 "enabled_precisions": torch.int8,
                                 }
                 self.net = torch_tensorrt.compile(self.net, **compile_spec).to(self.device)
-
-#                 self.clean_model()
             else:
                 self.net = PilotNet((200,66,3), 3).to(self.device)
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
