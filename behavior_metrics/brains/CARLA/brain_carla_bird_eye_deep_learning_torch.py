@@ -1,8 +1,11 @@
-from torchvision import transforms
 from PIL import Image
 from brains.f1.torch_utils.pilotnet import PilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
+from albumentations import (
+    Compose, Normalize
+)
+from albumentations.pytorch.transforms  import ToTensorV2
 
 import numpy as np
 
@@ -43,8 +46,9 @@ class Brain:
         self.gpu_inference = config['GPU']
         self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
         self.first_image = None
-        self.transformations = transforms.Compose([
-                                        transforms.ToTensor()
+        self.transformations = Compose([
+                                        Normalize(),
+                                        ToTensorV2()
                                     ])
         
         self.suddenness_distance = []
@@ -119,15 +123,17 @@ class Brain:
         self.update_frame('frame_0', bird_eye_view_1)
 
         try:
-            #img = cv2.resize(bird_eye_view_1, (int(200), int(66)))
             img = cv2.resize(bird_eye_view_1, (int(66), int(200)))
-            img = Image.fromarray(img)
-            image = self.transformations(img).unsqueeze(0)
+            image = self.transformations(image=img)
+            image = image['image']
+            image = image.unsqueeze(0) 
             image = FLOAT(image).to(self.device)
             
             start_time = time.time()
             with torch.no_grad():
                 prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
+            print(prediction)
+            #print(time.time() - start_time)
             self.inference_times.append(time.time() - start_time)
             
             throttle = prediction[0][0]
@@ -147,7 +153,7 @@ class Brain:
                     self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
                 else:
-                    self.motors.sendThrottle(throttle)
+                    self.motors.sendThrottle(0.5)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(break_command)
 
