@@ -131,7 +131,6 @@ class Brain:
             image = self.transformations(image=img)
             image = image['image']
             image = image.unsqueeze(0) 
-
             image = FLOAT(image).to(self.device)
             
             start_time = time.time()
