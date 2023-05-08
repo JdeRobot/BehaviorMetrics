@@ -56,7 +56,13 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
                     spawn_point.attrib['default'] = random.choice(CARLA_TOWNS_SPAWN_POINTS[town.attrib['default']])
                 tree.write('tmp_circuit.launch')
             with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
-                subprocess.Popen([os.environ["CARLA_ROOT"] + "CarlaUE4.sh", "-RenderOffScreen"], stdout=out, stderr=err)                
+                tree = ET.parse(ROOT_PATH + '/' + launch_file)
+                root = tree.getroot()
+                quality = root.find(".//*[@name=\"quality\"]")
+                if quality == None:
+                    subprocess.Popen([os.environ["CARLA_ROOT"] + "CarlaUE4.sh", "-RenderOffScreen"], stdout=out, stderr=err)
+                elif quality.attrib['default'] == 'Low':
+                    subprocess.Popen([os.environ["CARLA_ROOT"] + "CarlaUE4.sh", "-RenderOffScreen", "-quality-level=Low"], stdout=out, stderr=err)                
                 #subprocess.Popen(["/home/jderobot/Documents/Projects/carla_simulator_0_9_13/CarlaUE4.sh", "-RenderOffScreen", "-quality-level=Low"], stdout=out, stderr=err)
             logger.info("SimulatorEnv: launching simulator server.")
             time.sleep(5)
