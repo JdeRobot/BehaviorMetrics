@@ -23,7 +23,7 @@ from brains.brains_handler import Brains
 from robot.actuators import Actuators
 from robot.sensors import Sensors
 from utils.logger import logger
-from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED
+from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, ROOT_PATH
 from rosgraph_msgs.msg import Clock
 from carla_msgs.msg import CarlaControl
 
@@ -89,6 +89,7 @@ class PilotCarla(threading.Thread):
         self.pilot_start_time = 0
         self.time_cycle = self.configuration.pilot_time_cycle
         self.async_mode = self.configuration.async_mode
+        self.waypoint_publisher_path = self.configuration.waypoint_publisher_path
 
     def __wait_carla(self):
         """Wait for simulator to be initialized"""
@@ -129,8 +130,11 @@ class PilotCarla(threading.Thread):
         control_command.command = 1 # PAUSE
         control_pub.publish(control_command)
 
+        self.waypoint_publisher = None
         while not self.kill_event.is_set():
             if not self.stop_event.is_set():
+                if self.waypoint_publisher is None and self.waypoint_publisher_path is not None:
+                    self.waypoint_publisher = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + self.waypoint_publisher_path])
                 control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
                 control_command = CarlaControl()
                 if self.async_mode:
