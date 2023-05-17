@@ -89,11 +89,21 @@ class Brain:
             output -- prediction from the model
         """
         # Pre-processing
+        if self.net.get_input_details()[0]['dtype'] == np.uint8:
+            input_scale, input_zero_point = self.net.get_input_details()[0]["quantization"]
+            img = img / input_scale + input_zero_point
+            img = img.astype(self.net.get_input_details()[0]["dtype"])
+
         self.net.set_tensor(self.input_index, img)
         # Run inference.
         self.net.invoke()
         # Post-processing
         output = self.net.get_tensor(self.output_index)
+
+        if self.net.get_input_details()[0]['dtype'] == np.uint8:
+            output_scale, input_zero_point = self.net.get_output_details()[0]["quantization"]
+            output = output.astype(np.float32)
+            output = output * output_scale + input_zero_point
 
         return output
 
