@@ -103,7 +103,7 @@ class Brain:
         if self.net.get_input_details()[0]['dtype'] == np.uint8:
             output_scale, input_zero_point = self.net.get_output_details()[0]["quantization"]
             output = output.astype(np.float32)
-            output = output * output_scale + input_zero_point
+            output = (output - input_zero_point) * output_scale
 
         return output
 
@@ -164,7 +164,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
+        image_shape=(66, 200)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([
