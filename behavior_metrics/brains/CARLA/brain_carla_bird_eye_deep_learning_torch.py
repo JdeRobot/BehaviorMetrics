@@ -132,8 +132,6 @@ class Brain:
             start_time = time.time()
             with torch.no_grad():
                 prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
-            print(prediction)
-            #print(time.time() - start_time)
             self.inference_times.append(time.time() - start_time)
             
             throttle = prediction[0][0]
@@ -153,7 +151,7 @@ class Brain:
                     self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
                 else:
-                    self.motors.sendThrottle(0.5)
+                    self.motors.sendThrottle(throttle)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(break_command)
 

@@ -24,9 +24,9 @@ import tensorflow as tf
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#for gpu in gpus:
+#    tf.config.experimental.set_memory_growth(gpu, True)
 
 class Brain:
 
@@ -66,7 +66,7 @@ class Brain:
             logger.info("Using TF lite models.....")
             self.net = tf.lite.Interpreter(model_path= PRETRAINED_MODELS + model)
             self.net.allocate_tensors()
-            self.input_index = self.net.get_input_details()[0]["index"]
+            self.input_index = self.net.get_input_details()[0]
             self.output_index = self.net.get_output_details()[0]["index"]
             self.inf_func = self.optim_inference
 
@@ -94,7 +94,7 @@ class Brain:
             img = img / input_scale + input_zero_point
             img = img.astype(self.net.get_input_details()[0]["dtype"])
 
-        self.net.set_tensor(self.input_index, img)
+        self.net.set_tensor(self.input_index["index"], img.astype(self.input_index["dtype"]))
         # Run inference.
         self.net.invoke()
         # Post-processing
