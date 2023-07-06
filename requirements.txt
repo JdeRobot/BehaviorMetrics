@@ -1,6 +1,6 @@
 PyQt5==5.15.0
 pyQt5-sip==12.8.1
-scipy==1.4.1
+scipy==1.10.0
 jupyterlab==2.2.10
 PyQt3D==5.15.0
 npyscreen==4.10.5
