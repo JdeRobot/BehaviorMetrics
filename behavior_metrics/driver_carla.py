@@ -7,9 +7,10 @@ import rospy
 import glob
 import json
 
-from pilot_carla import PilotCarla
+
 from ui.tui.main_view import TUI
 from utils import environment
+from utils.traffic import TrafficManager
 from utils.colors import Colors
 from utils.configuration import Config
 from utils.controller_carla import ControllerCarla
@@ -17,10 +18,10 @@ from utils.logger import logger
 from utils.tmp_world_generator import tmp_world_generator
 from utils import metrics_carla
 from datetime import datetime
+from pilot_carla import PilotCarla
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
 
 def check_args(argv):
     """Function that handles argument checking and parsing.
@@ -281,6 +282,11 @@ def main():
     if not config_data['script']:
         environment.launch_env(app_configuration.current_world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
         controller = ControllerCarla()
+        traffic_manager = TrafficManager(app_configuration.number_of_vehicle, 
+                                         app_configuration.number_of_walker, 
+                                         app_configuration.percentage_walker_running, 
+                                         app_configuration.percentage_walker_crossing)
+        traffic_manager.generate_traffic()
 
         # Launch control
         if hasattr(app_configuration, 'experiment_model'):
@@ -293,6 +299,7 @@ def main():
         logger.info('Executing app')
         main_win(app_configuration, controller)
         logger.info('closing all processes...')
+        traffic_manager.destroy()
         pilot.kill_event.set()
         environment.close_ros_and_simulators()
     else:

@@ -26,13 +26,11 @@ import time
 import rosbag
 import json
 import math
-
 from utils.logger import logger
 try:
     import carla
 except ModuleNotFoundError as ex:
     logger.error('CARLA is not supported')
-
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -45,7 +43,6 @@ try:
 except ModuleNotFoundError as ex:
     logger.error('CARLA is not supported')
 from PIL import Image
-
 __author__ = 'sergiopaniego'
 __contributors__ = []
 __license__ = 'GPLv3'
@@ -92,6 +89,10 @@ class ControllerCarla:
                 time.sleep(1)  # sleep for 1 second before checking again
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
+
+        settings = self.world.get_settings()
+        settings.synchronous_mode = True 
+        self.world.apply_settings(settings)
         
     # GUI update
     def update_frame(self, frame_id, data):
