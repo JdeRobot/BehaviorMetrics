@@ -89,10 +89,6 @@ class ControllerCarla:
                 time.sleep(1)  # sleep for 1 second before checking again
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
-
-        settings = self.world.get_settings()
-        settings.synchronous_mode = True 
-        self.world.apply_settings(settings)
         
     # GUI update
     def update_frame(self, frame_id, data):

@@ -285,7 +285,8 @@ def main():
         traffic_manager = TrafficManager(app_configuration.number_of_vehicle, 
                                          app_configuration.number_of_walker, 
                                          app_configuration.percentage_walker_running, 
-                                         app_configuration.percentage_walker_crossing)
+                                         app_configuration.percentage_walker_crossing,
+                                         app_configuration.async_mode)
         traffic_manager.generate_traffic()
 
         # Launch control

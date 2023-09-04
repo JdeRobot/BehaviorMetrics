@@ -3,14 +3,18 @@ import carla
 from utils.logger import logger
 import random
 
-SpawnActor = carla.command.SpawnActor
-SetAutopilot = carla.command.SetAutopilot
-FutureActor = carla.command.FutureActor
+spawn_actor = carla.command.SpawnActor
+set_autopilot = carla.command.SetAutopilot
+future_actor = carla.command.FutureActor
 
 class TrafficManager:
-    def __init__(self, n_vehicle, n_walker, percentage_walker_running=0.0, percentage_walker_crossing=0.0, port=8000):
+    def __init__(self, n_vehicle, n_walker, percentage_walker_running=0.0, percentage_walker_crossing=0.0, async_mode=False, port=8000):
         self.client = carla.Client('localhost', 2000)
         self.world = self.client.get_world()
+        if not async_mode:
+            settings = self.world.get_settings()
+            settings.synchronous_mode = True 
+            self.world.apply_settings(settings)
 
         traffic_manager = self.client.get_trafficmanager(port)
         traffic_manager.set_synchronous_mode(True)
@@ -103,8 +107,8 @@ class TrafficManager:
                 blueprint.set_attribute('driver_id', driver_id)
             blueprint.set_attribute('role_name', 'autopilot')
 
-            batch.append(SpawnActor(blueprint, transform)
-                .then(SetAutopilot(FutureActor, True, traffic_manager.get_port())))
+            batch.append(spawn_actor(blueprint, transform)
+                .then(set_autopilot(future_actor, True, traffic_manager.get_port())))
 
         for response in client.apply_batch_sync(batch, True):
             if response.error:
@@ -141,7 +145,7 @@ class TrafficManager:
             else:
                 print("Walker has no speed")
                 walker_speed.append(0.0)
-            batch.append(SpawnActor(walker_bp, spawn_point))
+            batch.append(spawn_actor(walker_bp, spawn_point))
         results = client.apply_batch_sync(batch, True)
         walker_speed2 = []
         for i in range(len(results)):
@@ -155,7 +159,7 @@ class TrafficManager:
         batch = []
         walker_controller_bp = world.get_blueprint_library().find('controller.ai.walker')
         for i in range(len(walkers_list)):
-            batch.append(SpawnActor(walker_controller_bp, carla.Transform(), walkers_list[i]["id"]))
+            batch.append(spawn_actor(walker_controller_bp, carla.Transform(), walkers_list[i]["id"]))
         results = client.apply_batch_sync(batch, True)
         for i in range(len(results)):
             if results[i].error:
