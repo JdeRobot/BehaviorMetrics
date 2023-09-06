@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -57,10 +57,7 @@ class Brain:
         world = client.get_world()
         
         time.sleep(5)
-        for vehicle in world.get_actors().filter('vehicle.*'):
-            if vehicle.attributes.get('role_name') == 'ego_vehicle':
-                self.vehicle = vehicle
-                break
+        self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
@@ -76,6 +73,8 @@ class Brain:
         self.previous_bird_eye_view_image = 0
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
+
+        self.first_acceleration = True
 
 
     def update_frame(self, frame_id, data):
@@ -135,7 +134,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(66, 200)
+        image_shape=(50, 150)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([
@@ -161,11 +160,12 @@ class Brain:
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
 
-            if vehicle_speed < 5:
+            if vehicle_speed < 70 and self.first_acceleration:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
                 self.motors.sendBrake(0)
             else:
+                self.first_acceleration = False
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)

@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -56,8 +56,6 @@ class Brain:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
         world = client.get_world()
-        #world.unload_map_layer(carla.MapLayer.Buildings)
-
         
         time.sleep(5)
         self.vehicle = world.get_actors().filter('vehicle.*')[0]
@@ -87,8 +85,6 @@ class Brain:
 
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
-
-        self.first_time = True
 
 
     def update_frame(self, frame_id, data):
@@ -139,13 +135,14 @@ class Brain:
             image_3,
             bird_eye_view_1
         ]
-        '''
-        print(bird_eye_view_1.shape)
-        for x in range(0,200):
-            for y in range(0,100):
-                bird_eye_view_1[x][y] = (0,0,0)
-        '''
-        #print(bird_eye_view_1.shape)
+
+        
+        AUGMENTATIONS_TEST = Compose([
+            GridDropout(p=1.0, ratio=0.9)
+        ])
+        
+        bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
+        bird_eye_view_1 = bird_eye_view_1["image"]
 
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)
@@ -159,7 +156,6 @@ class Brain:
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([
-            #GridDropout(p=1.0),
             Normalize()
         ])
         image = AUGMENTATIONS_TEST(image=img_base)
@@ -196,18 +192,12 @@ class Brain:
             self.image_7 = self.image_8
             self.image_8 = self.image_9
             self.image_9 = img
-            '''
-            random_img_1 = np.random.rand(150, 50, 3)
-            print(random_img_1.shape)
 
-            img = [random_img_1, self.image_4, self.image_9]
-            '''
             img = [self.image_1, self.image_4, self.image_9]
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()
             try:
-                #print(img.shape)
                 prediction = self.net.predict(img, verbose=0)
                 self.inference_times.append(time.time() - start_time)
                 throttle = prediction[0][0]
@@ -215,33 +205,15 @@ class Brain:
                 break_command = prediction[0][2]
                 speed = self.vehicle.get_velocity()
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-                '''
-                if vehicle_speed > 30:
-                    self.motors.sendThrottle(0.0)
-                    self.motors.sendSteer(steer)
-                    self.motors.sendBrake(break_command)
-                    
-                if vehicle_speed < 50 and self.first_time:
+
+                if vehicle_speed < 5:
                     self.motors.sendThrottle(1.0)
                     self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
                 else:
-                
-                    self.first_time = False
-                ''' 
-                if vehicle_speed > 30:
-                    self.motors.sendThrottle(0.0)
+                    self.motors.sendThrottle(throttle)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(break_command)
-                else:
-                    if vehicle_speed < 5:
-                        self.motors.sendThrottle(1.0)
-                        self.motors.sendSteer(0.0)
-                        self.motors.sendBrake(0)
-                    else:
-                        self.motors.sendThrottle(0.75)
-                        self.motors.sendSteer(steer)
-                        self.motors.sendBrake(break_command)
 
             except NotFoundError as ex:
                 logger.info('Error inside brain: NotFoundError!')
