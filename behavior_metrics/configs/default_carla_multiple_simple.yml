@@ -31,7 +31,7 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: [
-            'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
             ]
         PilotTimeCycle: 100
         Parameters:

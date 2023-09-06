@@ -33,13 +33,13 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
-        PilotTimeCycle: 50
-        AsyncMode: False
+        BrainPath: 'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
+        PilotTimeCycle: 50 # Turn up to reduce number of control decisions
+        AsyncMode: True # Set to False to control simulator time
         Parameters:
-            Model: '20230125-120238_pilotnet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_adam_AFFINE_PAPER.h5'
+            Model: '20230724-125225_pilotnet_CARLA_19_05_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_adam_AFFINE_OPTIMIZATION_PAPER_UPDATED_SHAPE_pretrained_cp.h5'
             ImageCropped: True
-            ImageSize: [ 100,50 ]
+            ImageSize: [ 200,66 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA_launch_files/town_01_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_02_anticlockwise.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
