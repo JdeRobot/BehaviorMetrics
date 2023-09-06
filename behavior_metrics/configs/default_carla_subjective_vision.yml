@@ -33,21 +33,21 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/pytorch/brain_carla_bird_eye_deep_learning_torch.py'
-        PilotTimeCycle: 50
-        AsyncMode: True
+        BrainPath: 'brains/CARLA/brain_carla_subjective_vision_deep_learning_previous_v.py'
+        PilotTimeCycle: 100
+        AsyncMode: False
         Parameters:
-            Model: 'pilotnet_model.pth'
+            Model: '20230428-103315_pilotnet_model_3_151_cp.h5'
             ImageCropped: True
-            ImageSize: [ 100,50 ]
+            ImageSize: [ 200,66 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            UseOptimized: False
+            UseOptimized: True
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA_launch_files/town_02_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_02_anticlockwise_low.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'

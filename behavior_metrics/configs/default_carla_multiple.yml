@@ -35,32 +35,17 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: [
-            'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
-            'brains/CARLA/brain_carla_bird_eye_deep_learning.py',
-
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_t_t-4_t-9.py',
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_t_t-4_t-9.py',
-
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_previous_v.py',
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_previous_v.py',
-
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_previous_v_t_t-4_t-9.py',
-            'brains/CARLA/brain_carla_bird_eye_deep_learning_x3_previous_v_t_t-4_t-9.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
             ]
-        PilotTimeCycle: 100
+        PilotTimeCycle: 50
+        AsyncMode: True
         Parameters:
             Model: [
-                '20230125-120238_pilotnet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_adam_AFFINE_PAPER.h5',
-                '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5',
-
-                '20230130-113041_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_t_5_t_10_dataset_AFFINE_PAPER_cp.h5',
-                '20230127-175740_memDCCP_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_sequences_more_more_extreme_AFFINE_PAPER_cp.h5',
-
-                '20230127-180655_pilotnet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_AFFINE.h5',
-                '20230127-180856_deepestLSTMTinyPilotNet_CARLA_17_10_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_all_towns_vel_30_AFFINE_PAPER.h5',
-
-                '20230130-122642_pilotnet_x3_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5',
-                '20230128-113936_memDCCP_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_velocity_both_directions_all_towns_sequences_more_extreme_previous_V_AFFINE_PAPER_cp.h5'
+                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_fp32',
+                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_fp16',
+                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_int8_2',
                 ]
             ImageCropped: True
             ImageSize: [ 100,50 ]
@@ -74,68 +59,68 @@ Behaviors:
         Name: "Experiment name"
         Description: "Experiment description"
         UseWorldTimeouts: True
-        Timeout: [10, 10, 10, 10, 10, 10, 10] # for each world!
+        Timeout: [10] # for each world!
         Repetitions: 5
     Simulation:
         World: [
-            configs/CARLA_launch_files/town_01_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_01_anticlockwise_no_gui.launch,	
             configs/CARLA_launch_files/town_02_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_03_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
+            configs/CARLA_launch_files/town_03_anticlockwise_no_gui.launch,	
+            configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,	
+            configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,	
+            configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,	
             configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch
             ]
-        RandomSpawnPoint: True
+        RandomSpawnPoint: False
         SpawnPoints: [
             [
-                "10.0, 2.0, 1.37, 0.0, 0.0, 180.0",
+                "10.0, 2.0, 1.37, 0.0, 0.0, 180.0",	                
                 "300.0, -330.0, 1.37, 0.0, 0.0, 0.0",
                 "397.0, -50.0, 1.37, 0.0, 0.0, 90.0",
                 "392.0, -50.0, 1.37, 0.0, 0.0, -90.0",
                 "20.0, -327.0, 1.37, 0.0, 0.0, 180.0"
-            ],
-            [
-                "55.3, -105.6, 1.37, 0.0, 0.0, 180.0",
-                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",
-                "-3.0, -270.6, 1.37, 0.0, 0.0, 90.0",
-                "100.0, -303.0, 1.37, 0.0, 0.0, 180.0",
-                "190.0, -150.0, 1.37, 0.0, 0.0, -90.0"
-            ],
-            [
-                "246.0, 150.0, 1.37, 0.0, 0.0, 90.0",
-                "243.0, -100., 1.37, 0.0, 0.0, 90.0",
-                "-88.0, 170, 1.37, 0.0, 0.0, -90.0",
-                "232.0, 0.0, 1.37, 0.0, 0.0, -90.0",
-                "-50.0, 195, 1.37, 0.0, 0.0, 0.0"
-            ],
-            [
-                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0",
-                "-16.0, -184.6, 1.37, 0.0, 0.0, -90.0",
-                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0",
-                "-16.0, -184.6, 1.37, 0.0, 0.0, -90.0",
-                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0"
-            ],
-            [
-                "20, -187.5, 1.37, 0.0, 0.0, 180.0",
-                "210.1, -87.3, 1.37, 0.0, 0.0, 90.0",
-                "189, -87.3, 1.37, 0.0, 0.0, -90.0",
-                "20, -187.5, 1.37, 0.0, 0.0, 180.0",
-                "210.1, -87.3, 1.37, 0.0, 0.0, 90.0"
-            ],
-            [
-                "659.0, -70.5, 1.37, 0.0, 0.0, -90.0",
-                "351.5, 10.5, 1.37, 0.0, 0.0, 0.0",
-                "351.5, 24.5, 1.37, 0.0, 0.0, 180.0",
-                "672.5, -70.5, 1.37, 0.0, 0.0, 90.0",
-                "659.0, -70.5, 1.37, 0.0, 0.0, -90.0"
-            ],
-            [
-                "-3.0, 243.0, 1.37, 0.0, 0.0, 180.0",
-                "70.5, 5.0, 1.37, 0.0, 0.0, 60.0",
-                "-184.5, -107.2, 1.37, 0.0, 0.0, 180.0",
-                "-3.0, 243.0, 1.37, 0.0, 0.0, 180.0",
-                "70.5, 5.0, 1.37, 0.0, 0.0, 60.0"
+            ],	
+            [	
+                "55.3, -105.6, 1.37, 0.0, 0.0, 180.0",	
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",	
+                "-3.0, -270.6, 1.37, 0.0, 0.0, 90.0",	
+                "100.0, -303.0, 1.37, 0.0, 0.0, 180.0",	
+                "190.0, -150.0, 1.37, 0.0, 0.0, -90.0"	
+            ],	
+            [	
+                "246.0, 150.0, 1.37, 0.0, 0.0, 90.0",	
+                "243.0, -100., 1.37, 0.0, 0.0, 90.0",	
+                "-88.0, 170, 1.37, 0.0, 0.0, -90.0",	
+                "232.0, 0.0, 1.37, 0.0, 0.0, -90.0",	
+                "-50.0, 195, 1.37, 0.0, 0.0, 0.0"	
+            ],	
+            [	
+                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0",	
+                "-16.0, -184.6, 1.37, 0.0, 0.0, -90.0",	
+                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0",	
+                "-16.0, -184.6, 1.37, 0.0, 0.0, -90.0",	
+                "381.5, 60.0, 1.37, 0.0, 0.0, -90.0"	
+            ],	
+            [	
+                "20, -187.5, 1.37, 0.0, 0.0, 180.0",	
+                "210.1, -87.3, 1.37, 0.0, 0.0, 90.0",	
+                "189, -87.3, 1.37, 0.0, 0.0, -90.0",	
+                "20, -187.5, 1.37, 0.0, 0.0, 180.0",	
+                "210.1, -87.3, 1.37, 0.0, 0.0, 90.0"	
+            ],	
+            [	
+                "659.0, -70.5, 1.37, 0.0, 0.0, -90.0",	
+                "351.5, 10.5, 1.37, 0.0, 0.0, 0.0",	
+                "351.5, 24.5, 1.37, 0.0, 0.0, 180.0",	
+                "672.5, -70.5, 1.37, 0.0, 0.0, 90.0",	
+                "659.0, -70.5, 1.37, 0.0, 0.0, -90.0"	
+            ],	
+            [	
+                "-3.0, 243.0, 1.37, 0.0, 0.0, 180.0",	
+                "70.5, 5.0, 1.37, 0.0, 0.0, 60.0",	
+                "-184.5, -107.2, 1.37, 0.0, 0.0, 180.0",	
+                "-3.0, 243.0, 1.37, 0.0, 0.0, 180.0",	
+                "70.5, 5.0, 1.37, 0.0, 0.0, 60.0"	
             ]
         ]
     Dataset:

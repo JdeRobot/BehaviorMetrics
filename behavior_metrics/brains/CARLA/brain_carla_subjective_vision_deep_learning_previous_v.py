@@ -7,9 +7,10 @@ import numpy as np
 import threading
 import time
 import carla
+from PIL import Image
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -21,13 +22,13 @@ from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
-
-#import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
+
 
 class Brain:
 
@@ -51,28 +52,45 @@ class Brain:
 
         self.threshold_image = np.zeros((640, 360, 3), np.uint8)
         self.color_image = np.zeros((640, 360, 3), np.uint8)
+        '''
+        self.lock = threading.Lock()
+        self.threshold_image_lock = threading.Lock()
+        self.color_image_lock = threading.Lock()
+        '''
+        self.cont = 0
+        self.iteration = 0
+
+        # self.previous_timestamp = 0
+        # self.previous_image = 0
+
+        self.previous_commanded_throttle = None
+        self.previous_commanded_steer = None
+        self.previous_commanded_brake = None
+        self.suddenness_distance = []
+        self.suddenness_distance_throttle = []
+        self.suddenness_distance_steer = []
+        self.suddenness_distance_break_command = []
 
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0) # seconds
-        world = client.get_world()
+        self.world = client.get_world()
+        self.world.unload_map_layer(carla.MapLayer.Particles)
         
         time.sleep(5)
-        self.vehicle = world.get_actors().filter('vehicle.*')[0]
+        self.vehicle = self.world.get_actors().filter('vehicle.*')[0]
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
             logger.info("- Models path: " + PRETRAINED_MODELS)
             logger.info("- Model: " + str(model))
 
-        self.previous_bird_eye_view_image = 0
-        self.bird_eye_view_images = 0
-        self.bird_eye_view_unique_images = 0
+        self.previous_speed = 0
 
 
     def update_frame(self, frame_id, data):
@@ -94,7 +112,7 @@ class Brain:
                 
 
             data = np.pad(data, ((extra_top, extra_bottom), (extra_left, extra_right), (0, 0)), mode='constant', constant_values=0)
-
+            
         self.handler.update_frame(frame_id, data)
 
     def update_pose(self, pose_data):
@@ -105,6 +123,10 @@ class Brain:
         image_1 = self.camera_1.getImage().data
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
+        
+        cropped = image[230:-1,:]
+        if self.cont < 20:
+            self.cont += 1
 
         bird_eye_view_1 = self.bird_eye_view.getImage(self.vehicle)
         bird_eye_view_1 = cv2.cvtColor(bird_eye_view_1, cv2.COLOR_BGR2RGB)
@@ -124,7 +146,7 @@ class Brain:
             bird_eye_view_1
         ]
 
-        self.update_frame('frame_1', image_1)
+        self.update_frame('frame_1', image)
         self.update_frame('frame_2', image_2)
         self.update_frame('frame_3', image_3)
 
@@ -132,33 +154,40 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
-        img_base = cv2.resize(bird_eye_view_1, image_shape)
-
-        AUGMENTATIONS_TEST = Compose([
+        image_shape=(200, 66)
+        img = cv2.resize(cropped, image_shape)/255.0
+        
+        """AUGMENTATIONS_TEST = Compose([
             Normalize()
         ])
         image = AUGMENTATIONS_TEST(image=img_base)
-        img = image["image"]
-
-        self.bird_eye_view_images += 1
-        if (self.previous_bird_eye_view_image==img).all() == False:
-            self.bird_eye_view_unique_images += 1
-        self.previous_bird_eye_view_image = img
-
+        img = image["image"]"""
+        
+        #velocity_dim = np.full((150, 50), 0.5)
+        velocity_normalize = np.interp(self.previous_speed, (0, 100), (0, 1))
+        velocity_dim = np.full((66, 200), velocity_normalize)
+        new_img_vel = np.dstack((img, velocity_dim))
+        img = new_img_vel
+        
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
         try:
-            prediction = self.net.predict(img, verbose=0)
+            prediction = self.net.predict(img)
             self.inference_times.append(time.time() - start_time)
-            throttle = prediction[0][0]
-            steer = prediction[0][1] * (1 - (-1)) + (-1)
-            break_command = prediction[0][2]
-
+            throttle_brake_val = np.interp(prediction[0][0], (0, 1), (-1, 1))
+            steer = np.interp(prediction[0][1], (0, 1), (-1, 1))
+            if throttle_brake_val >= 0: # throttle
+                throttle = throttle_brake_val
+                break_command = 0
+            else: # brake
+                throttle = 0
+                break_command = -1*throttle_brake_val
+            
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+            self.previous_speed = vehicle_speed
 
-            if vehicle_speed < 5:
+            if self.cont < 20:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
                 self.motors.sendBrake(0)
@@ -166,6 +195,31 @@ class Brain:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
+
+            if self.previous_commanded_throttle != None:
+                    a = np.array((throttle, steer, break_command))
+                    b = np.array((self.previous_commanded_throttle, self.previous_commanded_steer, self.previous_commanded_brake))
+                    distance = np.linalg.norm(a - b)
+                    self.suddenness_distance.append(distance)
+
+                    a = np.array((throttle))
+                    b = np.array((self.previous_commanded_throttle))
+                    distance_throttle = np.linalg.norm(a - b)
+                    self.suddenness_distance_throttle.append(distance_throttle)
+
+                    a = np.array((steer))
+                    b = np.array((self.previous_commanded_steer))
+                    distance_steer = np.linalg.norm(a - b)
+                    self.suddenness_distance_steer.append(distance_steer)
+
+                    a = np.array((break_command))
+                    b = np.array((self.previous_commanded_brake))
+                    distance_break_command = np.linalg.norm(a - b)
+                    self.suddenness_distance_break_command.append(distance_break_command)
+
+            self.previous_commanded_throttle = throttle
+            self.previous_commanded_steer = steer
+            self.previous_commanded_brake = break_command
         except NotFoundError as ex:
             logger.info('Error inside brain: NotFoundError!')
             logger.warning(type(ex).__name__)

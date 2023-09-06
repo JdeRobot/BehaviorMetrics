@@ -584,7 +584,9 @@ def get_per_model_aggregated_metrics(result, experiments_starting_time_str, expe
             fig.tight_layout()
             plt.xticks(rotation=90)
             plt.legend(handles=color_handles)
-            plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_ ' + experiment_metric_and_title['metric'] + '.png')
+            if len(unique_experiment_model.split('/')) > 1:
+                unique_experiment_model = unique_experiment_model.split('/')[-1]
+            plt.savefig(experiments_starting_time_str + '/' + unique_experiment_model + '_' + experiment_metric_and_title['metric'] + '.png')
             plt.close()
 
 def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_time_str, experiments_metrics_and_titles):

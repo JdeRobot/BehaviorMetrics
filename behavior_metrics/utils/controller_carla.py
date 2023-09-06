@@ -73,14 +73,23 @@ class ControllerCarla:
         self.cvbridge = CvBridge()
 
         client = carla.Client('localhost', 2000)
-        client.set_timeout(10.0) # seconds
+        client.set_timeout(100.0) # seconds
         self.world = client.get_world()
         time.sleep(5)
         self.carla_map = self.world.get_map()
         while len(self.world.get_actors().filter('vehicle.*')) == 0:
             logger.info("Waiting for vehicles!")
             time.sleep(1)
-        self.ego_vehicle = self.world.get_actors().filter('vehicle.*')[0]
+        ego_vehicle_role_name = "ego_vehicle"
+        self.ego_vehicle = None
+        while self.ego_vehicle is None:
+            for vehicle in self.world.get_actors().filter('vehicle.*'):
+                if vehicle.attributes.get('role_name') == ego_vehicle_role_name:
+                    self.ego_vehicle = vehicle
+                    break
+            if self.ego_vehicle is None:
+                logger.info("Waiting for vehicle with role_name 'ego_vehicle'")
+                time.sleep(1)  # sleep for 1 second before checking again
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
         
@@ -238,6 +247,7 @@ class ControllerCarla:
             'carla_map': self.carla_map.name,
             'ego_vehicle': self.ego_vehicle.type_id,
             'vehicles_number': len(self.world.get_actors().filter('vehicle.*')),
+            'async_mode': self.pilot.configuration.async_mode,
             'weather': {
                 'cloudiness': self.weather.cloudiness,
                 'precipitation': self.weather.precipitation,
@@ -301,7 +311,7 @@ class ControllerCarla:
 
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
 
-        if self.pilot.brains.active_brain.cameras_first_images != []:
+        if hasattr(self.pilot.brains.active_brain, 'cameras_first_images') and self.pilot.brains.active_brain.cameras_first_images != []:
             first_images =  self.pilot.brains.active_brain.cameras_first_images
             last_images = self.pilot.brains.active_brain.cameras_last_images
         else:

@@ -1,0 +1,69 @@
+<!-- -->
+<launch>
+
+  <!-- carla parameter -->
+  <arg name='host' default='localhost'/> <!-- host the carla server is running on -->
+  <arg name='port' default='2000'/> <!-- port of the carla server -->
+  <arg name="town" default="Town01"/> <!-- the carla town to load-->
+  <arg name='timeout' default='100'/> <!-- the carla timeout for server communication -->
+  <arg name='passive' default='False'/> <!-- enable/disable passive mode -->
+  <arg name='synchronous_mode' default='True'/>
+  <arg name='synchronous_mode_wait_for_vehicle_control_command' default='False'/><!-- should the ros bridge wait for a vehicle control command before proceeding with the next tick -->
+  <arg name='fixed_delta_seconds' default='0.05'/><!-- frequency of the carla ticks -->
+
+  <!-- vehicles -->
+  <arg name="role_name" default="npc_vehicle_1"/>
+  <arg name="spawn_point" default="80.0, 2.0, 1.37, 0.0, 0.0, 180.0"/>
+  <arg name="target_speed" default="8.33"/> <!-- target speed in m/s that the agent tries to follow -->
+  <arg name="avoid_risk" default="True"/> <!-- should the agent avoid crashs and respect red traffic lights? -->
+  <arg name='ego_vehicles' default='["npc_vehicle_1, "ego_vehicle"]'/>
+
+  <!-- the object json file that configures objects to spawn -->
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/single_ad_car.json'/>
+
+  <!-- ===================================================== -->
+
+  <!-- Publish the target speed -->
+  <node pkg="rostopic" type="rostopic" name="rostopic" args="pub /carla/$(arg role_name)/target_speed std_msgs/Float64 $(arg target_speed)"/>
+  
+  <!-- The ros bridge -->
+  <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
+    <arg name='host' value='$(arg host)'/>
+    <arg name='port' value='$(arg port)'/>
+    <arg name='town' value='$(arg town)'/>
+    <arg name='timeout' value='$(arg timeout)'/>
+    <arg name='passive' value='$(arg passive)'/>
+    <arg name="synchronous_mode" value="$(arg synchronous_mode)"/>
+    <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>
+    <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
+    <arg name='ego_vehicle_role_name' value='$(arg ego_vehicles)'/>
+  </include>
+
+  <!-- spawn the objects -->
+  <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
+    <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
+    <param name="spawn_point_ego_vehicle" value="$(arg spawn_point)"/>
+    <param name="spawn_sensors_only" value="false"/>
+  </node>
+
+  <!-- The agent to control the ego vehicle -->
+  <include file="$(find carla_ad_agent)/launch/carla_ad_agent.launch">
+    <arg name="role_name" value="$(arg role_name)" />
+    <arg name="avoid_risk" value="$(arg avoid_risk)" />
+  </include>
+
+  <!-- Provide a route and access to the CARLA waypoint API (required by carla_ad_agent) -->
+  <!-- <node pkg="carla_waypoint_publisher" type="carla_waypoint_publisher.py" name="carla_waypoint_publisher" output="screen">
+    <param name="role_name" value="$(arg role_name)" />
+    <param name="host" value="$(arg host)" />
+    <param name="port" value="$(arg port)" />
+    <param name="timeout" value="$(arg timeout)"/>
+    <param name="start_publishing" value="false"/>
+  </node> -->
+  
+  <!-- Visualize the ego vehicle (and support overriding the control) -->
+  <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
+    <arg name='role_name' value='ego_vehicle'/>
+  </include>
+
+</launch>

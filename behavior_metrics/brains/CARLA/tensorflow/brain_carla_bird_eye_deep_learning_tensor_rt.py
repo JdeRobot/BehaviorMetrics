@@ -19,6 +19,8 @@ PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
 
 from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
+from tensorflow.python.saved_model import signature_constants
+from tensorflow.python.saved_model import tag_constants
 import tensorflow as tf
 
 #import os
@@ -64,8 +66,8 @@ class Brain:
             logger.info("** Load TF model **")
 
             logger.info("Using TensorRT models.....")
-            self.net = tf.saved_model.load(PRETRAINED_MODELS + model)
-            self.infer = self.net.signatures['serving_default']
+            self.net = tf.saved_model.load(PRETRAINED_MODELS + model, tags=[tag_constants.SERVING])
+            self.infer = self.net.signatures[signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
             self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
             self.inf_func = self.tftrt_inference
 
@@ -150,7 +152,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
+        image_shape=(66, 200)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([

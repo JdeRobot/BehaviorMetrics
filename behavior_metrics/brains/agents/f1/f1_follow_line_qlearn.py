@@ -105,7 +105,6 @@ if __name__ == '__main__':
                 highest_reward = cumulated_reward
 
             nextState = ''.join(map(str, observation))
-#             print(nextState)
 
             qlearn.learn(state, action, reward, nextState)
 
@@ -119,8 +118,6 @@ if __name__ == '__main__':
 
             if step > 3000:
                 print("\n\nLAP COMPLETED!!\n\n")
-
-            # print("Obser: {} - Rew: {}".format(observation, reward))
 
         if episode % 100 == 0:
             plotter.plot(env)
