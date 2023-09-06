@@ -35,17 +35,37 @@ Behaviors:
                     MaxW: 0.3
                     
         BrainPath: [
-            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
-            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
-            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tensor_rt.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py',
+
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
+            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_tf_lite.py',
             ]
         PilotTimeCycle: 50
         AsyncMode: True
         Parameters:
             Model: [
-                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_fp32',
-                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_fp16',
-                'optimized_pilotnet_models_tensorflow/pilotnet_tftrt_int8_2',
+                'pilotnet.h5',
+
+                'optimized_pilotnet_models_tensorflow/pilotnet_model.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_dynamic_quant.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_int_quant.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_intflt_quant.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_float16_quant.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_quant_aware.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_pruned.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_pruned_quan.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_cqat_model.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_pqat_model.tflite',
+                'optimized_pilotnet_models_tensorflow/pilotnet_pcqat_model.tflite'
                 ]
             ImageCropped: True
             ImageSize: [ 100,50 ]
@@ -68,11 +88,11 @@ Behaviors:
         RandomSpawnPoint: False
         SpawnPoints: [
             [
-                "10.0, -307.0, 1.37, 0.0, 0.0, 0.0",
-                "10.0, -307.0, 1.37, 0.0, 0.0, 0.0",
-                "10.0, -307.0, 1.37, 0.0, 0.0, 0.0",
-                "10.0, -307.0, 1.37, 0.0, 0.0, 0.0",
-                "10.0, -307.0, 1.37, 0.0, 0.0, 0.0"
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0",
+                "-7.0, -270.6, 1.37, 0.0, 0.0, -90.0"
             ]
         ]
     Dataset:
