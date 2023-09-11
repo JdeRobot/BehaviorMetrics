@@ -165,6 +165,8 @@ class PilotCarla(threading.Thread):
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
+                if not self.async_mode:
+                    self.controller.world.tick()
         self.execution_completed = True
         self.kill()
         logger.info('Pilot: pilot killed.')
