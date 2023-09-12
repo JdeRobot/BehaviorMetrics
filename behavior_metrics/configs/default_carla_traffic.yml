@@ -33,24 +33,24 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_bird_eye_deep_learning.py'
+        BrainPath: 'brains/CARLA/brain_carla_segmentation_based_imitation_learning.py'
         PilotTimeCycle: 50
         AsyncMode: False
         Parameters:
-            Model: '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5'
-            ImageCropped: True
+            Model: 'pilotnet_v8.0.pth'
+            ImageCropped: False
             ImageSize: [ 100,50 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            UseOptimized: True
+            UseOptimized: False
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA_launch_files/town_01_anticlockwise.launch
+        World: configs/CARLA_launch_files/town_02_anticlockwise_imitation_learning.launch
         RandomSpawnPoint: False
         NumberOfVehicle: 50
-        NumberOfWalker: 50
+        NumberOfWalker: 0
         PercentagePedestriansRunning: 0.5
         PercentagePedestriansCrossing: 0.5
     Dataset:
@@ -62,17 +62,9 @@ Behaviors:
     Layout:
         Frame_0:
             Name: frame_0
-            Geometry: [1, 1, 1, 1]
+            Geometry: [0, 1, 1, 2]
             Data: rgbimage
         Frame_1:
             Name: frame_1
-            Geometry: [0, 1, 1, 1]
-            Data: rgbimage
-        Frame_2:
-            Name: frame_2
-            Geometry: [0, 2, 1, 1]
-            Data: rgbimage
-        Frame_3:
-            Name: frame_3
-            Geometry: [1, 2, 1, 1]
+            Geometry: [1, 1, 1, 2]
             Data: rgbimage
