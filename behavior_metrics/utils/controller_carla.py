@@ -308,7 +308,7 @@ class ControllerCarla:
 
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
 
-        if self.pilot.brains.active_brain.cameras_first_images != []:
+        if hasattr(self.pilot.brains.active_brain, 'cameras_first_images') and self.pilot.brains.active_brain.cameras_first_images != []:
             first_images =  self.pilot.brains.active_brain.cameras_first_images
             last_images = self.pilot.brains.active_brain.cameras_last_images
         else:

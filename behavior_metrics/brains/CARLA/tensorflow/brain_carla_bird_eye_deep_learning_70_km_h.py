@@ -21,6 +21,7 @@ from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
 import tensorflow as tf
 
+
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -62,13 +63,7 @@ class Brain:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
-
-            logger.info("Using TensorRT models.....")
-            self.net = tf.saved_model.load(PRETRAINED_MODELS + model)
-            self.infer = self.net.signatures['serving_default']
-            self.output_tensorname = list(self.infer.structured_outputs.keys())[0]
-            self.inf_func = self.tftrt_inference
-
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
@@ -79,19 +74,8 @@ class Brain:
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
 
-    def tftrt_inference(self, img):
-        """ Utilize the TensorRT optimized model for inference
-        Arguments:
-            img {ndarray} -- Image to make prediction on
-        Return:
-            output -- prediction from the model
-        """
-        # Pre-processing
-        img = tf.convert_to_tensor(img, dtype=tf.float32)
-        # Run inference
-        output = self.infer(img)[self.output_tensorname]
+        self.first_acceleration = True
 
-        return output.numpy()
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -167,7 +151,7 @@ class Brain:
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
         try:
-            prediction = self.inf_func(img)
+            prediction = self.net.predict(img, verbose=0)
             self.inference_times.append(time.time() - start_time)
             throttle = prediction[0][0]
             steer = prediction[0][1] * (1 - (-1)) + (-1)
@@ -176,19 +160,15 @@ class Brain:
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
 
-            if vehicle_speed > 30:
-                self.motors.sendThrottle(0)
+            if vehicle_speed < 70 and self.first_acceleration:
+                self.motors.sendThrottle(1.0)
+                self.motors.sendSteer(0.0)
+                self.motors.sendBrake(0)
+            else:
+                self.first_acceleration = False
+                self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
-            else:
-                if vehicle_speed < 5:
-                    self.motors.sendThrottle(1.0)
-                    self.motors.sendSteer(0.0)
-                    self.motors.sendBrake(0)
-                else:
-                    self.motors.sendThrottle(throttle)
-                    self.motors.sendSteer(steer)
-                    self.motors.sendBrake(break_command)
         except NotFoundError as ex:
             logger.info('Error inside brain: NotFoundError!')
             logger.warning(type(ex).__name__)
@@ -207,7 +187,5 @@ class Brain:
             
         
             
-
-
 
 

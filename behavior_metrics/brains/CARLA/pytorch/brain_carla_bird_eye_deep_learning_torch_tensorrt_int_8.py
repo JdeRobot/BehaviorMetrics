@@ -1,8 +1,11 @@
-from torchvision import transforms
 from PIL import Image
 from brains.f1.torch_utils.pilotnet import PilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
+from albumentations import (
+    Compose, Normalize
+)
+from albumentations.pytorch.transforms  import ToTensorV2
 
 import numpy as np
 
@@ -41,10 +44,11 @@ class Brain:
         self.cont = 0
         self.inference_times = []
         self.gpu_inference = config['GPU']
-        self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
+        self.device = torch.device('cuda')
         self.first_image = None
-        self.transformations = transforms.Compose([
-                                        transforms.ToTensor()
+        self.transformations = Compose([
+                                        Normalize(),
+                                        ToTensorV2()
                                     ])
         
         self.suddenness_distance = []
@@ -62,8 +66,16 @@ class Brain:
                 print("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             
             if config['UseOptimized']:
-                self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
-#                 self.clean_model()
+                print('Loading optimized model TensorRT INT8...')
+                print(PRETRAINED_MODELS + model)
+
+                # INT 8 TensorRT
+                import torch_tensorrt
+                self.net = torch.jit.load(PRETRAINED_MODELS + model).eval().to(self.device)
+                compile_spec = {"inputs": [torch_tensorrt.Input([1, 3, 200, 66])],
+                                "enabled_precisions": torch.int8,
+                                }
+                self.net = torch_tensorrt.compile(self.net, **compile_spec).to(self.device)
             else:
                 self.net = PilotNet((200,66,3), 3).to(self.device)
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
@@ -119,15 +131,16 @@ class Brain:
         self.update_frame('frame_0', bird_eye_view_1)
 
         try:
-            #img = cv2.resize(bird_eye_view_1, (int(200), int(66)))
             img = cv2.resize(bird_eye_view_1, (int(66), int(200)))
-            img = Image.fromarray(img)
-            image = self.transformations(img).unsqueeze(0)
+            image = self.transformations(image=img)
+            image = image['image']
+            image = image.unsqueeze(0) 
             image = FLOAT(image).to(self.device)
             
             start_time = time.time()
             with torch.no_grad():
                 prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
+
             self.inference_times.append(time.time() - start_time)
             
             throttle = prediction[0][0]
@@ -137,14 +150,19 @@ class Brain:
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
 
-            if vehicle_speed < 5:
-                self.motors.sendThrottle(1.0)
-                self.motors.sendSteer(0.0)
-                self.motors.sendBrake(0)
-            else:
-                self.motors.sendThrottle(throttle)
+            if vehicle_speed > 30:
+                self.motors.sendThrottle(0)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
+            else:
+                if vehicle_speed < 5:
+                    self.motors.sendThrottle(1.0)
+                    self.motors.sendSteer(0.0)
+                    self.motors.sendBrake(0)
+                else:
+                    self.motors.sendThrottle(throttle)
+                    self.motors.sendSteer(steer)
+                    self.motors.sendBrake(break_command)
 
         except Exception as err:
             print(err)

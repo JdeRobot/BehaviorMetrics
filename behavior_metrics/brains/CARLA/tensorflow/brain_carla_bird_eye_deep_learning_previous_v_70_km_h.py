@@ -28,6 +28,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 #for gpu in gpus:
 #    tf.config.experimental.set_memory_growth(gpu, True)
 
+
 class Brain:
 
     def __init__(self, sensors, actuators, handler, model, config=None):
@@ -56,25 +57,25 @@ class Brain:
         world = client.get_world()
         
         time.sleep(5)
-        for vehicle in world.get_actors().filter('vehicle.*'):
-            if vehicle.attributes.get('role_name') == 'ego_vehicle':
-                self.vehicle = vehicle
-                break
+        self.vehicle = world.get_actors().filter('vehicle.*')[0]
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
                 logger.info("File " + model + " cannot be found in " + PRETRAINED_MODELS)
             logger.info("** Load TF model **")
-            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model, compile=False)
+            self.net = tf.keras.models.load_model(PRETRAINED_MODELS + model)
             logger.info("** Loaded TF model **")
         else:
             logger.info("** Brain not loaded **")
             logger.info("- Models path: " + PRETRAINED_MODELS)
             logger.info("- Model: " + str(model))
 
+        self.previous_speed = 0
         self.previous_bird_eye_view_image = 0
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
+
+        self.first_acceleration = True
 
 
     def update_frame(self, frame_id, data):
@@ -96,7 +97,7 @@ class Brain:
                 
 
             data = np.pad(data, ((extra_top, extra_bottom), (extra_left, extra_right), (0, 0)), mode='constant', constant_values=0)
-
+            
         self.handler.update_frame(frame_id, data)
 
     def update_pose(self, pose_data):
@@ -148,6 +149,10 @@ class Brain:
             self.bird_eye_view_unique_images += 1
         self.previous_bird_eye_view_image = img
 
+        velocity_dim = np.full((150, 50), self.previous_speed/30)
+        new_img_vel = np.dstack((img, velocity_dim))
+        img = new_img_vel
+
         img = np.expand_dims(img, axis=0)
         start_time = time.time()
         try:
@@ -156,24 +161,20 @@ class Brain:
             throttle = prediction[0][0]
             steer = prediction[0][1] * (1 - (-1)) + (-1)
             break_command = prediction[0][2]
-
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
             self.previous_speed = vehicle_speed
 
-            if vehicle_speed > 30:
-                self.motors.sendThrottle(0)
+            if vehicle_speed < 70 and self.first_acceleration:
+                self.motors.sendThrottle(1.0)
+                self.motors.sendSteer(0.0)
+                self.motors.sendBrake(0)
+            else:
+                self.first_acceleration = False
+                self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
-            else:
-                if vehicle_speed < 5:
-                    self.motors.sendThrottle(1.0)
-                    self.motors.sendSteer(0.0)
-                    self.motors.sendBrake(0)
-                else:
-                    self.motors.sendThrottle(throttle)
-                    self.motors.sendSteer(steer)
-                    self.motors.sendBrake(break_command)
+                
         except NotFoundError as ex:
             logger.info('Error inside brain: NotFoundError!')
             logger.warning(type(ex).__name__)
