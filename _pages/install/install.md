@@ -149,9 +149,10 @@ For installing CARLA and supporting this new simulator:
 
 1. Install [CARLA 0.9.13](https://carla.readthedocs.io/en/0.9.13/start_quickstart/)
 2. Install [CARLA ROS Bridge](https://carla.readthedocs.io/projects/ros-bridge/en/latest/ros_installation_ros1/)
-3. Install [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
+3. Install this [fork](https://github.com/Qi-Zha0/carla-birdeye-view) of the [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
 ```
-    pip3 install carla_birdeye_view==1.1.1 # already in requirements.txt
+    cd /PATH/TO/BEHAVIOR/METRICS/BehaviorMetrics/behavior_metrics
+    git clone https://github.com/Qi-Zha0/carla-birdeye-view
 ```
 4. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
 ```
