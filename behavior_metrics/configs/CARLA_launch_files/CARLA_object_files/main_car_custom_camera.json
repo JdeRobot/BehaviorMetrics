@@ -29,7 +29,7 @@
                 {
                     "type": "sensor.camera.rgb",
                     "id": "rgb_front",
-                    "spawn_point": {"x": 1.5, "y": 0.0, "z": 2.4, "roll": 0.0, "pitch": 0.0, "yaw": 0.0},
+                    "spawn_point": {"x": 1.5, "y": 0.0, "z": 2.4, "roll": 0.0, "pitch": 15.0, "yaw": 0.0},
                     "image_size_x": 288,
                     "image_size_y": 200,
                     "fov": 90.0
@@ -84,7 +84,7 @@
                 {
                     "type": "sensor.camera.semantic_segmentation",
                     "id": "semantic_segmentation_front",
-                    "spawn_point": {"x": 1.5, "y": 0.0, "z": 2.4, "roll": 0.0, "pitch": 0.0, "yaw": 0.0},
+                    "spawn_point": {"x": 1.5, "y": 0.0, "z": 2.4, "roll": 0.0, "pitch": 15.0, "yaw": 0.0},
                     "fov": 90.0,
                     "image_size_x": 288,
                     "image_size_y": 200
@@ -129,7 +129,7 @@
                 {
                     "type": "sensor.other.collision",
                     "id": "collision",
-                    "spawn_point": {"x": 0.0, "y": 0.0, "z": 0.0}
+                    "spawn_point": {"x": 2.5, "y": 0.0, "z": 0.7}
                 },
                 {
                     "type": "sensor.other.lane_invasion",
