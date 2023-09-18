@@ -3,6 +3,7 @@ from PIL import Image
 from brains.CARLA.utils.pilotnet_onehot import PilotNetOneHot
 from brains.CARLA.utils.test_utils import traffic_light_to_int, model_control
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from brains.CARLA.utils.high_level_command import HighLevelCommandLoader
 from os import path
 
 import numpy as np
@@ -29,7 +30,7 @@ class Brain:
         self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
         
         client = carla.Client('localhost', 2000)
-        client.set_timeout(10.0)
+        client.set_timeout(100.0)
         world = client.get_world()
         self.map = world.get_map()
 
@@ -57,7 +58,7 @@ class Brain:
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
                 self.net.eval()
         
-        self.prev_hlc = 0
+        self.hlc_loader = HighLevelCommandLoader(self.vehicle, self.map)
             
     
     def update_frame(self, frame_id, data):
@@ -91,38 +92,14 @@ class Brain:
         self.update_frame('frame_0', rgb_image)
         self.update_frame('frame_1', seg_image)
         
+        start_time = time.time()
         try:
             # calculate speed
             speed_m_s = self.vehicle.get_velocity()
             speed = 3.6 * math.sqrt(speed_m_s.x**2 + speed_m_s.y**2 + speed_m_s.z**2)
             
             # randomly choose high-level command if at junction
-            vehicle_location = self.vehicle.get_transform().location
-            vehicle_waypoint = self.map.get_waypoint(vehicle_location)
-            next_to_junction = False
-            for j in range(1, 11):
-                next_waypoint = vehicle_waypoint.next(j * 1.0)[0]
-                if next_waypoint.is_junction:
-                    next_to_junction = True
-                    next_waypoints = vehicle_waypoint.next(j * 1.0)
-                    break
-            if vehicle_waypoint.is_junction or next_to_junction:
-                if self.prev_hlc == 0:
-                    valid_turns = []
-                    for next_wp in next_waypoints:
-                        yaw_diff = next_wp.transform.rotation.yaw - vehicle_waypoint.transform.rotation.yaw
-                        yaw_diff = (yaw_diff + 180) % 360 - 180
-                        if -15 < yaw_diff < 15:
-                            valid_turns.append(3)  # Go Straight
-                        elif 15 < yaw_diff < 165: 
-                            valid_turns.append(1)  # Turn Left
-                        elif -165 < yaw_diff < -15:
-                            valid_turns.append(2)  # Turn Right
-                    hlc = np.random.choice(valid_turns)
-                else:
-                    hlc = self.prev_hlc
-            else:
-                hlc = 0
+            hlc = self.hlc_loader.get_random_hlc()
 
             # get traffic light status
             light_status = -1
@@ -131,7 +108,7 @@ class Brain:
                 light_status = traffic_light.get_state()
 
             print(f'hlc: {hlc}')
-            print(f'light: {light_status}')
+            #print(f'light: {light_status}')
             frame_data = {
                 'hlc': hlc,
                 'measurements': speed,
@@ -145,6 +122,9 @@ class Brain:
                                     ignore_traffic_light=False, 
                                     device=self.device, 
                                     combined_control=False)
+            
+            self.inference_times.append(time.time() - start_time)
+
             self.motors.sendThrottle(throttle)
             self.motors.sendSteer(steer)
             self.motors.sendBrake(brake)
