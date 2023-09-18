@@ -34,9 +34,13 @@ class Brains(object):
     def load_brain(self, path, model=None):
 
         path_split = path.split("/")
-        robot_type = path_split[-2]
+        robot_type = path_split[1]
         module_name = path_split[-1][:-3]  # removing .py extension
-        import_name = 'brains.' + robot_type + '.' + module_name
+        if len(path_split) == 4:
+            framework = path_split[2]
+            import_name = 'brains.' + robot_type + '.' + framework + '.' + module_name
+        else:
+            import_name = 'brains.' + robot_type + '.' + module_name
 
         if robot_type == 'CARLA':
             module = importlib.import_module(import_name)
