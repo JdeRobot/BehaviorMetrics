@@ -37,13 +37,13 @@ Behaviors:
         PilotTimeCycle: 50 # Turn up to reduce number of control decisions
         AsyncMode: True # Set to False to control simulator time
         Parameters:
-            Model: '20230724-125225_pilotnet_CARLA_19_05_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_adam_AFFINE_OPTIMIZATION_PAPER_UPDATED_SHAPE_pretrained_cp.h5'
+            Model: 'pilotnet.h5'
             ImageCropped: True
             ImageSize: [ 200,66 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            UseOptimized: True
+            UseOptimized: False
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
