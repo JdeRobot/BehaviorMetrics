@@ -48,7 +48,7 @@ Behaviors:
         Type: 'CARLA'
     Simulation:
         Task: "follow_route"
-        WorldTemplate: configs/CARLA_launch_files/town_02_anticlockwise_imitation_learning_template.launch
+        World: configs/CARLA_launch_files/test_suite_template.launch
         TestSuite: configs/test_suites/Town02_two_turns.py
         RandomSpawnPoint: False
         NumberOfVehicle: 50
