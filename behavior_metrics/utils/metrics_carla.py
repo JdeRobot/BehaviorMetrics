@@ -225,16 +225,17 @@ def get_collisions(experiment_metrics, collision_points, df_checkpoints):
     collisions_checkpoints_different = []
     previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = 0, 0
     for point in collision_points:
-        collision_point = df_checkpoints.loc[df_checkpoints['Time'] == point['Time']]
+        idx = (df_checkpoints['Time'] - point['Time']).abs().idxmin()
+        collision_point = df_checkpoints.iloc[idx]
         collisions_checkpoints.append(collision_point)
-        point_1 = np.array([collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']])
+        point_1 = np.array([collision_point['pose.pose.position.x'], collision_point['pose.pose.position.y']])
         point_2 = np.array([previous_collisions_checkpoints_x, previous_collisions_checkpoints_y])
         dist = (point_2 - point_1) ** 2
         dist = np.sum(dist, axis=0)
         dist = np.sqrt(dist)
         if dist > 1:
             collisions_checkpoints_different.append(collision_point)
-        previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = collision_point.iloc[0]['pose.pose.position.x'], collision_point.iloc[0]['pose.pose.position.y']
+        previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = collision_point['pose.pose.position.x'], collision_point['pose.pose.position.y']
 
     experiment_metrics['collisions'] = len(collisions_checkpoints_different)
     return experiment_metrics, collisions_checkpoints
@@ -245,9 +246,11 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points, df_checkpoints)
     previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y = 0, 0
     previous_time = 0
     for point in lane_invasion_points:
-        lane_invasion_point = df_checkpoints.loc[df_checkpoints['Time'] == point['Time']]
+        idx = (df_checkpoints['Time'] - point['Time']).abs().idxmin()
+        lane_invasion_point = df_checkpoints.iloc[idx]
+
         lane_invasion_checkpoints.append(lane_invasion_point)
-        point_1 = np.array([lane_invasion_point.iloc[0]['pose.pose.position.x'], lane_invasion_point.iloc[0]['pose.pose.position.y']])
+        point_1 = np.array([lane_invasion_point['pose.pose.position.x'], lane_invasion_point['pose.pose.position.y']])
         point_2 = np.array([previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y])
         dist = (point_2 - point_1) ** 2
         dist = np.sum(dist, axis=0)
@@ -255,7 +258,7 @@ def get_lane_invasions(experiment_metrics, lane_invasion_points, df_checkpoints)
         if dist > 1 and point['Time'] - previous_time > 0.5:
             lane_invasion_checkpoints_different.append(lane_invasion_point)
         previous_time = point['Time']
-        previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y = lane_invasion_point.iloc[0]['pose.pose.position.x'], lane_invasion_point.iloc[0]['pose.pose.position.y']
+        previous_lane_invasion_checkpoints_x, previous_lane_invasion_checkpoints_y = lane_invasion_point['pose.pose.position.x'], lane_invasion_point['pose.pose.position.y']
 
     experiment_metrics['lane_invasions'] = len(lane_invasion_checkpoints_different)
     return experiment_metrics, lane_invasion_checkpoints
