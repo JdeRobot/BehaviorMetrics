@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA/CARLA_launch_filess/town_01_anticlockwise_parked_bike_car.launch
+        World: configs/CARLA/CARLA_launch_files/town_01_anticlockwise_parked_bike_car.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
