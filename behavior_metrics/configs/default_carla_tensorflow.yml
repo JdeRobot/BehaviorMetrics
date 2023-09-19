@@ -33,11 +33,11 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_slow_and_turn.py'
+        BrainPath: 'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
         PilotTimeCycle: 50 # Turn up to reduce number of control decisions
         AsyncMode: True # Set to False to control simulator time
         Parameters:
-            Model: ''
+            Model: 'pilotnet.h5'
             ImageCropped: True
             ImageSize: [ 200,66 ]
             ImageNormalized: True
