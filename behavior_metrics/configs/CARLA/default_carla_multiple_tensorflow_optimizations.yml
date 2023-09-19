@@ -83,7 +83,7 @@ Behaviors:
         Repetitions: 5
     Simulation:
         World: [
-            configs/CARLA_launch_files/town_02_anticlockwise_no_gui.launch,
+            configs/CARLA/CARLA_launch_files/town_02_anticlockwise_no_gui.launch,
             ]
         RandomSpawnPoint: False
         SpawnPoints: [

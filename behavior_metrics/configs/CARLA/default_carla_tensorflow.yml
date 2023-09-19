@@ -34,20 +34,20 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
-        PilotTimeCycle: 100
-        AsyncMode: False
+        PilotTimeCycle: 50 # Turn up to reduce number of control decisions
+        AsyncMode: True # Set to False to control simulator time
         Parameters:
-            Model: '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5'
+            Model: 'pilotnet.h5'
             ImageCropped: True
-            ImageSize: [ 100,50 ]
+            ImageSize: [ 200,66 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            UseOptimized: True
+            UseOptimized: False
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA_launch_files/town_01_anticlockwise_parked_bike.launch
+        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'

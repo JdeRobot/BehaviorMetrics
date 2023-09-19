@@ -22,6 +22,10 @@ Behaviors:
                 BirdEyeView_0:
                     Name: 'bird_eye_view_0'
                     Topic: ''
+            Speedometer:
+                Speedometer_0:
+                    Name: 'speedometer_0'
+                    Topic: '/carla/ego_vehicle/speedometer'
         Actuators:
             CARLA_Motors:
                 Motors_0:
@@ -29,15 +33,11 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-                    
-        BrainPath: [
-            'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
-            ]
+        BrainPath: 'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning.py'
         PilotTimeCycle: 100
+        AsyncMode: False
         Parameters:
-            Model: [
-                '20221214-102705_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_300_epochs_no_flip_3_output_both_directions_all_towns_PAPER_cp.h5',
-                ]
+            Model: '20230126-183457_deepestLSTMTinyPilotNet_CARLA_14_12_dataset_bird_eye_400_epochs_no_flip_3_output_both_directions_all_towns__less_learning_rate_PAPER_cp.h5'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -46,29 +46,9 @@ Behaviors:
             UseOptimized: True
             ImageTranform: ''
         Type: 'CARLA'
-
-        RandomSpawnPoint: True
-    Experiment:
-        Name: "Experiment name"
-        Description: "Experiment description"
-        Timeout: [10, 10, 10, 10, 10, 10, 10, 10] # for each world!
-        Repetitions: 1
     Simulation:
-        World: [
-
-
-            configs/CARLA_launch_files/town_04_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_04_clockwise_no_gui.launch,
-
-            configs/CARLA_launch_files/town_05_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_05_clockwise_no_gui.launch,
-
-            configs/CARLA_launch_files/town_06_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_06_clockwise_no_gui.launch,
-
-            configs/CARLA_launch_files/town_07_anticlockwise_no_gui.launch,
-            configs/CARLA_launch_files/town_07_clockwise_no_gui.launch
-            ]
+        World: configs/CARLA/CARLA_launch_filess/town_01_anticlockwise_parked_bike_car.launch
+        RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
