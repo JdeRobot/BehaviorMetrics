@@ -15,6 +15,9 @@ Each task comes with its own custom evaluation metrics that can help compare aut
 The main component of the ego vehicle is the brain, which receives sensor data, manipulates it, and generates robot control commands based on it. 
 The inner part of the brain can be controlled by an end-to-end model, written in Tensorflow or PyTorch, a reinforcement learning policy, or even an explicitly programmed policy.
 
+The software provides two main pipelines, a graphical user interface (GUI) and a headless mode (scripted). 
+The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
+
 <img src="./assets/behavior_metrics_full_architecture.png" alt="architecture"/>
 
 ### Installation
@@ -25,22 +28,28 @@ For more information about the project and how to install it, you can consult th
 
 We provide examples for the follow-lane task using CARLA:
 
-* For an example of a robot brain using a Tensorflow model for control, run:
+* For an example of a robot brain using a Tensorflow model for control with GUI pipeline, run:
 
 ```
 python3 driver_carla.py -c configs/CARLA/default_carla_tensorflow.yml -g
 ```
 
-* For an example of a robot brain using a PyTorch model for control, run:
+* For an example of a robot brain using a PyTorch model for control with GUI pipeline, run:
 
 ```
 python3 driver_carla.py -c configs/CARLA/default_carla_torch.yml -g
 ```
 
-* For an example of an explicitly programmed robot brain, run:
+* For an example of an explicitly programmed robot brain with GUI pipeline, run:
 
 ```
 python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
+```
+
+* For an example of the headless pipeline, run:
+
+```
+python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -g
 ```
 
 ### Contributing to the project
