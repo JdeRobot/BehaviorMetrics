@@ -49,7 +49,7 @@ python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
 * For an example of the headless pipeline, run:
 
 ```
-python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -g
+python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -s
 ```
 
 ### Contributing to the project
