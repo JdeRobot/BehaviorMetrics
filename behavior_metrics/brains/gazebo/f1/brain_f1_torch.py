@@ -17,7 +17,7 @@ import cv2
 import time
 import os
 from PIL import Image
-from brains.gazebo.f1.torch_utils.pilotnet import PilotNetss
+from brains.gazebo.f1.torch_utils.pilotnet import PilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 
