@@ -1,5 +1,5 @@
 from PIL import Image
-from brains.f1.torch_utils.pilotnet import PilotNet
+from brains.CARLA.pytorch.utils.pilotnet import PilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 from albumentations import (
@@ -17,7 +17,7 @@ import os
 import math
 import carla
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'CARLA/'
 FLOAT = torch.FloatTensor
 
 class Brain:

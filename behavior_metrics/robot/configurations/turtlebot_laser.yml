@@ -22,5 +22,5 @@ Robot:
                 Topic: '/turtlebotROS/mobile_base/commands/velocity'
                 MaxV: 3
                 MaxW: 0.3
-    BrainPath: 'brains/f1/brain_f1_opencv2.py'
+    BrainPath: 'brains/gazebo/f1/brain_f1_opencv2.py'
     Type: 'turtlebot'

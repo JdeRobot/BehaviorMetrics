@@ -65,7 +65,9 @@ class Brain:
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
 
-        self.motors.sendThrottle(1)
+        self.motors.sendThrottle(0.5)
+        self.motors.sendSteer(0.05)
+
         self.update_frame('frame_0', image)
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)

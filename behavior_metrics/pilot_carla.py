@@ -153,6 +153,7 @@ class PilotCarla(threading.Thread):
                     logger.error(e)
                 except Exception as ex:
                     logger.warning(type(ex).__name__)
+                    logger.warning(ex)
                     logger.warning('ERROR Pilot Carla!')
                     self.stop()
                     self.kill()
