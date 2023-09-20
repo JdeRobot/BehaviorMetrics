@@ -1,7 +1,7 @@
 ---
-title: Quick Start
+title: Quick start Gazebo
 layout: posts
-permalink: /quick_start/
+permalink: /gazebo/quick_start/
 
 collection: posts
 
@@ -95,8 +95,6 @@ If you'd like to train your own brain, we provide you with the [datasets](datase
 To run the application with GUI (Graphic User Interface) just run:
 
 ```bash
-# If using CARLA:
-python3 driver_carla.py -c configs/default_carla.yml -g
 # If using Gazebo:
 python3 driver_gazebo.py -c ./configs/default.yml -g
 ```
@@ -421,31 +419,3 @@ As you type down the name of the frame, you will see how the name in the top-lef
 Once you have chosen the frame name (this is important for later), you have to chose the data type the frame will show, from one of the checkboxes below the name textbox. After that, you will only have to click the **Confirm** button and the sensor will show its data.
 
 {% include gallery id="gallery17" caption="" %}
-
-
-### Launching different objects in CARLA
-
-By default, while running ```python3 driver_carla.py -c configs/default_carla.yml -g``` , CARLA allows to spawn an ego vehicle along with its sensors. The default object file called here can be found in ```$(find carla_spawn_objects)/config/objects.json```.
-
-However, we can spawn different objects in the simulation by changing the object file. 
-
-To spawn, For Eg: an additional car (here an Audi), as an obstacle in CARLA Town, we can add the following in the object file at relevant hierarchy after the ego vehicle object:
-
-```json
-{
-    "type": "vehicle",
-    "id": "vehicle.audi.a2",
-}
-```
-A sample CARLA object file for this can be found [here](https://github.com/JdeRobot/BehaviorMetrics/blob/noetic-devel/behavior_metrics/configs/CARLA_launch_files/CARLA_object_files/parked_car_objects.json).
-
-The new object file env variable can be set as below:
-```bash
-export OBJECT_PATH=<PATH-TO-CARLA-OBJECT-FILE>
-```
-
-Now, replace the value of ```objects_definition_file``` args in the corresponding CARLA launch file with ```'$(env OBJECT_PATH)'```
-
-Sample launch file for this can be found [here](https://github.com/JdeRobot/BehaviorMetrics/blob/noetic-devel/behavior_metrics/configs/CARLA_launch_files/town_01_anticlockwise.launch)
-
-Now, pass this launch file to the CARLA configuration file ```default_carla.yml``` (under the **World** parameter) and run the driver as usual by ```python3 driver_carla.py -c configs/default_carla.yml -g```.

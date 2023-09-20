@@ -1,8 +1,11 @@
 # main links
 main:
 
-  - title: Quick Start
-    url: /quick_start/
+  - title: Quick start Carla
+    url: /carla/quick_start/
+
+  - title: Quick start Gazebo
+    url: /gazebo/quick_start/
 
   - title: Installation
     url: /install/
@@ -10,30 +13,50 @@ main:
   - title: Documentation
     url: /documentation/
 
-# left side bar
+# left-side bar
 docs:
-  - title: Quick Start
-    url: /quick_start/
+  - title: Carla
     children:
+    - title: Quick start
+      url: /carla/quick_start/
     - title: Tutorial
-      url: quick_start/tutorial/
-    - title: Brains zoo
-      url: quick_start/brains_zoo/
+      url: /carla/tutorial/
+    - title: Model zoo
+      url: /carla/model_zoo/
     - title: Datasets
-      url: quick_start/datasets/
+      url: /carla/datasets/
+    - title: Supported tasks and evaluation metrics
+      url: /carla/tasks_and_metrics/
+    - title: Scenarios and vehicles
+      url: /carla/circuit_and_vehicle/
+
+  - title: Gazebo
+    children:
+      - title: Quick start
+        url: /gazebo/quick_start/
+      - title: Tutorial
+        url: /gazebo/tutorial/
+      - title: Model zoo
+        url: /gazebo/model_zoo/
+      - title: Datasets
+        url: /gazebo/datasets/
+      - title: Circuits and weather
+        url: /gazebo/circuit_and_weather/
 
   - title: Installation
-    url: /install/
+    children:
+      - title: Installation
+        url: /install/
 
   - title: Documentation
-    url: /documentation/
     children:
-    - title: Status
-      url: /documentation/status/
+    - title: Documentation
+      url: /documentation/
     - title: Contributing
       url: /documentation/contributing/
-    - title: Circuits and weather selection Gazebo
-      url: /documentation/circuit_and_weather_gazebo/
-    - title: Circuits and vehicles selection CARLA
-      url: /documentation/circuit_and_vehicle_carla/
+    - title: About
+      url: /documentation/about/
+
+
+
   

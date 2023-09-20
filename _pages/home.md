@@ -8,58 +8,70 @@ header:
     #- label: "<i class='fas fa-download'></i> Install now"
     #  url: "/installation/"
 excerpt: 
-  Autonomous driving network comparison tool
+  Autonomous driving solutions comparison software tool
 feature_row:
   - image_path: /assets/images/cover/test_your_network.jpeg
-    alt: "Test your Network"
-    title: "Test your Network"
-    excerpt: "Load, run, get results and compare your network in different environments."
+    alt: "Quick start CARLA examples"
+    title: "Quick start CARLA examples"
+    excerpt: "Load, run, get results and compare an example robot brain in CARLA"
     url: "/quick_start/"
     btn_class: "btn--primary"
-    btn_label: "Learn more"
+    btn_label: "Quick start CARLA examples"
 
   - image_path: /assets/images/cover/install.png
-    alt: "Install"
-    title: "Install"
-    excerpt: "Use of the software. Instructions for replicating project content."
+    alt: "Installation"
+    title: "Installation"
+    excerpt: "Use the software tool for comparing autonomous driving solutions. Install Behavior Metrics"
     url: "/install/"
     btn_class: "btn--primary"
-    btn_label: "Learn more"
+    btn_label: "Installation"
 
   - image_path: /assets/images/cover/logbook.jpg
     alt: "Documentation"
     title: "Documentation"
-    excerpt: "More information about the project. References used, guides, articles, etc."
+    excerpt: "More information about the project architecture. References used, guides, articles, etc."
     url: "/documentation/"
     btn_class: "btn--primary"
-    btn_label: "Learn more"   
+    btn_label: "Documentation"   
 youTube_id: ID7qaEcIu4k
+
+gallery1:
+  - url: /assets/images/behavior_metrics_full_architecture.png
+    image_path: /assets/images/behavior_metrics_full_architecture.png
+    alt: ""
 ---
 
 {% include feature_row %}
 
 **We are always open for new contributions from outside developers. If you want to contribute to this project, please visit the [CONTRIBUTING guide](/documentation/contributing/)**
 
-Behavior Metrics is a tool written in Python that, using the JdeRobot environment, allows to compare different autonomous driving networks as well as programs made manually.
+This software tool provides evaluation capabilities for autonomous driving solutions using simulation. 
+We provide a series of quantitative metrics for the evaluation of autonomous driving solutions with support for two simulators, [CARLA](https://carla.org/) (main supported simulator) and [gazebo](https://gazebosim.org/home) (partial support).
+Currently supported tasks include:
 
-This project aims to have a platform for evaluating and testing complex behaviors for different robots using machine learning and deep learning algorithms. This application provides different functionalities such as:
+* **Follow-lane**
+* **Driving in traffic**
+* **Navigation**
 
-* Loading a simulated environment for different scenarios where you can evaluate complex robots behaviors.
-* Generating datasets to train your models to be tested later.
-* Evaluate the performance of your models by comparing them against other models.
-* Change the scenarios/models (called brains) on the go.
-* Live view of sensor readings.
+Each task comes with its own custom evaluation metrics that can help compare autonomous driving solutions.
+The main component of the ego vehicle is the brain, which receives sensor data, manipulates it, and generates robot control commands based on it. 
+The inner part of the brain can be controlled by an end-to-end model, written in Tensorflow or PyTorch, a reinforcement learning policy, or even an explicitly programmed policy.
 
-The algorithms that command the robots are called **brains**, and that is where the neural logic (behaviors) is at.
+The software provides two main pipelines, a graphical user interface (GUI) and a headless mode (scripted). 
+The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
 
-<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:50%;" />
+{% include gallery id="gallery1" caption=""%}
 
-This project presents different approaches to the follow-the-line exercise but using artificial intelligence to complete the circuits. The solutions presented are:
+### Installation
 
-* Using classification networks.
-* Using regression networks.
-* Using reinforcement learning.
-* Solution for real robots.
+For more information about the installation, go to this [link](/install/). 
+
+### Examples
+
+* [CARLA example](/carla/quick_start/)
+* [Gazebo example](/gazebo/quick_start/)
+
+<img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" />
 
 
 You can see the project status in the [GitHub repository here](https://github.com/JdeRobot/BehaviorMetrics).

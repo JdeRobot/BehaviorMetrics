@@ -1,7 +1,7 @@
 ---
 title: Behavior Metrics tutorial using Tensoflow <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Tensorflow_logo.svg/1200px-Tensorflow_logo.svg.png" alt="TF logo" width="50"/> 
 layout: posts
-permalink: /quick_start/tutorial
+permalink: /gazebo/tutorial
 
 collection: posts
 
