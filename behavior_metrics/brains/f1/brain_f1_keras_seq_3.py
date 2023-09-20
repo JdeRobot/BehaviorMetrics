@@ -23,7 +23,7 @@ from albumentations import (
 )
 from utils.gradcam.gradcam import GradCAM
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'gazebo/tf_models/'
 
 
 class Brain:

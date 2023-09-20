@@ -33,8 +33,8 @@ environments:
 
 inference:
   qlearn:
-    inference_file: models/rl_models/qlearn/20230216-170351_Circuit-simple_States-sp1_Actions-simple_Rewards-followline_center_epsilon-0.05_epoch-4751_step-15001_reward-139266-qtable.npy
-    actions_file: models/rl_models/actions_set_20221128_0938
+    inference_file: models/gazebo/rl_models/qlearn/20230216-170351_Circuit-simple_States-sp1_Actions-simple_Rewards-followline_center_epsilon-0.05_epoch-4751_step-15001_reward-139266-qtable.npy
+    actions_file: models/gazebo/rl_models/actions_set_20221128_0938
 
 algorithm:
     qlearn:

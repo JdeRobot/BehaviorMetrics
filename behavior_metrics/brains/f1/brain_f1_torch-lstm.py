@@ -25,7 +25,7 @@ from albumentations import (
 )
 
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'torch_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'gazebo/torch_models/'
 FLOAT = torch.FloatTensor
 
 class Brain:

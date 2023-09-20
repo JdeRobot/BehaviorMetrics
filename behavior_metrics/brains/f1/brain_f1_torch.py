@@ -21,7 +21,7 @@ from brains.f1.torch_utils.pilotnet import PilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'torch_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'gazebo/torch_models/'
 FLOAT = torch.FloatTensor
 
 class Brain:

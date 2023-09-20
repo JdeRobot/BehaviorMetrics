@@ -17,7 +17,7 @@ import os
 import math
 import carla
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'CARLA/'
 FLOAT = torch.FloatTensor
 
 class Brain:

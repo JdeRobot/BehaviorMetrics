@@ -22,7 +22,7 @@ from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 from collections import deque
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'torch_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'gazebo/torch_models/'
 FLOAT = torch.FloatTensor
 
 class Brain:

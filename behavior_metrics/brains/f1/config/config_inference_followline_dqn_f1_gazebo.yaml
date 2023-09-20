@@ -26,7 +26,7 @@ retraining:
 
 inference:
   dqn:
-    inference_file: models/rl_models/dqn/DQN_sp_16x16_LAPCOMPLETED_Max5334_Epoch596_inTime20230310-223500.model
+    inference_file: models/gazebo/rl_models/dqn/DQN_sp_16x16_LAPCOMPLETED_Max5334_Epoch596_inTime20230310-223500.model
 
 algorithm:
   dqn:
