@@ -6,10 +6,10 @@ import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
 
-import brains.f1rl.utils.settings as settings
-from brains.f1rl.utils.qlearn import QLearn
-from brains.f1rl.utils.settings import actions_set
-from brains.f1rl.utils import liveplot
+import brains.gazebo.f1rl.utils.settings as settings
+from brains.gazebo.f1rl.utils.qlearn import QLearn
+from brains.gazebo.f1rl.utils.settings import actions_set
+from brains.gazebo.f1rl.utils import liveplot
 
 class Brain:
     """Specific brain for the f1 robot with q learning."""

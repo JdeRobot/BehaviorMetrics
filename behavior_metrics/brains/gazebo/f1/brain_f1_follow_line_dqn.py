@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 from gym.envs.registration import register
-from brains.f1.rl_utils.inference import InferencerWrapper
+from brains.gazebo.f1.rl_utils.inference import InferencerWrapper
 import yaml
 import gym
 import numpy as np
@@ -11,7 +11,7 @@ import time
 if 'F1Env-v0' not in gym.envs.registry.env_specs:
     gym.envs.register(
         id='F1Env-v0',
-        entry_point='brains.f1.rl_utils.models:F1Env',
+        entry_point='brains.gazebo.f1.rl_utils.models:F1Env',
         # More arguments here
     )
 else:

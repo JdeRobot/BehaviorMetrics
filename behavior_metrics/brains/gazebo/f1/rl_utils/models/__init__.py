@@ -1,7 +1,7 @@
-from brains.f1.rl_utils.env_type import EnvironmentType
-from brains.f1.rl_utils.exceptions import NoValidEnvironmentType
-from brains.f1.rl_utils.models.f1_env_camera import QlearnF1FollowLineEnvGazebo
-from brains.f1.rl_utils.models.followline_dqn_tf import FollowLineDQNF1GazeboTF
+from brains.gazebo.f1.rl_utils.env_type import EnvironmentType
+from brains.gazebo.f1.rl_utils.exceptions import NoValidEnvironmentType
+from brains.gazebo.f1.rl_utils.models.f1_env_camera import QlearnF1FollowLineEnvGazebo
+from brains.gazebo.f1.rl_utils.models.followline_dqn_tf import FollowLineDQNF1GazeboTF
 
 
 class F1Env:

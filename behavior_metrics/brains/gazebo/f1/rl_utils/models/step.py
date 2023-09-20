@@ -1,7 +1,7 @@
 from geometry_msgs.msg import Twist
 import numpy as np
 import time
-from brains.f1.rl_utils.models.f1_env import F1Env
+from brains.gazebo.f1.rl_utils.models.f1_env import F1Env
 
 
 class StepFollowLine(F1Env):

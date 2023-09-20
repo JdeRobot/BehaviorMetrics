@@ -17,7 +17,7 @@ import cv2
 import time
 import os
 from PIL import Image
-from brains.f1.torch_utils.deepest_lstm_tinypilotnet import DeepestLSTMTinyPilotNet
+from brains.gazebo.f1.torch_utils.deepest_lstm_tinypilotnet import DeepestLSTMTinyPilotNet
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from os import path
 from albumentations import (

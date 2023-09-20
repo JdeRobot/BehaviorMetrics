@@ -2,13 +2,13 @@ import time
 from datetime import datetime
 import pickle
 import gym
-from brains.f1rl.utils import liveplot
+from brains.gazebo.f1rl.utils import liveplot
 import gym_gazebo
 import numpy as np
 from gym import logger, wrappers
-from brains.f1rl.utils.qlearn import QLearn
-import brains.f1rl.utils.settings as settings
-from brains.f1rl.utils.settings import actions_set
+from brains.gazebo.f1rl.utils.qlearn import QLearn
+import brains.gazebo.f1rl.utils.settings as settings
+from brains.gazebo.f1rl.utils.settings import actions_set
 
 
 def render():

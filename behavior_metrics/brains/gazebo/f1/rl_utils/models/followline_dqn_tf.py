@@ -9,7 +9,7 @@
 from geometry_msgs.msg import Twist
 import numpy as np
 
-from brains.f1.rl_utils.models.f1_env import F1Env
+from brains.gazebo.f1.rl_utils.models.f1_env import F1Env
 from .settings import F1GazeboTFConfig
 
 

@@ -9,9 +9,9 @@ from geometry_msgs.msg import Twist
 from gym import spaces
 from sensor_msgs.msg import Image
 
-from brains.f1.rl_utils.settings import QLearnConfig
-from brains.f1.rl_utils.image_f1 import ListenerCamera
-from brains.f1.rl_utils.models.f1_env import F1Env
+from brains.gazebo.f1.rl_utils.settings import QLearnConfig
+from brains.gazebo.f1.rl_utils.image_f1 import ListenerCamera
+from brains.gazebo.f1.rl_utils.models.f1_env import F1Env
 
 
 

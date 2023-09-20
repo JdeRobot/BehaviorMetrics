@@ -4,7 +4,7 @@ from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 import numpy as np
 
-from brains.f1.rl_utils import gazebo_envs
+from brains.gazebo.f1.rl_utils import gazebo_envs
 
 
 class F1Env(gazebo_envs.GazeboEnv):

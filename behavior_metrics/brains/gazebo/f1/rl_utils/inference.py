@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from brains.f1.rl_utils.algorithms import InferencerFactory
+from brains.gazebo.f1.rl_utils.algorithms import InferencerFactory
 
 
 

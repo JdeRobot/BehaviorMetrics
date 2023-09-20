@@ -17,8 +17,8 @@ import matplotlib
 from gym import logger, wrappers
 from keras import backend as K
 
-from brains.f1rl.utils.settings import my_board
-from brains.f1rl.utils.dqn import DeepQ
+from brains.gazebo.f1rl.utils.settings import my_board
+from brains.gazebo.f1rl.utils.dqn import DeepQ
 
 
 # To equal the inputs, we set the channels first and the image next.

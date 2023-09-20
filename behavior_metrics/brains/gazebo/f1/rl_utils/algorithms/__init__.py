@@ -1,6 +1,6 @@
-from brains.f1.rl_utils.algorithms.algorithms_type import AlgorithmsType
-from brains.f1.rl_utils.algorithms.qlearn_f1 import QLearnF1
-from brains.f1.rl_utils.algorithms.dqn_f1 import DQNF1
+from brains.gazebo.f1.rl_utils.algorithms.algorithms_type import AlgorithmsType
+from brains.gazebo.f1.rl_utils.algorithms.qlearn_f1 import QLearnF1
+from brains.gazebo.f1.rl_utils.algorithms.dqn_f1 import DQNF1
 
 class InferencerFactory:
     def __new__(cls, config):
