@@ -16,7 +16,7 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1/brain_f1_torchstacked.py'
+        BrainPath: 'brains/gazebo/f1/brain_f1_torchstacked.py'
         PilotTimeCycle: 50
         Parameters:
             Model: 'model_pilotnet_torch_h5_extreme.ckpt'

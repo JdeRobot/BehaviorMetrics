@@ -12,7 +12,7 @@ from utils.constants import ROOT_PATH
 # This application class serves as a wrapper for the initialization of curses
 # and also manages the actual forms of the application
 
-brains_dir = ROOT_PATH + '/brains/f1/brain_f1_opencv.py'
+brains_dir = ROOT_PATH + '/brains/gazebo/f1/brain_f1_opencv.py'
 dset_dir = ROOT_PATH + '/datasets/'
 logs_dir = ROOT_PATH + '/logs/'
 logs_path = ROOT_PATH + '/logs/log.log'
