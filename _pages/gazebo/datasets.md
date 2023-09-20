@@ -1,7 +1,7 @@
 ---
 title: Datasets
 layout: posts
-permalink: /quick_start/datasets/
+permalink: /gazebo/datasets/
 
 collection: posts
 

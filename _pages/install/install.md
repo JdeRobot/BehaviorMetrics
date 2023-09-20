@@ -8,29 +8,23 @@ sidebar:
 
 
 gallery:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/ros_noetic.jpg
+  - image_path: /assets/images/install/ros_noetic.jpg
     alt: "ROS noetic"
     title: "ROS noetic"
 gallery1:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/behavior-metrics.png
+  - image_path: /assets/images/install/noetic/behavior-metrics.png
     alt: ""
 gallery2:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/jupyter.png
+  - image_path: /assets/images/install/noetic/jupyter.png
     alt: ""
 gallery3:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/terminal.png
+  - image_path: /assets/images/install/noetic/terminal.png
     alt: ""
 gallery4:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/vnc.png
+  - uimage_path: /assets/images/install/noetic/vnc.png
     alt: ""
 gallery5:
-  - url: /install/ros_noetic
-    image_path: /assets/images/install/noetic/vnc-viewer.png
+  - image_path: /assets/images/install/noetic/vnc-viewer.png
     alt: ""
 ---
 
@@ -160,13 +154,13 @@ For installing CARLA and supporting this new simulator:
     export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg   
-    export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
+    export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
 ```
-Note: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../quick_start/)
+Note: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../carla/)
 
 5. Test that everything is correctly set up running the example configuration file:
 ```bash
-  python3 driver_carla.py -c configs/default_carla.yml -g
+  python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
 ```
 
 ## (Optional) Installing for Drone <a name="drone-simulation"></a>
@@ -233,7 +227,7 @@ pxh> commander arm # when launching finishes
 3. Launch drone inside behaviour metrics
 ```
 cd  < path to BehaviorMetrics >
-python3 driver_gazebo.py -c ./configs/default-drone.yml -g
+python3 driver_gazebo.py -c ./configs/gazebo/default-drone.yml -g
 ```
 
 ## Installation using Docker <a name="docker-installation"></a>
@@ -358,7 +352,7 @@ and this window will behave as any other Ubuntu terminal, so you are ready to ru
 
 ```bash
 cd BehaviorMetrics/behavior_metrics/
-python3 driver_gazebo.py -c configs/default.yml -g
+python3 driver_gazebo.py -c configs/gazebo/default.yml -g
 ```
 
 This command will open the Gazebo Simulation in the VNC window. You can also directly run the previous command inside VNC window in a terminal.
@@ -396,4 +390,4 @@ cd BehaviorMetrics/.docker/noetic/
 docker build -t any-tag-you-want .
 ```
 
-From here you are to good to go to the [Quick Start guide!](../quick_start/)
+From here you are to good to go to the [Quick Start guide!](../carla/)
