@@ -33,11 +33,11 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_segmentation_based_imitation_learning.py'
+        BrainPath: ['brains/CARLA/brain_carla_segmentation_based_imitation_learning.py']
         PilotTimeCycle: 50
         AsyncMode: False
         Parameters:
-            Model: 'pilotnet_v8.0.pth'
+            Model: ['pilotnet_v8.0.pth']
             ImageCropped: False
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -46,10 +46,17 @@ Behaviors:
             UseOptimized: False
             ImageTranform: ''
         Type: 'CARLA'
+    Experiment:
+        Name: "Carla Town02 Test Suite"
+        Description: "Testing model in Town02 with each route consisting of two turns."
+        UseWorldTimeouts: False
+        Timeout: [10] # for each world!
     Simulation:
         Task: "follow_route"
-        World: configs/CARLA_launch_files/test_suite_template.launch
+        World: [configs/CARLA_launch_files/test_suite_template.launch]
         TestSuite: configs/test_suites/Town02_two_turns.py
+        RandomizeRoutes: False
+        NumRoutes: 12
         RandomSpawnPoint: False
         NumberOfVehicle: 50
         NumberOfWalker: 0
