@@ -15,7 +15,7 @@ from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
 from traceback import print_exc
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'CARLA/'
 
 from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError

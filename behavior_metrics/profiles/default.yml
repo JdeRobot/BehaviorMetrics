@@ -16,7 +16,7 @@ Behaviors:
                     Topic: '/F1ROS/cmd_vel'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/f1/brain_f1_opencv.py'
+        BrainPath: 'brains/gazebo/f1/brain_f1_opencv.py'
         Type: 'f1'
     Simulation:
         World: /opt/jderobot/share/jderobot/gazebo/launch/simple_circuit.launch

@@ -68,6 +68,7 @@
 *.max
 
 *.h5
+*.pth
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
