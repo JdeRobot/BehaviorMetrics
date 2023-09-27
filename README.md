@@ -59,3 +59,29 @@ python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -s
 If you want to contribute, please first check out [CONTRIBUTING.md](CONTRIBUTING.md) section.
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:20%;" />
+
+### Evaluation modes
+
+Behavior Metrics provides two different evaluation modes, GUI evaluation and headless.
+
+#### GUI
+
+In this mode, activated with flag `-g`, the simulator and software application are displayed.
+
+![alt text](./assets/behavior_metrics_paper_behavior_metrics_gui.png)
+
+#### Headless
+
+In this mode, activated with flag `-s`, the evaluation is conducted without graphical interface.
+
+![alt text](./assets/behavior_metrics_paper_headless.png)
+
+### Robot controller
+
+The robot controller (brain folder) is the main controller of the ego vehicle.
+
+![alt text](./assets/behavior_metrics_paper_robot_controller.png)
+
+Behavior Metrics uses a publish/subscribe design to communicate with the simulator
+
+![alt text](./assets/behavior_metrics_publish_subscribe.png)
