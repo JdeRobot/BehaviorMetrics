@@ -18,7 +18,9 @@ The inner part of the brain can be controlled by an end-to-end model, written in
 The software provides two main pipelines, a graphical user interface (GUI) and a headless mode (scripted). 
 The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
 
-<img src="./assets/behavior_metrics_full_architecture.png" alt="architecture"/>
+
+![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture-1.png)
+
 
 ### Installation
 
