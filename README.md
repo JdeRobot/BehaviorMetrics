@@ -18,7 +18,9 @@ The inner part of the brain can be controlled by an end-to-end model, written in
 The software provides two main pipelines, a graphical user interface (GUI) and a headless mode (scripted). 
 The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
 
-<img src="./assets/behavior_metrics_full_architecture.png" alt="architecture"/>
+
+![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture.png)
+
 
 ### Installation
 
@@ -57,3 +59,29 @@ python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -s
 If you want to contribute, please first check out [CONTRIBUTING.md](CONTRIBUTING.md) section.
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:20%;" />
+
+### Evaluation modes
+
+Behavior Metrics provides two different evaluation modes, GUI evaluation and headless.
+
+#### GUI
+
+In this mode, activated with flag `-g`, the simulator and software application are displayed.
+
+![alt text](./assets/behavior_metrics_paper_behavior_metrics_gui.png)
+
+#### Headless
+
+In this mode, activated with flag `-s`, the evaluation is conducted without graphical interface.
+
+![alt text](./assets/behavior_metrics_paper_headless.png)
+
+### Robot controller
+
+The robot controller (brain folder) is the main controller of the ego vehicle.
+
+![alt text](./assets/behavior_metrics_paper_robot_controller.png)
+
+Behavior Metrics uses a publish/subscribe design to communicate with the simulator
+
+![alt text](./assets/behavior_metrics_publish_subscribe.png)
