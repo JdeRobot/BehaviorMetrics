@@ -10,13 +10,17 @@ class BirdEyeView:
             client,  # carla.Client
             target_size=PixelDimensions(width=100, height=300),
             pixels_per_meter=10,
+            render_lanes_on_junctions=True,
             crop_type=BirdViewCropType.FRONT_AREA_ONLY
         )
 
     def getImage(self, vehicle):
-        birdview = self.birdview_producer.produce(
-            agent_vehicle=vehicle  # carla.Actor (spawned vehicle)
-        )
+        try:
+            birdview = self.birdview_producer.produce(
+                agent_vehicle=vehicle  # carla.Actor (spawned vehicle)
+            )
+        except Exception as ex:
+            print(ex)
         # Mask to RGB image
         image = BirdViewProducer.as_rgb(birdview)
         return image

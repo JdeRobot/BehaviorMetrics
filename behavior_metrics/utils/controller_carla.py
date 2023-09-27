@@ -26,13 +26,11 @@ import time
 import rosbag
 import json
 import math
-
 from utils.logger import logger
 try:
     import carla
 except ModuleNotFoundError as ex:
     logger.error('CARLA is not supported')
-
 from std_srvs.srv import Empty
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -45,7 +43,6 @@ try:
 except ModuleNotFoundError as ex:
     logger.error('CARLA is not supported')
 from PIL import Image
-
 __author__ = 'sergiopaniego'
 __contributors__ = []
 __license__ = 'GPLv3'
@@ -312,7 +309,7 @@ class ControllerCarla:
 
         target_brain_iterations_real_time = 1 / (self.pilot.time_cycle / 1000)
 
-        if self.pilot.brains.active_brain.cameras_first_images != []:
+        if hasattr(self.pilot.brains.active_brain, 'cameras_first_images') and self.pilot.brains.active_brain.cameras_first_images != []:
             first_images =  self.pilot.brains.active_brain.cameras_first_images
             last_images = self.pilot.brains.active_brain.cameras_last_images
         else:

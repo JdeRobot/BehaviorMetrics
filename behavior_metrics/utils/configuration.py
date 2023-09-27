@@ -140,8 +140,23 @@ class Config:
             self.spawn_points = config_data['Behaviors']['Simulation']['SpawnPoints']
         else:
             self.spawn_points = []
-        if 'MultiCar' in config_data['Behaviors']['Simulation']:
-            self.multicar = config_data['Behaviors']['Simulation']['MultiCar']
+        
+        if 'NumberOfVehicle' in config_data['Behaviors']['Simulation']:
+            self.number_of_vehicle = config_data['Behaviors']['Simulation']['NumberOfVehicle']
+        else:
+            self.number_of_vehicle = 0
+        if 'NumberOfWalker' in config_data['Behaviors']['Simulation']:
+            self.number_of_walker = config_data['Behaviors']['Simulation']['NumberOfWalker']
+        else:
+            self.number_of_walker = 0
+        if 'PercentagePedestriansRunning' in config_data['Behaviors']['Simulation']:
+            self.percentage_walker_running = config_data['Behaviors']['Simulation']['PercentagePedestriansRunning']
+        else:
+            self.percentage_walker_running = 0.0
+        if 'PercentagePedestriansCrossing' in config_data['Behaviors']['Simulation']:
+            self.percentage_walker_crossing = config_data['Behaviors']['Simulation']['PercentagePedestriansCrossing']
+        else:
+            self.percentage_walker_crossing = 0.0
 
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']

@@ -1,0 +1,74 @@
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/carla/ego_vehicle/rgb_front/image'
+                Camera_1:
+                    Name: 'camera_1'
+                    Topic: '/carla/ego_vehicle/rgb_view/image'
+                Camera_2:
+                    Name: 'camera_2'
+                    Topic: '/carla/ego_vehicle/semantic_segmentation_front/image'
+                Camera_3:
+                    Name: 'camera_3'
+                    Topic: '/carla/ego_vehicle/dvs_front/image'
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/carla/ego_vehicle/odometry'
+            BirdEyeView:
+                BirdEyeView_0:
+                    Name: 'bird_eye_view_0'
+                    Topic: ''
+            Speedometer:
+                Speedometer_0:
+                    Name: 'speedometer_0'
+                    Topic: '/carla/ego_vehicle/speedometer'
+        Actuators:
+            CARLA_Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/carla/ego_vehicle/vehicle_control_cmd'
+                    MaxV: 3
+                    MaxW: 0.3
+        BrainPath: 'brains/CARLA/brain_carla_slow_and_turn.py'
+        PilotTimeCycle: 50 # Turn up to reduce number of control decisions
+        AsyncMode: True # Set to False to control simulator time
+        Parameters:
+            Model: ''
+            ImageCropped: True
+            ImageSize: [ 200,66 ]
+            ImageNormalized: True
+            PredictionsNormalized: True
+            GPU: True
+            UseOptimized: False
+            ImageTranform: ''
+        Type: 'CARLA'
+    Simulation:
+        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise.launch
+        RandomSpawnPoint: False
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 1, 1]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [1, 2, 1, 1]
+            Data: rgbimage
