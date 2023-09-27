@@ -286,6 +286,7 @@ class ControllerCarla:
         self.experiment_metrics_bag_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
 
         topics = [
+            '/carla/npc_vehicle_1/odometry',
             '/carla/ego_vehicle/odometry',
             '/carla/ego_vehicle/collision',
             '/carla/ego_vehicle/lane_invasion',
@@ -347,7 +348,7 @@ class ControllerCarla:
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
 
         experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename, self.pilot.configuration)
         self.save_metrics(first_images, last_images)
 
         for key, value in self.experiment_metrics.items():

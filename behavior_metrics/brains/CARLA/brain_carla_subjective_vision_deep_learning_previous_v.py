@@ -124,7 +124,7 @@ class Brain:
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
         
-        cropped = image[230:-1,:]
+        cropped = image[200:-1,:]
         if self.cont < 20:
             self.cont += 1
 
@@ -195,6 +195,10 @@ class Brain:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
+                
+            if vehicle_speed >= 35:
+                self.motors.sendThrottle(0.0)
+                self.motors.sendBrake(0.0)
 
             if self.previous_commanded_throttle != None:
                     a = np.array((throttle, steer, break_command))

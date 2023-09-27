@@ -37,7 +37,7 @@ Behaviors:
         PilotTimeCycle: 100
         AsyncMode: False
         Parameters:
-            Model: '20230428-103315_pilotnet_model_3_151_cp.h5'
+            Model: '20230517-094715_pilotnet_model_3_15+101_cp.h5'
             ImageCropped: True
             ImageSize: [ 200,66 ]
             ImageNormalized: True
@@ -47,8 +47,9 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA_launch_files/town_02_anticlockwise_low.launch
+        World: configs/CARLA_launch_files/town_02_anticlockwise_single_ad_npc_low.launch
         RandomSpawnPoint: False
+        MultiCar: True
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

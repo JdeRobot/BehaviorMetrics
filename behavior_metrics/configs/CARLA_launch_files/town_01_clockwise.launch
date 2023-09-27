@@ -28,7 +28,7 @@
   <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
     <arg name='host' value='$(arg host)'/>
     <arg name='port' value='$(arg port)'/>
-    <arg name='town' value='$(arg town)'/>
+    <arg name='town' value='$(arg town)_Opt'/>
     <arg name='timeout' value='$(arg timeout)'/>
     <arg name='passive' value='$(arg passive)'/>
     <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>

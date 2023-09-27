@@ -140,6 +140,8 @@ class Config:
             self.spawn_points = config_data['Behaviors']['Simulation']['SpawnPoints']
         else:
             self.spawn_points = []
+        if 'MultiCar' in config_data['Behaviors']['Simulation']:
+            self.multicar = config_data['Behaviors']['Simulation']['MultiCar']
 
         if self.robot_type == 'f1rl':
             self.action_set = robot['Parameters']['action_set']
