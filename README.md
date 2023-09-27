@@ -19,7 +19,7 @@ The software provides two main pipelines, a graphical user interface (GUI) and a
 The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
 
 
-![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture-1.png)
+![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture.png)
 
 
 ### Installation
