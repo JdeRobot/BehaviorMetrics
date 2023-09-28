@@ -84,8 +84,4 @@ The robot controller (brain folder) is the main controller of the ego vehicle.
 
 Behavior Metrics uses a publish/subscribe design to communicate with the simulator
 
-<<<<<<< HEAD
 ![alt text](./assets/behavior_metrics_publish_subscribe.png)
-=======
-![alt text](./assets/behavior_metrics_publish_subscribe.png)
->>>>>>> upstream/noetic-devel
