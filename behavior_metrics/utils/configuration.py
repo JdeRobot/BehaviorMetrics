@@ -141,6 +141,11 @@ class Config:
         else:
             self.spawn_points = []
         
+        if 'MultiCar' in config_data['Behaviors']['Simulation']:
+            self.multicar = config_data['Behaviors']['Simulation']['MultiCar']
+        else:
+            self.multicar = False
+        
         if 'NumberOfVehicle' in config_data['Behaviors']['Simulation']:
             self.number_of_vehicle = config_data['Behaviors']['Simulation']['NumberOfVehicle']
         else:

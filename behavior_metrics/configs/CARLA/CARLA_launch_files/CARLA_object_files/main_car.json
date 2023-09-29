@@ -156,6 +156,22 @@
                     "id": "control"
                 }
             ]
+        },
+        {
+            "type": "vehicle.audi.a2",
+            "id": "npc_vehicle_1",
+            "spawn_point": {"x": 60.0, "y": 2.0, "z": 1.37, "roll": 0.0, "pitch": 0.0, "yaw": 180.0},
+            "sensors":
+            [
+                {
+                    "type": "sensor.pseudo.objects",
+                    "id": "objects"
+                },
+                {
+                    "type": "sensor.pseudo.odom",
+                    "id": "odometry"
+                }
+            ]
         }
     ]
 }

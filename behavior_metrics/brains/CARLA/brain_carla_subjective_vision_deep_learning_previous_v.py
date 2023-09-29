@@ -77,7 +77,10 @@ class Brain:
         self.world.unload_map_layer(carla.MapLayer.Particles)
         
         time.sleep(5)
-        self.vehicle = self.world.get_actors().filter('vehicle.*')[0]
+        self.vehicle = next(
+            (p for p in self.world.get_actors() if 'vehicle' in p.type_id and p.attributes.get('role_name') == 'ego_vehicle'),
+            None
+        )
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
@@ -195,7 +198,7 @@ class Brain:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
-                
+            
             if vehicle_speed >= 35:
                 self.motors.sendThrottle(0.0)
                 self.motors.sendBrake(0.0)

@@ -19,7 +19,7 @@
   <!--<arg name="spawn_point" default="-7.0, -120.6, 1.37, 0.0, 0.0, -90.0"/>-->
   <!--<arg name="spawn_point" default="-7.0, -270.6, 1.37, 0.0, 0.0, -90.0"/>-->
 
-  <arg name="spawn_point" default="10.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>
+  <!--<arg name="spawn_point" default="10.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
   <!--<arg name="spawn_point" default="100.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
   <!--<arg name="spawn_point" default="150.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
 
@@ -62,13 +62,20 @@
     <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
   </include>
 
-  <!-- the ego vehicle, that will be controlled by an agent (e.g. carla_ad_agent) -->
-  <include file="$(find carla_spawn_objects)/launch/carla_example_ego_vehicle.launch">
-    <arg name="objects_definition_file" value='$(find carla_spawn_objects)/config/objects.json'/>
-    <arg name='role_name' value='$(arg role_name)'/>
-    <arg name="spawn_point_ego_vehicle" value="$(arg spawn_point)"/>
-    <arg name="spawn_sensors_only" value="false"/>
-  </include>
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car.json'/>
+
+  <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
+  <arg name="ego_spawn_point" default="150.3, -307.0, 1.37, 0.0, 0.0, 0.0"/>
+  <arg name='npc_1_role_name' default='npc_vehicle_1'/>
+  <arg name="npc_1_spawn_point" default="194.0, -285.0, 1.37, 0.0, 0.0, 90.0"/> 
+
+  <!-- spawn the objects -->
+  <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
+    <param name="spawn_point_$(arg ego_vehicle_role_name)" value="$(arg ego_spawn_point)"/>
+    <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
+    <param name="spawn_point_$(arg npc_1_role_name)" value="$(arg npc_1_spawn_point)" />
+    <param name="spawn_sensors_only" value="false"/>
+  </node>
 
   <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
     <arg name='role_name' value='$(arg role_name)'/>
