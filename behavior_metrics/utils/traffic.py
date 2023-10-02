@@ -37,7 +37,7 @@ class TrafficManager:
         for p in self.world.get_actors():
             if 'vehicle' in p.type_id:
                 if p.attributes['role_name'] != 'ego_vehicle':
-                    set_autopilot(p, True, self.traffic_manager.get_port())
+                    p.set_autopilot(True, self.traffic_manager.get_port())
                     
         if self.n_vehicle > 0:
             self.spawn_vehicles(self.world, self.client, self.n_vehicle, self.traffic_manager)
@@ -110,7 +110,7 @@ class TrafficManager:
             if blueprint.has_attribute('driver_id'):
                 driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)
                 blueprint.set_attribute('driver_id', driver_id)
-            blueprint.set_attribute('role_name', 'npc_vehicle_1')
+            blueprint.set_attribute('role_name', 'autopilot')
 
 
             batch.append(spawn_actor(blueprint, transform)
