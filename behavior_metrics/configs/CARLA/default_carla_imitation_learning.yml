@@ -1,0 +1,70 @@
+Behaviors:
+    Robot:
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Topic: '/carla/ego_vehicle/rgb_front/image'
+                Camera_1:
+                    Name: 'camera_1'
+                    Topic: '/carla/ego_vehicle/rgb_view/image'
+                Camera_2:
+                    Name: 'camera_2'
+                    Topic: '/carla/ego_vehicle/semantic_segmentation_front/image'
+                Camera_3:
+                    Name: 'camera_3'
+                    Topic: '/carla/ego_vehicle/dvs_front/image'
+            Pose3D:
+                Pose3D_0:
+                    Name: 'pose3d_0'
+                    Topic: '/carla/ego_vehicle/odometry'
+            BirdEyeView:
+                BirdEyeView_0:
+                    Name: 'bird_eye_view_0'
+                    Topic: ''
+            Speedometer:
+                Speedometer_0:
+                    Name: 'speedometer_0'
+                    Topic: '/carla/ego_vehicle/speedometer'
+        Actuators:
+            CARLA_Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: '/carla/ego_vehicle/vehicle_control_cmd'
+                    MaxV: 3
+                    MaxW: 0.3
+        BrainPath: 'brains/CARLA/brain_carla_segmentation_based_imitation_learning.py'
+        PilotTimeCycle: 50
+        AsyncMode: False
+        Parameters:
+            Model: 'pilotnet_v8.0.pth'
+            ImageCropped: False
+            ImageSize: [ 100,50 ]
+            ImageNormalized: True
+            PredictionsNormalized: True
+            GPU: True
+            UseOptimized: False
+            ImageTranform: ''
+        Type: 'CARLA'
+    Simulation:
+        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_imitation_learning.launch
+        RandomSpawnPoint: False
+        NumberOfVehicle: 50
+        NumberOfWalker: 0
+        PercentagePedestriansRunning: 0.5
+        PercentagePedestriansCrossing: 0.5
+    Dataset:
+        In: '/tmp/my_bag.bag'
+        Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: './perfect_bags/lap-simple-circuit.bag'
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [0, 1, 1, 2]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [1, 1, 1, 2]
+            Data: rgbimage
