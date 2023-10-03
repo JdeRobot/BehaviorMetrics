@@ -684,9 +684,9 @@ def get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2):
     experiment_metrics['great_distance_km'] = great_distance
     experiment_metrics['total_distance_to_front_car'] = total_distance
     
-    experiment_metrics['dangerous_distance_pct_km'] = total_distance and dangerous_distance / total_distance or 0
-    experiment_metrics['close_distance_pct_km'] = total_distance and close_distance / total_distance or 0
-    experiment_metrics['medium_distance_pct_km'] = total_distance and medium_distance / total_distance or 0
-    experiment_metrics['great_distance_pct_km'] = total_distance and great_distance / total_distance or 0
+    experiment_metrics['dangerous_distance_pct_km'] = (total_distance and dangerous_distance / total_distance or 0) * 100
+    experiment_metrics['close_distance_pct_km'] = (total_distance and close_distance / total_distance or 0) * 100
+    experiment_metrics['medium_distance_pct_km'] = (total_distance and medium_distance / total_distance or 0) * 100
+    experiment_metrics['great_distance_pct_km'] = (total_distance and great_distance / total_distance or 0) * 100
     
     return experiment_metrics

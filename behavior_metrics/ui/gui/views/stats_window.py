@@ -128,5 +128,13 @@ class CARLAStatsWindow(QMainWindow):
         self.layout.addWidget(self.suddenness_distance_speed_label)
         self.suddenness_distance_speed_per_km_label = QLabel("Suddenness distance speed per km -> " + str(self.controller.experiment_metrics['suddenness_distance_speed_per_km']))
         self.layout.addWidget(self.suddenness_distance_speed_per_km_label)
+        self.dangerous_distance_pct_km = QLabel("Percentage of dangerous distance per km -> " + str(self.controller.experiment_metrics['dangerous_distance_pct_km']))
+        self.layout.addWidget(self.dangerous_distance_pct_km)
+        self.close_distance_pct_km = QLabel("Percentage of close distance per km -> " + str(self.controller.experiment_metrics['close_distance_pct_km']))
+        self.layout.addWidget(self.close_distance_pct_km)
+        self.medium_distance_pct_km = QLabel("Percentage of medium distance per km -> " + str(self.controller.experiment_metrics['medium_distance_pct_km']))
+        self.layout.addWidget(self.medium_distance_pct_km)
+        self.great_distance_pct_km = QLabel("Percentage of great distance per km -> " + str(self.controller.experiment_metrics['great_distance_pct_km']))
+        self.layout.addWidget(self.great_distance_pct_km)
 
         wid.setLayout(self.layout)
