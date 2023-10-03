@@ -266,23 +266,23 @@ class ControllerCarla:
                 self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
             else:
                 self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
+
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
-            if brain_counter is not None:
-                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model[brain_counter]
-            else:
-                self.experiment_metrics['experiment_model'] = self.pilot.configuration.experiment_model
+
         if hasattr(self.pilot.configuration, 'experiment_name'):
             self.experiment_metrics['experiment_name'] = self.pilot.configuration.experiment_name
             self.experiment_metrics['experiment_description'] = self.pilot.configuration.experiment_description
             self.experiment_metrics['experiment_timeout'] = self.pilot.configuration.experiment_timeouts[world_counter]
             self.experiment_metrics['experiment_repetition'] = repetition_counter
+        
 
         self.metrics_record_dir_path = metrics_record_dir_path
         os.mkdir(self.metrics_record_dir_path + self.time_str)
         self.experiment_metrics_bag_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str + '.bag'
 
         topics = [
+            '/carla/npc_vehicle_1/odometry',
             '/carla/ego_vehicle/odometry',
             '/carla/ego_vehicle/collision',
             '/carla/ego_vehicle/lane_invasion',
@@ -329,13 +329,21 @@ class ControllerCarla:
             self.experiment_metrics['gpu_mean_inference_time'] = sum(self.pilot.brains.active_brain.inference_times) / len(self.pilot.brains.active_brain.inference_times)
             self.experiment_metrics['gpu_inference_frequency'] = 1 / self.experiment_metrics['gpu_mean_inference_time']
             self.experiment_metrics['gpu_inference'] = self.pilot.brains.active_brain.gpu_inference
+        else:
+            self.experiment_metrics['gpu_mean_inference_time'] = 0
+            self.experiment_metrics['gpu_inference_frequency'] = 0
+            self.experiment_metrics['gpu_inference'] = 0
 
         if hasattr(self.pilot.brains.active_brain, 'bird_eye_view_images'):
-            self.experiment_metrics['brain_iterations_simulated_time'] = len(self.pilot.brain_iterations_simulated_time)
             self.experiment_metrics['bird_eye_view_images'] = self.pilot.brains.active_brain.bird_eye_view_images
             self.experiment_metrics['bird_eye_view_unique_images'] = self.pilot.brains.active_brain.bird_eye_view_unique_images
             self.experiment_metrics['bird_eye_view_unique_images_percentage'] = self.experiment_metrics['bird_eye_view_unique_images'] / self.experiment_metrics['bird_eye_view_images']
+        else:
+            self.experiment_metrics['bird_eye_view_images'] = 0
+            self.experiment_metrics['bird_eye_view_unique_images'] = 0
+            self.experiment_metrics['bird_eye_view_unique_images_percentage'] = 0
 
+        self.experiment_metrics['brain_iterations_simulated_time'] = len(self.pilot.brain_iterations_simulated_time)
         self.experiment_metrics['mean_brain_iterations_real_time'] = mean_brain_iterations_real_time
         self.experiment_metrics['brain_iterations_frequency_real_time'] = brain_iterations_frequency_real_time
         self.experiment_metrics['target_brain_iterations_real_time'] = target_brain_iterations_real_time
@@ -344,7 +352,7 @@ class ControllerCarla:
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
 
         experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename, self.pilot.configuration)
         self.save_metrics(first_images, last_images)
 
         for key, value in self.experiment_metrics.items():

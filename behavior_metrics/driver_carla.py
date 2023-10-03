@@ -250,7 +250,23 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
         },
         {
             'metric': 'suddenness_distance_speed_per_km',
-            'title': 'uddenness distance speed per km per experiment'
+            'title': 'Suddenness distance speed per km per experiment'
+        },
+        {
+            'metric': 'dangerous_distance_pct_km',
+            'title': 'Percentage of dangerous distance per km'
+        },
+        {
+            'metric': 'close_distance_pct_km',
+            'title': 'Percentage of close distance per km'
+        },
+        {
+            'metric': 'medium_distance_pct_km',
+            'title': 'Percentage of medium distance per km'
+        },
+        {
+            'metric': 'great_distance_pct_km',
+            'title': 'Percentage of great distance per km'
         },
         {
             'metric': 'completed_laps',

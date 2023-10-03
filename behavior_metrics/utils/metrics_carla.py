@@ -46,7 +46,8 @@ def circuit_distance_completed(checkpoints, lap_point):
     return diameter
 
 
-def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoints, experiment_metrics_filename):
+def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoints, experiment_metrics_filename, config):
+    
     time_counter = 5
     while not os.path.exists(experiment_metrics_bag_filename):
         time.sleep(1)
@@ -70,6 +71,13 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
     checkpoints = []
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
+
+    if config.multicar:
+        data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-npc_vehicle_1-odometry.csv'
+        dataframe_pose = pd.read_csv(data_file)
+        checkpoints_2 = []
+        for index, row in dataframe_pose.iterrows():
+            checkpoints_2.append(row)
 
     data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/clock.csv'
     dataframe_clock = pd.read_csv(data_file)
@@ -116,6 +124,8 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics, collisions_checkpoints = get_collisions(experiment_metrics, collision_points, dataframe_pose)
         experiment_metrics, lane_invasion_checkpoints = get_lane_invasions(experiment_metrics, lane_invasion_points, dataframe_pose)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
+        if config.multicar:
+            experiment_metrics = get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2)
 
         if 'bird_eye_view_images' in experiment_metrics:
             experiment_metrics['bird_eye_view_images_per_second'] = experiment_metrics['bird_eye_view_images'] / experiment_metrics['experiment_total_simulated_time']
@@ -630,3 +640,53 @@ def get_all_experiments_aggregated_metrics_boxplot(result, experiments_starting_
             plt.ylim(0, max_value+max_value*0.1)
         plt.savefig(experiments_starting_time_str + '/' + experiment_metric_and_title['metric'] + '_boxplot.png', bbox_inches='tight')
         plt.close()
+
+def get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2):
+    dangerous_distance = 0  
+    close_distance = 0
+    medium_distance = 0
+    great_distance = 0
+    total_distance = 0
+    
+    dangerous_distance_pct_km = 0  
+    close_distance_pct_km = 0
+    medium_distance_pct_km = 0
+    great_distance_pct_km = 0
+    total_distance_pct_km = 0
+
+    for i, (point, point_2) in enumerate(zip(checkpoints, checkpoints_2)):
+        current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
+        current_checkpoint_2 = np.array([point_2['pose.pose.position.x'], point_2['pose.pose.position.y']])
+        
+        if i != 0:
+            distance_front = np.linalg.norm(current_checkpoint - current_checkpoint_2)
+            distance = np.linalg.norm(previous_point - current_checkpoint)
+
+            # Analyzing
+            if 20 < distance_front < 50:
+                great_distance += distance
+                total_distance += distance
+            elif 15 < distance_front <= 20:
+                medium_distance += distance
+                total_distance += distance
+            elif 6 < distance_front <= 15:
+                close_distance += distance
+                total_distance += distance
+            elif distance_front <= 6:
+                dangerous_distance += distance
+                total_distance += distance
+                
+        previous_point = current_checkpoint
+            
+    experiment_metrics['dangerous_distance_km'] = dangerous_distance
+    experiment_metrics['close_distance_km'] = close_distance
+    experiment_metrics['medium_distance_km'] = medium_distance
+    experiment_metrics['great_distance_km'] = great_distance
+    experiment_metrics['total_distance_to_front_car'] = total_distance
+    
+    experiment_metrics['dangerous_distance_pct_km'] = (total_distance and dangerous_distance / total_distance or 0) * 100
+    experiment_metrics['close_distance_pct_km'] = (total_distance and close_distance / total_distance or 0) * 100
+    experiment_metrics['medium_distance_pct_km'] = (total_distance and medium_distance / total_distance or 0) * 100
+    experiment_metrics['great_distance_pct_km'] = (total_distance and great_distance / total_distance or 0) * 100
+    
+    return experiment_metrics

@@ -77,7 +77,10 @@ class Brain:
         self.world.unload_map_layer(carla.MapLayer.Particles)
         
         time.sleep(5)
-        self.vehicle = self.world.get_actors().filter('vehicle.*')[0]
+        self.vehicle = next(
+            (p for p in self.world.get_actors() if 'vehicle' in p.type_id and p.attributes.get('role_name') == 'ego_vehicle'),
+            None
+        )
 
         if model:
             if not path.exists(PRETRAINED_MODELS + model):
@@ -124,7 +127,7 @@ class Brain:
         image_2 = self.camera_2.getImage().data
         image_3 = self.camera_3.getImage().data
         
-        cropped = image[230:-1,:]
+        cropped = image[200:-1,:]
         if self.cont < 20:
             self.cont += 1
 
@@ -195,6 +198,10 @@ class Brain:
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)
+            
+            if vehicle_speed >= 35:
+                self.motors.sendThrottle(0.0)
+                self.motors.sendBrake(0.0)
 
             if self.previous_commanded_throttle != None:
                     a = np.array((throttle, steer, break_command))

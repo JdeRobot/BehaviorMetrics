@@ -4,14 +4,13 @@
   <arg name='host' default='localhost'/>
   <arg name='port' default='2000'/>
   <arg name='timeout' default='10'/>
+  <arg name='quality' default='Low'/>
 
   <!-- Ego vehicle -->
   <arg name='role_name' default='ego_vehicle'/>
   <arg name="vehicle_filter" default='vehicle.*'/>
   <!--<arg name="spawn_point" default=""/>--><!-- use comma separated format "x,y,z,roll,pitch,yaw" -->
-  <!--<arg name="spawn_point" default="-3.7, -251.4, 1.37, 0.0, 0.0, 90.0"/>-->
-  <arg name="spawn_point" default="50.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>
-  
+
   <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
   <arg name="town" default='Town02'/>
 
@@ -21,7 +20,6 @@
   <!-- Synchronous mode-->
   <arg name='synchronous_mode_wait_for_vehicle_control_command' default='False'/>
   <arg name='fixed_delta_seconds' default='0.05'/>
-
 
   <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
     <arg name='host' value='$(arg host)'/>
@@ -33,13 +31,20 @@
     <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
   </include>
 
-  <!-- the ego vehicle, that will be controlled by an agent (e.g. carla_ad_agent) -->
-  <include file="$(find carla_spawn_objects)/launch/carla_example_ego_vehicle.launch">
-    <arg name="objects_definition_file" value='$(find carla_spawn_objects)/config/objects.json'/>
-    <arg name='role_name' value='$(arg role_name)'/>
-    <arg name="spawn_point_ego_vehicle" value="$(arg spawn_point)"/>
-    <arg name="spawn_sensors_only" value="false"/>
-  </include>
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/single_ad_car_subjective_vision.json'/>
+
+  <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
+  <arg name="ego_spawn_point" default="150.3, -307.0, 1.37, 0.0, 0.0, 0.0"/>
+  <arg name='npc_1_role_name' default='npc_vehicle_1'/>
+  <arg name="npc_1_spawn_point" default="194.0, -285.0, 1.37, 0.0, 0.0, 90.0"/> 
+
+  <!-- spawn the objects -->
+  <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
+    <param name="spawn_point_$(arg ego_vehicle_role_name)" value="$(arg ego_spawn_point)"/>
+    <param name="objects_definition_file" value="$(arg objects_definition_file)"/>
+    <param name="spawn_point_$(arg npc_1_role_name)" value="$(arg npc_1_spawn_point)" />
+    <param name="spawn_sensors_only" value="false"/>
+  </node>
 
   <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
     <arg name='role_name' value='$(arg role_name)'/>
