@@ -11,37 +11,6 @@
   <arg name="vehicle_filter" default='vehicle.*'/>
   <!--<arg name="spawn_point" default=""/>--><!-- use comma separated format "x,y,z,roll,pitch,yaw" -->
 
-  <!--ANTICLOCKWISE-->
-  <!--<arg name="spawn_point" default="55.3, -105.6, 1.37, 0.0, 0.0, 180.0"/>-->
-  <!--<arg name="spawn_point" default="10.3, -105.6, 1.37, 0.0, 0.0, 180.0"/>-->
-  <!--<arg name="spawn_point" default="100.3, -105.6, 1.37, 0.0, 0.0, 180.0"/>-->
-
-  <!--<arg name="spawn_point" default="-7.0, -120.6, 1.37, 0.0, 0.0, -90.0"/>-->
-  <!--<arg name="spawn_point" default="-7.0, -270.6, 1.37, 0.0, 0.0, -90.0"/>-->
-
-  <!--<arg name="spawn_point" default="10.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
-  <!--<arg name="spawn_point" default="100.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
-  <!--<arg name="spawn_point" default="150.0, -307.0, 1.37, 0.0, 0.0, 0.0"/>-->
-
-  <!--<arg name="spawn_point" default="193.0, -290.0, 1.37, 0.0, 0.0, 90.0"/>-->
-  <!--<arg name="spawn_point" default="193.0, -150.6, 1.37, 0.0, 0.0, 90.0"/>-->
-
-  <!--CLOCKWISE-->
-  <!--<arg name="spawn_point" default="55.3, -110, 1.37, 0.0, 0.0, 0.0"/>-->
-  <!--<arg name="spawn_point" default="10.3, -110, 1.37, 0.0, 0.0, 0.0"/>-->
-  <!--<arg name="spawn_point" default="100.3, -110, 1.37, 0.0, 0.0, 0.0"/>-->
-
-  <!--<arg name="spawn_point" default="-3.0, -120.6, 1.37, 0.0, 0.0, 90.0"/>-->
-  <!--<arg name="spawn_point" default="-3.0, -270.6, 1.37, 0.0, 0.0, 90.0"/>-->
-
-  <!--<arg name="spawn_point" default="10.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
-  <!--<arg name="spawn_point" default="100.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
-  <!--<arg name="spawn_point" default="150.0, -303.0, 1.37, 0.0, 0.0, 180.0"/>-->
-
-  <!--<arg name="spawn_point" default="190.0, -290.0, 1.37, 0.0, 0.0, -90.0"/>-->
-  <!--<arg name="spawn_point" default="190.0, -150.0, 1.37, 0.0, 0.0, -90.0"/>-->
-
-
   <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
   <arg name="town" default='Town02'/>
 
@@ -62,7 +31,7 @@
     <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
   </include>
 
-  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car.json'/>
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/single_ad_car_subjective_vision.json'/>
 
   <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
   <arg name="ego_spawn_point" default="150.3, -307.0, 1.37, 0.0, 0.0, 0.0"/>

@@ -29,9 +29,10 @@
                 {
                     "type": "sensor.camera.rgb",
                     "id": "rgb_front",
-                    "spawn_point": {"x": 2.5, "y": 0.0, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0},
-                    "image_size_x": 640,
-                    "image_size_y": 480
+                    "spawn_point": {"x": 2.0, "y": 0.0, "z": 2.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0},
+                    "image_size_x": 800,
+                    "image_size_y": 600,
+                    "fov": 90.0
                 },
                 {
                     "type": "sensor.camera.rgb",
@@ -154,6 +155,22 @@
                 {
                     "type": "actor.pseudo.control",
                     "id": "control"
+                }
+            ]
+        },
+        {
+            "type": "vehicle.audi.a2",
+            "id": "npc_vehicle_1",
+            "spawn_point": {"x": 194.0, "y": -250, "z": 1.37, "roll": 0.0, "pitch": 0.0, "yaw": 90.0},
+            "sensors":
+            [
+                {
+                    "type": "sensor.pseudo.objects",
+                    "id": "objects"
+                },
+                {
+                    "type": "sensor.pseudo.odom",
+                    "id": "odometry"
                 }
             ]
         }

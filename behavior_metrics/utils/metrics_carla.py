@@ -647,6 +647,12 @@ def get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2):
     medium_distance = 0
     great_distance = 0
     total_distance = 0
+    
+    dangerous_distance_pct_km = 0  
+    close_distance_pct_km = 0
+    medium_distance_pct_km = 0
+    great_distance_pct_km = 0
+    total_distance_pct_km = 0
 
     for i, (point, point_2) in enumerate(zip(checkpoints, checkpoints_2)):
         current_checkpoint = np.array([point['pose.pose.position.x'], point['pose.pose.position.y']])
@@ -677,5 +683,10 @@ def get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2):
     experiment_metrics['medium_distance_km'] = medium_distance
     experiment_metrics['great_distance_km'] = great_distance
     experiment_metrics['total_distance_to_front_car'] = total_distance
+    
+    experiment_metrics['dangerous_distance_pct_km'] = total_distance and dangerous_distance / total_distance or 0
+    experiment_metrics['close_distance_pct_km'] = total_distance and close_distance / total_distance or 0
+    experiment_metrics['medium_distance_pct_km'] = total_distance and medium_distance / total_distance or 0
+    experiment_metrics['great_distance_pct_km'] = total_distance and great_distance / total_distance or 0
     
     return experiment_metrics
