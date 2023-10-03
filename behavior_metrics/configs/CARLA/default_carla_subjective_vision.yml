@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_single_ad_npc_low.launch
+        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_single_ad_low.launch
         RandomSpawnPoint: False
         MultiCar: True
         NumberOfVehicle: 0
