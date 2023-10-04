@@ -51,11 +51,11 @@ RUN cd /root/ && \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
 # Installing RoboticsInfrastructure/CustomRobots
-RUN git clone -b noetic-devel https://github.com/JdeRobot/RoboticsInfrastructure && \
-    cd RoboticsInfrastructure/CustomRobots/f1 && mkdir build && cd build && \
-    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-		  cmake .. && make && make install;" && \
-    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
+#RUN git clone -b noetic-devel https://github.com/JdeRobot/RoboticsInfrastructure && \
+#    cd RoboticsInfrastructure/CustomRobots/f1 && mkdir build && cd build && \
+#    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+#		  cmake .. && make && make install;" && \
+#    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
