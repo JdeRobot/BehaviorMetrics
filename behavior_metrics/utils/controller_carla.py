@@ -345,7 +345,7 @@ class ControllerCarla:
         self.experiment_metrics['experiment_total_real_time'] = end_time - self.pilot.pilot_start_time
 
         experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
-        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename)
+        self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename, self.pilot.configuration)
         self.experiment_metrics['collisions_vehicle'] = 0
         self.experiment_metrics['collisions_walker'] = 0
         self.experiment_metrics['collisions_static'] = 0
