@@ -31,7 +31,7 @@ __contributors__ = []
 __license__ = 'GPLv3'
 
 
-def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, config_spawn_point=None):
+def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, config_spawn_point=None, config_town=None):
     """Launch the environmet specified by the launch_file given in command line at launch time.
     Arguments:
         launch_file {str} -- path of the launch file to be executed
@@ -55,6 +55,18 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
                 else:
                     spawn_point.attrib['default'] = random.choice(CARLA_TOWNS_SPAWN_POINTS[town.attrib['default']])
                 tree.write('tmp_circuit.launch')
+            elif config_spawn_point is not None and config_town is not None:
+                tree = ET.parse(ROOT_PATH + '/' + launch_file)
+                root = tree.getroot()
+                town = root.find(".//*[@name=\"town\"]")
+                if town is None:
+                    town=root.find(".//*[@name='town']")
+                town.attrib['default'] = config_town
+                spawn_point = root.find(".//*[@name=\"spawn_point\"]")
+                if spawn_point is None:
+                    spawn_point=root.find(".//*[@name='spawn_point']")
+                spawn_point.attrib['default'] = config_spawn_point
+                tree.write('tmp_circuit.launch')
             with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
                 tree = ET.parse(ROOT_PATH + '/' + launch_file)
                 root = tree.getroot()
@@ -67,7 +79,7 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
             logger.info("SimulatorEnv: launching simulator server.")
             time.sleep(5)
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                if random_spawn_point:
+                if random_spawn_point or (spawn_point is not None and town is not None):
                     child = subprocess.Popen(["roslaunch", ROOT_PATH + '/tmp_circuit.launch'], stdout=out, stderr=err)
                 else:
                     child = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + launch_file], stdout=out, stderr=err)

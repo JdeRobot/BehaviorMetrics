@@ -129,3 +129,11 @@ def traffic_light_to_int(light_status):
         carla.libcarla.TrafficLightState.Yellow: 3
     }
     return light_dict[light_status]
+
+def calculate_delta_yaw(prev_yaw, cur_yaw):
+    delta_yaw = cur_yaw - prev_yaw
+    if delta_yaw > 180:
+        delta_yaw -= 360
+    elif delta_yaw < -180:
+        delta_yaw += 360
+    return delta_yaw

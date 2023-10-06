@@ -1,17 +1,13 @@
-from torchvision import transforms
-from PIL import Image
 from brains.CARLA.utils.pilotnet_onehot import PilotNetOneHot
-from brains.CARLA.utils.test_utils import traffic_light_to_int, model_control
+from brains.CARLA.utils.test_utils import traffic_light_to_int, model_control, calculate_delta_yaw
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from brains.CARLA.utils.high_level_command import HighLevelCommandLoader
 from os import path
 
 import numpy as np
 
 import torch
-import torchvision
-import cv2
 import time
-import os
 import math
 import carla
 
@@ -27,12 +23,14 @@ class Brain:
         self.inference_times = []
         self.gpu_inference = config['GPU']
         self.device = torch.device('cuda' if (torch.cuda.is_available() and self.gpu_inference) else 'cpu')
-        
+        self.red_light_counter = 0
+        self.running_light = False
+
         client = carla.Client('localhost', 2000)
-        client.set_timeout(10.0)
+        client.set_timeout(100.0)
         world = client.get_world()
         self.map = world.get_map()
-
+        
         weather = carla.WeatherParameters.ClearNoon
         world.set_weather(weather)
 
@@ -57,8 +55,17 @@ class Brain:
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
                 self.net.eval()
         
-        self.prev_hlc = 0
+        if 'Route' in config:
+            route = config['Route']
+            print('route: ', route)
             
+        self.hlc_loader = HighLevelCommandLoader(self.vehicle, self.map, route=route)
+        self.prev_hlc = 0
+        self.prev_yaw = None
+        self.delta_yaw = 0
+
+        self.target_point = None
+        self.termination_code = 0 # 0: not terminated; 1: arrived at target; 2: wrong turn
     
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -91,47 +98,58 @@ class Brain:
         self.update_frame('frame_0', rgb_image)
         self.update_frame('frame_1', seg_image)
         
+        start_time = time.time()
         try:
             # calculate speed
-            speed_m_s = self.vehicle.get_velocity()
-            speed = 3.6 * math.sqrt(speed_m_s.x**2 + speed_m_s.y**2 + speed_m_s.z**2)
+            velocity = self.vehicle.get_velocity()
+            speed_m_s = np.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+            speed = 3.6 * speed_m_s #m/s to km/h 
             
-            # randomly choose high-level command if at junction
-            vehicle_location = self.vehicle.get_transform().location
-            vehicle_waypoint = self.map.get_waypoint(vehicle_location)
-            next_to_junction = False
-            for j in range(1, 11):
-                next_waypoint = vehicle_waypoint.next(j * 1.0)[0]
-                if next_waypoint.is_junction:
-                    next_to_junction = True
-                    next_waypoints = vehicle_waypoint.next(j * 1.0)
-                    break
-            if vehicle_waypoint.is_junction or next_to_junction:
+            # read next high-level command or choose a random direction
+            hlc = self.hlc_loader.get_next_hlc()
+            if hlc != 0:
                 if self.prev_hlc == 0:
-                    valid_turns = []
-                    for next_wp in next_waypoints:
-                        yaw_diff = next_wp.transform.rotation.yaw - vehicle_waypoint.transform.rotation.yaw
-                        yaw_diff = (yaw_diff + 180) % 360 - 180
-                        if -15 < yaw_diff < 15:
-                            valid_turns.append(3)  # Go Straight
-                        elif 15 < yaw_diff < 165: 
-                            valid_turns.append(1)  # Turn Left
-                        elif -165 < yaw_diff < -15:
-                            valid_turns.append(2)  # Turn Right
-                    hlc = np.random.choice(valid_turns)
+                    self.prev_yaw = self.vehicle.get_transform().rotation.yaw
                 else:
-                    hlc = self.prev_hlc
-            else:
-                hlc = 0
+                    cur_yaw = self.vehicle.get_transform().rotation.yaw
+                    self.delta_yaw += calculate_delta_yaw(self.prev_yaw, cur_yaw)
+                    self.prev_yaw = cur_yaw
+            
+            # detect whether the vehicle made the correct turn
+            turning_infraction = False
+            if self.prev_hlc != 0 and hlc == 0:
+                print(f'turned {self.delta_yaw} degrees')
+                if 45 < np.abs(self.delta_yaw) < 180:
+                    if self.delta_yaw < 0 and self.prev_hlc != 1:
+                        turning_infraction = True
+                    elif self.delta_yaw > 0 and self.prev_hlc != 2:
+                        turning_infraction = True
+                elif self.prev_hlc != 3:
+                    turning_infraction = True
+                if turning_infraction:
+                    print('Wrong Turn!!!')
+                    self.termination_code = 2
+                self.delta_yaw = 0
+            
+            self.prev_hlc = hlc
 
             # get traffic light status
             light_status = -1
+            vehicle_location = self.vehicle.get_transform().location
             if self.vehicle.is_at_traffic_light():
                 traffic_light = self.vehicle.get_traffic_light()
                 light_status = traffic_light.get_state()
+                traffic_light_location = traffic_light.get_transform().location
+                distance_to_traffic_light = np.sqrt((vehicle_location.x - traffic_light_location.x)**2 + (vehicle_location.y - traffic_light_location.y)**2)
+                if light_status == carla.libcarla.TrafficLightState.Red and distance_to_traffic_light < 6 and speed_m_s > 5:
+                    if not self.running_light:
+                        self.running_light = True
+                        self.red_light_counter += 1
+                else:
+                    self.running_light = False
 
-            print(f'hlc: {hlc}')
-            print(f'light: {light_status}')
+            print(f'high-level command: {hlc}')
+            #print(f'light: {light_status}')
             frame_data = {
                 'hlc': hlc,
                 'measurements': speed,
@@ -145,8 +163,21 @@ class Brain:
                                     ignore_traffic_light=False, 
                                     device=self.device, 
                                     combined_control=False)
+            
+            self.inference_times.append(time.time() - start_time)
+
             self.motors.sendThrottle(throttle)
             self.motors.sendSteer(steer)
             self.motors.sendBrake(brake)
+
+            # calculate distance to target point
+            # print(f'vehicle location: ({vehicle_location.x}, {-vehicle_location.y})')
+            # print(f'target point: ({self.target_point[0]}, {self.target_point[1]})')
+            distance_to_target = np.sqrt((self.target_point[0] - vehicle_location.x)**2 + (self.target_point[1] - (-vehicle_location.y))**2)
+            print(f'Euclidean distance to target: {distance_to_target}')
+            if distance_to_target < 1.5:
+                self.termination_code = 1
+
+
         except Exception as err:
             print(err)

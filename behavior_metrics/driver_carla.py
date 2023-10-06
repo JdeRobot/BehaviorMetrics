@@ -296,6 +296,9 @@ def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
     if not config_data['script']:
+        if app_configuration.task != 'random_roam':
+            logger.info('Selected task does not support --gui. Try use --script instead. Killing program...')
+            sys.exit(-1)
         environment.launch_env(app_configuration.current_world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
         controller = ControllerCarla()
         traffic_manager = TrafficManager(app_configuration.number_of_vehicle, 
@@ -321,53 +324,97 @@ def main():
         environment.close_ros_and_simulators()
     else:
         if is_config_correct(app_configuration):
-            experiments_starting_time = time.time()
-            experiment_counter = 0
-            experiments_elapsed_times = {'experiment_counter': [], 'elapsed_time': []}
-            experiments_information = {'world_counter': {}}
-            for world_counter, world in enumerate(app_configuration.current_world):
-                experiments_information['world_counter'][world_counter] = {'brain_counter': {}}
-                for brain_counter, brain in enumerate(app_configuration.brain_path):
-                    experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter] = {'repetition_counter': {}}
-                    for repetition_counter in range(app_configuration.experiment_repetitions):
-                        success = -1
-                        experiment_attempts = 0
-                        while success != 0:                    
-                            experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter]['repetition_counter'][repetition_counter] = experiment_attempts
-                            logger.info("Launching: python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                            logger.info("Experiment attempt: " + str(experiment_attempts+1))
-                            current_experiment_starting_time = time.time()
-                            success = os.system("python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
-                            if success != 0:
-                                root = './'
-                                folders = list(os.walk(root))[1:]
-                                for folder in folders:
-                                    if len(folder[0].split('/')) == 2 and not folder[1] and not folder[2]:
-                                        logger.info("Removing empty folder: " + folder[0])
-                                        os.rmdir(folder[0])
-                            if success == 2:
-                                logger.info('KeyboardInterrupt called! Killing program...')
-                                sys.exit(-1)
-                            elif success != 0 and experiment_attempts < 5:
-                                experiment_attempts += 1
-                                logger.info("Python process finished with error! Repeating experiment")
-                            elif success != 0 and experiment_attempts >= 5:
-                                success = 0
-                                logger.info("Too many failed attempts for this experiment.")
-                            else:
-                                experiments_elapsed_times['experiment_counter'].append(experiment_counter)
-                                experiments_elapsed_times['elapsed_time'].append(time.time() - current_experiment_starting_time)
-                                experiment_counter += 1
-                            logger.info("Python process finished.")
+            if app_configuration.task == 'random_roam':
+                experiments_starting_time = time.time()
+                experiment_counter = 0
+                experiments_elapsed_times = {'experiment_counter': [], 'elapsed_time': []}
+                experiments_information = {'world_counter': {}}
+                for world_counter, world in enumerate(app_configuration.current_world):
+                    experiments_information['world_counter'][world_counter] = {'brain_counter': {}}
+                    for brain_counter, brain in enumerate(app_configuration.brain_path):
+                        experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter] = {'repetition_counter': {}}
+                        for repetition_counter in range(app_configuration.experiment_repetitions):
+                            success = -1
+                            experiment_attempts = 0
+                            while success != 0:                    
+                                experiments_information['world_counter'][world_counter]['brain_counter'][brain_counter]['repetition_counter'][repetition_counter] = experiment_attempts
+                                logger.info("Launching: python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
+                                logger.info("Experiment attempt: " + str(experiment_attempts+1))
+                                current_experiment_starting_time = time.time()
+                                success = os.system("python3 script_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -repetition_counter " + str(repetition_counter))
+                                if success != 0:
+                                    root = './'
+                                    folders = list(os.walk(root))[1:]
+                                    for folder in folders:
+                                        if len(folder[0].split('/')) == 2 and not folder[1] and not folder[2]:
+                                            logger.info("Removing empty folder: " + folder[0])
+                                            os.rmdir(folder[0])
+                                if success == 2:
+                                    logger.info('KeyboardInterrupt called! Killing program...')
+                                    sys.exit(-1)
+                                elif success != 0 and experiment_attempts < 5:
+                                    experiment_attempts += 1
+                                    logger.info("Python process finished with error! Repeating experiment")
+                                elif success != 0 and experiment_attempts >= 5:
+                                    success = 0
+                                    logger.info("Too many failed attempts for this experiment.")
+                                else:
+                                    experiments_elapsed_times['experiment_counter'].append(experiment_counter)
+                                    experiments_elapsed_times['elapsed_time'].append(time.time() - current_experiment_starting_time)
+                                    experiment_counter += 1
+                                logger.info("Python process finished.")
 
-                        logger.info('Experiments information: ')
-                        logger.info(experiments_information)
-                        logger.info('Last experiment folder: ')
-                        logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
-            
+                            logger.info('Experiments information: ')
+                            logger.info(experiments_information)
+                            logger.info('Last experiment folder: ')
+                            logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
+            elif app_configuration.task == 'follow_route':
+
+                experiments_starting_time = time.time()
+                experiment_counter = 0
+                experiments_elapsed_times = {'experiment_counter': [], 'elapsed_time': []}
+                
+                for world_counter, world in enumerate(app_configuration.current_world):
+                    for brain_counter, brain in enumerate(app_configuration.brain_path):
+                        for route_counter in range(app_configuration.num_routes):
+                            success = -1
+                            experiment_attempts = 0
+                            while success != 0:
+                                logger.info("Launching: python3 test_suite_manager_carla.py -c " + config_data['config'][0])
+                                logger.info("Experiment attempt: " + str(experiment_attempts+1))
+                                current_experiment_starting_time = time.time()
+                                success = os.system("python3 test_suite_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -route_counter " + str(route_counter))
+                                print('success: ', success)
+                                if success != 0:
+                                    root = './'
+                                    folders = list(os.walk(root))[1:]
+                                    for folder in folders:
+                                        if len(folder[0].split('/')) == 2 and not folder[1] and not folder[2]:
+                                            logger.info("Removing empty folder: " + folder[0])
+                                            os.rmdir(folder[0])
+                                if success == 2:
+                                    logger.info('KeyboardInterrupt called! Killing program...')
+                                    sys.exit(-1)
+                                elif success != 0 and experiment_attempts < 5:
+                                    experiment_attempts += 1
+                                    logger.info("Python process finished with error! Repeating experiment")
+                                elif success != 0 and experiment_attempts >= 5:
+                                    success = 0
+                                    logger.info("Too many failed attempts for this experiment.")
+                                else:
+                                    experiments_elapsed_times['experiment_counter'].append(experiment_counter)
+                                    experiments_elapsed_times['elapsed_time'].append(time.time() - current_experiment_starting_time)
+                                    experiment_counter += 1
+                                logger.info("Python process finished.")
+                            
+                            logger.info('Last experiment folder: ')
+                            logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
+            else:
+                logger.info('Invalid task type. Try "follow_route" or "random_roam". Killing program...')
+                sys.exit(-1)
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
             generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
-    if app_configuration.experiment_random_spawn_point == True:
+    if app_configuration.experiment_random_spawn_point == True or app_configuration.task == 'follow_route':
         if os.path.isfile('tmp_circuit.launch'):
             os.remove('tmp_circuit.launch')
     logger.info('DONE! Bye, bye :)')

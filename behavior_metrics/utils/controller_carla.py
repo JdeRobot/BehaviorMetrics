@@ -37,6 +37,7 @@ from cv_bridge import CvBridge
 from datetime import datetime
 from std_msgs.msg import String
 from utils import metrics_carla
+from utils.constants import CARLA_INFRACTION_PENALTIES
 try:
     from carla_msgs.msg import CarlaLaneInvasionEvent
     from carla_msgs.msg import CarlaCollisionEvent
@@ -72,7 +73,7 @@ class ControllerCarla:
         client = carla.Client('localhost', 2000)
         client.set_timeout(100.0) # seconds
         self.world = client.get_world()
-        # time.sleep(5)
+        time.sleep(5) # takes a few second for the correct map to finish loading
         self.carla_map = self.world.get_map()
         while len(self.world.get_actors().filter('vehicle.*')) == 0:
             logger.info("Waiting for vehicles!")
@@ -296,7 +297,7 @@ class ControllerCarla:
         with open("logs/.roslaunch_stdout.log", "w") as out, open("logs/.roslaunch_stderr.log", "w") as err:
             self.proc = subprocess.Popen(command, stdout=out, stderr=err)
 
-    def stop_recording_metrics(self):
+    def stop_recording_metrics(self, termination_code=None, route_length=None):
         logger.info("Stopping metrics bag recording")
         end_time = time.time()
 
