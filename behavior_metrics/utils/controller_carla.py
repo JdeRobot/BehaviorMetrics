@@ -346,52 +346,6 @@ class ControllerCarla:
 
         experiment_metrics_filename = self.metrics_record_dir_path + self.time_str + '/' + self.time_str
         self.experiment_metrics = metrics_carla.get_metrics(self.experiment_metrics, self.experiment_metrics_bag_filename, self.map_waypoints, experiment_metrics_filename, self.pilot.configuration)
-        self.experiment_metrics['collisions_vehicle'] = 0
-        self.experiment_metrics['collisions_walker'] = 0
-        self.experiment_metrics['collisions_static'] = 0
-
-        collision_actor_ids = self.experiment_metrics['collision_actor_ids']
-        for actor_id in collision_actor_ids:
-            actor = self.world.get_actor(actor_id)
-            if actor:
-                actor_type = actor.type_id.split('.')[0]
-                if actor_type == 'vehicle':
-                    self.experiment_metrics['collisions_vehicle'] += 1
-                elif actor_type == 'walker':
-                    self.experiment_metrics['collisions_walker'] += 1
-                else:
-                    self.experiment_metrics['collisions_static'] += 1
-            else:
-                print(f"No actor found with ID {actor_id}")
-
-        if hasattr(self.pilot.brains.active_brain, 'red_light_counter'):
-            self.experiment_metrics['traffic_light_infractions'] = self.pilot.brains.active_brain.red_light_counter
-            self.experiment_metrics['traffic_light_infractions_per_km'] = self.experiment_metrics['traffic_light_infractions'] / (self.experiment_metrics['effective_completed_distance']/1000)
-
-        if route_length is not None:
-            self.experiment_metrics['route_completion'] = self.experiment_metrics['effective_completed_distance'] / route_length
-        
-        wrong_turn_counter = 0
-        time_out_counter = 0
-        if termination_code is not None:
-            if termination_code == 1:
-                self.experiment_metrics['termination cause'] = 'success'
-            elif termination_code == 2:
-                wrong_turn_counter += 1
-                self.experiment_metrics['termination cause'] = 'wrong turn'
-            elif termination_code == 3:
-                time_out_counter += 1
-                self.experiment_metrics['termination cause'] = 'time out'
-        
-        if 'route_completion' in self.experiment_metrics.keys() and 'traffic_light_infractions' in self.experiment_metrics.keys() and termination_code is not None:
-            self.experiment_metrics['driving score'] = self.experiment_metrics['route_completion'] * \
-                                                    CARLA_INFRACTION_PENALTIES['collision_vehicle']**self.experiment_metrics['collisions_vehicle'] * \
-                                                    CARLA_INFRACTION_PENALTIES['collision_static']**self.experiment_metrics['collisions_static'] * \
-                                                    CARLA_INFRACTION_PENALTIES['collision_walker']**self.experiment_metrics['collisions_walker'] * \
-                                                    CARLA_INFRACTION_PENALTIES['red_light']**self.experiment_metrics['traffic_light_infractions'] * \
-                                                    CARLA_INFRACTION_PENALTIES['wrong_turn']**wrong_turn_counter * \
-                                                    CARLA_INFRACTION_PENALTIES['time_out']**time_out_counter
-        
         self.save_metrics(first_images, last_images)
 
         for key, value in self.experiment_metrics.items():
