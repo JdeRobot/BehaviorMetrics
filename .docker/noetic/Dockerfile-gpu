@@ -50,17 +50,17 @@ RUN  pip install PyQt5==5.14.1 --upgrade --ignore-installed && \
 RUN cd /root/ && \
     git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics && \
     cd BehaviorMetrics && \
-    pip3 install -r requirements.txt && \
+#    pip3 install -r requirements.txt && \
     pip3 install --no-deps carla_birdeye_view==1.1.1 && \
     pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
-# Installing CustomRobots
-RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
-    cd CustomRobots/f1 && mkdir build && cd build && \
-    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
-		  cmake .. && make && make install;" && \
-    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
+# Installing RoboticsInfrastructure/CustomRobots
+#RUN git clone -b noetic-devel https://github.com/JdeRobot/RoboticsInfrastructure && \
+#    cd RoboticsInfrastructure/CustomRobots/f1 && mkdir build && cd build && \
+#    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
+#		  cmake .. && make && make install;" && \
+#    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 
 RUN echo 'alias jl="DISPLAY=:0 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root &"' >> /root/.bashrc && \
     echo "alias killgazebogym='killall -9 rosout roslaunch rosmaster gzserver nodelet robot_state_publisher gzclient'" >> ~/.bashrc && \
