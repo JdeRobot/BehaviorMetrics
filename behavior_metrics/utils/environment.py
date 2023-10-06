@@ -79,7 +79,7 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
             logger.info("SimulatorEnv: launching simulator server.")
             time.sleep(5)
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                if random_spawn_point or (config_spawn_point is not None and config_town is not None):
+                if random_spawn_point or (spawn_point is not None and town is not None):
                     child = subprocess.Popen(["roslaunch", ROOT_PATH + '/tmp_circuit.launch'], stdout=out, stderr=err)
                 else:
                     child = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + launch_file], stdout=out, stderr=err)

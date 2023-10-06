@@ -15,6 +15,9 @@ from utils.controller_carla import ControllerCarla
 from utils.logger import logger
 from utils.constants import CARLA_TOWNS_TIMEOUTS
 from utils.traffic import TrafficManager
+from utils.constants import CARLA_TEST_SUITE_DIR, ROOT_PATH
+
+TESTSUITES = ROOT_PATH + '/' + CARLA_TEST_SUITE_DIR
 
 def check_args(argv):
     parser = argparse.ArgumentParser(description='Testing suite runner.')
@@ -90,14 +93,23 @@ def check_args(argv):
     if args.script:
         config_data['script'] = args.script
 
+    if args.world_counter:
+        config_data['world_counter'] = args.world_counter
+    
+    if args.brain_counter:
+        config_data['brain_counter'] = args.brain_counter
+
+    if args.route_counter:
+        config_data['route_counter'] = args.route_counter
+
     return config_data
 
 def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
-    world_counter = int(config_data['world_counter'])
-    brain_counter = int(config_data['brain_counter'])
-    route_counter = int(config_data['route_counter'])
+    world_counter = int(config_data['world_counter'][0])
+    brain_counter = int(config_data['brain_counter'][0])
+    route_counter = int(config_data['route_counter'][0])
 
     logger.info(str(world_counter) + ' ' + str(brain_counter) + ' ' + str(route_counter))
 
@@ -106,23 +118,32 @@ def main():
     experiment_model = app_configuration.experiment_model[brain_counter]
     
 
-    if not os.path.exists(app_configuration.test_suite):
+    test_suite_fname = TESTSUITES + app_configuration.test_suite + '.py'
+
+    if not os.path.exists(test_suite_fname):
         logger.info('Test suite file does not exist! Killing program...')
         sys.exit(-1)
     
-    module_dir = os.path.dirname(app_configuration.test_suite)
-    if module_dir not in sys.path:
-        sys.path.append(module_dir)
-    module_name = os.path.splitext(os.path.basename(app_configuration.test_suite))[0]
-    test_routes_module = importlib.import_module(module_name)
+    if TESTSUITES not in sys.path:
+        sys.path.append(TESTSUITES)
+    test_routes_module = importlib.import_module(app_configuration.test_suite)
     TEST_ROUTES = getattr(test_routes_module, 'TEST_ROUTES')
     spawn_point = TEST_ROUTES[route_counter]['start']
+    target_point = TEST_ROUTES[route_counter]['end'].split(', ')
+    target_point = (float(target_point[0]), float(target_point[1]))
+    start_point = spawn_point.split(', ')
+    start_point = (float(start_point[0]), float(start_point[1]))
+    logger.info(f'-------from {start_point} to {target_point}-------')
     town = TEST_ROUTES[route_counter]['map']
+    route = TEST_ROUTES[route_counter]['commands']
+    app_configuration.brain_kwargs['Route'] = route
+    route_length = TEST_ROUTES[route_counter]['distance']
     environment.launch_env(world, 
                            random_spawn_point=False, 
                            carla_simulator=True, 
                            config_spawn_point=spawn_point,
                            config_town=town)
+    
     controller = ControllerCarla()
 
     # generate traffic
@@ -131,11 +152,12 @@ def main():
                                          app_configuration.percentage_walker_running, 
                                          app_configuration.percentage_walker_crossing,
                                          app_configuration.async_mode,
-                                         port=random.randint(8000, 9000))
+                                         port=random.randint(8000, 9000)) # to avoid bind error
     traffic_manager.generate_traffic()
     
     # Launch control
     pilot = PilotCarla(app_configuration, controller, brain, experiment_model=experiment_model)
+    pilot.brains.active_brain.target_point = target_point
     pilot.daemon = True
     pilot.start()
     logger.info('Executing app')
@@ -147,8 +169,15 @@ def main():
     else:
         experiment_timeout = app_configuration.experiment_timeouts[world_counter]
 
-    rospy.sleep(experiment_timeout)
-    controller.stop_recording_metrics()
+    start_time = time.time()
+    termination_code = 3 # timeout
+    while (time.time() - start_time) < experiment_timeout:
+        rospy.sleep(0.1)
+        if pilot.brains.active_brain.termination_code != 0:
+            break
+                
+    # rospy.sleep(experiment_timeout)
+    controller.stop_recording_metrics(termination_code=termination_code, route_length=route_length)
     controller.pilot.stop()
     controller.stop_pilot()
     controller.pause_carla_simulation()

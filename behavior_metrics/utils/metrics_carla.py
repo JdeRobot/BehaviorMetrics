@@ -223,6 +223,7 @@ def get_suddenness_control_commands(experiment_metrics, vehicle_status_points):
 def get_collisions(experiment_metrics, collision_points, df_checkpoints):
     collisions_checkpoints = []
     collisions_checkpoints_different = []
+    collisions_actors_different = []
     previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = 0, 0
     for point in collision_points:
         idx = (df_checkpoints['Time'] - point['Time']).abs().idxmin()
@@ -235,9 +236,11 @@ def get_collisions(experiment_metrics, collision_points, df_checkpoints):
         dist = np.sqrt(dist)
         if dist > 1:
             collisions_checkpoints_different.append(collision_point)
+            collisions_actors_different.append(point['other_actor_id'])
         previous_collisions_checkpoints_x, previous_collisions_checkpoints_y = collision_point['pose.pose.position.x'], collision_point['pose.pose.position.y']
 
     experiment_metrics['collisions'] = len(collisions_checkpoints_different)
+    experiment_metrics['collision_actor_ids'] = collisions_actors_different
     return experiment_metrics, collisions_checkpoints
 
 def get_lane_invasions(experiment_metrics, lane_invasion_points, df_checkpoints):
@@ -305,7 +308,6 @@ def get_position_deviation_and_effective_completed_distance(experiment_metrics, 
         checkpoints_tuples_y.append(checkpoint_y)
         checkpoints_speeds.append(current_checkpoint[2])
         checkpoints_tuples.append((checkpoint_x, checkpoint_y, current_checkpoint[2]))
-    
     min_dists = []
     best_checkpoint_points_x = []
     best_checkpoint_points_y = []

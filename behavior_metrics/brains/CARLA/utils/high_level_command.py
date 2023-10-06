@@ -2,12 +2,14 @@ import numpy as np
 import carla
 
 class HighLevelCommandLoader:
-    def __init__(self, vehicle, map):
+    def __init__(self, vehicle, map, route=None):
         self.vehicle = vehicle
         self.map = map
         self.prev_hlc = 0
-    
-    def get_random_hlc(self):
+        self.route = route
+
+    def _get_junction(self):
+        """determine whether vehicle is at junction"""
         junction = None
         vehicle_location = self.vehicle.get_transform().location
         vehicle_waypoint = self.map.get_waypoint(vehicle_location)
@@ -20,6 +22,21 @@ class HighLevelCommandLoader:
                 break
         if vehicle_waypoint.is_junction:
             junction = vehicle_waypoint.get_junction()
+        return junction
+
+    def _command_to_int(self, command):
+        commands = {
+            'Left': 1,
+            'Right': 2,
+            'Straight': 3
+        }
+        return commands[command]
+
+    def get_random_hlc(self):
+        """select a random turn at junction"""
+        junction = self._get_junction()
+        vehicle_location = self.vehicle.get_transform().location
+        vehicle_waypoint = self.map.get_waypoint(vehicle_location)
         
         # randomly select a turning direction
         if junction is not None:
@@ -45,3 +62,30 @@ class HighLevelCommandLoader:
 
         return hlc
 
+    
+    def get_next_hlc(self):
+        if self.route is not None and len(self.route) > 0:
+            return self.load_next_hlc()
+        return self.get_random_hlc()
+
+    def load_next_hlc(self):
+        """load the next high level command from pre-defined route"""
+        if self.prev_hlc is None:
+            return None
+
+        junction = self._get_junction()
+        
+        if junction is not None:
+            if self.prev_hlc == 0:
+                if len(self.route) == 0:
+                    hlc = None
+                hlc = self._command_to_int(self.route.pop(0))
+            else:
+                hlc = self.prev_hlc
+        else:
+            hlc = 0
+        
+        self.prev_hlc = hlc
+        
+        return hlc
+        

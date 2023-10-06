@@ -368,7 +368,7 @@ def main():
                                 logger.info("Experiment attempt: " + str(experiment_attempts+1))
                                 current_experiment_starting_time = time.time()
                                 success = os.system("python3 test_suite_manager_carla.py -c " + config_data['config'][0] + " -s -world_counter " + str(world_counter) + " -brain_counter " + str(brain_counter) + " -route_counter " + str(route_counter))
-
+                                print('success: ', success)
                                 if success != 0:
                                     root = './'
                                     folders = list(os.walk(root))[1:]
