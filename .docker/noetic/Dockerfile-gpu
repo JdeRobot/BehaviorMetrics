@@ -55,9 +55,9 @@ RUN cd /root/ && \
     pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 	behavior_metrics/ui/gui/resources/resources.qrc
 
-# Installing CustomRobots
-#RUN git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots && \
-#    cd CustomRobots/f1 && mkdir build && cd build && \
+# Installing RoboticsInfrastructure/CustomRobots
+#RUN git clone -b noetic-devel https://github.com/JdeRobot/RoboticsInfrastructure && \
+#    cd RoboticsInfrastructure/CustomRobots/f1 && mkdir build && cd build && \
 #    /bin/bash -c "source /opt/ros/noetic/setup.bash; \
 #		  cmake .. && make && make install;" && \
 #    echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
