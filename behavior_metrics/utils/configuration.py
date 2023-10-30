@@ -84,6 +84,11 @@ class Config:
 
         self.experiment_timeouts = None
 
+        self.task = None
+        self.test_suite = None
+        self.num_routes = None
+        self.randomize_routes = None
+
     def initialize_configuration(self, config_data):
         """Initialize the configuration of the application based on a YAML profile file
 
@@ -95,6 +100,25 @@ class Config:
         self.robot_type = robot['Type']
         self.pilot_time_cycle = robot['PilotTimeCycle']
         self.current_world = config_data['Behaviors']['Simulation']['World']
+
+        if 'Task' in config_data['Behaviors']['Simulation']:
+            self.task = config_data['Behaviors']['Simulation']['Task']
+        else:
+            self.task = 'follow_lane'
+
+        if self.task == 'follow_route' and 'TestSuite' in config_data['Behaviors']['Simulation']:
+            self.test_suite = config_data['Behaviors']['Simulation']['TestSuite']
+            
+        if self.task == 'follow_route' and 'NumRoutes' in config_data['Behaviors']['Simulation']:
+            self.num_routes = config_data['Behaviors']['Simulation']['NumRoutes']
+        else:
+            self.num_routes = 0
+
+        if self.task == 'follow_route' and 'RandomizeRoutes' in config_data['Behaviors']['Simulation']:
+            self.randomize_routes = config_data['Behaviors']['Simulation']['RandomizeRoutes']
+        else:
+            self.randomize_routes = True
+
         if 'WaypointPublisher' in config_data['Behaviors']['Simulation']:
             self.waypoint_publisher_path = config_data['Behaviors']['Simulation']['WaypointPublisher']
         else:
@@ -132,7 +156,8 @@ class Config:
             if 'Timeout' in config_data['Behaviors']['Experiment']:
                 self.experiment_timeouts = config_data['Behaviors']['Experiment']['Timeout']
                 self.use_world_timeouts = config_data['Behaviors']['Experiment']['UseWorldTimeouts']
-            self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
+            if 'Repetitions' in config_data['Behaviors']['Experiment']:
+                self.experiment_repetitions = config_data['Behaviors']['Experiment']['Repetitions']
         
         if 'RandomSpawnPoint' in config_data['Behaviors']['Simulation']:
             self.experiment_random_spawn_point = config_data['Behaviors']['Simulation']['RandomSpawnPoint']
@@ -141,10 +166,6 @@ class Config:
         else:
             self.spawn_points = []
         
-        if 'MultiCar' in config_data['Behaviors']['Simulation']:
-            self.multicar = config_data['Behaviors']['Simulation']['MultiCar']
-        else:
-            self.multicar = False
         
         if 'NumberOfVehicle' in config_data['Behaviors']['Simulation']:
             self.number_of_vehicle = config_data['Behaviors']['Simulation']['NumberOfVehicle']

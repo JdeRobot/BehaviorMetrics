@@ -49,7 +49,7 @@ Behaviors:
     Simulation:
         World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_single_ad_low.launch
         RandomSpawnPoint: False
-        MultiCar: True
+        Task: "follow_lane_traffic"
         NumberOfVehicle: 0
     Dataset:
         In: '/tmp/my_bag.bag'

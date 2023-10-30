@@ -2,6 +2,7 @@ from pathlib import Path
 
 PRETRAINED_MODELS_DIR = 'models/'
 DATASETS_DIR = 'datasets_opencv/'
+CARLA_TEST_SUITE_DIR = 'configs/CARLA/test_suites/'
 ROOT_PATH = str(Path(__file__).parent.parent)
 MIN_EXPERIMENT_PERCENTAGE_COMPLETED = 3
 # General timeout reference for each circuit extracted using explicit_brain
@@ -139,4 +140,13 @@ CARLA_TOWNS_TIMEOUTS = {
     "Carla/Maps/Town05": 230,
     "Carla/Maps/Town06": 210,
     "Carla/Maps/Town07": 120,
+}
+
+CARLA_INFRACTION_PENALTIES = {
+    'collision_walker': 0.5,
+    'collision_vehicle': 0.6,
+    'collision_static': 0.65,
+    'wrong_turn': 0.7,
+    'time_out': 0.7,
+    'red_light': 0.7
 }
