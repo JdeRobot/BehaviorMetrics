@@ -72,7 +72,7 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
     for index, row in dataframe_pose.iterrows():
         checkpoints.append(row)
 
-    if config.multicar:
+    if config.task == 'follow_lane_traffic':
         data_file = experiment_metrics_bag_filename.split('.bag')[0] + '/carla-npc_vehicle_1-odometry.csv'
         dataframe_pose = pd.read_csv(data_file)
         checkpoints_2 = []
@@ -124,7 +124,7 @@ def get_metrics(experiment_metrics, experiment_metrics_bag_filename, map_waypoin
         experiment_metrics, collisions_checkpoints = get_collisions(experiment_metrics, collision_points, dataframe_pose)
         experiment_metrics, lane_invasion_checkpoints = get_lane_invasions(experiment_metrics, lane_invasion_points, dataframe_pose)
         experiment_metrics['experiment_total_simulated_time'] = seconds_end - seconds_start
-        if config.multicar:
+        if config.task == 'follow_lane_traffic':
             experiment_metrics = get_distance_other_vehicle(experiment_metrics, checkpoints, checkpoints_2)
 
         if 'bird_eye_view_images' in experiment_metrics:

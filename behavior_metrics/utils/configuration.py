@@ -104,7 +104,7 @@ class Config:
         if 'Task' in config_data['Behaviors']['Simulation']:
             self.task = config_data['Behaviors']['Simulation']['Task']
         else:
-            self.task = 'random_roam'
+            self.task = 'follow_lane'
 
         if self.task == 'follow_route' and 'TestSuite' in config_data['Behaviors']['Simulation']:
             self.test_suite = config_data['Behaviors']['Simulation']['TestSuite']
@@ -166,10 +166,6 @@ class Config:
         else:
             self.spawn_points = []
         
-        if 'MultiCar' in config_data['Behaviors']['Simulation']:
-            self.multicar = config_data['Behaviors']['Simulation']['MultiCar']
-        else:
-            self.multicar = False
         
         if 'NumberOfVehicle' in config_data['Behaviors']['Simulation']:
             self.number_of_vehicle = config_data['Behaviors']['Simulation']['NumberOfVehicle']

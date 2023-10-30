@@ -58,6 +58,8 @@ class Brain:
         if 'Route' in config:
             route = config['Route']
             print('route: ', route)
+        else: 
+            route = None
             
         self.hlc_loader = HighLevelCommandLoader(self.vehicle, self.map, route=route)
         self.prev_hlc = 0
@@ -173,10 +175,11 @@ class Brain:
             # calculate distance to target point
             # print(f'vehicle location: ({vehicle_location.x}, {-vehicle_location.y})')
             # print(f'target point: ({self.target_point[0]}, {self.target_point[1]})')
-            distance_to_target = np.sqrt((self.target_point[0] - vehicle_location.x)**2 + (self.target_point[1] - (-vehicle_location.y))**2)
-            print(f'Euclidean distance to target: {distance_to_target}')
-            if distance_to_target < 1.5:
-                self.termination_code = 1
+            if self.target_point != None:
+                distance_to_target = np.sqrt((self.target_point[0] - vehicle_location.x)**2 + (self.target_point[1] - (-vehicle_location.y))**2)
+                print(f'Euclidean distance to target: {distance_to_target}')
+                if distance_to_target < 1.5:
+                    self.termination_code = 1
 
 
         except Exception as err:

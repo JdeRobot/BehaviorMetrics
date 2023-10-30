@@ -35,6 +35,7 @@
 
   <!-- the object json file that configures objects to spawn -->
   <arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera.json'/>
+  <!--<arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera_tcp_paper.json'/>-->
 
   <!-- Ego Vehicle -->
   <arg name='ego_vehicle_role_name' default='ego_vehicle'/>

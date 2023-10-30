@@ -67,6 +67,8 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False, con
                     spawn_point=root.find(".//*[@name='spawn_point']")
                 spawn_point.attrib['default'] = config_spawn_point
                 tree.write('tmp_circuit.launch')
+            else:
+                spawn_point = None
             with open("/tmp/.carlalaunch_stdout.log", "w") as out, open("/tmp/.carlalaunch_stderr.log", "w") as err:
                 tree = ET.parse(ROOT_PATH + '/' + launch_file)
                 root = tree.getroot()

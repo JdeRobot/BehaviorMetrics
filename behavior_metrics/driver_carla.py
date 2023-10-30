@@ -296,7 +296,7 @@ def main():
     config_data = check_args(sys.argv)
     app_configuration = Config(config_data['config'][0])
     if not config_data['script']:
-        if app_configuration.task != 'random_roam':
+        if app_configuration.task not in ['follow_lane', 'follow_lane_traffic']:
             logger.info('Selected task does not support --gui. Try use --script instead. Killing program...')
             sys.exit(-1)
         environment.launch_env(app_configuration.current_world, random_spawn_point=app_configuration.experiment_random_spawn_point, carla_simulator=True)
@@ -324,7 +324,7 @@ def main():
         environment.close_ros_and_simulators()
     else:
         if is_config_correct(app_configuration):
-            if app_configuration.task == 'random_roam':
+            if app_configuration.task == 'follow_lane':
                 experiments_starting_time = time.time()
                 experiment_counter = 0
                 experiments_elapsed_times = {'experiment_counter': [], 'elapsed_time': []}
@@ -410,7 +410,7 @@ def main():
                             logger.info('Last experiment folder: ')
                             logger.info(max(glob.glob(os.path.join('./', '*/')), key=os.path.getmtime))
             else:
-                logger.info('Invalid task type. Try "follow_route" or "random_roam". Killing program...')
+                logger.info('Invalid task type. Try "follow_route", "follow_lane" or "follow_lane_traffic". Killing program...')
                 sys.exit(-1)
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
             generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
