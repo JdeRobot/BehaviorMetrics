@@ -10,3 +10,5 @@ class EnvironmentType(Enum):
     manual_env = "manual"
     ddpg_env_follow_line = "ddpg_follow_line"
     ddpg_env_follow_lane = "ddpg_follow_lane"
+    ppo_env_follow_line = "ppo_follow_line"
+

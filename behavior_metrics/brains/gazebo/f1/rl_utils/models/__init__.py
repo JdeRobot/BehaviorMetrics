@@ -15,5 +15,7 @@ class F1Env:
             return FollowLineDQNF1GazeboTF(**config)
         elif task == EnvironmentType.ddpg_env_follow_line.value:
             return FollowLineDDPGF1GazeboTF(**config)
+        elif task == EnvironmentType.ppo_env_follow_line.value:
+            return FollowLineDDPGF1GazeboTF(**config)
         else:
             raise NoValidEnvironmentType(task)

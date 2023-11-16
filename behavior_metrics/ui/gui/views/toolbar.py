@@ -471,8 +471,8 @@ class Toolbar(QWidget):
 
         self.brain_combobox = QComboBox()
         self.brain_combobox.setEnabled(True)
-        brains = [file.split(".")[0] for file in os.listdir(brains_path + self.configuration.robot_type)
-                  if file.endswith('.py') and file.split(".")[0] != '__init__']
+        brains = [file.split(".")[0] for file in os.listdir(brains_path + self.configuration.environment + '/'
+            + self.configuration.robot_type) if file.endswith('.py') and file.split(".")[0] != '__init__']
         self.brain_combobox.addItem('')
         self.brain_combobox.addItems(brains)
         index = self.brain_combobox.findText(current_brain, Qt.MatchFixedString)

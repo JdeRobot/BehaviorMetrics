@@ -29,8 +29,8 @@ retraining:
 
 inference:
   ddpg:
-    inference_ddpg_tf_actor_model_name: "/home/ruben/Desktop/RL-Studio/rl_studio/checkpoints/follow_line_gazebo_ddpg_f1_TensorFlow/20231029-171600_LAPCOMPLETEDCircuit-simple_States-sp5_Actions-continuous_BATCH_Rewards-followline_center_MaxReward-2801_Epoch-176/ACTOR"
-    inference_ddpg_tf_critic_model_name: "/home/ruben/Desktop/RL-Studio/rl_studio/checkpoints/follow_line_gazebo_ddpg_f1_TensorFlow/20231029-171600_LAPCOMPLETEDCircuit-simple_States-sp5_Actions-continuous_BATCH_Rewards-followline_center_MaxReward-2801_Epoch-176/CRITIC"
+    inference_ddpg_tf_actor_model_name: "/home/ruben/Desktop/RL-Studio/rl_studio/checkpoints/follow_line_gazebo_ddpg_f1_TensorFlow/v1to20/superfast-20231118-220658_IMPROVED_C-simple_S-sp5_A-continuous_MR-2025_E-3797/ACTOR"
+    inference_ddpg_tf_critic_model_name: "/home/ruben/Desktop/RL-Studio/rl_studio/checkpoints/follow_line_gazebo_ddpg_f1_TensorFlow/v1to20/superfast-20231118-220658_IMPROVED_C-simple_S-sp5_A-continuous_MR-2025_E-3797/CRITIC"
 
 algorithm:
   ddpg:

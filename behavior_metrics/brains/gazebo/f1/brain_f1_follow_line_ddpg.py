@@ -170,7 +170,7 @@ class Brain:
             'algorithm': 'ddpg',
             'environment': 'simple',
             'agent': 'f1',
-            'filename': 'brains/f1/config/config_inference_followline_ddpg_f1_gazebo.yaml'
+            'filename': 'brains/gazebo/f1/config/config_inference_followline_ddpg_f1_gazebo.yaml'
         }
 
         f = open(args['filename'], "r")
