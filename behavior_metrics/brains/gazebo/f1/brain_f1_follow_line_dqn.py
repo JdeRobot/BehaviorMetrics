@@ -181,7 +181,7 @@ class Brain:
         self.env = gym.make(self.env_name, **self.environment.environment)
 
         self.inference_file = params.inference["params"]["inference_file"]
-        observation, _ = self.env.reset()
+        observation = self.env.reset()
         self.step = 1
         self.state = "".join(map(str, observation))
 
