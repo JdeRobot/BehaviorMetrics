@@ -34,4 +34,4 @@ class DQNF1:
                 0
             ]
         else:
-            return self.model(np.array(state).reshape(1, 5))[0]
+            return self.model(np.array([state]))[0]
