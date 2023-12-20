@@ -22,10 +22,10 @@ from brains.CARLA.TCP.leaderboard.leaderboard.utils.route_manipulation import do
 from brains.CARLA.TCP.leaderboard.leaderboard.utils.route_manipulation import interpolate_trajectory
 from brains.CARLA.TCP.leaderboard.leaderboard.utils.route_indexer import RouteIndexer
 
+from collections import deque
 
-PRETRAINED_MODELS = '/home/SergioPaniego/Descargas/'
 
-#MODEL_DIR = 'best_model.ckpt' # Inside download folder.
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'CARLA/'
 
 class Brain:
 
@@ -34,6 +34,7 @@ class Brain:
         self.camera_rgb = sensors.get_camera('camera_0') # rgb front view camera
         self.camera_seg = sensors.get_camera('camera_2') # segmentation camera
         self.imu = sensors.get_imu('imu_0') # imu
+        self.gnss = sensors.get_gnss('gnss_0') # gnss
         self.handler = handler
         self.inference_times = []
         self.gpu_inference = config['GPU']
@@ -82,6 +83,7 @@ class Brain:
                 time.sleep(1)  # sleep for 1 second before checking again
 
         #app_configuration = Config(config_data['config'][0])
+        '''
         route_counter = 0
         TEST_ROUTES = [{
             "map": "Town02",
@@ -103,17 +105,32 @@ class Brain:
         self.target_point = torch.stack(self.target_point, dim=1).to('cuda', dtype=torch.float32)
 
         #self.target_point = torch.tensor(self.target_point).view(-1, 1).to('cuda', dtype=torch.float32)
-
+        '''
         self._im_transform = T.Compose([T.ToTensor(), T.Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])])
 
 
         repetitions = 1
-        routes = '/home/SergioPaniego/Documentos/BehaviorMetrics/behavior_metrics/brains/CARLA/TCP/leaderboard/data/TCP_training_routes/routes_town01.xml'
-        scenarios = '/home/SergioPaniego/Documentos/BehaviorMetrics/behavior_metrics/brains/CARLA/TCP/leaderboard/data/scenarios/town01_all_scenarios.json'
+        routes = 'brains/CARLA/TCP/leaderboard/data/TCP_training_routes/routes_town02.xml'
+        scenarios = 'brains/CARLA/TCP/leaderboard/data/scenarios/town02_all_scenarios.json'
         route_indexer = RouteIndexer(routes, scenarios, repetitions)
-        #route_indexer = RouteIndexer(args.routes, args.scenarios, args.repetitions)
         # setup
         config = route_indexer.next()
+        '''
+        We currently hard-code the initial and target points
+        '''
+        print('----- TRAJECTORY ------')
+        print(config)
+        print(config.trajectory)
+        print(config.trajectory[0].x, config.trajectory[0].y)
+        config.trajectory[0].x = 55.3
+        config.trajectory[0].y = -105.6
+
+        config.trajectory[1].x = 2.0
+        config.trajectory[1].y = -105.6
+        print(config.trajectory[0].x, config.trajectory[0].y)
+        print()
+        print(config.trajectory[1].x, config.trajectory[1].y)
+        print('----- TRAJECTORY ------')
 
         # prepare route's trajectory (interpolate and add the GPS route)
         gps_route, route = interpolate_trajectory(world, config.trajectory)
@@ -121,6 +138,9 @@ class Brain:
         self.route = route
         self.set_global_plan(gps_route, self.route)
         self._init_route_planner()
+
+        self.last_steers = deque()
+        self.status = 0
 
 
     def set_global_plan(self, global_plan_gps, global_plan_world_coord, wp=None):
@@ -130,11 +150,18 @@ class Brain:
         ds_ids = downsample_route(global_plan_world_coord, 50)
         self._global_plan_world_coord = [(global_plan_world_coord[x][0], global_plan_world_coord[x][1]) for x in ds_ids]
         self._global_plan = [global_plan_gps[x] for x in ds_ids]
+        print('-----GLOBAL PLAN -----')
+        print(self._global_plan)
 
 
     def _init_route_planner(self):
         self._route_planner = RoutePlanner(4.0, 50.0)
         self._route_planner.set_route(self._global_plan, True)
+
+        gps = np.array([self._global_plan[0][0]['lon'], self._global_plan[0][0]['lat']])
+        gps = (gps - self._route_planner.mean) * self._route_planner.scale
+        print('-----GPS----')
+        print(gps)
 
         self.initialized = True
 
@@ -163,15 +190,17 @@ class Brain:
 
 
     def _get_position(self, tick_data):
-        gps = tick_data['gps']
+        gps = self.gnss.getGNSS()
+        gps = np.array([gps.longitude, gps.latitude])
         gps = (gps - self._route_planner.mean) * self._route_planner.scale
-
+        print('-----GPS-----')
+        print(gps)
+        print('-----GPS-----')
         return gps
 
     @torch.no_grad()
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""
-
 
         # VOID = -1
 		# LEFT = 1
@@ -190,8 +219,6 @@ class Brain:
         cmd_one_hot = torch.tensor(cmd_one_hot).view(1, 6).to('cuda', dtype=torch.float32)
 
         rgb = self.camera_rgb.getImage().data
-        #import cv2
-        #rgb = cv2.cvtColor(rgb[:, :, :3], cv2.COLOR_BGR2RGB)
         seg_image = self.camera_seg.getImage().data
         
         self.update_frame('frame_0', rgb)
@@ -204,22 +231,12 @@ class Brain:
         speed = torch.tensor(speed).view(-1, 1).to('cuda', dtype=torch.float32)
         speed = speed / 12
 
-        print(speed)
-        #print(type(speed))
-        #print(speed.dtype)
-        # expected Tensor as element 1 in argument 0, but got tuple
-        print(self.target_point)
-        #print(type(self.target_point))
-        print(cmd_one_hot)
-        #print(type(cmd_one_hot))
-
-        imu_data = self.imu.getIMU().data
-        print(imu_data)
-        compass = imu_data
-
-
-        #gps = input_data['gps'][1][:2]
-        #compass = input_data['imu'][1][-1]
+        imu_data = self.imu.getIMU()
+        #compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z, imu_data.compass.w])
+        compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z])
+        print('----------compass--------------')
+        print(compass)
+        compass = compass[-1]
 
         if (math.isnan(compass) == True): #It can happen that the compass sends nan for a few frames
             compass = 0.0
@@ -235,8 +252,8 @@ class Brain:
         pos = self._get_position(result)
         #result['gps'] = pos
         next_wp, next_cmd = self._route_planner.run_step(pos)
+        next_wp = [next_wp[1], next_wp[0]]
         result['next_command'] = next_cmd.value
-
 
         theta = compass + np.pi/2
         R = np.array([
@@ -245,49 +262,133 @@ class Brain:
             ])
 
         local_command_point = np.array([next_wp[0]-pos[0], next_wp[1]-pos[1]])
-        local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+
+        #local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+        #local_command_point = R.T.dot(local_command_point)
+
+
         result['target_point'] = tuple(local_command_point)
 
+        result['target_point'] = [torch.FloatTensor([result['target_point'][0]]),
+                                        torch.FloatTensor([result['target_point'][1]])]
+        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+
+
+
+        '''
         
+        Local point seems to be incorrect and R.T.dot is commented while in the original code it's used.
+        
+        '''
+
+        print('----------compass--------------')
+        '''
+        -0.999806824289457
+        '''
+        print(compass)
+        #print('--------- POS ---------------')
+        '''
+        [  43.17920366 -105.57289901]
+        '''
+        #print(pos)
+        print('-----------LOCAL COMMAND POINT ---------------')
+        '''
+        [-3.83868739e+01  1.80376380e-02]
+        '''
+        print(local_command_point)
+        #print('-------NEXT WAYPOINT-----------')
+        '''
+        [4.7923297947398655, -105.55486136806194]
+        '''
+        #print(next_wp)
+        print('-------Target point-----------')
+        print(self.target_point)
+        '''
+        -------Target point-----------
+        tensor([[-3.8387e+01,  1.8038e-02]], device='cuda:0')
+        '''
+        print('--------RESULT----------')
+        #print(result)
+        print('------------------')
 
         state = torch.cat([speed, self.target_point, cmd_one_hot], 1)
 
+        print('------STATE-----')
         print(state)
 
         rgb = self._im_transform(rgb).unsqueeze(0).to('cuda', dtype=torch.float32)
 
-        print(rgb.shape)
+        #print(rgb.shape)
 
         pred = self.net(rgb, state, self.target_point)
 
-        #print(pred)
-        #print(type(pred))
+        print('-----PRED------')
+        print(pred.keys())
+        print(pred['pred_wp'])
+        print('------COMMAND----')
+        print(command)
 
         
         steer_ctrl, throttle_ctrl, brake_ctrl, metadata = self.net.process_action(pred, command, gt_velocity, self.target_point)
 
+        print('------ steer_ctrl, throttle_ctrl, brake_ctrl, metadata-------')
         print(steer_ctrl, throttle_ctrl, brake_ctrl, metadata)
 
         steer_traj, throttle_traj, brake_traj, metadata_traj = self.net.control_pid(pred['pred_wp'], gt_velocity, self.target_point)
 
+        if brake_traj < 0.05: brake_traj = 0.0
+        if throttle_traj > brake_traj: brake_traj = 0.0
+
+
+        print('------steer_traj, throttle_traj, brake_traj, metadata_traj-----')
         print(steer_traj, throttle_traj, brake_traj, metadata_traj)
 
-        print()
-        print()
-        print()
-
-        self.alpha = 0.3
-        steer_ctrl = np.clip(self.alpha*steer_ctrl + (1-self.alpha)*steer_traj, -1, 1)
-        throttle_ctrl = np.clip(self.alpha*throttle_ctrl + (1-self.alpha)*throttle_traj, 0, 0.75)
-        brake_ctrl = np.clip(self.alpha*brake_ctrl + (1-self.alpha)*brake_traj, 0, 1)
+        
+        if self.status == 0:
+            print('LOG 1***********************************************************************************************')
+            self.alpha = 0.3
+            steer_ctrl = np.clip(self.alpha*steer_ctrl + (1-self.alpha)*steer_traj, -1, 1)
+            throttle_ctrl = np.clip(self.alpha*throttle_ctrl + (1-self.alpha)*throttle_traj, 0, 0.75)
+            brake_ctrl = np.clip(self.alpha*brake_ctrl + (1-self.alpha)*brake_traj, 0, 1)
+        else:
+            print('LOG 2***********************************************************************************************')
+            self.alpha = 0.3
+			#self.pid_metadata['agent'] = 'ctrl'
+            steer_ctrl = np.clip(self.alpha*steer_traj + (1-self.alpha)*steer_ctrl, -1, 1)
+            throttle_ctrl = np.clip(self.alpha*throttle_traj + (1-self.alpha)*throttle_ctrl, 0, 0.75)
+            brake_ctrl = np.clip(self.alpha*brake_traj + (1-self.alpha)*brake_ctrl, 0, 1)
 
         if brake_ctrl > 0.5:
             throttle_ctrl = float(0)
 
+        print('-------------steer_ctrl, throttle_ctrl, brake_ctrl----------')
         print(steer_ctrl, throttle_ctrl, brake_ctrl)
 
+        print()
+        print()
+        print()
 
         self.motors.sendThrottle(throttle_ctrl)
         self.motors.sendSteer(steer_ctrl)
         self.motors.sendBrake(brake_ctrl)
 
+        if len(self.last_steers) >= 20:
+            self.last_steers.popleft()
+        self.last_steers.append(abs(float(steer_ctrl)))
+
+        num = 0
+        for s in self.last_steers:
+            if s > 0.10:
+                num += 1
+        if num > 10:
+            self.status = 1
+            self.steer_step += 1
+
+        else:
+            self.status = 0
+        

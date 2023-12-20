@@ -30,6 +30,10 @@ Behaviors:
                 IMU_0:
                     Name: 'imu_0'
                     Topic: '/carla/ego_vehicle/imu'
+            GNSS:
+                GNSS_0:
+                    Name: 'gnss_0'
+                    Topic: '/carla/ego_vehicle/gnss'
         Actuators:
             CARLA_Motors:
                 Motors_0:
@@ -41,7 +45,7 @@ Behaviors:
         PilotTimeCycle: 50
         AsyncMode: True
         Parameters:
-            Model: 'best_model.ckpt'
+            Model: 'tcp_best_model.ckpt'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True

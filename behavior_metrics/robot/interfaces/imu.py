@@ -1,5 +1,5 @@
 import rospy
-from std_msgs.msg import Float32
+from sensor_msgs.msg import Imu
 import threading
 
 
@@ -7,7 +7,10 @@ def imuMsg2IMU(imuMsg):
 
     imu = IMU()
 
-    imu.data = imuMsg.data
+    imu.compass = imuMsg.orientation
+    imu.accelerometer = imuMsg.linear_acceleration
+    imu.gyroscope = imuMsg.angular_velocity
+    
     now = rospy.get_rostime()
     imu.timeStamp = now.secs + (now.nsecs * 1e-9)
 
@@ -18,11 +21,26 @@ class IMU():
 
     def __init__(self):
 
-        self.data = 0  # X coord [meters]
+        self.compass = {
+            'x': 0,
+            'y': 0,
+            'z': 0,
+            'w': 0
+        } 
+        self.gyroscope = {
+            'x': 0,
+            'y': 0,
+            'z': 0
+        } 
+        self.accelerometer = {
+            'x': 0,
+            'y': 0,
+            'z': 0
+        } 
         self.timeStamp = 0  # Time stamp [s]
 
     def __str__(self):
-        s = "IMU: {\n   x: " + str(self.x) + "\n   timeStamp: " + str(self.timeStamp) + "\n}"
+        s = "IMU: {\n   compass: " + str(self.compass) + "\n }\n  accelerometer: " + str(self.accelerometer) + "\n }\n  gyroscope: " + str(self.gyroscope) + "\n }\n  timeStamp: " + str(self.timeStamp) + "\n}"
         return s
 
 
@@ -71,7 +89,7 @@ class ListenerIMU:
         Starts (Subscribes) the client.
 
         '''
-        self.sub = rospy.Subscriber(self.topic, Float32, self.__callback)
+        self.sub = rospy.Subscriber(self.topic, Imu, self.__callback)
 
     def getIMU(self):
         '''
