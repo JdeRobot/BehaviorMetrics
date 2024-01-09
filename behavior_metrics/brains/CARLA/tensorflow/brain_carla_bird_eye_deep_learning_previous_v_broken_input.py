@@ -126,7 +126,7 @@ class Brain:
         ]
 
         AUGMENTATIONS_TEST = Compose([
-            GridDropout(p=1.0, ratio=0.9)
+            GridDropout(p=1.0)
         ])
         
         bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
@@ -140,7 +140,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
+        image_shape=(66, 200)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([
@@ -154,7 +154,7 @@ class Brain:
             self.bird_eye_view_unique_images += 1
         self.previous_bird_eye_view_image = img
 
-        velocity_dim = np.full((150, 50), self.previous_speed/30)
+        velocity_dim = np.full((200, 66), self.previous_speed/30)
         new_img_vel = np.dstack((img, velocity_dim))
         img = new_img_vel
 
