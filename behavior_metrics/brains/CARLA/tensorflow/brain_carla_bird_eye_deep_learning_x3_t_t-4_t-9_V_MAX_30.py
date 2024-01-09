@@ -239,7 +239,7 @@ class Brain:
                         self.motors.sendSteer(0.0)
                         self.motors.sendBrake(0)
                     else:
-                        self.motors.sendThrottle(0.75)
+                        self.motors.sendThrottle(throttle)
                         self.motors.sendSteer(steer)
                         self.motors.sendBrake(break_command)
 

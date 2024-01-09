@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -74,6 +74,8 @@ class Brain:
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
 
+        self.first_acceleration = True
+
 
     def update_frame(self, frame_id, data):
         """Update the information to be shown in one of the GUI's frames.
@@ -124,13 +126,6 @@ class Brain:
             bird_eye_view_1
         ]
 
-        AUGMENTATIONS_TEST = Compose([
-            GridDropout(p=1.0)
-        ])
-        
-        bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
-        bird_eye_view_1 = bird_eye_view_1["image"]
-
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)
         self.update_frame('frame_3', image_3)
@@ -165,11 +160,12 @@ class Brain:
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
 
-            if vehicle_speed < 5:
+            if vehicle_speed < 50 and self.first_acceleration:
                 self.motors.sendThrottle(1.0)
                 self.motors.sendSteer(0.0)
                 self.motors.sendBrake(0)
             else:
+                self.first_acceleration = False
                 self.motors.sendThrottle(throttle)
                 self.motors.sendSteer(steer)
                 self.motors.sendBrake(break_command)

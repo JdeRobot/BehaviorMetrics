@@ -127,7 +127,7 @@ def is_config_correct(app_configuration):
 
     return is_correct
 
-def generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times):
+def generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times, app_configuration):
     result = metrics_carla.get_aggregated_experiments_list(experiments_starting_time)
 
     experiments_starting_time_dt = datetime.fromtimestamp(experiments_starting_time)
@@ -252,27 +252,32 @@ def generate_agregated_experiments_metrics(experiments_starting_time, experiment
             'metric': 'suddenness_distance_speed_per_km',
             'title': 'Suddenness distance speed per km per experiment'
         },
-        {
-            'metric': 'dangerous_distance_pct_km',
-            'title': 'Percentage of dangerous distance per km'
-        },
-        {
-            'metric': 'close_distance_pct_km',
-            'title': 'Percentage of close distance per km'
-        },
-        {
-            'metric': 'medium_distance_pct_km',
-            'title': 'Percentage of medium distance per km'
-        },
-        {
-            'metric': 'great_distance_pct_km',
-            'title': 'Percentage of great distance per km'
-        },
+        
         {
             'metric': 'completed_laps',
             'title': 'Completed laps per experiment'
         },
     ]
+
+    if app_configuration.task == 'follow_lane_traffic':
+        experiments_metrics_and_titles.append(
+            {
+                'metric': 'dangerous_distance_pct_km',
+                'title': 'Percentage of dangerous distance per km'
+            },
+            {
+                'metric': 'close_distance_pct_km',
+                'title': 'Percentage of close distance per km'
+            },
+            {
+                'metric': 'medium_distance_pct_km',
+                'title': 'Percentage of medium distance per km'
+            },
+            {
+                'metric': 'great_distance_pct_km',
+                'title': 'Percentage of great distance per km'
+            },
+        )
 
     metrics_carla.get_all_experiments_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
     metrics_carla.get_per_model_aggregated_metrics(result, experiments_starting_time_str, experiments_metrics_and_titles)
@@ -413,7 +418,7 @@ def main():
                 logger.info('Invalid task type. Try "follow_route", "follow_lane" or "follow_lane_traffic". Killing program...')
                 sys.exit(-1)
             experiments_elapsed_times['total_experiments_elapsed_time'] = time.time() - experiments_starting_time
-            generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times)
+            generate_agregated_experiments_metrics(experiments_starting_time, experiments_elapsed_times, app_configuration)
     if app_configuration.experiment_random_spawn_point == True or app_configuration.task == 'follow_route':
         if os.path.isfile('tmp_circuit.launch'):
             os.remove('tmp_circuit.launch')

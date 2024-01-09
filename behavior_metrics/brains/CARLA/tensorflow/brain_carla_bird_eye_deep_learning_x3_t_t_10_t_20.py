@@ -9,7 +9,7 @@ import time
 import carla
 from os import path
 from albumentations import (
-    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare, GridDropout, ChannelDropout
+    Compose, Normalize, RandomRain, RandomBrightness, RandomShadow, RandomSnow, RandomFog, RandomSunFlare
 )
 from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
@@ -27,6 +27,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 #gpus = tf.config.experimental.list_physical_devices('GPU')
 #for gpu in gpus:
 #    tf.config.experimental.set_memory_growth(gpu, True)
+
 
 
 class Brain:
@@ -70,11 +71,6 @@ class Brain:
             logger.info("- Models path: " + PRETRAINED_MODELS)
             logger.info("- Model: " + str(model))
 
-        self.previous_speed = 0
-        self.previous_bird_eye_view_image = 0
-        self.bird_eye_view_images = 0
-        self.bird_eye_view_unique_images = 0
-
         self.image_1 = 0
         self.image_2 = 0
         self.image_3 = 0
@@ -84,16 +80,21 @@ class Brain:
         self.image_7 = 0
         self.image_8 = 0
         self.image_9 = 0
+        self.image_10 = 0
 
-        self.image_1_V = 0
-        self.image_2_V = 0
-        self.image_3_V = 0
-        self.image_4_V = 0
-        self.image_5_V = 0
-        self.image_6_V = 0
-        self.image_7_V = 0
-        self.image_8_V = 0
-        self.image_9_V = 0
+        self.image_11 = 0
+        self.image_12 = 0
+        self.image_13 = 0
+        self.image_14 = 0
+        self.image_15 = 0
+        self.image_16 = 0
+        self.image_17 = 0
+        self.image_18 = 0
+        self.image_19 = 0
+        self.image_20 = 0
+
+        self.bird_eye_view_images = 0
+        self.bird_eye_view_unique_images = 0
 
 
     def update_frame(self, frame_id, data):
@@ -145,15 +146,6 @@ class Brain:
             bird_eye_view_1
         ]
 
-        
-        AUGMENTATIONS_TEST = Compose([
-            GridDropout(p=1.0, ratio=0.9)
-        ])
-        
-        bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
-        bird_eye_view_1 = bird_eye_view_1["image"]
-        
-
         self.update_frame('frame_1', image_1)
         self.update_frame('frame_2', image_2)
         self.update_frame('frame_3', image_3)
@@ -171,66 +163,51 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        self.bird_eye_view_images += 1
-        if (self.previous_bird_eye_view_image==img).all() == False:
-            self.bird_eye_view_unique_images += 1
-        self.previous_bird_eye_view_image = img
-
         if type(self.image_1) is int:
             self.image_1 = img
-            self.image_1_V = 0
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_2) is int:
             self.image_2 = img
-            self.image_2_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_3) is int:
             self.image_3 = img
-            self.image_3_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_4) is int:
             self.image_4 = img
-            self.image_4_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_5) is int:
             self.image_5 = img
-            self.image_5_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_6) is int:
             self.image_6 = img
-            self.image_6_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_7) is int:
             self.image_7 = img
-            self.image_7_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_8) is int:
             self.image_8 = img
-            self.image_8_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
         elif type(self.image_9) is int:
             self.image_9 = img
-            self.image_9_V = self.previous_speed
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
+        
+        elif type(self.image_10) is int:
+            self.image_10 = img
+        elif type(self.image_11) is int:
+            self.image_11 = img
+        elif type(self.image_12) is int:
+            self.image_12 = img
+        elif type(self.image_13) is int:
+            self.image_13 = img
+        elif type(self.image_14) is int:
+            self.image_14 = img
+        elif type(self.image_15) is int:
+            self.image_15 = img
+        elif type(self.image_16) is int:
+            self.image_16 = img
+        elif type(self.image_17) is int:
+            self.image_17 = img
+        elif type(self.image_18) is int:
+            self.image_18 = img
+        elif type(self.image_19) is int:
+            self.image_19 = img
+        elif type(self.image_20) is int:
+            self.image_20 = img
         else:
+            self.bird_eye_view_images += 1
+            if (self.image_20==img).all() == False:
+                self.bird_eye_view_unique_images += 1
             self.image_1 = self.image_2
             self.image_2 = self.image_3
             self.image_3 = self.image_4
@@ -239,29 +216,27 @@ class Brain:
             self.image_6 = self.image_7
             self.image_7 = self.image_8
             self.image_8 = self.image_9
-            self.image_9 = img
+            self.image_9 = self.image_10
 
-            self.image_1_V = self.image_2_V
-            self.image_2_V = self.image_3_V
-            self.image_3_V = self.image_4_V
-            self.image_4_V = self.image_5_V
-            self.image_5_V = self.image_6_V
-            self.image_6_V = self.image_7_V
-            self.image_7_V = self.image_8_V
-            self.image_8_V = self.image_9_V
-            self.image_9_V = self.previous_speed
-            
-            velocity_dim_1 = np.full((150, 50), self.image_1_V/30)
-            image_1 = np.dstack((self.image_1, velocity_dim_1))
-            
-            velocity_dim_4 = np.full((150, 50), self.image_4_V/30)
-            image_4 = np.dstack((self.image_4, velocity_dim_4))
+            self.image_10 = self.image_11
+            self.image_11 = self.image_12
+            self.image_12 = self.image_13
+            self.image_13 = self.image_14
+            self.image_14 = self.image_15
+            self.image_15 = self.image_16
+            self.image_16 = self.image_17
+            self.image_17 = self.image_18
+            self.image_18 = self.image_19
 
-            velocity_dim_9 = np.full((150, 50), self.image_9_V/30)
-            image_9 = np.dstack((self.image_9, velocity_dim_9))
+            self.image_19 = self.image_20
+            self.image_20 = img
 
-            img = [image_1, image_4 , image_9]
 
+            #img = [self.image_1, self.image_4, self.image_9]
+            #img = [self.image_1, self.image_4, self.image_9, self.image_14, self.image_19, self.image_24, self.image_29, self.image_34, self.image_39]
+
+
+            img = [self.image_1, self.image_10, self.image_20]
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()
@@ -273,15 +248,20 @@ class Brain:
                 break_command = prediction[0][2]
                 speed = self.vehicle.get_velocity()
                 vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-                self.previous_speed = vehicle_speed
-                if vehicle_speed < 5:
-                    self.motors.sendThrottle(1.0)
-                    self.motors.sendSteer(0.0)
-                    self.motors.sendBrake(0)
-                else:
-                    self.motors.sendThrottle(throttle)
+
+                if vehicle_speed > 30:
+                    self.motors.sendThrottle(0.0)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(break_command)
+                else:
+                    if vehicle_speed < 5:
+                        self.motors.sendThrottle(1.0)
+                        self.motors.sendSteer(0.0)
+                        self.motors.sendBrake(0)
+                    else:
+                        self.motors.sendThrottle(0.75)
+                        self.motors.sendSteer(steer)
+                        self.motors.sendBrake(break_command)
 
             except NotFoundError as ex:
                 logger.info('Error inside brain: NotFoundError!')
@@ -298,8 +278,3 @@ class Brain:
                 logger.warning(type(ex).__name__)
                 print_exc()
                 raise Exception(ex)
-            
-        
-            
-
-

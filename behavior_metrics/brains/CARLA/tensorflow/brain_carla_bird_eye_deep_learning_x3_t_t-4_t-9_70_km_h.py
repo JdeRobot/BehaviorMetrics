@@ -172,9 +172,11 @@ class Brain:
             self.image_8 = img
         elif type(self.image_9) is int:
             self.image_9 = img
+        elif type(self.image_10) is int:
+            self.image_10 = img
         else:
             self.bird_eye_view_images += 1
-            if (self.image_9==img).all() == False:
+            if (self.image_10==img).all() == False:
                 self.bird_eye_view_unique_images += 1
             self.image_1 = self.image_2
             self.image_2 = self.image_3
@@ -184,9 +186,10 @@ class Brain:
             self.image_6 = self.image_7
             self.image_7 = self.image_8
             self.image_8 = self.image_9
-            self.image_9 = img
+            self.image_9 = self.image_10
+            self.image_10 = img
 
-            img = [self.image_1, self.image_4, self.image_9]
+            img = [self.image_1, self.image_5, self.image_10]
             img = np.expand_dims(img, axis=0)
 
             start_time = time.time()

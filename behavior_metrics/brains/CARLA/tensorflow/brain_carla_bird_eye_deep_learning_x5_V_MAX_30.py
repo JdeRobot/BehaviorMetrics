@@ -29,6 +29,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 #    tf.config.experimental.set_memory_growth(gpu, True)
 
 
+
 class Brain:
 
     def __init__(self, sensors, actuators, handler, model, config=None):
@@ -70,8 +71,28 @@ class Brain:
             logger.info("- Models path: " + PRETRAINED_MODELS)
             logger.info("- Model: " + str(model))
 
-        self.previous_speed = 0
-        self.previous_bird_eye_view_image = 0
+        self.image_1 = 0
+        self.image_2 = 0
+        self.image_3 = 0
+        self.image_4 = 0
+        self.image_5 = 0
+        self.image_6 = 0
+        self.image_7 = 0
+        self.image_8 = 0
+        self.image_9 = 0
+        self.image_10 = 0
+
+        self.image_11 = 0
+        self.image_12 = 0
+        self.image_13 = 0
+        self.image_14 = 0
+        self.image_15 = 0
+        self.image_16 = 0
+        self.image_17 = 0
+        self.image_18 = 0
+        self.image_19 = 0
+        self.image_20 = 0
+
         self.bird_eye_view_images = 0
         self.bird_eye_view_unique_images = 0
 
@@ -133,7 +154,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(66, 200)
+        image_shape=(50, 150)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([
@@ -142,53 +163,113 @@ class Brain:
         image = AUGMENTATIONS_TEST(image=img_base)
         img = image["image"]
 
-        self.bird_eye_view_images += 1
-        if (self.previous_bird_eye_view_image==img).all() == False:
-            self.bird_eye_view_unique_images += 1
-        self.previous_bird_eye_view_image = img
-
-        velocity_dim = np.full((200, 66), self.previous_speed/30)
-        new_img_vel = np.dstack((img, velocity_dim))
-        img = new_img_vel
-
-        img = np.expand_dims(img, axis=0)
-        start_time = time.time()
-        try:
-            prediction = self.net.predict(img, verbose=0)
-            self.inference_times.append(time.time() - start_time)
-            throttle = prediction[0][0]
-            steer = prediction[0][1] * (1 - (-1)) + (-1)
-            break_command = prediction[0][2]
-            speed = self.vehicle.get_velocity()
-            vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
-            self.previous_speed = vehicle_speed
-
-            if vehicle_speed < 5:
-                self.motors.sendThrottle(1.0)
-                self.motors.sendSteer(0.0)
-                self.motors.sendBrake(0)
-            else:
-                self.motors.sendThrottle(throttle)
-                self.motors.sendSteer(steer)
-                self.motors.sendBrake(break_command)
-                
-        except NotFoundError as ex:
-            logger.info('Error inside brain: NotFoundError!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
-        except UnimplementedError as ex:
-            logger.info('Error inside brain: UnimplementedError!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
-        except Exception as ex:
-            logger.info('Error inside brain: Exception!')
-            logger.warning(type(ex).__name__)
-            print_exc()
-            raise Exception(ex)
-            
+        if type(self.image_1) is int:
+            self.image_1 = img
+        elif type(self.image_2) is int:
+            self.image_2 = img
+        elif type(self.image_3) is int:
+            self.image_3 = img
+        elif type(self.image_4) is int:
+            self.image_4 = img
+        elif type(self.image_5) is int:
+            self.image_5 = img
+        elif type(self.image_6) is int:
+            self.image_6 = img
+        elif type(self.image_7) is int:
+            self.image_7 = img
+        elif type(self.image_8) is int:
+            self.image_8 = img
+        elif type(self.image_9) is int:
+            self.image_9 = img
         
-            
+        elif type(self.image_10) is int:
+            self.image_10 = img
+        elif type(self.image_11) is int:
+            self.image_11 = img
+        elif type(self.image_12) is int:
+            self.image_12 = img
+        elif type(self.image_13) is int:
+            self.image_13 = img
+        elif type(self.image_14) is int:
+            self.image_14 = img
+        elif type(self.image_15) is int:
+            self.image_15 = img
+        elif type(self.image_16) is int:
+            self.image_16 = img
+        elif type(self.image_17) is int:
+            self.image_17 = img
+        elif type(self.image_18) is int:
+            self.image_18 = img
+        elif type(self.image_19) is int:
+            self.image_19 = img
+        elif type(self.image_20) is int:
+            self.image_20 = img
+        else:
+            self.bird_eye_view_images += 1
+            if (self.image_20==img).all() == False:
+                self.bird_eye_view_unique_images += 1
+            self.image_1 = self.image_2
+            self.image_2 = self.image_3
+            self.image_3 = self.image_4
+            self.image_4 = self.image_5
+            self.image_5 = self.image_6
+            self.image_6 = self.image_7
+            self.image_7 = self.image_8
+            self.image_8 = self.image_9
+            self.image_9 = self.image_10
 
+            self.image_10 = self.image_11
+            self.image_11 = self.image_12
+            self.image_12 = self.image_13
+            self.image_13 = self.image_14
+            self.image_14 = self.image_15
+            self.image_15 = self.image_16
+            self.image_16 = self.image_17
+            self.image_17 = self.image_18
+            self.image_18 = self.image_19
 
+            self.image_19 = self.image_20
+            self.image_20 = img
+
+            img = [self.image_1, self.image_5, self.image_10, self.image_15, self.image_20]
+            img = np.expand_dims(img, axis=0)
+
+            start_time = time.time()
+            try:
+                prediction = self.net.predict(img, verbose=0)
+                self.inference_times.append(time.time() - start_time)
+                throttle = prediction[0][0]
+                steer = prediction[0][1] * (1 - (-1)) + (-1)
+                break_command = prediction[0][2]
+                speed = self.vehicle.get_velocity()
+                vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
+
+                if vehicle_speed > 30:
+                    self.motors.sendThrottle(0.0)
+                    self.motors.sendSteer(steer)
+                    self.motors.sendBrake(break_command)
+                else:
+                    if vehicle_speed < 5:
+                        self.motors.sendThrottle(1.0)
+                        self.motors.sendSteer(0.0)
+                        self.motors.sendBrake(0)
+                    else:
+                        self.motors.sendThrottle(0.75)
+                        self.motors.sendSteer(steer)
+                        self.motors.sendBrake(break_command)
+
+            except NotFoundError as ex:
+                logger.info('Error inside brain: NotFoundError!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
+            except UnimplementedError as ex:
+                logger.info('Error inside brain: UnimplementedError!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
+            except Exception as ex:
+                logger.info('Error inside brain: Exception!')
+                logger.warning(type(ex).__name__)
+                print_exc()
+                raise Exception(ex)
