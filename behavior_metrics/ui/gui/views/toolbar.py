@@ -471,8 +471,10 @@ class Toolbar(QWidget):
 
         self.brain_combobox = QComboBox()
         self.brain_combobox.setEnabled(True)
-        brains = [file.split(".")[0] for file in os.listdir(brains_path + self.configuration.environment + '/'
-            + self.configuration.robot_type) if file.endswith('.py') and file.split(".")[0] != '__init__']
+        environment_subpath = self.configuration.environment + '/' if self.configuration.environment is not None else ""
+        brains = [file.split(".")[0] for file
+                  in os.listdir(brains_path + environment_subpath + self.configuration.robot_type)
+                  if file.endswith('.py') and file.split(".")[0] != '__init__']
         self.brain_combobox.addItem('')
         self.brain_combobox.addItems(brains)
         index = self.brain_combobox.findText(current_brain, Qt.MatchFixedString)
@@ -702,7 +704,7 @@ class Toolbar(QWidget):
         brain = self.brain_combobox.currentText() + '.py'
 
         # load brain from controller
-        #if type(self.controller) != controller_carla.ControllerCarla:
+        # if type(self.controller) != controller_carla.ControllerCarla:
         #    self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
         self.controller.resume_pilot()
 
@@ -752,4 +754,3 @@ class Toolbar(QWidget):
             environment.open_gzclient()
         else:
             environment.close_gzclient()
-
