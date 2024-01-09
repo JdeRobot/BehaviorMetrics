@@ -15,7 +15,7 @@ from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
 from utils.logger import logger
 from traceback import print_exc
 
-PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'carla_tf_models/'
+PRETRAINED_MODELS = ROOT_PATH + '/' + PRETRAINED_MODELS_DIR + 'CARLA/'
 
 from tensorflow.python.framework.errors_impl import NotFoundError
 from tensorflow.python.framework.errors_impl import UnimplementedError
@@ -230,11 +230,6 @@ class Brain:
 
             self.image_19 = self.image_20
             self.image_20 = img
-
-
-            #img = [self.image_1, self.image_4, self.image_9]
-            #img = [self.image_1, self.image_4, self.image_9, self.image_14, self.image_19, self.image_24, self.image_29, self.image_34, self.image_39]
-
 
             img = [self.image_1, self.image_5, self.image_10, self.image_15, self.image_20]
             img = np.expand_dims(img, axis=0)
