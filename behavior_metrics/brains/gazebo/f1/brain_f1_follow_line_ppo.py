@@ -20,9 +20,9 @@ else:
 
 
 
-class LoadEnvVariablesDQNGazebo:
+class LoadEnvVariablesPPOGazebo:
     """
-    ONLY FOR DQN algorithm
+    ONLY FOR ppo algorithm
     Creates a new variable 'environment', which contains values to Gazebo env, Carla env ...
     """
 
@@ -47,6 +47,10 @@ class LoadEnvVariablesDQNGazebo:
         # Training/inference
         self.environment["mode"] = config["settings"]["mode"]
 
+        self.environment["inference_ppo_tf_model_name"] = config["inference"][
+            "ppo"
+        ]["inference_ppo_tf_model_name"]
+
         # Env
         self.environment["env"] = config["settings"]["env"]
         self.environment["circuit_name"] = config[self.environment_set][self.env][
@@ -68,9 +72,9 @@ class LoadEnvVariablesDQNGazebo:
             "alternate_pose"
         ]
         self.environment["sensor"] = config[self.environment_set][self.env]["sensor"]
-        # self.environment["gazebo_start_pose"] = [
-        #     config[self.environment_set][self.env]["circuit_positions_set"][0]
-        # ]
+        self.environment["gazebo_start_pose"] = [
+            config[self.environment_set][self.env]["circuit_positions_set"][0]
+        ]
         self.environment["gazebo_random_start_pose"] = config[self.environment_set][
             self.env
         ]["circuit_positions_set"]
@@ -120,7 +124,9 @@ class LoadEnvVariablesDQNGazebo:
         self.environment["min_reward"] = config["rewards"][self.rewards]["min_reward"]
 
         # Algorithm
-        self.environment["model_name"] = config["algorithm"]["dqn"]["model_name"]
+        self.environment["critic_lr"] = config["algorithm"]["ppo"]["critic_lr"]
+        self.environment["actor_lr"] = config["algorithm"]["ppo"]["actor_lr"]
+        self.environment["model_name"] = config["algorithm"]["ppo"]["model_name"]
         #
         self.environment["ROS_MASTER_URI"] = config["ros"]["ros_master_uri"]
         self.environment["GAZEBO_MASTER_URI"] = config["ros"]["gazebo_master_uri"]
@@ -149,12 +155,14 @@ class Brain:
         self.handler = handler
         self.config = config
         self.suddenness_distance = [0]
+        self.st = 0
+        self.en = 0
 
         args = {
-            'algorithm': 'dqn',
+            'algorithm': 'ppo',
             'environment': 'simple',
             'agent': 'f1',
-            'filename': 'brains/gazebo/f1/config/config_inference_followline_dqn_f1_gazebo.yaml'
+            'filename': 'brains/gazebo/f1/config/config_inference_followline_ppo_f1_gazebo.yaml'
         }
 
         f = open(args['filename'], "r")
@@ -176,16 +184,17 @@ class Brain:
         env_params = params.environment["params"]
         actions = params.environment["actions"]
         env_params["actions"] = actions
-        self.environment = LoadEnvVariablesDQNGazebo(config_file)
+        self.environment = LoadEnvVariablesPPOGazebo(config_file)
 
         self.env = gym.make(self.env_name, **self.environment.environment)
 
-        self.inference_file = params.inference["params"]["inference_file"]
-        observation = self.env.reset()
-        self.step = 1
-        self.state = observation[0]
+        self.inference_file = params.inference["params"]["inference_ppo_tf_model_name"]
+        observation, _ = self.env.reset()
 
-        self.inferencer = InferencerWrapper("dqn", self.inference_file, env=config_file)
+        self.step = 1
+        self.state = observation
+
+        self.inferencer = InferencerWrapper("ppo", self.inference_file, env=config_file)
 
     def get_algorithm(self, config_file: dict, input_algorithm: str) -> dict:
         return {
@@ -197,7 +206,7 @@ class Brain:
     def get_environment(self, config_file: dict, input_env: str) -> dict:
         return {
             "name": input_env,
-            "params": config_file["environments"][input_env],
+            "params": config_file["gazebo_environments"][input_env],
             "actions": config_file["actions"],
         }
 
@@ -234,11 +243,20 @@ class Brain:
 
 
     def execute(self):
-        action = np.argmax(self.inferencer.inference(self.state))
-        # Execute the action and get feedback
+        action = self.inferencer.inference(self.state)
+        action[0] = (action[0] + 1) * 4  # TODO scale it propperly
+        action[1] = action[1] * 1.5
         observation, reward, done, info = self.env.step(action, self.step)
+        # print(f"{action}")
+        # self.st_prev=self.st
+        # self.st=time.time()
+        # print(f"debug: time lapsed between last iteration {self.st_prev-self.st}")
+
+
         self.step += 1
+
         self.state = observation
+
         image = self.camera.getImage().data
 
         self.update_frame('frame_0', image)

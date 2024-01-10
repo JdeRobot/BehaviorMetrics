@@ -22,7 +22,7 @@ actions:
     actions_set: simple #simple
     available_actions:
       simple:
-        0: [ 3, 0 ]
+        0: [ 6, 0 ]
         1: [ 2, 1 ]
         2: [ 2, -1 ]
 

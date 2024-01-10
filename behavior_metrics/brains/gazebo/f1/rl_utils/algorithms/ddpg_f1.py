@@ -1,8 +1,8 @@
-
 import numpy as np
 import tensorflow as tf
 
-from keras.models import load_model
+from keras.models import Sequential, load_model
+
 from .loaders import (
     LoadGlobalParams,
 )
@@ -12,9 +12,8 @@ gpus = tf.config.experimental.list_physical_devices("GPU")
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
-class DQNF1:
+class DDPGF1:
     def __init__(self, config=None):
-
         self.global_params = LoadGlobalParams(config)
         self.state_space = self.global_params.states
 
@@ -29,9 +28,8 @@ class DQNF1:
         return self
 
     def inference(self, state):
-        if self.state_space == "image":
-            return self.model.predict(np.array(state).reshape(-1, *state.shape) / 255)[
-                0
-            ]
-        else:
-            return self.model(np.array([state]))[0]
+        tf_prev_state = tf.expand_dims(tf.convert_to_tensor(state), 0)
+        sampled_actions = tf.squeeze(self.model(tf_prev_state))
+        sampled_actions = sampled_actions.numpy()
+        # sampled_actions = np.argmax(sampled_actions)
+        return np.squeeze(sampled_actions)

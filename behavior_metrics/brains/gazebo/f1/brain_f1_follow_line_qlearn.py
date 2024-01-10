@@ -44,7 +44,7 @@ class Brain:
             'algorithm': 'qlearn',
             'environment': 'simple', 
             'agent': 'f1',
-            'filename': 'brains/gazebo/sf1/config/config_f1_qlearn.yaml'
+            'filename': 'brains/gazebo/f1/config/config_f1_qlearn.yaml'
         }
         
         f = open(args['filename'], "r")

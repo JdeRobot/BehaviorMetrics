@@ -6,4 +6,5 @@ class AlgorithmsType(Enum):
     QLEARN_MULTIPLE_STATES = "qlearn_multiple_states"
     DQN = "dqn"
     DDPG = "ddpg"
+    PPO = "ppo"
     MANUAL = "manual"

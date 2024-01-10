@@ -21,6 +21,7 @@ Behaviors:
         PilotTimeCycle: 50
         Parameters:
             ImageTranform: ''
+        Environment: gazebo
         Type: 'f1'
     Simulation:
         World: /usr/local/gazebo/launch/simple_circuit.launch

@@ -51,25 +51,16 @@ class Reset(F1Env):
         # self._gazebo_set_fix_pose_f1_follow_right_lane()
         self._gazebo_reset()
 
-        self._gazebo_unpause()
 
         ##==== get image from sensor camera
         f1_image_camera, _ = self.f1gazeboimages.get_camera_info()
-        self._gazebo_pause()
 
         ##==== calculating State
         # simplified perception as observation
-        centrals_in_pixels, _ = self.simplifiedperception.calculate_centrals_lane(
-            f1_image_camera.data,
-            self.height,
-            self.width,
-            self.x_row,
-            self.lower_limit,
-            self.center_image,
+        points_in_red_line, centrals_normalized = self.simplifiedperception.processed_image(
+            f1_image_camera.data, self.height, self.width, self.x_row, self.center_image
         )
-        states = self.simplifiedperception.calculate_observation(
-            centrals_in_pixels, self.center_image, self.pixel_region
-        )
-        state = [states[0]]
+        states = centrals_normalized
+        state_size = len(states)
 
-        return state
+        return states, state_size
