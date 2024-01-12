@@ -68,13 +68,25 @@ Behavior Metrics provides two different evaluation modes, GUI evaluation and hea
 
 In this mode, activated with flag `-g`, the simulator and software application are displayed.
 
-![alt text](./assets/behavior_metrics_paper_behavior_metrics_gui.png)
+* Video:
+
+[![GUI video](https://img.youtube.com/vi/ze_LDkmCymk/0.jpg)](https://www.youtube.com/watch?v=ze_LDkmCymk)
+
+* Scheme:
+
+![GUI scheme](./assets/behavior_metrics_paper_behavior_metrics_gui.png)
 
 #### Headless
 
 In this mode, activated with flag `-s`, the evaluation is conducted without graphical interface.
 
-![alt text](./assets/behavior_metrics_paper_headless.png)
+* Video:
+
+[![Headless video](https://img.youtube.com/vi/rcrOF5t3MC4/0.jpg)](https://www.youtube.com/watch?v=rcrOF5t3MC4)
+
+* Scheme:
+
+![Headless scheme](./assets/behavior_metrics_paper_headless.png)
 
 ### Robot controller
 
