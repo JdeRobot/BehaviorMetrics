@@ -11,12 +11,12 @@ Currently supported tasks include:
 * Driving in traffic
 * Navigation
 
-Each task comes with its own custom evaluation metrics that can help compare autonomous driving solutions.
-The main component of the ego vehicle is the brain, which receives sensor data, manipulates it, and generates robot control commands based on it. 
-The inner part of the brain can be controlled by an end-to-end model, written in Tensorflow or PyTorch, a reinforcement learning policy, or even an explicitly programmed policy.
+Each task comes with its custom evaluation metrics that can help compare autonomous driving solutions.
+The main component of the ego vehicle is the controller (brain), which receives sensor data, manipulates it and generates robot control commands based on it. 
+The inner part of the brain can be controlled by an end-to-end deep learning model, written in Tensorflow or PyTorch, a reinforcement learning policy, or even an explicitly programmed policy.
 
 The software provides two main pipelines, a graphical user interface (GUI) and a headless mode (scripted). 
-The first one is intended for testing one brain+model at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models in different scenarios.
+The first one is intended for testing one brain+model (controller) at a time and debugging it visually while the headless mode is intended for running lots of experiments at the same time for comparison of a batch of brain+models (controllers) in different scenarios.
 
 
 ![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture.png)
