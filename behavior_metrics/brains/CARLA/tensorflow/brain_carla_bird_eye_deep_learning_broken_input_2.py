@@ -139,7 +139,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
+        image_shape=(66, 200)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([

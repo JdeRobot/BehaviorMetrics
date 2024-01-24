@@ -125,7 +125,7 @@ class Brain:
         ]
 
         AUGMENTATIONS_TEST = Compose([
-            GridDropout(p=1.0, ratio=0.9)
+            GridDropout(p=1.0)
         ])
         
         bird_eye_view_1 = AUGMENTATIONS_TEST(image=bird_eye_view_1)
@@ -139,7 +139,7 @@ class Brain:
         
         self.update_pose(self.pose.getPose3d())
 
-        image_shape=(50, 150)
+        image_shape=(66, 200)
         img_base = cv2.resize(bird_eye_view_1, image_shape)
 
         AUGMENTATIONS_TEST = Compose([

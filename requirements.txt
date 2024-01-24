@@ -16,7 +16,7 @@ matplotlib==3.1.2
 kiwisolver==1.2
 defusedxml==0.6.0
 netifaces==0.10.9
-Pillow==10.0.1
+Pillow==10.2.0
 pyglet==1.5.0
 gym==0.17.3
 requests==2.31.0
@@ -25,7 +25,7 @@ empy==3.3.2
 vcstool==0.2.14
 scikit-image==0.19.2
 bagpy==0.4.10
-pycryptodomex==3.9.9
+pycryptodomex==3.19.1
 torch==1.13.1
 torchvision==0.14.1
 tensorboard==2.11.0
@@ -39,3 +39,5 @@ pydantic==1.10.2
 seaborn==0.12.2
 pandas
 scikit-learn==1.0.2
+pygame
+keras_preprocessing

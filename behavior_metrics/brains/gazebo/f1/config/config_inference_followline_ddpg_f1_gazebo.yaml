@@ -1,0 +1,140 @@
+settings:
+  mode: inference # training, retraining, inference
+  task: ddpg_follow_line # follow_line_gazebo, follow_lane_gazebo, autoparking_gazebo
+  algorithm: ddpg # qlearn, dqn, ddpg, ppo
+  simulator: gazebo # openai, carla, gazebo, sumo
+  environment_set: environments # gazebo_environments, carla_environments
+  env: simple # simple, nurburgring, montreal, curves, simple_laser, manual, autoparking
+  agent: f1 # f1, autoparkingRL, auto_carla, mountain_car, robot_mesh, cartpole, turtlebot
+  actions: continuous # continuous, simple, medium, hard, test, autoparking_simple
+  states: sp10 #image, sp1 (simplified perception with 1 point), sp3 (simplified perception with 3 points), spn (simplified perception with n points)
+  rewards: followline_center # followline_center, followline_center_v_w_linear
+  framework: TensorFlow # TensorFlow, Pytorch
+  total_episodes: 500000
+  training_time: 72
+  models_dir: "./checkpoints"
+  logs_dir: "./logs"
+  metrics_dir: "./metrics"
+  debug_stats: false
+  show_monitoring: True
+
+ros:
+  ros_master_uri: "11311"
+  gazebo_master_uri: "11345"
+
+retraining:
+  ddpg:
+    retrain_ddpg_tf_actor_model_name:
+    retrain_ddpg_tf_critic_model_name:
+
+inference:
+  ddpg:
+    inference_ddpg_tf_actor_model_name: "/home/ruben/Desktop/my-BehaviorMetrics/behavior_metrics/models/gazebo/rl_models/ddpg/superfast-20231118-220658_IMPROVED_C-simple_S-sp5_A-continuous_MR-2025_E-3797/ACTOR"
+    inference_ddpg_tf_critic_model_name: "/home/ruben/Desktop/my-BehaviorMetrics/behavior_metrics/models/gazebo/rl_models/ddpg/superfast-20231118-220658_IMPROVED_C-simple_S-sp5_A-continuous_MR-2025_E-3797/CRITIC"
+
+algorithm:
+  ddpg:
+    gamma: 0.9
+    tau: 0.01
+    std_dev: 0
+    model_name: DDPG_Actor_conv2d32x64_Critic_conv2d32x64
+    replay_memory_size: 50_000
+    memory_fraction: 0.20
+    critic_lr: 0.003
+    actor_lr: 0.002
+    buffer_capacity: 100_000
+    batch_size: 128
+
+agent:
+  f1:
+    camera_params:
+      width: 640
+      height: 480
+      center_image: 320
+      raw_image: False
+      image_resizing: 100
+      new_image_size: 32
+      num_regions: 16
+      lower_limit: 220
+
+states:
+  image:
+    0: [3]
+  sp1:
+    0: [40] #TODO
+  sp3:
+    0: [10, 50, 150]
+  sp5:
+    0: [20, 50, 77, 130, 200]
+  sp10:
+    0: [10, 40, 70, 100, 130, 160, 190, 220]
+  spn:
+    0: [10]
+
+actions:
+  simple:
+    0: [3, 0]
+    1: [2, 1]
+    2: [2, -1]
+  medium:
+    0: [3, 0]
+    1: [2, 1]
+    2: [2, -1]
+    3: [1, 1.5]
+    4: [1, -1.5]
+  hard:
+    0: [3, 0]
+    1: [2, 1]
+    2: [2, -1]
+    3: [1.5, 1]
+    4: [1.5, -1]
+    5: [1, -1.5]
+    6: [1, -1.5]
+  test:
+    0: [0, 0]
+  continuous:
+    v: [1, 10]
+    w: [-1.5, 1.5]
+
+rewards:
+  followline_center:
+    from_10: 10
+    from_02: 2
+    from_01: 1
+    penal: -100
+    min_reward: 5_000
+    highest_reward: 100
+  followline_center_v_w_linear: # only for continuous actions
+    beta_0: 3
+    beta_1: -0.1
+    penal: 0
+    min_reward: 1_000
+    highest_reward: 100
+
+environments:
+  simple:
+    env_name: F1Env-v0
+    circuit_name: simple
+    launchfile: simple_circuit.launch
+    environment_folder: f1
+    robot_name: f1_renault
+    model_state_name: f1_renault # f1_renault_multicamera_multilaser
+    start_pose: 0 # 0, 1, 2, 3, 4
+    alternate_pose: False
+    estimated_steps: 5000
+    sensor: camera
+    save_episodes: 1
+    save_every_step: 20000
+    lap_completed: False
+    save_model: True
+    save_positions: True
+    debug_level: DEBUG
+    telemetry: False
+    telemetry_mask: False
+    plotter_graphic: False
+    circuit_positions_set:
+      0: [53.462, -41.988, 0.004, 0, 0, 1.57, -1.57]
+      1: [53.462, -8.734, 0.004, 0, 0, 1.57, -1.57] #finish line
+      2: [39.712, -30.741, 0.004, 0, 0, 1.56, 1.56]
+      3: [-6.861, -36.481, 0.004, 0, 0.01, -0.858, 0.613]
+      4: [20.043, 37.130, 0.003, 0, 0.103, -1.4383, -1.4383]

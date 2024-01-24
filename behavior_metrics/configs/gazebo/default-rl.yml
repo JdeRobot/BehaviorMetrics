@@ -17,7 +17,7 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
                     RL: True
-        BrainPath: 'brains/f1rl/train.py'
+        BrainPath: 'brains/gazebo/f1rl/train.py'
         PilotTimeCycle: 50
         Type: 'f1rl'
         Parameters:
