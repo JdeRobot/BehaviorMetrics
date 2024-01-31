@@ -35,6 +35,7 @@ class Brain:
         self.camera_seg = sensors.get_camera('camera_2') # segmentation camera
         self.imu = sensors.get_imu('imu_0') # imu
         self.gnss = sensors.get_gnss('gnss_0') # gnss
+        self.speedometer = sensors.get_speedometer('speedometer_0') # gnss
         self.handler = handler
         self.inference_times = []
         self.gpu_inference = config['GPU']
@@ -125,7 +126,7 @@ class Brain:
         config.trajectory[0].x = 55.3
         config.trajectory[0].y = -105.6
 
-        config.trajectory[1].x = 2.0
+        config.trajectory[1].x = -30.0
         config.trajectory[1].y = -105.6
         print(config.trajectory[0].x, config.trajectory[0].y)
         print()
@@ -139,6 +140,7 @@ class Brain:
         self.set_global_plan(gps_route, self.route)
         self._init_route_planner()
 
+        self.steer_step = 0
         self.last_steers = deque()
         self.status = 0
 
@@ -150,8 +152,8 @@ class Brain:
         ds_ids = downsample_route(global_plan_world_coord, 50)
         self._global_plan_world_coord = [(global_plan_world_coord[x][0], global_plan_world_coord[x][1]) for x in ds_ids]
         self._global_plan = [global_plan_gps[x] for x in ds_ids]
-        print('-----GLOBAL PLAN -----')
-        print(self._global_plan)
+        #print('-----GLOBAL PLAN -----')
+        #print(self._global_plan)
 
 
     def _init_route_planner(self):
@@ -160,8 +162,8 @@ class Brain:
 
         gps = np.array([self._global_plan[0][0]['lon'], self._global_plan[0][0]['lat']])
         gps = (gps - self._route_planner.mean) * self._route_planner.scale
-        print('-----GPS----')
-        print(gps)
+        #print('-----GPS----')
+        #print(gps)
 
         self.initialized = True
 
@@ -193,9 +195,9 @@ class Brain:
         gps = self.gnss.getGNSS()
         gps = np.array([gps.longitude, gps.latitude])
         gps = (gps - self._route_planner.mean) * self._route_planner.scale
-        print('-----GPS-----')
-        print(gps)
-        print('-----GPS-----')
+        #print('-----GPS-----')
+        #print(gps)
+        #print('-----GPS-----')
         return gps
 
     @torch.no_grad()
@@ -224,9 +226,15 @@ class Brain:
         self.update_frame('frame_0', rgb)
         self.update_frame('frame_1', seg_image)
 
-        velocity = self.vehicle.get_velocity()
-        speed_m_s = np.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
-        speed = 3.6 * speed_m_s #m/s to km/h 
+        
+
+        print('----------getSpeedometer--------------')
+        print(self.speedometer.getSpeedometer().data)
+
+        speed = self.speedometer.getSpeedometer().data
+        #velocity = self.vehicle.get_velocity()
+        #speed_m_s = np.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+        #speed = 3.6 * speed_m_s #m/s to km/h 
         gt_velocity = torch.FloatTensor([speed]).to('cuda', dtype=torch.float32)
         speed = torch.tensor(speed).view(-1, 1).to('cuda', dtype=torch.float32)
         speed = speed / 12
@@ -234,8 +242,8 @@ class Brain:
         imu_data = self.imu.getIMU()
         #compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z, imu_data.compass.w])
         compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z])
-        print('----------compass--------------')
-        print(compass)
+        #print('----------compass--------------')
+        #print(compass)
         compass = compass[-1]
 
         if (math.isnan(compass) == True): #It can happen that the compass sends nan for a few frames
@@ -286,21 +294,21 @@ class Brain:
         
         '''
 
-        print('----------compass--------------')
+        #print('----------compass--------------')
         '''
         -0.999806824289457
         '''
-        print(compass)
+        #print(compass)
         #print('--------- POS ---------------')
         '''
         [  43.17920366 -105.57289901]
         '''
         #print(pos)
-        print('-----------LOCAL COMMAND POINT ---------------')
+        #print('-----------LOCAL COMMAND POINT ---------------')
         '''
         [-3.83868739e+01  1.80376380e-02]
         '''
-        print(local_command_point)
+        #print(local_command_point)
         #print('-------NEXT WAYPOINT-----------')
         '''
         [4.7923297947398655, -105.55486136806194]
@@ -312,14 +320,14 @@ class Brain:
         -------Target point-----------
         tensor([[-3.8387e+01,  1.8038e-02]], device='cuda:0')
         '''
-        print('--------RESULT----------')
+        #print('--------RESULT----------')
         #print(result)
-        print('------------------')
+        #print('------------------')
 
         state = torch.cat([speed, self.target_point, cmd_one_hot], 1)
 
-        print('------STATE-----')
-        print(state)
+        #print('------STATE-----')
+        #print(state)
 
         rgb = self._im_transform(rgb).unsqueeze(0).to('cuda', dtype=torch.float32)
 
@@ -327,17 +335,17 @@ class Brain:
 
         pred = self.net(rgb, state, self.target_point)
 
-        print('-----PRED------')
-        print(pred.keys())
-        print(pred['pred_wp'])
-        print('------COMMAND----')
-        print(command)
+        #print('-----PRED------')
+        #print(pred.keys())
+        #print(pred['pred_wp'])
+        #print('------COMMAND----')
+        #print(command)
 
         
         steer_ctrl, throttle_ctrl, brake_ctrl, metadata = self.net.process_action(pred, command, gt_velocity, self.target_point)
 
-        print('------ steer_ctrl, throttle_ctrl, brake_ctrl, metadata-------')
-        print(steer_ctrl, throttle_ctrl, brake_ctrl, metadata)
+        #print('------ steer_ctrl, throttle_ctrl, brake_ctrl, metadata-------')
+        #print(steer_ctrl, throttle_ctrl, brake_ctrl, metadata)
 
         steer_traj, throttle_traj, brake_traj, metadata_traj = self.net.control_pid(pred['pred_wp'], gt_velocity, self.target_point)
 
@@ -345,18 +353,18 @@ class Brain:
         if throttle_traj > brake_traj: brake_traj = 0.0
 
 
-        print('------steer_traj, throttle_traj, brake_traj, metadata_traj-----')
-        print(steer_traj, throttle_traj, brake_traj, metadata_traj)
+        #print('------steer_traj, throttle_traj, brake_traj, metadata_traj-----')
+        #print(steer_traj, throttle_traj, brake_traj, metadata_traj)
 
         
         if self.status == 0:
-            print('LOG 1***********************************************************************************************')
+            #print('LOG 1***********************************************************************************************')
             self.alpha = 0.3
             steer_ctrl = np.clip(self.alpha*steer_ctrl + (1-self.alpha)*steer_traj, -1, 1)
             throttle_ctrl = np.clip(self.alpha*throttle_ctrl + (1-self.alpha)*throttle_traj, 0, 0.75)
             brake_ctrl = np.clip(self.alpha*brake_ctrl + (1-self.alpha)*brake_traj, 0, 1)
         else:
-            print('LOG 2***********************************************************************************************')
+            #print('LOG 2***********************************************************************************************')
             self.alpha = 0.3
 			#self.pid_metadata['agent'] = 'ctrl'
             steer_ctrl = np.clip(self.alpha*steer_traj + (1-self.alpha)*steer_ctrl, -1, 1)
@@ -366,12 +374,12 @@ class Brain:
         if brake_ctrl > 0.5:
             throttle_ctrl = float(0)
 
-        print('-------------steer_ctrl, throttle_ctrl, brake_ctrl----------')
-        print(steer_ctrl, throttle_ctrl, brake_ctrl)
+        #print('-------------steer_ctrl, throttle_ctrl, brake_ctrl----------')
+        #print(steer_ctrl, throttle_ctrl, brake_ctrl)
 
-        print()
-        print()
-        print()
+        #print()
+        #print()
+        #print()
 
         self.motors.sendThrottle(throttle_ctrl)
         self.motors.sendSteer(steer_ctrl)

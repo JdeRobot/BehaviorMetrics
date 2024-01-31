@@ -130,14 +130,55 @@ class Brain:
         for x in ds_ids:
             global_plan_gps[x][0]['lat'], global_plan_gps[x][0]['lon'] = global_plan_gps[x][0]['lon'], global_plan_gps[x][0]['lat']
     
+    def update_frame(self, frame_id, data):
+        """Update the information to be shown in one of the GUI's frames.
+
+        Arguments:
+            frame_id {str} -- Id of the frame that will represent the data
+            data {*} -- Data to be shown in the frame. Depending on the type of frame (rgbimage, laser, pose3d, etc)
+        """
+        if data.shape[0] != data.shape[1]:
+            if data.shape[0] > data.shape[1]:
+                difference = data.shape[0] - data.shape[1]
+                extra_left, extra_right = int(difference/2), int(difference/2)
+                extra_top, extra_bottom = 0, 0
+            else:
+                difference = data.shape[1] - data.shape[0]
+                extra_left, extra_right = 0, 0
+                extra_top, extra_bottom = int(difference/2), int(difference/2)
+                
+
+            data = np.pad(data, ((extra_top, extra_bottom), (extra_left, extra_right), (0, 0)), mode='constant', constant_values=0)
+
+        self.handler.update_frame(frame_id, data)
+
     def tick(self):
         rgb = self.camera_rgb.getImage().data
+        self.update_frame('frame_0', rgb)
         speed = self.speedometer.getSpeedometer().data
-        imu_data = self.imu.getIMU()
-        compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z])
-        compass = compass[-1]
-        
+        #velocity = self.vehicle.get_velocity()
+        #speed_m_s = np.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+        #speed = 3.6 * speed_m_s #m/s to km/h 
 
+        imu_data = self.imu.getIMU()
+
+        compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z, imu_data.compass.w])
+
+        def convert_vector_to_compass_orientation(orientation_vector):
+            _, _, orientation_x, orientation_y = orientation_vector
+
+            compass_orientation = math.atan2(round(orientation_y, 2), round(orientation_x, 2))
+
+            if compass_orientation < 0:
+                compass_orientation += 2 * math.pi
+
+            compass_orientation -= math.pi / 2.0
+
+            return compass_orientation
+        
+        compass = convert_vector_to_compass_orientation(compass)
+
+        
         result = {
 				'rgb': rgb,
 				#'gps': gps,
@@ -150,17 +191,16 @@ class Brain:
         next_wp, next_cmd = self._route_planner.run_step(pos)
 
         result['next_command'] = next_cmd.value
-        # Custom compass update
-        #compass = ((compass + 1) / 2) * 0.02 - 0.01
+        
         theta = compass + np.pi/2
         R = np.array([
             [np.cos(theta), -np.sin(theta)],
             [np.sin(theta), np.cos(theta)]
             ])
+        
         local_command_point = np.array([next_wp[0]-pos[0], next_wp[1]-pos[1]])
-
-        #local_command_point = R.T.dot(local_command_point)
-        #local_command_point[0], local_command_point[1] = local_command_point[1], -local_command_point[0]t
+        local_command_point = R.T.dot(local_command_point)
+        local_command_point[0], local_command_point[1] = local_command_point[1], -local_command_point[0]
         
         result['target_point'] = tuple(local_command_point)
 
@@ -190,6 +230,10 @@ class Brain:
         cmd_one_hot = torch.tensor(cmd_one_hot).view(1, 6).to('cuda', dtype=torch.float32)
         speed = torch.FloatTensor([float(tick_data['speed'])]).view(1,1).to('cuda', dtype=torch.float32)
         speed = speed / 12
+
+        print(tick_data['rgb'].shape)
+        print(type(tick_data['rgb']))
+
         rgb = self._im_transform(tick_data['rgb']).unsqueeze(0).to('cuda', dtype=torch.float32)
 
         tick_data['target_point'] = [torch.FloatTensor([tick_data['target_point'][0]]),
@@ -252,3 +296,10 @@ class Brain:
         self.motors.sendSteer(steer)
         self.motors.sendBrake(brake)
 
+
+        '''
+            TODO: Draw the waypoints on the map
+            TODO: Draw the trajectory on the images.
+            TODO: Figure out what's the transformation for the compass.
+
+        '''
