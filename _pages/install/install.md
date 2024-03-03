@@ -88,27 +88,36 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
+#### Dependencies for building packages
+
+```bash
+sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+```
 ### Creating a virtualenv
 
-It is recommended to use virtual environment for Behavior Metrics.
+It is recommended to use virtual environment for Behavior Metrics. Use **Python version->3.8** or **below.**
 
 ```bash
 # Create virtualenv
-virtualenv -p python3 .behavior-metrics
+virtualenv -p python=3.8 .behavior-metrics
 source .behavior-metrics/bin/activate
-pip install empy
+pip3 install empy
 sudo apt-get install python3-dev
 ```
 
+### Install Catkin_pkg
+```bash
+pip3 install catkin_pkg
+```
 ### Installing dependencies <a name="dependencies"></a>
 
 #### JdeRobot's CustomRobots
-
+- Clone this repository in your home directory.
 ```bash
 git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots
-cd CustomRobots/f1 && mkdir build && cd build
+cd CustomRobots/CustomRobots/f1 && mkdir build && cd build
 /bin/bash -c "source /opt/ros/noetic/setup.bash;
-cmake .. && make && make install;"
+cmake .. && make && sudo make install;"
 echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 ```
 
@@ -117,12 +126,14 @@ echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 ```bash
 git clone https://github.com/strasdat/Sophus
 cd Sophus && mkdir build && cd build
-cmake ../ && make && make install
+cmake ../ && make && sudo make install
 ```
 
 ### Installing Behavior Metrics <a name="behavior-metrics"></a>
 
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
+
+- Clone this repository in your home directory.
 
 ```bash
 git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics
