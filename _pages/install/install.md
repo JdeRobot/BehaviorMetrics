@@ -155,7 +155,7 @@ For installing CARLA and supporting this new simulator:
 
 1. Install [CARLA 0.9.15](https://carla.readthedocs.io/en/0.9.15/start_quickstart/) . Currently, the official Carla server is down. Therefore, it is advisable to install Carla using the GitHub package method instead of the Debian package method.
 
-For manual instructions of CARLA follow the below instructions:-
+For manual Installation of CARLA follow the below instructions:-
 
 i) Install Required System Dependency
 
