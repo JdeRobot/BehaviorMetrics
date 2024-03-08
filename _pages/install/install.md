@@ -153,6 +153,36 @@ pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 For installing CARLA and supporting this new simulator:
 
 1. Install [CARLA 0.9.13](https://carla.readthedocs.io/en/0.9.13/start_quickstart/)
+
+For manual instructions of CARLA follow the below instructions:-
+
+i) Install Required System Dependency
+
+Before downloading CARLA, install the necessary system dependency:
+
+```
+sudo apt-get -y install libomp5
+```
+ii) Download the CARLA 0.9.15 Release
+
+Download the CARLA_0.9.15.tar.gz file (approximately 16GB) from the official release:
+
+```
+wget https://carla-releases.s3.us-east-005.backblazeb2.com/Linux/CARLA_0.9.15.tar.gz
+```
+iii) Unpack CARLA to the Desired Directory
+
+Unpack the downloaded file to /opt/carla-simulator/:
+```
+tar -xzvf CARLA_0.9.15.tar.gz -C /opt/carla-simulator/
+```
+iv) Install the CARLA Python Module
+
+Finally, install the CARLA Python module and necessary dependencies:
+```
+python -m pip install carla==0.9.15
+python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.txt
+```
 2. Install [CARLA ROS Bridge](https://carla.readthedocs.io/projects/ros-bridge/en/latest/ros_installation_ros1/)
 3. Install this [fork](https://github.com/Qi-Zha0/carla-birdeye-view) of the [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
 ```
