@@ -152,7 +152,7 @@ pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 
 For installing CARLA and supporting this new simulator:
 
-1. Install [CARLA 0.9.13](https://carla.readthedocs.io/en/0.9.13/start_quickstart/)
+1. Install [CARLA 0.9.15](https://carla.readthedocs.io/en/0.9.15/start_quickstart/) . Currently, the official Carla server is down. Therefore, it is advisable to install Carla using the GitHub package method instead of the Debian package method.
 
 For manual instructions of CARLA follow the below instructions:-
 
@@ -182,7 +182,8 @@ Finally, install the CARLA Python module and necessary dependencies:
 ```
 python -m pip install carla==0.9.15
 python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.txt
-```
+``` 
+
 2. Install [CARLA ROS Bridge](https://carla.readthedocs.io/projects/ros-bridge/en/latest/ros_installation_ros1/)
 3. Install this [fork](https://github.com/Qi-Zha0/carla-birdeye-view) of the [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
 ```
@@ -194,7 +195,7 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
     source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
     export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
-    export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg   
+    export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.15-py3.7-linux-x86_64.egg   
     export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
 ```
 Note: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../carla/)
