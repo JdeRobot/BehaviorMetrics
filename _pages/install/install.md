@@ -112,6 +112,7 @@ pip3 install catkin_pkg
 ### Installing dependencies <a name="dependencies"></a>
 
 #### JdeRobot's CustomRobots
+The CustomRobots repository is only needed for launching Behavior Metrics with Gazebo. Since our main simulator is CARLA we don't need it for running behavior-metrics with CARLA based simulation. 
 - Clone this repository in your home directory.
 ```bash
 git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots
