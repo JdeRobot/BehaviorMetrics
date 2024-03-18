@@ -88,27 +88,37 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
+#### Dependencies for building packages
+
+```bash
+sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+```
 ### Creating a virtualenv
 
-It is recommended to use virtual environment for Behavior Metrics.
+It is recommended to use virtual environment for Behavior Metrics. Use **Python version->3.8** or **below.**
 
 ```bash
 # Create virtualenv
-virtualenv -p python3 .behavior-metrics
+virtualenv -p python=3.8 .behavior-metrics
 source .behavior-metrics/bin/activate
-pip install empy
+pip3 install empy
 sudo apt-get install python3-dev
 ```
 
+### Install Catkin_pkg
+```bash
+pip3 install catkin_pkg
+```
 ### Installing dependencies <a name="dependencies"></a>
 
 #### JdeRobot's CustomRobots
-
+The CustomRobots repository is only needed for launching Behavior Metrics with Gazebo. Since our main simulator is CARLA we don't need it for running behavior-metrics with CARLA based simulation. 
+- Clone this repository in your home directory.
 ```bash
 git clone -b noetic-devel https://github.com/JdeRobot/CustomRobots
-cd CustomRobots/f1 && mkdir build && cd build
+cd CustomRobots/CustomRobots/f1 && mkdir build && cd build
 /bin/bash -c "source /opt/ros/noetic/setup.bash;
-cmake .. && make && make install;"
+cmake .. && make && sudo make install;"
 echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 ```
 
@@ -117,12 +127,14 @@ echo "source /opt/jderobot/share/jderobot/gazebo/assets-setup.sh" >> ~/.bashrc
 ```bash
 git clone https://github.com/strasdat/Sophus
 cd Sophus && mkdir build && cd build
-cmake ../ && make && make install
+cmake ../ && make && sudo make install
 ```
 
 ### Installing Behavior Metrics <a name="behavior-metrics"></a>
 
 This application depends on some third party libraries, most of them are included in the requirements file. To install them just type the following:
+
+- Clone this repository in your home directory.
 
 ```bash
 git clone -b noetic-devel https://github.com/JdeRobot/BehaviorMetrics
@@ -141,7 +153,37 @@ pyrcc5 -o behavior_metrics/ui/gui/resources/resources.py \
 
 For installing CARLA and supporting this new simulator:
 
-1. Install [CARLA 0.9.15](https://carla.readthedocs.io/en/0.9.15/start_quickstart/) . Currently, the official Carla server is down. Therefore, it is advisable to install Carla using the GitHub package method instead of the Debian package method. 
+1. Install [CARLA 0.9.15](https://carla.readthedocs.io/en/0.9.15/start_quickstart/) . Currently, the official Carla server is down. Therefore, it is advisable to install Carla using the GitHub package method instead of the Debian package method.
+
+For manual Installation of CARLA follow the below instructions:-
+
+i) Install Required System Dependency
+
+Before downloading CARLA, install the necessary system dependency:
+
+```
+sudo apt-get -y install libomp5
+```
+ii) Download the CARLA 0.9.15 Release
+
+Download the CARLA_0.9.15.tar.gz file (approximately 16GB) from the official release:
+
+```
+wget https://carla-releases.s3.us-east-005.backblazeb2.com/Linux/CARLA_0.9.15.tar.gz
+```
+iii) Unpack CARLA to the Desired Directory
+
+Unpack the downloaded file to /opt/carla-simulator/:
+```
+tar -xzvf CARLA_0.9.15.tar.gz -C /opt/carla-simulator/
+```
+iv) Install the CARLA Python Module
+
+Finally, install the CARLA Python module and necessary dependencies:
+```
+python -m pip install carla==0.9.15
+python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.txt
+``` 
 
 2. Install [CARLA ROS Bridge](https://carla.readthedocs.io/projects/ros-bridge/en/latest/ros_installation_ros1/)
 3. Install this [fork](https://github.com/Qi-Zha0/carla-birdeye-view) of the [CARLA bird-eye-view](https://github.com/deepsense-ai/carla-birdeye-view)
