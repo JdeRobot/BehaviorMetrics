@@ -7,6 +7,10 @@ def imuMsg2IMU(imuMsg):
 
     imu = IMU()
 
+    #print('-----')
+    #print(imuMsg.orientation)
+    #print('-----')
+
     imu.compass = imuMsg.orientation
     imu.accelerometer = imuMsg.linear_acceleration
     imu.gyroscope = imuMsg.angular_velocity

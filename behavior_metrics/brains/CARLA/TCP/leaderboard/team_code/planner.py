@@ -80,6 +80,9 @@ class RoutePlanner(object):
 
         if len(self.route) == 1:
             return self.route[0]
+        #print()
+        #print()
+        #print('DENTRO', self.route)
 
         to_pop = 0
         farthest_in_range = -np.inf
@@ -110,4 +113,7 @@ class RoutePlanner(object):
         self.debug.dot(gps, gps, (0, 0, 255))
         self.debug.show()
 
+        #print()
+        #print()
+        #print('DENTRO', self.route)
         return self.route[1]

@@ -160,6 +160,9 @@ class Brain:
         #speed_m_s = np.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
         #speed = 3.6 * speed_m_s #m/s to km/h 
 
+        print('---SPEED 1---')
+        print(speed)
+
         imu_data = self.imu.getIMU()
 
         compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z, imu_data.compass.w])
@@ -230,6 +233,9 @@ class Brain:
         cmd_one_hot = torch.tensor(cmd_one_hot).view(1, 6).to('cuda', dtype=torch.float32)
         speed = torch.FloatTensor([float(tick_data['speed'])]).view(1,1).to('cuda', dtype=torch.float32)
         speed = speed / 12
+        print('---SPEED 2---')
+        print(speed)
+
 
         print(tick_data['rgb'].shape)
         print(type(tick_data['rgb']))
@@ -291,15 +297,38 @@ class Brain:
         self.pid_metadata['status'] = self.status
 
 
-        #print(throttle, steer, brake)
+        print(throttle, steer, brake)
         self.motors.sendThrottle(throttle)
         self.motors.sendSteer(steer)
         self.motors.sendBrake(brake)
 
+        #self.motors.sendThrottle(1.0)
+        #self.motors.sendSteer(0.0)
+        #self.motors.sendBrake(0.0)
+
+
 
         '''
+            TODO: REVIEW PID CONTROLLERS SINCE THEY USE A WINDOW
             TODO: Draw the waypoints on the map
             TODO: Draw the trajectory on the images.
             TODO: Figure out what's the transformation for the compass.
-
+            TODO: Review metadata from model!!! metadata = {
+			'speed': float(speed.astype(np.float64)),
+			'steer': float(steer),
+			'throttle': float(throttle),
+			'brake': float(brake),
+			'wp_4': tuple(waypoints[3].astype(np.float64)),
+			'wp_3': tuple(waypoints[2].astype(np.float64)),
+			'wp_2': tuple(waypoints[1].astype(np.float64)),
+			'wp_1': tuple(waypoints[0].astype(np.float64)),
+			'aim': tuple(aim.astype(np.float64)),
+			'target': tuple(target.astype(np.float64)),
+			'desired_speed': float(desired_speed.astype(np.float64)),
+			'angle': float(angle.astype(np.float64)),
+			'angle_last': float(angle_last.astype(np.float64)),
+			'angle_target': float(angle_target.astype(np.float64)),
+			'angle_final': float(angle_final.astype(np.float64)),
+			'delta': float(delta.astype(np.float64)),
+		}
         '''

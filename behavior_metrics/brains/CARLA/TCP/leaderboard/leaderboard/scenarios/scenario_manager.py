@@ -104,7 +104,8 @@ class ScenarioManager(object):
         GameTime.restart()
         self._agent = AgentWrapper(agent)
         self.scenario_class = scenario
-        self.scenario = scenario.scenario
+        #self.scenario = scenario.scenario
+        self.scenario = scenario
         self.scenario_tree = self.scenario.scenario_tree
         self.ego_vehicles = scenario.ego_vehicles
         self.other_actors = scenario.other_actors
@@ -112,7 +113,7 @@ class ScenarioManager(object):
 
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
-        CarlaDataProvider.set_ego(self.ego_vehicles[0])
+        #CarlaDataProvider.set_ego(self.ego_vehicles[0])
 
         self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode)
 

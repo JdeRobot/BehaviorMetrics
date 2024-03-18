@@ -33,15 +33,15 @@ from srunner.scenarios.object_crash_vehicle import DynamicObjectCrossing
 from srunner.scenarios.object_crash_intersection import VehicleTurningRoute
 from srunner.scenarios.other_leading_vehicle import OtherLeadingVehicle
 from srunner.scenarios.maneuver_opposite_direction import ManeuverOppositeDirection
-from srunner.scenarios.junction_crossing_route import SignalJunctionCrossingRoute, NoSignalJunctionCrossingRoute
+#from srunner.scenarios.junction_crossing_route import SignalJunctionCrossingRoute, NoSignalJunctionCrossingRoute
 
 from srunner.scenariomanager.scenarioatomics.atomic_criteria import (CollisionTest,
 																	 InRouteTest,
 																	 RouteCompletionTest,
 																	 OutsideRouteLanesTest,
 																	 RunningRedLightTest,
-																	 RunningStopTest,
-																	 ActorSpeedAboveThresholdTest)
+																	 RunningStopTest)#,
+																	 #ActorSpeedAboveThresholdTest)
 
 from leaderboard.utils.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from leaderboard.utils.route_manipulation import interpolate_trajectory
@@ -61,10 +61,10 @@ NUMBER_CLASS_TRANSLATION = {
 	"Scenario4": VehicleTurningRoute,
 	"Scenario5": OtherLeadingVehicle,
 	"Scenario6": ManeuverOppositeDirection,
-	"Scenario7": SignalJunctionCrossingRoute,
-	"Scenario8": SignalJunctionCrossingRoute,
-	"Scenario9": SignalJunctionCrossingRoute,
-	"Scenario10": NoSignalJunctionCrossingRoute
+	#"Scenario7": SignalJunctionCrossingRoute,
+	#"Scenario8": SignalJunctionCrossingRoute,
+	#"Scenario9": SignalJunctionCrossingRoute,
+	#"Scenario10": NoSignalJunctionCrossingRoute
 }
 
 
@@ -222,16 +222,17 @@ class RouteScenario(BasicScenario):
 		world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
 
 		# prepare route's trajectory (interpolate and add the GPS route)
-		# gps_route, route = interpolate_trajectory(world, config.trajectory)
-		gps_route, route, wp_route = interpolate_trajectory(world, config.trajectory)
+		gps_route, route = interpolate_trajectory(world, config.trajectory)
+		#gps_route, route, wp_route = interpolate_trajectory(world, config.trajectory)
 
 		potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(
 			config.town, route, world_annotations)
 
 		self.route = route
-		CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
+		#CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
 
-		config.agent.set_global_plan(gps_route, self.route, wp_route)
+		#config.agent.set_global_plan(gps_route, self.route, wp_route)
+		config.agent.set_global_plan(gps_route, self.route)
 
 		# Sample the scenarios to be used for this route instance.
 		self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
@@ -520,8 +521,14 @@ class RouteScenario(BasicScenario):
 		scenario_behaviors = []
 		blackboard_list = []
 
+		print('---------------------')
+		print(self.list_scenarios)
+		print('--------RUTA!-------------')
+		print(self.route)
+		print('---------------------')
+
 		for i, scenario in enumerate(self.list_scenarios):
-			if scenario.scenario.behavior is not None:
+			if hasattr(scenario, 'scenario') and scenario.scenario.behavior is not None:
 				route_var_name = scenario.config.route_var_name
 
 				if route_var_name is not None:
@@ -542,7 +549,7 @@ class RouteScenario(BasicScenario):
 			self.route,
 			blackboard_list,
 			scenario_trigger_distance,
-			repeat_scenarios=False
+			#repeat_scenarios=False
 		)
 
 		subbehavior.add_child(scenario_triggerer)  # make ScenarioTriggerer the first thing to be checked
@@ -554,8 +561,17 @@ class RouteScenario(BasicScenario):
 	def _create_test_criteria(self):
 		"""
 		"""
+		print()
+		print('_create_test_criteria')
+		print()
 		criteria = []
-		route = convert_transform_to_location(self.route)
+		#route = convert_transform_to_location(self.route)
+		route = self.route
+		print()
+		print('convert_transform_to_location')
+		print('convert_transform_to_location')
+		print('convert_transform_to_location')
+		print()
 
 		# we terminate the route if collision or red light infraction happens during data collection
 
@@ -576,19 +592,20 @@ class RouteScenario(BasicScenario):
 
 		stop_criterion = RunningStopTest(self.ego_vehicles[0])
 
+		'''
 		blocked_criterion = ActorSpeedAboveThresholdTest(self.ego_vehicles[0],
 														 speed_threshold=0.1,
 														 below_threshold_max_time=180.0,
 														 terminate_on_failure=True,
 														 name="AgentBlockedTest")
-
+		'''
 		criteria.append(completion_criterion)
 		criteria.append(outsidelane_criterion)
 		criteria.append(collision_criterion)
 		criteria.append(red_light_criterion)
 		criteria.append(stop_criterion)
 		criteria.append(route_criterion)
-		criteria.append(blocked_criterion)
+		#criteria.append(blocked_criterion)
 
 		return criteria
 

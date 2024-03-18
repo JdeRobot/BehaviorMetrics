@@ -198,6 +198,17 @@ class Sensors:
             robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
         """
         return self.__get_sensor(gnss_name, 'gnss')
+    
+    def get_speedometer(self, speedometer_name):
+        """Retrieve an specific existing bird eye view
+
+        Arguments:
+            speedometer_name {str} -- Name of the birdeyeview to be retrieved
+
+        Returns:
+            robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
+        """
+        return self.__get_sensor(speedometer_name, 'speedometer')
 
     def kill(self):
         """Destroy all the running sensors"""

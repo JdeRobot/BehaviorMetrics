@@ -111,6 +111,8 @@ class LeaderboardEvaluator(object):
             self.traffic_manager = self.client.get_trafficmanager(int(args.trafficManagerPort))
             # self.traffic_manager = self.client.get_trafficmanager(8000)
         except Exception as e:
+            print('TRAFFIC MANAGER CREATION FAILED!!!')
+            print(int(args.trafficManagerPort))
             print(e)
         dist = pkg_resources.get_distribution("carla")
         # if dist.version != 'leaderboard':
@@ -263,7 +265,8 @@ class LeaderboardEvaluator(object):
         else:
             self.world.wait_for_tick()
 
-        if CarlaDataProvider.get_map().name != town:
+        if CarlaDataProvider.get_map().name != town and CarlaDataProvider.get_map().name.split('/')[2] != town:
+            print(CarlaDataProvider.get_map().name)
             raise Exception("The CARLA server uses the wrong map!"
                             "This scenario requires to use map {}".format(town))
 
@@ -350,7 +353,10 @@ class LeaderboardEvaluator(object):
             self._load_and_wait_for_world(args, config.town, config.ego_vehicles)
             self._prepare_ego_vehicles(config.ego_vehicles, False)
             scenario = RouteScenario(world=self.world, config=config, debug_mode=args.debug)
-            self.statistics_manager.set_scenario(scenario.scenario)
+            print(scenario)
+            print('-----------------------------------------------------------------')
+            self.statistics_manager.set_scenario(scenario)
+            #self.statistics_manager.set_scenario(scenario.scenario)
 
             # self.agent_instance._init()
             # self.agent_instance.sensor_interface = SensorInterface()

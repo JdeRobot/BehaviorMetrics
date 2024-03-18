@@ -2,7 +2,8 @@ from collections import deque
 import numpy as np
 import torch 
 from torch import nn
-from brains.CARLA.TCP.resnet import *
+#from brains.CARLA.TCP.resnet import *
+from TCP.resnet import *
 
 
 class PIDController(object):
@@ -16,6 +17,9 @@ class PIDController(object):
 		self._min = 0.0
 
 	def step(self, error):
+		print('llega!')
+		print(self._window)
+		print('llega!')
 		self._window.append(error)
 		self._max = max(self._max, abs(error))
 		self._min = -abs(self._max)

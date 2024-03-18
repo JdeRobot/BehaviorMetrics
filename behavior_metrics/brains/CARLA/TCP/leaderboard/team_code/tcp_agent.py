@@ -138,6 +138,17 @@ class TCPAgent(autonomous_agent.AutonomousAgent):
 		speed = input_data['speed'][1]['speed']
 		compass = input_data['imu'][1][-1]
 
+		#print('---- IMU DATA ----')
+		#print(input_data['imu'])
+		#print('---- COMPASS ----')
+		#print(compass)
+		'''
+		(1263, array([ 5.01221323e+00, -2.09726281e-02,  9.80859756e+00, -6.65326806e-05,
+       -1.39825954e-03,  1.25346202e-02,  3.65396426e-03]))
+		---- COMPASS ----
+		0.0036539642605930567
+		'''
+
 		if (math.isnan(compass) == True): #It can happen that the compass sends nan for a few frames
 			compass = 0.0
 
@@ -190,14 +201,28 @@ class TCPAgent(autonomous_agent.AutonomousAgent):
 		cmd_one_hot = [0] * 6
 		cmd_one_hot[command] = 1
 		cmd_one_hot = torch.tensor(cmd_one_hot).view(1, 6).to('cuda', dtype=torch.float32)
+		print('---SPEED---')
+		print(tick_data['speed'])
 		speed = torch.FloatTensor([float(tick_data['speed'])]).view(1,1).to('cuda', dtype=torch.float32)
 		speed = speed / 12
+		#print('---SPEED---')
+		print(speed)
+		print(tick_data['rgb'].shape)
+		print(type(tick_data['rgb']))
+		from PIL import Image
+		imagen_pil = Image.fromarray(tick_data['rgb'])
+		imagen_pil.save('imagen_de_tcp.png')
+
 		rgb = self._im_transform(tick_data['rgb']).unsqueeze(0).to('cuda', dtype=torch.float32)
 
 		tick_data['target_point'] = [torch.FloatTensor([tick_data['target_point'][0]]),
 										torch.FloatTensor([tick_data['target_point'][1]])]
 		target_point = torch.stack(tick_data['target_point'], dim=1).to('cuda', dtype=torch.float32)
+		
 		state = torch.cat([speed, target_point, cmd_one_hot], 1)
+		print(state)
+		print(state.dtype)
+
 
 		pred= self.net(rgb, state, target_point)
 
