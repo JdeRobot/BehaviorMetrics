@@ -26,6 +26,14 @@ Behaviors:
                 Speedometer_0:
                     Name: 'speedometer_0'
                     Topic: '/carla/ego_vehicle/speedometer'
+            IMU:
+                IMU_0:
+                    Name: 'imu_0'
+                    Topic: '/carla/ego_vehicle/imu'
+            GNSS:
+                GNSS_0:
+                    Name: 'gnss_0'
+                    Topic: '/carla/ego_vehicle/gnss'
         Actuators:
             CARLA_Motors:
                 Motors_0:
@@ -33,11 +41,11 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_segmentation_based_imitation_learning.py'
+        BrainPath: 'brains/CARLA/brain_carla_TCP.py'
         PilotTimeCycle: 50
         AsyncMode: True
         Parameters:
-            Model: 'pilotnet_v8.0.pth'
+            Model: 'tcp_best_model.ckpt'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -49,6 +57,7 @@ Behaviors:
     Simulation:
         World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_imitation_learning.launch
         RandomSpawnPoint: False
+        TestSuite: 'Town02_two_turns'
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''

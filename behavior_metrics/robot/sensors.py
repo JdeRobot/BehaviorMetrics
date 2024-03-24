@@ -21,6 +21,8 @@ try:
 except ModuleNotFoundError as ex:
     logger.error('CARLA is not supported')
 from robot.interfaces.speedometer import ListenerSpeedometer
+from robot.interfaces.imu import ListenerIMU
+from robot.interfaces.gnss import ListenerGNSS
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -72,6 +74,18 @@ class Sensors:
         if speedometer_conf:
             self.speedometer = self.__create_sensor(speedometer_conf, 'speedometer')
 
+        # Load imu
+        imu_conf = sensors_config.get('IMU', None)
+        self.imu = None
+        if imu_conf:
+            self.imu = self.__create_sensor(imu_conf, 'imu')
+
+        # Load gnss
+        gnss_conf = sensors_config.get('GNSS', None)
+        self.gnss = None
+        if gnss_conf:
+            self.gnss = self.__create_sensor(gnss_conf, 'gnss')
+
     def __create_sensor(self, sensor_config, sensor_type):
         """Fill the sensor dictionary with instances of the sensor_type and sensor_config"""
         sensor_dict = {}
@@ -88,6 +102,10 @@ class Sensors:
                 sensor_dict[name] = BirdEyeView()
             elif sensor_type == 'speedometer':
                 sensor_dict[name] = ListenerSpeedometer(topic)
+            elif sensor_type == 'imu':
+                sensor_dict[name] = ListenerIMU(topic)
+            elif sensor_type == 'gnss':
+                sensor_dict[name] = ListenerGNSS(topic)
 
         return sensor_dict
 
@@ -106,6 +124,10 @@ class Sensors:
                 sensor = self.bird_eye_view[sensor_name]
             elif sensor_type == 'speedometer':
                 sensor = self.speedometer[sensor_name]
+            elif sensor_type == 'imu':
+                sensor = self.imu[sensor_name]
+            elif sensor_type == 'gnss':
+                sensor = self.gnss[sensor_name]
         except KeyError:
             return "[ERROR] No existing camera with {} name.".format(sensor_name)
 
@@ -154,6 +176,39 @@ class Sensors:
             robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
         """
         return self.__get_sensor(bird_eye_view_name, 'bird_eye_view')
+    
+    def get_imu(self, imu_name):
+        """Retrieve an specific existing bird eye view
+
+        Arguments:
+            imu_name {str} -- Name of the birdeyeview to be retrieved
+
+        Returns:
+            robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
+        """
+        return self.__get_sensor(imu_name, 'imu')
+    
+    def get_gnss(self, gnss_name):
+        """Retrieve an specific existing bird eye view
+
+        Arguments:
+            gnss_name {str} -- Name of the birdeyeview to be retrieved
+
+        Returns:
+            robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
+        """
+        return self.__get_sensor(gnss_name, 'gnss')
+    
+    def get_speedometer(self, speedometer_name):
+        """Retrieve an specific existing bird eye view
+
+        Arguments:
+            speedometer_name {str} -- Name of the birdeyeview to be retrieved
+
+        Returns:
+            robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
+        """
+        return self.__get_sensor(speedometer_name, 'speedometer')
 
     def kill(self):
         """Destroy all the running sensors"""
