@@ -16,6 +16,7 @@ from utils.logger import logger
 from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
 from robot.interfaces.pose3d import ListenerPose3d
+from robot.interfaces.speedometer import ListenerSpeedometer
 try:
     from robot.interfaces.birdeyeview import BirdEyeView
 except ModuleNotFoundError as ex:
@@ -154,6 +155,15 @@ class Sensors:
             robot.interfaces.birdeyeview.BirdEyeView instance -- birdeyeview instance
         """
         return self.__get_sensor(bird_eye_view_name, 'bird_eye_view')
+
+    def get_speedometer(self, speedometer_name):
+        """Retrieve an specific existing speedometer sensor
+        Arguments:
+            speedometer_name {str} -- Name of the speedometer to be retrieved
+        Returns:
+            robot.interfaces.speedometer.ListenerSpeedometer instance -- speedometer instance
+        """
+        return self.__get_sensor(speedometer_name, 'speedometer')
 
     def kill(self):
         """Destroy all the running sensors"""
