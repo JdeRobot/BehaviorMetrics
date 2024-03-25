@@ -16,7 +16,7 @@ from utils.logger import logger
 from robot.interfaces.camera import ListenerCamera
 from robot.interfaces.laser import ListenerLaser
 from robot.interfaces.pose3d import ListenerPose3d
-from robot.interfaces.speedometer import ListenerSpeedometer
+
 try:
     from robot.interfaces.birdeyeview import BirdEyeView
 except ModuleNotFoundError as ex:
