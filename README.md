@@ -53,12 +53,29 @@ python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
 ```
 python3 driver_carla.py -c configs/CARLA/default_carla_multiple.yml -s
 ```
-
+### Citation
+If you find our repo useful, please cite us as
+```bibtex
+@article{PANIEGO2024101702,
+title = {Behavior metrics: An open-source assessment tool for autonomous driving tasks},
+journal = {SoftwareX},
+volume = {26},
+pages = {101702},
+year = {2024},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2024.101702},
+url = {https://www.sciencedirect.com/science/article/pii/S2352711024000736},
+author = {Sergio Paniego and Roberto Calvo-Palomino and JoséMaría Cañas},
+keywords = {Evaluation tool, Autonomous driving, Imitation learning},
+abstract = {The development and validation of autonomous driving solutions require testing broadly in simulation. Addressing this requirement, we present Behavior Metrics (BM) for the quantitative and qualitative assessment and comparison of solutions for the main autonomous driving tasks. This software provides two evaluation pipelines, one with a graphical user interface used for qualitative assessment and the other headless for massive and unattended tests and benchmarks. It generates a series of quantitative metrics complementary to the simulator’s, including fine-grained metrics for each particular driving task (lane following, driving in traffic, route navigation, etc.). It provides a deeper and broader understanding of the solutions’ performance and allows their comparison and improvement. It uses and supports state-of-the-art open software such as the reference CARLA simulator, the ROS robotics middleware, PyTorch, and TensorFlow deep learning frameworks. BehaviorMetrics is available open-source for the community.}
+}
+```
 ### Contributing to the project
 
 If you want to contribute, please first check out [CONTRIBUTING.md](CONTRIBUTING.md) section.
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" style="zoom:20%;" />
+
 
 ### Evaluation modes
 
