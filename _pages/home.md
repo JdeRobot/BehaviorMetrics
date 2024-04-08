@@ -74,7 +74,10 @@ For more information about the installation, go to this [link](/install/).
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" />
 
 ### Citation
-If you find our repo useful, please cite us as
+
+Check out the paper [website](https://roboticslaburjc.github.io/publications/2024/behavior_metrics_an_open_source_assessment_tool_for_autonomous_driving_tasks).
+
+If you find our repo useful, please cite us as:
 ```bibtex
 @article{PANIEGO2024101702,
 title = {Behavior metrics: An open-source assessment tool for autonomous driving tasks},
