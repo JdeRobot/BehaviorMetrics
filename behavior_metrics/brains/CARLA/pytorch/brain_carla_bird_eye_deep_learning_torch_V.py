@@ -68,7 +68,9 @@ class Brain:
                 self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
 #                 self.clean_model()
             else:
-                self.net = PilotNet((200,66,4), 3).to(self.device)
+                #self.net = PilotNet((200,66,4), 3).to(self.device)
+                #self.net = PilotNet((200,66,4), 2).to(self.device)
+                self.net = PilotNet((66,200,4), 2).to(self.device)
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
         else: 
             print("Brain not loaded")
@@ -119,27 +121,89 @@ class Brain:
         self.update_frame('frame_2', image)
         self.update_frame('frame_3', image_3)
 
-        self.update_frame('frame_0', bird_eye_view_1)
+        #self.update_frame('frame_0', bird_eye_view_1)
+        self.update_frame('frame_0', np.array(image))
 
         try:
             image = Image.fromarray(image)
+
+            #print(image.size)
+            #image = image.resize((300, 225))
+            #image = image.resize((225, 300))
+            #print(image.size)
+            #image.save('imagen_guardada.png')
+            # (2048, 1536)
+            # (2048, 120)
+
+
+            # ATLAS original
+            #camera_bp.set_attribute('image_size_x', str(2048))
+            #camera_bp.set_attribute('image_size_y', str(1536))
+            # We adjust the size to retrieve images at a faster pace
+            #camera_bp.set_attribute('image_size_x', str(300))
+            #camera_bp.set_attribute('image_size_y', str(224.85))
+
+            altura_recorte = 120
+            ancho, altura = image.size
+            y_superior = max(0, altura - altura_recorte)
+            image = image.crop((0, y_superior, ancho, altura))
+
+            #print('image.size', image.size)
+
+
+            
+
             image = self.transformations(image)
+
+
             image = image / 255.0
             speed = self.vehicle.get_velocity()
             vehicle_speed = 3.6 * math.sqrt(speed.x**2 + speed.y**2 + speed.z**2)
 
-            valor_cuartadimension = torch.full((1, image.shape[1], image.shape[2]), float(vehicle_speed))
+            #print('vehicle_speed', vehicle_speed)
+
+            vehicle_speed_norm = torch.clamp(torch.tensor(vehicle_speed, dtype=torch.float32) / 40.0, 0, 1.0)
+
+
+            valor_cuartadimension = torch.full((1, image.shape[1], image.shape[2]), float(vehicle_speed_norm))
             image = torch.cat((image, valor_cuartadimension), dim=0).to(self.device)
             image = image.unsqueeze(0) 
+
+            #print('image.shape', image.shape)
+            #print('self.gpu_inference', self.gpu_inference)
+            #print(image)
             
             start_time = time.time()
             with torch.no_grad():
                 prediction = self.net(image).cpu().numpy() if self.gpu_inference else self.net(image).numpy()
             self.inference_times.append(time.time() - start_time)
-            throttle = prediction[0][0]
-            steer = prediction[0][1] * (1 - (-1)) + (-1)
-            break_command = prediction[0][2]
 
+            print('prediction', prediction)
+            if (prediction[0][1] < 0.4):
+                print('LOG!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            #print(prediction)
+            prediction = prediction.flatten()
+            # prediction = prediction.detach().cpu().numpy().flatten()
+            #print('prediction', prediction)
+            
+            #print('vehicle_speed', vehicle_speed)
+            #print('vehicle_speed_norm', vehicle_speed_norm)
+
+            combined, steer = prediction
+            combined = float(combined)
+            throttle, break_command = 0.0, 0.0
+            if combined >= 0.5:
+                throttle = (combined - 0.5) / 0.5
+            else:
+                break_command = (0.5 - combined) / 0.5
+            steer = (float(steer) * 2.0) - 1.0
+
+            #throttle = prediction[0][0]
+            #steer = prediction[0][1] * (1 - (-1)) + (-1)
+            #break_command = prediction[0][2]
+
+            print(throttle, steer, break_command)
+            #print('----')
 
             if vehicle_speed > 30:
                 self.motors.sendThrottle(0)
@@ -151,7 +215,7 @@ class Brain:
                     self.motors.sendSteer(0.0)
                     self.motors.sendBrake(0)
                 else:
-                    self.motors.sendThrottle(throttle)
+                    self.motors.sendThrottle(0.5)
                     self.motors.sendSteer(steer)
                     self.motors.sendBrake(break_command)
 
