@@ -17,9 +17,10 @@ class PIDController(object):
 		self._min = 0.0
 
 	def step(self, error):
-		print('llega!')
+		print('here!')
 		print(self._window)
-		print('llega!')
+		print(error)
+		print('here!')
 		self._window.append(error)
 		self._max = max(self._max, abs(error))
 		self._min = -abs(self._max)
@@ -261,9 +262,14 @@ class TCP(nn.Module):
 		waypoints = waypoints[0].data.cpu().numpy()
 		target = target.squeeze().data.cpu().numpy()
 
+		print('waypoints', waypoints)
+		print('target', target)
 		# flip y (forward is negative in our waypoints)
 		waypoints[:,1] *= -1
 		target[1] *= -1
+
+		print('waypoints', waypoints)
+		print('target', target)
 
 		# iterate over vectors between predicted waypoints
 		num_pairs = len(waypoints) - 1
@@ -292,12 +298,24 @@ class TCP(nn.Module):
 		# predicted point otherwise
 		# (reduces noise in eg. straight roads, helps with sudden turn commands)
 		use_target_to_aim = np.abs(angle_target) < np.abs(angle)
+		print('np.degrees(np.arctan2(target[1], target[0])) / 90', np.degrees(np.arctan2(target[1], target[0])) / 90)
+		print('np.abs(angle_target) < np.abs(angle)', np.abs(angle_target) < np.abs(angle))
+		print('use_target_to_aim',use_target_to_aim)
 		use_target_to_aim = use_target_to_aim or (np.abs(angle_target-angle_last) > self.config.angle_thresh and target[1] < self.config.dist_thresh)
+		print('use_target_to_aim',use_target_to_aim)
+		print('angle', angle)
+		print('angle_last', angle_last)
+		print('angle_target', angle_target)
+		print('target', target)
+		print('waypoints', waypoints)
+		print('aim_last', aim_last)
+		print('aim', aim)
 		if use_target_to_aim:
 			angle_final = angle_target
 		else:
 			angle_final = angle
 
+		print('angle_final', angle_final)
 		steer = self.turn_controller.step(angle_final)
 		steer = np.clip(steer, -1.0, 1.0)
 
