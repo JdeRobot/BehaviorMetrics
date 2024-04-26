@@ -27,12 +27,12 @@ gallery4:
     image_path: /assets/images/default_config.png
     alt: ""
 gallery5:
-  - url: /assets/images/main_window.png
-    image_path: /assets/images/main_window.png
+  - url: /assets/images/quick_start_carla/main_window.png
+    image_path: /assets/images/quick_start_carla/main_window.png
     alt: ""
 gallery6:
-  - url: /assets/images/toolbar.png
-    image_path: /assets/images/toolbar.png
+  - url: /assets/images/quick_start_carla/toolbar.png
+    image_path: /assets/images/quick_start_carla/toolbar.png
     alt: ""
 gallery6.1:
   - url: /assets/images/stats.png
@@ -43,24 +43,24 @@ gallery7:
     image_path: /assets/images/dataset.png
     alt: ""
 gallery8:
-  - url: /assets/images/brain.png
-    image_path: /assets/images/brain.png
+  - url: /assets/images/quick_start_carla/brain.png
+    image_path: /assets/images/quick_start_carla/brain.png
     alt: ""
 gallery9:
-  - url: /assets/images/change_brain.gif
-    image_path: /assets/images/change_brain.gif
+  - url: /assets/images/quick_start_carla/change_brain.gif
+    image_path: /assets/images/quick_start_carla/change_brain.gif
     alt: ""
 gallery10:
-  - url: /assets/images/simulation.png
-    image_path: /assets/images/simulation.png
+  - url: /assets/images/quick_start_carla/simulation.png
+    image_path: /assets/images/quick_start_carla/simulation.png
     alt: ""
 gallery11:
   - url: /assets/images/gzclient.gif
     image_path: /assets/images/gzclient.gif
     alt: ""
 gallery12:
-  - url: /assets/images/brain_sim.gif
-    image_path: /assets/images/brain_sim.gif
+  - url: /assets/images/quick_start_carla/play_pause_sim.gif
+    image_path: /assets/images/quick_start_carla/play_pause_sim.gif
     alt: ""
 gallery13:
   - url: /assets/images/reload_sim.gif
@@ -75,12 +75,12 @@ gallery15:
     image_path: /assets/images/frame.png
     alt: ""
 gallery16:
-  - url: /assets/images/rename.gif
-    image_path: /assets/images/rename.gif
+  - url: /assets/images/quick_start_carla/frame_rename.gif
+    image_path: /assets/images/quick_start_carla/frame_rename.gif
     alt: ""
 gallery17:
-  - url: /assets/images/frame_config.gif
-    image_path: /assets/images/frame_config.gif
+  - url: /assets/images/quick_start_carla/frame_config.gif
+    image_path: /assets/images/quick_start_carla/frame_config.gif
     alt: ""
 ---
 
