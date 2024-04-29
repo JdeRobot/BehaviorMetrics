@@ -34,10 +34,10 @@ Behaviors:
                     MaxV: 3
                     MaxW: 0.3
         BrainPath: 'brains/CARLA/pytorch/brain_carla_bird_eye_deep_learning_torch_V.py'
-        PilotTimeCycle: 50
+        PilotTimeCycle: 100
         AsyncMode: True
         Parameters:
-            Model: '15_04_best_model_checkpoint_189.pth'
+            Model: '29_04_best_model_checkpoint_299.pth'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
