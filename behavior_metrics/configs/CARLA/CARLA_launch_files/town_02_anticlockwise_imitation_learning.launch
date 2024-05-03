@@ -39,7 +39,10 @@
 
   <!-- Ego Vehicle -->
   <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
-  <arg name="spawn_point" default='55.3, -105.6, 1.37, 0.0, 0.0, 180.0'/>
+  <!--<arg name="spawn_point" default='55.3, -105.6, 1.37, 0.0, 0.0, 180.0'/>-->
+  <arg name="spawn_point" default='-3.3, -179.5, 1.37, 0.0, 0.0, 90.0'/>
+  <!--<arg name="spawn_point" default='-3.3, -120.5, 1.37, 0.0, 0.0, 90.0'/>-->
+  
   
   <!-- spawn the objects -->
   <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">
