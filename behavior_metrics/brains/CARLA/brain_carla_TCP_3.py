@@ -88,15 +88,15 @@ class Brain:
         # setup
         config = route_indexer.next()
         '''
-        [WIP] WORKS WITH:
-        result['target_point'][1] *= -1
+        WORKS WITH:
+        result['target_point'][0] *= -1
         self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
         '''
-        config.trajectory[0].x = 55.3
-        config.trajectory[0].y = -109.0
+        config.trajectory[0].x = 30.3
+        config.trajectory[0].y = 109.5
 
         config.trajectory[1].x = 80.0
-        config.trajectory[1].y = -109.0
+        config.trajectory[1].y = 109.5
         
         '''
         WORKS WITH:
