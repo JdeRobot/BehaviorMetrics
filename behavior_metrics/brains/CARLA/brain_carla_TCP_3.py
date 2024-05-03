@@ -88,7 +88,19 @@ class Brain:
         # setup
         config = route_indexer.next()
         '''
-        We currently hard-code the initial and target points
+        [WIP] WORKS WITH:
+        result['target_point'][1] *= -1
+        self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        config.trajectory[0].x = 55.3
+        config.trajectory[0].y = -109.0
+
+        config.trajectory[1].x = 80.0
+        config.trajectory[1].y = -109.0
+        
+        '''
+        WORKS WITH:
+        self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
         '''
         #config.trajectory[0].x = 55.3
         #config.trajectory[0].y = -105.6
@@ -96,11 +108,29 @@ class Brain:
         #config.trajectory[1].x = -30.0
         #config.trajectory[1].y = -105.6
 
-        config.trajectory[0].x = -3.3
-        config.trajectory[0].y = 179.5
+        # WORKS with result['target_point'][1] *= -1
+        '''
+        WORKS WITH:
+        result['target_point'][1] *= -1
+        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        #config.trajectory[0].x = -3.3
+        #config.trajectory[0].y = 179.5
         
-        config.trajectory[1].x = -3.3
-        config.trajectory[1].y = 120.6
+        #config.trajectory[1].x = -3.3
+        #config.trajectory[1].y = 120.6
+
+        # WORKS without result['target_point'][1] *= -1
+        '''
+        WORKS WITH:
+        #result['target_point'][1] *= -1
+        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        #config.trajectory[0].x = -7.43
+        #config.trajectory[0].y = 125.5
+        
+        #config.trajectory[1].x = -7.43
+        #config.trajectory[1].y = 170.6
 
         # prepare route's trajectory (interpolate and add the GPS route)
         gps_route, route = interpolate_trajectory(world, config.trajectory)
@@ -228,9 +258,9 @@ class Brain:
         result['target_point'] = tuple(local_command_point)
         result['target_point'] = [torch.FloatTensor([result['target_point'][0]]),
                                         torch.FloatTensor([result['target_point'][1]])]
-        result['target_point'][1] *= -1
-
+        #result['target_point'][1] *= -1
         self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        #self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
 
         state = torch.cat([speed, self.target_point, cmd_one_hot], 1)
 
