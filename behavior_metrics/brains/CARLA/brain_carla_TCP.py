@@ -46,6 +46,8 @@ class Brain:
         world = client.get_world()
         self.map = world.get_map()
 
+        world.set_weather(carla.WeatherParameters.ClearNoon)
+
         print('-----------------------')
         print('-----------------------')
         print(PRETRAINED_MODELS + model)
@@ -120,14 +122,55 @@ class Brain:
         We currently hard-code the initial and target points
         '''
         print('----- TRAJECTORY ------')
-        print(config)
-        print(config.trajectory)
+        print('config', config)
+        print('trajectory', config.trajectory)
         print(config.trajectory[0].x, config.trajectory[0].y)
-        config.trajectory[0].x = 55.3
-        config.trajectory[0].y = -105.6
 
-        config.trajectory[1].x = -30.0
-        config.trajectory[1].y = -105.6
+        '''
+        WORKS WITH:
+        result['target_point'][0] *= -1
+        self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        config.trajectory[0].x = 30.3
+        config.trajectory[0].y = 109.5
+
+        config.trajectory[1].x = 80.0
+        config.trajectory[1].y = 109.5
+        
+        '''
+        WORKS WITH:
+        self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        #config.trajectory[0].x = 55.3
+        #config.trajectory[0].y = -105.6
+
+        #config.trajectory[1].x = -30.0
+        #config.trajectory[1].y = -105.6
+
+        # WORKS with result['target_point'][1] *= -1
+        '''
+        WORKS WITH:
+        result['target_point'][1] *= -1
+        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        #config.trajectory[0].x = -3.3
+        #config.trajectory[0].y = 179.5
+        
+        #config.trajectory[1].x = -3.3
+        #config.trajectory[1].y = 120.6
+
+        # WORKS without result['target_point'][1] *= -1
+        '''
+        WORKS WITH:
+        #result['target_point'][1] *= -1
+        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        '''
+        #config.trajectory[0].x = -7.43
+        #config.trajectory[0].y = 125.5
+        
+        #config.trajectory[1].x = -7.43
+        #config.trajectory[1].y = 170.6
+
         print(config.trajectory[0].x, config.trajectory[0].y)
         print()
         print(config.trajectory[1].x, config.trajectory[1].y)
@@ -135,6 +178,11 @@ class Brain:
 
         # prepare route's trajectory (interpolate and add the GPS route)
         gps_route, route = interpolate_trajectory(world, config.trajectory)
+
+        print('---gps_route---')
+        print(gps_route)
+        print('---route---')
+        print(route)
 
         self.route = route
         self.set_global_plan(gps_route, self.route)
@@ -145,6 +193,24 @@ class Brain:
         self.status = 0
 
 
+        waypoint = world.get_map().get_waypoint(vehicle.get_location(),project_to_road=True, lane_type=(carla.LaneType.Driving | carla.LaneType.Shoulder | carla.LaneType.Sidewalk))
+        
+        print('---------------')
+        print(vehicle.get_location())
+        print(waypoint)
+        print("road_id: " + str(waypoint.road_id))
+        print("section_id: " + str(waypoint.section_id))
+        print("lane_id: " + str(waypoint.lane_id))
+        print("Current lane type: " + str(waypoint.lane_type))
+        # Check current lane change allowed
+        print("Current Lane change:  " + str(waypoint.lane_change))
+        # Left and Right lane markings
+        print("L lane marking type: " + str(waypoint.left_lane_marking.type))
+        print("L lane marking change: " + str(waypoint.left_lane_marking.lane_change))
+        print("R lane marking type: " + str(waypoint.right_lane_marking.type))
+        print("R lane marking change: " + str(waypoint.right_lane_marking.lane_change))
+
+
     def set_global_plan(self, global_plan_gps, global_plan_world_coord, wp=None):
         """
         Set the plan (route) for the agent
@@ -152,18 +218,18 @@ class Brain:
         ds_ids = downsample_route(global_plan_world_coord, 50)
         self._global_plan_world_coord = [(global_plan_world_coord[x][0], global_plan_world_coord[x][1]) for x in ds_ids]
         self._global_plan = [global_plan_gps[x] for x in ds_ids]
-        #print('-----GLOBAL PLAN -----')
-        #print(self._global_plan)
+        print('-----GLOBAL PLAN -----')
+        print(self._global_plan)
 
 
     def _init_route_planner(self):
-        self._route_planner = RoutePlanner(4.0, 50.0)
+        self._route_planner = RoutePlanner(4.0, 50.0) # min_distance, max_distance
         self._route_planner.set_route(self._global_plan, True)
 
         gps = np.array([self._global_plan[0][0]['lon'], self._global_plan[0][0]['lat']])
         gps = (gps - self._route_planner.mean) * self._route_planner.scale
-        #print('-----GPS----')
-        #print(gps)
+        print('-----GPS----')
+        print(gps)
 
         self.initialized = True
 
@@ -226,6 +292,10 @@ class Brain:
         self.update_frame('frame_0', rgb)
         self.update_frame('frame_1', seg_image)
 
+        from PIL import Image
+        imagen_pil = Image.fromarray(rgb)
+        imagen_pil.save('imagen_de_tcp.png')
+
         
 
         print('----------getSpeedometer--------------')
@@ -242,8 +312,8 @@ class Brain:
         imu_data = self.imu.getIMU()
         #compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z, imu_data.compass.w])
         compass = np.array([imu_data.compass.x, imu_data.compass.y, imu_data.compass.z])
-        #print('----------compass--------------')
-        #print(compass)
+        print('----------compass--------------')
+        print(compass)
         compass = compass[-1]
 
         if (math.isnan(compass) == True): #It can happen that the compass sends nan for a few frames
@@ -270,7 +340,11 @@ class Brain:
             ])
 
         local_command_point = np.array([next_wp[0]-pos[0], next_wp[1]-pos[1]])
+        print('--local_command_point--', local_command_point)
+        print('next_wp', next_wp)
+        print('pos', pos)
         #local_command_point = R.T.dot(local_command_point)
+        #print('--local_command_point--', local_command_point)
 
         #local_command_point = R.T.dot(local_command_point)
         #local_command_point = R.T.dot(local_command_point)
@@ -284,8 +358,10 @@ class Brain:
 
         result['target_point'] = [torch.FloatTensor([result['target_point'][0]]),
                                         torch.FloatTensor([result['target_point'][1]])]
-        self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
+        result['target_point'][0] *= -1
+        #self.target_point = torch.stack(result['target_point'], dim=1).to('cuda', dtype=torch.float32)
 
+        self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
 
 
         '''
@@ -309,11 +385,11 @@ class Brain:
         [-3.83868739e+01  1.80376380e-02]
         '''
         #print(local_command_point)
-        #print('-------NEXT WAYPOINT-----------')
+        print('-------NEXT WAYPOINT-----------')
         '''
         [4.7923297947398655, -105.55486136806194]
         '''
-        #print(next_wp)
+        print(next_wp)
         print('-------Target point-----------')
         print(self.target_point)
         '''
@@ -335,9 +411,9 @@ class Brain:
 
         pred = self.net(rgb, state, self.target_point)
 
-        #print('-----PRED------')
+        print('-----PRED------')
         #print(pred.keys())
-        #print(pred['pred_wp'])
+        print(pred['pred_wp'])
         #print('------COMMAND----')
         #print(command)
 
@@ -346,6 +422,9 @@ class Brain:
 
         #print('------ steer_ctrl, throttle_ctrl, brake_ctrl, metadata-------')
         #print(steer_ctrl, throttle_ctrl, brake_ctrl, metadata)
+
+        #result['target_point'][0] *= -1
+        #self.target_point = torch.stack([result['target_point'][1], result['target_point'][0]], dim=1).to('cuda', dtype=torch.float32)
 
         steer_traj, throttle_traj, brake_traj, metadata_traj = self.net.control_pid(pred['pred_wp'], gt_velocity, self.target_point)
 
