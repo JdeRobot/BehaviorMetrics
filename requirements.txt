@@ -19,7 +19,7 @@ netifaces==0.10.9
 Pillow==10.3.0
 pyglet==1.5.0
 gym==0.17.3
-requests==2.31.0
+requests==2.32.0
 six>=1.14.0
 empy==3.3.2
 vcstool==0.2.14
