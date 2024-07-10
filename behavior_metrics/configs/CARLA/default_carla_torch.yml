@@ -37,7 +37,7 @@ Behaviors:
         PilotTimeCycle: 100
         AsyncMode: True
         Parameters:
-            Model: '29_04_best_model_checkpoint_299.pth'
+            Model: 'ATLAS_06_06_best_model_checkpoint_245.pth'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated.launch
+        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated_parque01.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
