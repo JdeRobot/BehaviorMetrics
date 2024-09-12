@@ -51,9 +51,9 @@ class Brain:
             if config['UseOptimized']:
                 self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
             else:
-                self.net = PilotNetOneHot((288, 200, 6), 3, 4, 4).to(self.device)
+                #self.net = PilotNetOneHot((288, 200, 6), 3, 4, 4).to(self.device)
                 #self.net = PilotNetOneHot((288, 200, 3), 3, 4, 4).to(self.device)
-                #self.net = PilotNetOneHot((288, 200, 3), 3, 4, 4).to(self.device)
+                self.net = PilotNetOneHot((288, 200, 3), 2, 4, 4).to(self.device) # combined control
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
                 self.net.eval()
         
@@ -151,9 +151,9 @@ class Brain:
                         self.red_light_counter += 1
                 else:
                     self.running_light = False
-
+            hlc = 0
             print(f'high-level command: {hlc}')
-            #print(f'light: {light_status}')
+            print(f'light: {light_status}')
             frame_data = {
                 'hlc': hlc,
                 'measurements': speed,
@@ -162,17 +162,24 @@ class Brain:
                 'light': np.array([traffic_light_to_int(light_status)])
             }
 
+
             throttle, steer, brake = model_control(self.net, 
                                     frame_data, 
                                     ignore_traffic_light=False, 
                                     device=self.device, 
-                                    combined_control=False)
+                                    combined_control=True)
+                                    #combined_control=False)
+            
             
             self.inference_times.append(time.time() - start_time)
 
+            print(throttle, steer, brake)
+
             self.motors.sendThrottle(throttle)
+            #self.motors.sendThrottle(0.25)
             self.motors.sendSteer(steer)
             self.motors.sendBrake(brake)
+            #sself.motors.sendBrake(0.0)
 
             # calculate distance to target point
             # print(f'vehicle location: ({vehicle_location.x}, {-vehicle_location.y})')

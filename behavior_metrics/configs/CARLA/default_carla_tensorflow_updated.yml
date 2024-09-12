@@ -10,10 +10,16 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/rgb_view/image'
                 Camera_2:
                     Name: 'camera_2'
-                    Topic: '/carla/ego_vehicle/semantic_segmentation_front/image'
+                    Topic: '/ada/rgb_front/image_color'
                 Camera_3:
                     Name: 'camera_3'
-                    Topic: '/carla/ego_vehicle/dvs_front/image'
+                    Topic: '/ada/rgb_front/image_rect_color'
+                #Camera_2:
+                #    Name: 'camera_2'
+                #    Topic: '/carla/ego_vehicle/semantic_segmentation_front/image'
+                #Camera_3:
+                #    Name: 'camera_3'
+                #    Topic: '/carla/ego_vehicle/dvs_front/image'
             Pose3D:
                 Pose3D_0:
                     Name: 'pose3d_0'
@@ -33,22 +39,21 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-                    
-        BrainPath: 'brains/CARLA/brain_carla_autopilot.py'
-        PilotTimeCycle: 300
-        AsyncMode: False # Set to False to control simulator time
+        BrainPath: 'brains/CARLA/tensorflow/brain_carla_bird_eye_deep_learning_previous_v_generate_dataset.py'
+        PilotTimeCycle: 50 # Turn up to reduce number of control decisions
+        AsyncMode: True # Set to False to control simulator time
         Parameters:
+            Model: 'pilotnet_no_visual_kinematic.h5'
             ImageCropped: True
-            ImageSize: [ 100,50 ]
+            ImageSize: [ 200,66 ]
             ImageNormalized: True
             PredictionsNormalized: True
             GPU: True
-            UseOptimized: True
+            UseOptimized: False
             ImageTranform: ''
         Type: 'CARLA'
-        RandomSpawnPoint: False
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated_autopilot.launch
+        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'

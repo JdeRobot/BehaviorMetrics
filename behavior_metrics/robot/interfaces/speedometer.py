@@ -22,7 +22,7 @@ class Speedometer():
         self.timeStamp = 0  # Time stamp [s]
 
     def __str__(self):
-        s = "Speedometer: {\n   x: " + str(self.x) + "\n   timeStamp: " + str(self.timeStamp) + "\n}"
+        s = "Speedometer: {\n   data: " + str(self.data) + "\n   timeStamp: " + str(self.timeStamp) + "\n}"
         return s
 
 
