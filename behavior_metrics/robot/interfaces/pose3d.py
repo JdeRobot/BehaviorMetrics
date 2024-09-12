@@ -109,7 +109,7 @@ class Pose3d ():
         self.timeStamp = 0  # Time stamp [s]
 
     def __str__(self):
-        s = "Pose3D: {\n   x: " + str(self.x) + "\n   Y: " + str(self.y)
+        s = "Pose3D: {\n   X: " + str(self.x) + "\n   Y: " + str(self.y)
         s = s + "\n   Z: " + str(self.z) + "\n   H: " + str(self.h)
         s = s + "\n   Yaw: " + str(self.yaw) + "\n   Pitch: " + str(self.pitch) + "\n   Roll: " + str(self.roll)
         s = s + "\n   quaternion: " + str(self.q) + "\n   timeStamp: " + str(self.timeStamp) + "\n}"

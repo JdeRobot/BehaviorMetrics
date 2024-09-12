@@ -34,12 +34,22 @@
   </node>
 
   <!-- the object json file that configures objects to spawn -->
-  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera.json'/>
-  <!--<arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera_tcp_paper.json'/>-->
+  <!--<arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera.json'/>-->
+  <arg name="objects_definition_file" default='$(env OBJECT_PATH)/main_car_custom_camera_tcp_paper.json'/>
 
   <!-- Ego Vehicle -->
   <arg name='ego_vehicle_role_name' default='ego_vehicle'/>
-  <arg name="spawn_point" default='55.3, -105.6, 1.37, 0.0, 0.0, 180.0'/>
+
+  <!--<arg name="spawn_point" default='55.3, -105.6, 1.37, 0.0, 0.0, 180.0'/>-->
+
+  <arg name="spawn_point" default='30.3, -109.5, 1.37, 0.0, 0.0, 0.0'/>
+  <!--<arg name="spawn_point" default='-3.3, -179.5, 1.37, 0.0, 0.0, 90.0'/>-->
+
+  <!--<arg name="spawn_point" default='-7.43, -125.5, 1.37, 0.0, 0.0, -90.0'/>-->
+
+  <!--<arg name="spawn_point" default='25.93, -105.6, 1.37, 0.0, 0.0, -180.0'/>-->
+  <!--<arg name="spawn_point" default='-3.3, -120.5, 1.37, 0.0, 0.0, 90.0'/>-->
+  
   
   <!-- spawn the objects -->
   <node pkg="carla_spawn_objects" type="carla_spawn_objects.py" name="$(anon carla_spawn_objects)" output="screen">

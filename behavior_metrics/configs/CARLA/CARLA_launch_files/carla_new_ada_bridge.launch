@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--Arguments for carla-->
+  <arg name='host' default='localhost'/>
+  <arg name='port' default='2000'/>
+  <arg name='role_name' default='ego_vehicle'/>
+  <!-- first generation ADA's twin -->
+  <!--arg name="vehicle_filter" default='vehicle.nissan.micra'/-->
+
+  <!-- second generation ADA's twin  (Real ATLAS model-->
+  <arg name="vehicle_filter" default='vehicle.atlas.atlas'/>
+
+  <!-- use comma separated format "x,y,z,roll,pitch,yaw" (by default the spawn point is 2m above the ground)-->
+  <!-- "" (empty) for a random spawn point-->
+  <!--arg name="spawn_point" default=""/-->
+ 
+  <!-- standard spawn (map 03, carla's roundabout demo) --> 
+  <!--arg name="spawn_point" default="2.1,120.3,-1.5,0,0,90"/-->
+ 
+  <!-- Avila's demo spawn (avila_demo_env.xodr/.osm) -->
+  <!--arg name="spawn_point" default="52.5,-99.8,0,0,0,40"/-->
+
+  <!-- Avila's demo spawn (avila_demo_env_big.xodr/.osm) -->
+  <!--arg name="spawn_point" default="447.1,-271.2,0,0,0,39"/-->
+
+  <!-- Avila's demo spawn (avila_world.xodr/.osm) -->
+  <!--arg name="spawn_point" default="80.7,-103.8,0,0,0,90"/-->
+
+  <!-- Avila's lane control spawn point -->
+  <arg name="spawn_point" default="89.8,-163.2,0,0,0,70"/>
+
+  <!-- Avila's demo spawn (avila_world.xodr/.osm) (middle of the road) -->
+  <!--arg name="spawn_point" default="89.9,-168.7,0,0,0,68"/-->
+
+  <!-- INTA's results -->
+  <!--arg name="spawn_point" default="-70.398,-1.144189766,0,0,0,-166.89"/-->
+  <!-- INTA 5 complete -->
+  <!--arg name="spawn_point" default="-38.764125824,-6.94816493988,0,0,0,-167.4579198"/-->
+  <!-- INTA 6 complete -->
+  <!--arg name="spawn_point" default="-50.3,231.2,0,0,0,-9"/-->
+
+  <!--arg name="spawn_point" default="0,0,-1.5,0,0,0"/-->
+  
+  <arg name="town" default=''/>
+
+  <!-- Synchronous mode-->
+  <arg name='synchronous_mode' default='false'/>
+  <arg name='synchronous_mode_wait_for_vehicle_control_command' default='false'/>
+  <arg name='fixed_delta_seconds' default=''/>
+  
+  <!--Arguments for Ada-->
+  <arg name="vehicle" default="ada"/>
+  <arg name="use_machine" default="false"/>
+  <arg name="machine" default="localhost"/>
+  <machine name="localhost" address="localhost" unless="$(arg use_machine)"/>
+
+  <!--carla_ros_bridge-->
+  <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
+    <arg name='host' value='$(arg host)'/>
+    <arg name='port' value='$(arg port)'/>
+    <arg name='town' value='$(arg town)'/>
+    <!--remap from=/tf to=/ttt-->
+    <arg name='synchronous_mode' value='$(arg synchronous_mode)'/>
+    <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>
+    <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
+  </include>
+
+  <!--ego_vehicle in carla_ros_bridge-->
+  <include file="$(find carla_ego_vehicle)/launch/carla_example_ego_vehicle.launch">
+    <arg name='host' value='$(arg host)'/>
+    <arg name='port' value='$(arg port)'/>
+    <arg name="vehicle_filter" value='$(arg vehicle_filter)'/>
+    <arg name='role_name' value='$(arg role_name)'/>
+    <arg name="spawn_point" value="$(arg spawn_point)"/>
+  </include>
+
+  <!--manual control for carla_ros_bridge-->
+  <include file="$(find carla_manual_control)/launch/carla_manual_control.launch">
+    <arg name='role_name' value='$(arg role_name)'/>
+  </include>
+  
+  <!-- ADA'S DIGITAL TWIN TF TREE -->
+  <!--include file="$(find carla_ada_ros_bridge)/launch/static_transf_blender.launch"/-->
+
+  <node pkg="carla_ada_ros_bridge" type="image_transform.py" name="image_transform" output="log" respawn="true"/>
+
+  <arg name="respawn" default="false" />
+  <arg name="debug" default="false" />
+  <arg name="node_name" default="rgb_front" />
+
+  <group ns="ada">
+    <group ns="$(arg node_name)">
+          <node name="camera_proc" pkg="image_proc" type="image_proc" output="screen"
+                respawn="$(arg respawn)">
+          </node>
+    </group>
+  </group>
+
+</launch>

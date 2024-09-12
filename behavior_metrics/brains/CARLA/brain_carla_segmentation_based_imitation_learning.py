@@ -52,6 +52,8 @@ class Brain:
                 self.net = torch.jit.load(PRETRAINED_MODELS + model).to(self.device)
             else:
                 self.net = PilotNetOneHot((288, 200, 6), 3, 4, 4).to(self.device)
+                #self.net = PilotNetOneHot((288, 200, 3), 3, 4, 4).to(self.device)
+                #self.net = PilotNetOneHot((288, 200, 3), 3, 4, 4).to(self.device)
                 self.net.load_state_dict(torch.load(PRETRAINED_MODELS + model,map_location=self.device))
                 self.net.eval()
         

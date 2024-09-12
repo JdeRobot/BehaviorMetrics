@@ -36,6 +36,7 @@ Behaviors:
                     
         BrainPath: 'brains/CARLA/brain_carla_autopilot.py'
         PilotTimeCycle: 300
+        AsyncMode: False # Set to False to control simulator time
         Parameters:
             ImageCropped: True
             ImageSize: [ 100,50 ]
@@ -47,7 +48,8 @@ Behaviors:
         Type: 'CARLA'
         RandomSpawnPoint: False
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/town_01_anticlockwise.launch
+        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated_autopilot.launch
+        RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
         Out: ''
