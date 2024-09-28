@@ -155,6 +155,15 @@ class Sensors:
         """
         return self.__get_sensor(bird_eye_view_name, 'bird_eye_view')
 
+    def get_speedometer(self, speedometer_name):
+        """Retrieve an specific existing speedometer sensor
+        Arguments:
+            speedometer_name {str} -- Name of the speedometer to be retrieved
+        Returns:
+            robot.interfaces.speedometer.ListenerSpeedometer instance -- speedometer instance
+        """
+        return self.__get_sensor(speedometer_name, 'speedometer')
+
     def kill(self):
         """Destroy all the running sensors"""
         if self.cameras:
