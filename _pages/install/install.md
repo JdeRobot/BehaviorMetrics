@@ -191,15 +191,20 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
     cd /PATH/TO/BEHAVIOR/METRICS/BehaviorMetrics/behavior_metrics
     git clone https://github.com/Qi-Zha0/carla-birdeye-view
 ```
-4. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
+4. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions. Alternatively, you may install the Package via pip. 
 ```
     source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
+
+    # First option
     export CARLA_ROOT=<PATH-TO-CARLA>/carla/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.15-py3.7-linux-x86_64.egg   
+    # Second option
+    pip install carla
+
     export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
 ```
-Note: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../carla/)
+**Note**: `$OBJECT_PATH` is a sample CARLA objects json file containing objects to be spawned in the CARLA simulator. You can use your own json file by setting $OBJECT_PATH. More details about this are added in [Quick Start guide](../carla/)
 
 5. Test that everything is correctly set up running the example configuration file:
 ```bash
