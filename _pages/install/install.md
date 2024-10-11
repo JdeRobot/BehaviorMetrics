@@ -194,7 +194,7 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
 4. Add variables to PYTHONPATH following the simulator installation instructions and ROS bridge installation instructions.
 ```
     source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
-    export CARLA_ROOT=<PATH-TO-CARLA>/carla_simulator/
+    export CARLA_ROOT=<PATH-TO-CARLA>/carla/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.15-py3.7-linux-x86_64.egg   
     export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
