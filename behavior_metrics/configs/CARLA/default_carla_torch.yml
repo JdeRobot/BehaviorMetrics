@@ -33,11 +33,11 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_segmentation_based_imitation_learning.py'
-        PilotTimeCycle: 50
+        BrainPath: 'brains/CARLA/pytorch/brain_carla_bird_eye_deep_learning_torch_V.py'
+        PilotTimeCycle: 100
         AsyncMode: True
         Parameters:
-            Model: 'pilotnet_v8.0.pth'
+            Model: 'ATLAS_06_06_best_model_checkpoint_245.pth'
             ImageCropped: True
             ImageSize: [ 100,50 ]
             ImageNormalized: True
@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise_imitation_learning.launch
+        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated_parque01.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
