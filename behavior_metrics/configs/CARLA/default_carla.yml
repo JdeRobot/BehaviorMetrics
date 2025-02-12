@@ -33,9 +33,9 @@ Behaviors:
                     Topic: '/carla/ego_vehicle/vehicle_control_cmd'
                     MaxV: 3
                     MaxW: 0.3
-        BrainPath: 'brains/CARLA/brain_carla_slow_and_turn.py'
+        BrainPath: 'brains/CARLA/brain_carla_autopilot.py'
         PilotTimeCycle: 50 # Turn up to reduce number of control decisions
-        AsyncMode: True # Set to False to control simulator time
+        AsyncMode: False # Set to False to control simulator time
         Parameters:
             Model: ''
             ImageCropped: True
@@ -47,7 +47,7 @@ Behaviors:
             ImageTranform: ''
         Type: 'CARLA'
     Simulation:
-        World: configs/CARLA/CARLA_launch_files/town_02_anticlockwise.launch
+        World: configs/CARLA/CARLA_launch_files/carla_new_ada_bridge_updated_autopilot.launch
         RandomSpawnPoint: False
     Dataset:
         In: '/tmp/my_bag.bag'
