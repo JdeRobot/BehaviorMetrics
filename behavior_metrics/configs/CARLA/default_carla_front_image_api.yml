@@ -27,11 +27,11 @@ Behaviors:
         InitPosition: '262.6 331.0 1.0 0.0 0.0 0.0'
         BrainPath: 'brains/CARLA/brain_carla_front_image_api.py'
         PilotTimeCycle: 20 # Turn up to reduce number of control decisions
-        AsyncMode: True # Set to False to control simulator time
+        AsyncMode: False # Set to False to control simulator time
         Parameters:
             Model: ''
             ModelName: 'pilotnet'
-            SavedModelPath: '/home/alex/TFM-CARLA-imitation-learning/pytorch_train/experiments/exp_random/trained_models/pilotnet_model_123.pth'
+            SavedModelPath: ''
             ImageCropped: True
             ImageSize: [66, 200]
             ImageNormalized: True

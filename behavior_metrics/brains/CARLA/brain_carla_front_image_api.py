@@ -10,7 +10,7 @@ import torch.nn as nn
 import torchvision.models as models
 from torchvision import transforms
 from brains.CARLA.utils.pilotnet import PilotNet
-
+import timm
 GENERATED_DATASETS_DIR = ROOT_PATH + '/' + DATASETS_DIR
 
 
@@ -55,6 +55,14 @@ class Brain:
             self.model = models.efficientnet_v2_s(weights=None)
             num_ftrs = self.model.classifier[-1].in_features
             self.model.classifier[-1] = torch.nn.Linear(num_ftrs, 2)
+        elif config['ModelName'] == 'efficientvit':
+            model = timm.create_model('efficientvit_b0', pretrained=False)
+            num_ftrs = model.head.classifier[-1].in_features
+            model.head.classifier[-1] = nn.Linear(num_ftrs, 2)
+        elif config['ModelName'] == 'fastvit':
+            model = timm.create_model('fastvit_mci0', pretrained=False)
+            num_ftrs = model.head.classifier[-1].in_features
+            model.head.classifier[-1] = nn.Linear(num_ftrs, 2)
         else:
             self.model = PilotNet(self.input_size, 2)
         # Load the state dictionary from the local .pth file
@@ -85,7 +93,7 @@ class Brain:
     def execute(self):
         image = self.camera.getImage()
         if image is not None:
-            image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+            #image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
             cropped_image = image[240:480, 0:640]
             resized_image = cv.resize(cropped_image, (int(self.input_size[1]), int(self.input_size[0])))
             input_tensor = self.preprocess(resized_image).to(self.device)
@@ -99,6 +107,7 @@ class Brain:
                 net_steer = output.data.cpu().numpy()[0][1].item()
             
             self.motors.sendThrottle(net_throttle)
+            print(net_steer)
             self.motors.sendSteer(net_steer)
             self.update_frame('frame_0', image)
         self.update_pose(self.pose.getPose3d())
