@@ -644,19 +644,28 @@ class Toolbar(QWidget):
 
     def start_recording_stats(self):
         """Callback that handles the recording initialization"""
-        dirname = self.stats_dir_selector_save.text()
-        filename = self.gt_stats_dir_selector_save.text()
-        if os.path.isdir(dirname) and os.path.isfile(filename) and filename.endswith(".bag"):
+        dirname = self.stats_dir_selector_save.text().strip()
+        filename = self.gt_stats_dir_selector_save.text().strip()
+        is_carla = type(self.controller) == controller_carla.ControllerCarla
+
+        dir_ok = os.path.isdir(dirname)
+        bag_ok = os.path.isfile(filename) and filename.endswith(".bag")
+
+        if (is_carla and dir_ok) or (not is_carla and dir_ok and bag_ok):
             self.stats_hint_label.hide()
             self.recording_stats_animation_label.start_animation()
             self.recording_stats_label.show()
             self.recording_stats_animation_label.show()
-            if type(self.controller) == controller_carla.ControllerCarla:
+            if is_carla:
+                # CARLA API: solo necesita el directorio de salida
                 self.controller.record_metrics(dirname)
             else:
                 self.controller.record_metrics(filename, dirname)
         else:
-            self.stats_hint_label.setText('Select a directory to save stats first!')
+            if not dir_ok:
+                self.stats_hint_label.setText('Select a directory to save stats first!')
+            elif not bag_ok:
+                self.stats_hint_label.setText('Select a ground truth .bag file first!')
             self.stats_hint_label.show()
             self.start_pause_record_stats_label.active = False
             self.start_pause_record_stats_label.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/play.png'))
