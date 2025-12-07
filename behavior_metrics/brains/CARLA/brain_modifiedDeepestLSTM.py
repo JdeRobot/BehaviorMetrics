@@ -82,19 +82,6 @@ class Brain:
             monolithic_model_path = PRETRAINED_MODELS + model
             print("Loading model from: ", monolithic_model_path)
             
-            # self.monolithic_model = ModifiedDeepestLSTM(image_shape=(66, 200, 3), num_labels=2)
-            # self.monolithic_model = resnet18(weights=ResNet18_Weights.DEFAULT)
-            # self.monolithic_model.fc = nn.Linear(self.monolithic_model.fc.in_features, 2)
-            # self.monolithic_model.load_state_dict(torch.load(monolithic_model_path, map_location=self.device))
-            # self.monolithic_model.to(self.device)
-            # self.monolithic_model.eval()
-            
-            # self.monolithic_model = efficientnet_v2_s(weights=None)
-            # self.monolithic_model.classifier[-1] = nn.Linear(self.monolithic_model.classifier[-1].in_features, 2)
-            # self.monolithic_model.load_state_dict(torch.load(monolithic_model_path, map_location=self.device))
-            # self.monolithic_model.to(self.device)            
-            # self.monolithic_model.eval()
-            
             # onnx model
             providers = [('CUDAExecutionProvider', {})] if ort.get_available_providers().__contains__('CUDAExecutionProvider') else ['CPUExecutionProvider']
             self.ort_session = ort.InferenceSession(str(monolithic_model_path), providers=providers)
@@ -116,7 +103,7 @@ class Brain:
         self.prev_yaw = None
         self.delta_yaw = 0
 
-        self.target_point = [160.0,-105.3,0.42,0.00,0.00,180.00]
+        self.target_point = [160.0,108.3,0.42,0.00,0.00,180.00]
         self.termination_code = 0  # 0: not terminated; 1: arrived at target; 2: wrong turn
     
         self._last_tick = None # para calcular el tiempo entre ticks
@@ -158,8 +145,15 @@ class Brain:
 
     def predict_controls(self, image_seg): # se saco model como argumento
         # Asegurarse de que sea una imagen BGR como la cargada por cv2.imread
-        calzada_color = [128, 64, 128]
-        mask = cv2.inRange(image_seg, np.array(calzada_color), np.array(calzada_color))
+        if image_seg is None:
+            raise ValueError("Segmented image is None (sensor may not be ready).")
+
+        if not isinstance(image_seg, np.ndarray):
+            print(f"[DEBUG] Segmentation image type: {type(image_seg)}")
+            
+            
+        calzada_color =np.array([128, 64, 128], dtype=np.uint8)
+        mask = cv2.inRange(image_seg, calzada_color, calzada_color)
         
         masked_image = np.zeros_like(image_seg)
         masked_image[mask > 0] = [255, 255, 255]
@@ -176,16 +170,10 @@ class Brain:
      
         gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
         rgb_like = cv2.merge([gray, gray, gray])
-
+        
+        # rgb_like /= 255.0
+        
         input_tensor = torch.tensor(rgb_like, dtype=torch.float32).permute(2, 0, 1) 
-        # input_tensor = input_tensor.unsqueeze(0).to(self.device)
-
-        # with torch.no_grad():
-        #     prediction = model(input_tensor)
-
-        # # steer, throttle = prediction[0].tolist()
-        # steer = prediction[0][0].item()
-        # throttle = prediction[0][1].item()
         
         input_np = input_tensor.unsqueeze(0).cpu().numpy()        # [1,3,66,200] float32
         
@@ -206,22 +194,12 @@ class Brain:
 
     def execute(self):
         """Main loop of the brain. This will be called iteratively each TIME_CYCLE (see pilot.py)"""      
-        rgb_image = self.camera_rgb.getImage().data  # rgb_image shape:  (768, 1024, 3)     
-        seg_image = self.camera_seg.getImage().data   # seg_image shape:  (80, 400, 3)   
-             
+        rgb_image = self.camera_rgb.getImage()  #.data  # rgb_image shape:  (768, 1024, 3)     
+        seg_image = self.camera_seg.getImage()  #.data   # seg_image shape:  (80, 400, 3)   
+        
         self.update_frame("frame_0", rgb_image)
         self.update_frame("frame_1", seg_image)
-    
-        # if hasattr(self, 'pilot'):
-        #     current = self.pilot.tick_counter
-        #     if self._last_tick is None:
-        #         delta = 0
-        #     else:
-        #         delta = current - self._last_tick
-        #     logger.info(f"{delta} ticks -> inferencia")
-        #     self._last_tick = current
-        
-        # print("Inferencia ejecutandose") # (600, 800, 3)
+
 
         steer, throttle = self.predict_controls(seg_image) # se saco self.monolithic_model como argumento       
         # print(f"Predicted - Steer: {steer:.3f}, Throttle: {throttle:.3f}")
@@ -236,18 +214,29 @@ class Brain:
         #         f"target: ({self.target_point[0]:.2f}, {self.target_point[1]:.2f})")
         
         if self.target_point is not None:
-            distance_to_target = np.sqrt(
-                (self.target_point.x - vehicle_location.x) ** 2 +
-                (self.target_point.y - (-vehicle_location.y)) ** 2)
-            
-            # print(f'Euclidean distance to target: {distance_to_target}')
+            # Aceptar lista o Location
+            if isinstance(self.target_point, (list, tuple, np.ndarray)):
+                tx, ty = self.target_point[0], self.target_point[1]
+            elif hasattr(self.target_point, "x"):
+                tx, ty = self.target_point.x, self.target_point.y
+            else:
+                raise ValueError(f"Unsupported type for target_point: {type(self.target_point)}")
+
+            # Coordenadas actuales
+            vx, vy = vehicle_location.x, vehicle_location.y
+            # print(f"x: {vx} -> {tx}, y: {vy} -> {ty}")
+
+            # Calcular distancia euclidiana 2D
+            distance_to_target = math.hypot(tx - vx, ty - vy)
+
             if distance_to_target < 1.5:
                 self.termination_code = 1
-                arrived = True
-                print(f"======== Arrived at target point {distance_to_target} m away============.")
-                
+                print(f"======== Arrived at target point ({tx:.1f}, {ty:.1f}) | {distance_to_target:.2f} m away ==========")
+                        
         
         self.motors.sendThrottle(throttle)
         self.motors.sendSteer(steer)
         self.motors.sendBrake(0.0)
         
+       
+

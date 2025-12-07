@@ -12,7 +12,17 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from .interfaces.motors import PublisherMotors, PublisherCARLAMotors
+import os
+from utils.logger import logger
+
+
+ROS_VERSION = os.environ.get("ROS_VERSION")
+USE_ROS = ROS_VERSION in ("1", "2")
+
+if USE_ROS:
+    from .interfaces.motors import PublisherMotors, PublisherCARLAMotors
+else:
+    from .interfaces.carla_api_motors import CarlaApiMotors
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -47,30 +57,31 @@ class Actuators:
         """Fill the motors dictionary with instances of the motors to control the robot"""
 
         actuator_dict = {}
-        for elem in actuator_config:
-            name = actuator_config[elem]['Name']
-            topic = actuator_config[elem]['Topic']
-            vmax = actuator_config[elem]['MaxV']
-            wmax = actuator_config[elem]['MaxW']
+        for elem, cfg in actuator_config.items():
+            cfg = actuator_config[elem]
+            name = cfg['Name']
+            vmax = cfg['MaxV']
+            wmax = cfg['MaxW']
+ 
+            if actuator_type == 'motor':
+                topic = cfg['Topic']
+                actuator_dict[name] = PublisherMotors(self.node, topic, vmax, wmax, 0, 0)
 
-            if 'RL' in actuator_config[elem]:
-                if actuator_config[elem]['RL'] == False:
-                    if actuator_type == 'motor':
-                        actuator_dict[name] = PublisherMotors(self.node, topic, vmax, wmax, 0, 0)
-            else:
-                if actuator_type == 'motor':
-                    actuator_dict[name] = PublisherMotors(self.node, topic, vmax, wmax, 0, 0)
-                elif actuator_type == 'carla_motor':
+            elif actuator_type == 'carla_motor':
+                if not USE_ROS:
+                    actuator_dict[name] = CarlaApiMotors(vmax, wmax)
+                else:
+                    topic = cfg.get('Topic', '')  # ROS 
+                    if not topic:
+                        raise ValueError("Actuators: 'Topic' no puede estar vacío para backend ROS.")
                     actuator_dict[name] = PublisherCARLAMotors(self.node, topic, vmax, wmax, 0, 0)
         return actuator_dict
 
     def __get_actuator(self, actuator_name, actuator_type):
         """Retrieve an specific actuator"""
 
-        actuator = None
         try:
-            if actuator_type == 'motor':
-                actuator = self.motors[actuator_name]
+            return self.motors[actuator_name]
         except KeyError:
             return "[ERROR] No existing actuator with {} name.".format(actuator_name)
 
@@ -90,5 +101,12 @@ class Actuators:
     def kill(self):
         """Destroy all the running actuators"""
         # do the same for every publisher that requires threading
+        if not self.motors:
+            return
         for actuator in self.motors.values():
-            actuator.stop()
+            if hasattr(actuator, "destroy"):
+                try: actuator.destroy()
+                except Exception: pass
+            elif hasattr(actuator, "stop"):
+                try: actuator.stop()
+                except Exception: pass

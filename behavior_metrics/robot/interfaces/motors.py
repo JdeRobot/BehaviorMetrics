@@ -1,24 +1,34 @@
 # import rospy
 import os
 from utils.logger import logger
-from geometry_msgs.msg import Twist
-import threading
+
 from .threadPublisher import ThreadPublisher
 
-ros_version = os.environ.get('ROS_VERSION', '2')
-if ros_version == '2':
-    import rclpy
-    from rclpy.node import Node
-else:
-    import rospy    
+ROS_VERSION = os.environ.get('ROS_VERSION  ', "None")
+USE_ROS = ROS_VERSION   in ('1', '2')
 
-try:
-    from carla_msgs.msg import CarlaEgoVehicleControl
-except ModuleNotFoundError as ex:
-    logger.error('CARLA is not supported')
+
+if USE_ROS:
+    if ROS_VERSION == '2':
+        import rclpy
+        from rclpy.node import Node
+        from  geometry_msgs.msg import Twist
+        from carla_msgs.msg import CarlaEgoVehicleControl
+    else:
+        import rospy
+        from geometry_msgs.msg import Twist
+        from carla_msgs.msg import CarlaEgoVehicleControl
+else:
+    #Python API
+    Node = None
+    Twist = None
+    CarlaEgoVehicleControl = None
+
 
 
 def cmdvel2Twist(vel):
+    if Twist is None:
+        return None
 
     tw = Twist()
     tw.linear.x = float(vel.vx)  
@@ -32,6 +42,9 @@ def cmdvel2Twist(vel):
 
 
 def cmdvel2CarlaEgoVehicleControl(vel):
+    if CarlaEgoVehicleControl is None:
+        return None
+    
     vehicle_control = CarlaEgoVehicleControl()
     vehicle_control.throttle = vel.throttle
     vehicle_control.steer = vel.steer
@@ -85,11 +98,9 @@ class CARLAVel():
         s = s + "\n   manual_gear_shift: " + str(self.manual_gear_shift) + "\n}"
         return s
 
-
-
 class PublisherMotors:
 
-    def __init__(self, node: Node, topic: str, maxV, maxW, v, w):
+    def __init__(self, node: None, topic: str, maxV, maxW, v, w):
         self.node = node
         self.maxW = maxW
         self.maxV = maxV
@@ -97,12 +108,17 @@ class PublisherMotors:
         self.w = w
         self.topic = topic
         self.data = CMDVel()
-        if ros_version == '2':
-            # rclpy.init()    
-            self.pub = self.node.create_publisher(Twist, self.topic, 1)
-        else:   
-            self.pub = rospy.Publisher(self.topic, Twist, queue_size=1)
-            rospy.init_node("FollowLineF1")
+        
+        if USE_ROS:
+            if ROS_VERSION  == '2':
+                self.pub = self.node.create_publisher(Twist, self.topic, 1)
+            else:   
+                self.pub = rospy.Publisher(self.topic, Twist, queue_size=1)
+                rospy.init_node("FollowLineF1")
+        else:
+            # Python API
+            self.pub = None
+            
         self.lock = threading.Lock()
         self.kill_event = threading.Event()
         self.thread = ThreadPublisher(self, self.kill_event)
@@ -110,14 +126,28 @@ class PublisherMotors:
         self.start()
 
     def publish(self):
-        self.lock.acquire()
-        tw = cmdvel2Twist(self.data)
-        self.lock.release()
-        self.pub.publish(tw)
+        if USE_ROS and self.pub is not None:
+            with self.lock:
+                msg = cmdvel2Twist(self.data)
+            if msg:
+                self.pub.publish(msg)
+       
+        # self.lock.acquire()
+        # tw = cmdvel2Twist(self.data)
+        # self.lock.release()
+        # self.pub.publish(tw)
 
     def stop(self):
         self.kill_event.set()
-        self.pub.unregister()
+        if USE_ROS and self.pub is not None:
+            try:
+                if ROS_VERSION == '2':
+                    self.node.destroy_publisher(self.pub)
+                else:
+                    self.pub.unregister()
+            except Exception as e:
+                logger.warning(f"Error stopping publisher: {e}")
+            self.pub = None
 
     def start(self):
 
@@ -174,7 +204,7 @@ class PublisherMotors:
 
 class PublisherCARLAMotors:
 
-    def __init__(self, node: Node, topic: str, maxV, maxW, v, w):
+    def __init__(self, node: None, topic: str, maxV, maxW, v, w):
         self.node = node
         self.maxW = maxW
         self.maxV = maxV
@@ -182,11 +212,17 @@ class PublisherCARLAMotors:
         self.w = w
         self.topic = topic
         self.data = CARLAVel()
-        if ros_version == '2':
-            self.pub = self.node.create_publisher(CarlaEgoVehicleControl, self.topic, 1)
-        else:  
-            self.pub = rospy.Publisher(self.topic, CarlaEgoVehicleControl, queue_size=1)
-            rospy.init_node("CARLAMotors")
+        
+        if USE_ROS:
+            if ROS_VERSION  == '2':
+                self.pub = self.node.create_publisher(CarlaEgoVehicleControl, self.topic, 1)
+            else:  
+                self.pub = rospy.Publisher(self.topic, CarlaEgoVehicleControl, queue_size=1)
+                rospy.init_node("CARLAMotors")
+        else:
+            # Python API
+            self.pub = None
+            
         self.lock = threading.Lock()
         self.kill_event = threading.Event()
         self.thread = ThreadPublisher(self, self.kill_event)
@@ -194,22 +230,24 @@ class PublisherCARLAMotors:
         self.start()
 
     def publish(self):
-        self.lock.acquire()
-        vehicle_control = cmdvel2CarlaEgoVehicleControl(self.data)
-        self.lock.release()
-        self.pub.publish(vehicle_control)
+        if USE_ROS and self.pub is not None:
+            with self.lock:
+                msg = cmdvel2CarlaEgoVehicleControl(self.data)
+            if msg:
+                self.pub.publish(msg)
 
     def stop(self):
         self.kill_event.set()
-        if ros_version == '2':
-            if self.pub is not None:                
-                self.node.destroy_publisher(self.pub)
-                self.pub = None
-        else:
-            if self.pub is not None:
-                self.pub.unregister()
-                self.pub = None
-
+        if USE_ROS and self.pub is not None:
+            try:
+                if ROS_VERSION == '2':
+                    self.node.destroy_publisher(self.pub)
+                else:
+                    self.pub.unregister()
+            except Exception as e:
+                logger.warning(f"Error stopping publisher: {e}")
+            self.pub = None
+      
     def start(self):
 
         self.kill_event.clear()

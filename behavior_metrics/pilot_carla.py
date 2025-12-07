@@ -25,15 +25,32 @@ from robot.sensors import Sensors
 from utils.logger import logger
 from utils.constants import MIN_EXPERIMENT_PERCENTAGE_COMPLETED, ROOT_PATH
 
-ros_version = os.environ.get('ROS_VERSION', '2')
-if ros_version == '2':
+# ros_version = os.environ.get('ROS_VERSION', '2')
+# if ros_version == '2':
+#     import rclpy
+#     from rclpy.node import Node
+# else:    
+#     import rospy
+    
+
+ROS_VERSION  = os.environ.get('ROS_VERSION ', "None")
+USE_ROS = ROS_VERSION  in ('1', '2')
+
+
+if ROS_VERSION  == "2":
     import rclpy
     from rclpy.node import Node
-else:    
+    from rosgraph_msgs.msg import Clock
+    from carla_msgs.msg import CarlaControl
+elif ROS_VERSION  == "1":
     import rospy
+    from rosgraph_msgs.msg import Clock
+    from carla_msgs.msg import CarlaControl
+else:
+    pass # no ROS
 
-from rosgraph_msgs.msg import Clock
-from carla_msgs.msg import CarlaControl
+# from rosgraph_msgs.msg import Clock
+# from carla_msgs.msg import CarlaControl
 
 import numpy as np
 
@@ -57,17 +74,31 @@ class PilotCarla(threading.Thread):
         brains {brains.brains_handler.Brains} -- Brains controller instance
     """
 
-    def __init__(self, node: Node, configuration, controller, brain_path, experiment_model=None):
+    def __init__(self, *args, **kwargs): #self, node: Node, configuration, controller, brain_path, experiment_model=None):
         """Constructor of the pilot class
 
         Arguments:
             configuration {utils.configuration.Config} -- Configuration instance of the application
             controller {utils.controller.Controller} -- Controller instance of the MVC of the application
         """
-        self.node = node
+        
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
         threading.Thread.__init__(self, args=self.stop_event)
+        
+        node = kwargs.pop('node', None)
+        experiment_model = kwargs.pop('experiment_model', None)
+                
+        if len(args) >= 4 and hasattr(args[0], '__class__') and not isinstance(args[0], (dict, str)):
+            # Caso ROS clásico
+            node, configuration, controller, brain_path = args[:4]
+            rest = args[4:]
+        else:
+            # Caso Python API (sin node)
+            configuration, controller, brain_path = args[:3]
+            rest = args[3:]
+
+        self.node = None
 
         self.controller = controller
         self.controller.set_pilot(self)
@@ -76,6 +107,7 @@ class PilotCarla(threading.Thread):
         # self.kill_event = threading.Event()
         # threading.Thread.__init__(self, args=self.stop_event)
         self.brain_path = brain_path
+        print("Brain path", self.brain_path)
         self.robot_type = self.brain_path.split("/")[-2]
         self.sensors = None
         self.actuators = None
@@ -83,7 +115,7 @@ class PilotCarla(threading.Thread):
         self.experiment_model = experiment_model
         self.initialize_robot()
         self.pose3d = self.sensors.get_pose3d('pose3d_0')
-        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])
+        self.start_pose = np.array([self.pose3d.getPose3d().x, self.pose3d.getPose3d().y])        
         self.previous = datetime.now()
         self.checkpoints = []
         self.metrics = {}
@@ -137,43 +169,48 @@ class PilotCarla(threading.Thread):
         self.sensors.get_camera('camera_0').total_frames = 0
         self.pilot_start_time = time.time()
         
-        if ros_version == '2':
-            control_pub = self.node.create_publisher(CarlaControl, '/carla/control', 1)
+        if USE_ROS:
+            if ROS_VERSION  == '2':
+                control_pub = self.node.create_publisher(CarlaControl, '/carla/control', 1)
+            else:
+                control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)  
+                
+            control_command = CarlaControl()
+            control_command.command = 1 # PAUSE
+            control_pub.publish(control_command)
         else:
-            control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)  
-            
-        control_command = CarlaControl()
-        control_command.command = 1 # PAUSE
-        control_pub.publish(control_command)
+            control_pub = None # Python API do not use topics
 
         self.waypoint_publisher = None
         while not self.kill_event.is_set():
             if not self.stop_event.is_set():
-                if self.waypoint_publisher is None and self.waypoint_publisher_path is not None:
-                    if ros_version == '2':
-                        self.waypoint_publisher = subprocess.Popen(["ros2", "launch", ROOT_PATH + '/' + self.waypoint_publisher_path])
-                    else:
-                        self.waypoint_publisher = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + self.waypoint_publisher_path])
+                if USE_ROS:
+                    self._publish_control(control_pub)
+                # if self.waypoint_publisher is None and self.waypoint_publisher_path is not None:
+                #     if ROS_VERSION  == '2':
+                #         self.waypoint_publisher = subprocess.Popen(["ros2", "launch", ROOT_PATH + '/' + self.waypoint_publisher_path])
+                #     else:
+                #         self.waypoint_publisher = subprocess.Popen(["roslaunch", ROOT_PATH + '/' + self.waypoint_publisher_path])
                 
-                if ros_version == '2':
-                    if not hasattr(self, 'control_pub'):
-                        # control_pub = self.controller.create_publisher(CarlaControl, '/carla/control', 1) 
-                        self.control_pub = self.node.create_publisher(CarlaControl, '/carla/control', 1)
-                    control_command = CarlaControl()
-                    if self.async_mode:
-                        control_command.command = 0 # PLAY
-                    else:
-                        control_command.command = 2 # STEP_ONCE
-                    self.control_pub.publish(control_command)            
-                else:
-                    # self.control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
-                    control_command = CarlaControl()
+                # if ROS_VERSION  == '2':
+                #     if not hasattr(self, 'control_pub'):
+                #         # control_pub = self.controller.create_publisher(CarlaControl, '/carla/control', 1) 
+                #         self.control_pub = self.node.create_publisher(CarlaControl, '/carla/control', 1)
+                #     control_command = CarlaControl()
+                #     if self.async_mode:
+                #         control_command.command = 0 # PLAY
+                #     else:
+                #         control_command.command = 2 # STEP_ONCE
+                #     self.control_pub.publish(control_command)            
+                # else:
+                #     # self.control_pub = rospy.Publisher('/carla/control', CarlaControl, queue_size=1)
+                #     control_command = CarlaControl()
                         
-                    if self.async_mode:
-                        control_command.command = 0 # PLAY
-                    else:
-                        control_command.command = 2 # STEP_ONCE
-                    self.control_pub.publish(control_command)
+                #     if self.async_mode:
+                #         control_command.command = 0 # PLAY
+                #     else:
+                #         control_command.command = 2 # STEP_ONCE
+                #     self.control_pub.publish(control_command)
 
                 start_time = datetime.now()
                 start_time_ros = self.ros_clock_time
@@ -185,7 +222,7 @@ class PilotCarla(threading.Thread):
                     logger.error(e)
                 except Exception as ex:
                     logger.warning(type(ex).__name__)
-                    logger.warning(ex)
+                    logger.warning(f"Error in brain execution {ex}")
                     logger.warning('ERROR Pilot Carla!')
                     self.stop()
                     self.kill()
@@ -198,11 +235,21 @@ class PilotCarla(threading.Thread):
                     time.sleep((self.time_cycle - ms) / 1000.0)
                 self.real_time_factors.append(self.real_time_factor)
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
-                if not self.async_mode:
+                
+                if not USE_ROS and not self.async_mode:
                     self.controller.world.tick()
         self.execution_completed = True
         self.kill()
         logger.info('Pilot: pilot killed.')
+        
+    def _publish_control(self, control_pub):
+        """Publish control command to CARLA simulator via ROS topic"""
+        control_command = CarlaControl()
+        if self.async_mode:
+            control_command.command = 0 # PLAY
+        else:
+            control_command.command = 2 # STEP_ONCE
+        control_pub.publish(control_command)
 
     def stop(self):
         """Pause the main loop"""
@@ -245,13 +292,17 @@ class PilotCarla(threading.Thread):
         return False
 
     def clock_callback(self, clock_data):
-        if ros_version == '2':
+        if ROS_VERSION  == '2':
             self.ros_clock_time = clock_data.clock.sec + clock_data.clock.nanosec * 1e-9
         else:
             self.ros_clock_time = clock_data.clock.to_sec()
 
     def track_stats(self):
-        if ros_version == '2':      
+        if not USE_ROS:
+            # Mode python API
+            logger.info('pilot: stats thread - python API mode, no ROS clock available.')
+            return
+        if ROS_VERSION  == '2':      
             self.clock_subscriber = self.node.create_subscription(Clock, '/clock', self.clock_callback, 1)
         else:
             self.clock_subscriber = rospy.Subscriber("/clock", Clock, self.clock_callback)

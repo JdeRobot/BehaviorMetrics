@@ -9,7 +9,7 @@ ros_version = os.environ.get('ROS_VERSION', '2')
 if ros_version == '2':
     import rclpy
     from rclpy.node import Node
-else:
+elif ros_version == '1':
     import rospy
 
 def laserScan2LaserData(scan):

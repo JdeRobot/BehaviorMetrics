@@ -32,11 +32,26 @@ from utils import metrics_gazebo
 from utils import environment
 from utils.logger import logger
 
-ros_version = os.environ.get('ROS_VERSION', '2')  
-if ros_version == '2':
+# TODO: LAUNCH FOR PYTHON API
+
+ROS_VERSION  = os.environ.get('ROS_VERSION ', "None")
+USE_ROS = ROS_VERSION  in ('1', '2')
+
+
+if ROS_VERSION  == "2":
     import rclpy
-else:
+    from rclpy.node import Node
+elif ROS_VERSION  == "1":
     import rospy
+    import rosbag
+else:
+    pass # no ROS
+    
+# ROS_VERSION   = os.environ.get('ROS_VERSION  ', '2')  
+# if ROS_VERSION   == '2':
+#     import rclpy
+# else:
+#     import rospy
 
 def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate, randomize=False, gui=False,
                            launch=False, close_ros_resources=True):
@@ -107,9 +122,9 @@ def tmp_world_generator(current_world, stats_perfect_lap, real_time_update_rate,
     if launch:
         try:
             with open("/tmp/.roslaunch_stdout.log", "w") as out, open("/tmp/.roslaunch_stderr.log", "w") as err:
-                if ros_version == '1':
+                if ROS_VERSION   == '1':
                     subprocess.Popen(["roslaunch", 'tmp_circuit.launch'], stdout=out, stderr=err)
-                elif ros_version == '2':
+                elif ROS_VERSION  == '2':
                     subprocess.Popen(["ros2" "launch", 'tmp_circuit.launch'], stdout=out, stderr=err)
                 logger.info("SimulatorEnv: launching gzserver.")
         except OSError as oe:

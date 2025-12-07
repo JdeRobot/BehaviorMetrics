@@ -1,21 +1,34 @@
 import sys
 import threading
 import time
+import os
 from os import path, makedirs
 
 import npyscreen
 # import rospy
 
 # Attempt to import rospy (ROS1). If not available, try to import rclpy (ROS2).
-try:
-    import rospy
-    ROS_VERSION = "ros1"
-except ModuleNotFoundError:
-    try:
+# try:
+#     import rospy
+#     ROS_VERSION = "ros1"
+# except ModuleNotFoundError:
+#     try:
+#         import rclpy
+#         ROS_VERSION = "ros2"
+#     except ModuleNotFoundError:
+#         raise ImportError("Neither rospy nor rclpy is installed. Please install one.")
+
+ROS_VERSION = os.environ.get('ROS_VERSION', 'None')
+USE_ROS = ROS_VERSION in ('1', '2')
+
+if not USE_ROS:
+    if ROS_VERSION == '2':
         import rclpy
-        ROS_VERSION = "ros2"
-    except ModuleNotFoundError:
-        raise ImportError("Neither rospy nor rclpy is installed. Please install one.")
+    elif ROS_VERSION == '1':
+        import rospy
+    else:
+        pass # not use ROS
+
 
 from ui.tui.keyboard_handler import KHandler
 from utils.constants import ROOT_PATH
@@ -52,26 +65,39 @@ class TUI(npyscreen.StandardApp):
 
     def onStart(self):
         self.ros_topics = []
+        
+        if USE_ROS:
+            self._load_ros_topics()
+        else:
+            # Python API CARLA does not use ROS topics
+            self.ros_topics = ["[Python API mode: no topics]"]
+            
+        self.form = self.addForm("Main", MainForm)
+        self.form.set_controller(self.controller)
+        
+        
+    def _load_ros_topics(self):
+        """Carga los tópicos según la versión de ROS"""
         ros_ready = False
         while not ros_ready:
             try:
-                if ROS_VERSION == "ros1":
+                if ROS_VERSION == "1":
                     raw_topics = rospy.get_published_topics()
-                else:
+                elif ROS_VERSION == "2":
                     if not rclpy.ok():
                         rclpy.init(args=None)
-                    temp_node = rclpy.create_node('tui_temp_node')
+                    temp_node = rclpy.create_node("tui_temp_node")
                     raw_topics_and_types = temp_node.get_topic_names_and_types()
                     raw_topics = [(t, types) for t, types in raw_topics_and_types]
                     temp_node.destroy_node()
+                else:
+                    raw_topics = []
                 ros_ready = True
-            except Exception as e:
-                pass
+            except Exception:
+                time.sleep(0.5)
+
         for topic in raw_topics:
             self.ros_topics.append(str(topic[0]))
-    
-        self.form = self.addForm("MAIN", MainForm)
-        self.form.set_controller(self.controller)
 
     def stop(self):
         self.queue_event(npyscreen.Event("exit_app"))

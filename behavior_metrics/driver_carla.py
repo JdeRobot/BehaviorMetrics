@@ -20,12 +20,23 @@ from utils import metrics_carla
 from datetime import datetime
 from pilot_carla import PilotCarla
 
-from robot.interfaces.motors import PublisherMotors
+# from robot.interfaces.motors import PublisherMotors
+# from robot.interfaces.carla_api_motors import PublisherCARLAMotors
 from robot.actuators import Actuators 
 
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+ROS_VERSION  = os.environ.get('ROS_VERSION  ', "None")
+USE_ROS = ROS_VERSION   in ('1', '2')
+
+if ROS_VERSION == '2' or ROS_VERSION == '1':
+    from robot.interfaces.motors import PublisherMotors
+else:
+    from robot.interfaces.carla_api_motors import CarlaApiMotors
+
+
 
 def check_args(argv):
     """Function that handles argument checking and parsing.
@@ -75,12 +86,13 @@ def check_args(argv):
     args = parser.parse_args()
     
     # get ROS version from environment variable
-    ros_version = os.environ.get('ROS_VERSION', '2')  # Default is ROS 2
-    if ros_version not in ['1', '2']:
-        logger.error('Invalid ROS_VERSION environment variable. Must be "1" or "2". Killing program...')
-        sys.exit(-1)
+    ROS_VERSION  = os.environ.get('ROS_VERSION ', 'None')  # Default is ROS 2
+    USE_ROS = ROS_VERSION  in ('1', '2')
+    # if ROS_VERSION  not in ['1', '2']:
+    #     logger.error('Invalid ROS_VERSION  environment variable. Must be "1" or "2". Killing program...')
+    #     sys.exit(-1)
 
-    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False, 'ros_version': int(ros_version)}
+    config_data = {'config': None, 'gui': None, 'tui': None, 'script': None, 'random': False, 'ROS_VERSION ': ROS_VERSION}
     if args.config:
         config_data['config'] = []
         for config_file in args.config:
@@ -103,30 +115,30 @@ def check_args(argv):
 
     return config_data
 
-def init_node(ros_version):
+def init_node(ROS_VERSION ):
     """
     Initializes the ROS node based on the selected version.
     
     Arguments:
-        ros_version (str): The ROS version ("ros1" or "ros2").
+        ROS_VERSION  (str): The ROS version ("ros1", "ros2" or None).
     
     Returns:
         For ROS1: returns None (as rospy manages the node globally).
         For ROS2: returns the created node.
     """
-    if ros_version == 1:
+    if ROS_VERSION  == 1:
         import rospy
         rospy.init_node('my_ros1_node')
         return None  # rospy maneja la instancia globalmente
-    elif ros_version == 2:
+    elif ROS_VERSION  == 2:
         import rclpy
         rclpy.init()
         node = rclpy.create_node('my_ros2_node')  
         logger.info('ROS2 node initialized')
         return node
     else:
-        logger.error(f"Unsupported ROS version: {ros_version}")
-        sys.exit(-1)
+        logger.info("Running in Python API mode")
+        return None
 
 def main_win(configuration, controller, node):
     """shows the Qt main window of the application
@@ -349,13 +361,17 @@ def main():
     """Main function for the app. Handles creation and destruction of every element of the application."""
 
     config_data = check_args(sys.argv)
-    node = init_node(config_data['ros_version']) # Initialize the ROS node shared by all the application
+    node = init_node(config_data['ROS_VERSION ']) # Initialize the ROS node shared by all the application
         
     app_configuration = Config(config_data['config'][0])
-        
-    motors = PublisherMotors(node,'motors', 1, 1, 0, 0)  # Create the motors instance
-    actuators = Actuators(app_configuration.actuators, node)  # Create the actuators instance
-    
+
+    if USE_ROS:
+        motors = PublisherMotors(node,'motors', 1, 1, 0, 0)  # Create the motors instance   # debugging
+        actuators = Actuators(app_configuration.actuators, node)  # Create the actuators instance
+    #else:
+        #motors = CarlaApiMotors(1, 1)  # Create the motors instance   # debugging
+        #actuators = Actuators(app_configuration.actuators, None)  # Create the actuators instance
+
     if not config_data['script']:
         if app_configuration.task not in ['follow_lane', 'follow_lane_traffic']:
             logger.info('Selected task does not support --gui. Try use --script instead. Killing program...')
@@ -370,17 +386,37 @@ def main():
         traffic_manager.generate_traffic()
 
         # Launch control
+        # if hasattr(app_configuration, 'experiment_model'):
+        #     experiment_model = app_configuration.experiment_model
+        #     pilot = PilotCarla(node, app_configuration, controller, app_configuration.brain_path, experiment_model=experiment_model)
+        # else:
+        #     pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
+        # --- Inicialización del piloto adaptada a ROS o Python API ---
         if hasattr(app_configuration, 'experiment_model'):
             experiment_model = app_configuration.experiment_model
-            pilot = PilotCarla(node, app_configuration, controller, app_configuration.brain_path, experiment_model=experiment_model)
+            if USE_ROS:
+                # ROS1 o ROS2 → pasa el nodo
+                pilot = PilotCarla(node, app_configuration, controller,
+                                app_configuration.brain_path,
+                                experiment_model=experiment_model)
+            else:
+                # Python API → sin nodo
+                pilot = PilotCarla(app_configuration, controller,
+                                app_configuration.brain_path,
+                                experiment_model=experiment_model)
         else:
-            pilot = PilotCarla(app_configuration, controller, app_configuration.brain_path)
+            if USE_ROS:
+                pilot = PilotCarla(node, app_configuration, controller,
+                                app_configuration.brain_path)
+            else:
+                pilot = PilotCarla(app_configuration, controller,
+                                app_configuration.brain_path)
         pilot.daemon = True
         pilot.start()
         logger.info('Executing app')
         
         # if is ROS 2: create a executor and spin in a separate thread
-        if config_data['ros_version'] == 2:
+        if config_data['ROS_VERSION '] == 2:
             from rclpy.executors import MultiThreadedExecutor
             import threading
             
@@ -402,7 +438,7 @@ def main():
         pilot.join()
         
         # If ROS 2: stop the executor and destroy the node
-        if config_data['ros_version'] == 2:
+        if config_data['ROS_VERSION '] == 2:
             executor.shutdown()
             spin_thread.join()
             # pilot.destroy_node()

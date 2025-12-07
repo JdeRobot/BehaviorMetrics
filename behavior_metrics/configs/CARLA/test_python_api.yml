@@ -1,0 +1,83 @@
+Behaviors:
+    Robot:
+        Name: 'ego_vehicle'
+        Model: 'tesla.model3'
+        Sensors:
+            Cameras:
+                Camera_0:
+                    Name: 'camera_0'
+                    Type: 'rgb'
+                    Topic: 'Front'
+                    Position: '1.5 0 2.4 0 0 0'
+                Camera_1:
+                    Name: 'camera_1'
+                    Type: 'semantic_segmentation'
+                    Topic: 'Seg'
+                    Position: '2.0 0 2.0 0 0 0'
+                Camera_2:
+                    Name: 'camera_2'
+                    Type: 'depth'
+                    Topic: 'Depth'
+                    Position: '2.0 0 2.0 0 0 0'
+            BirdEyeView:
+                BirdEyeView_0:
+                    Name: 'bird_eye_view_0'
+                    Topic: ''
+        Actuators:
+            CARLA_Motors:
+                Motors_0:
+                    Name: 'motors_0'
+                    Topic: ''
+                    MaxV: 3
+                    MaxW: 0.3
+        InitialPosition: '262.6 327.0 1.0 0.0 0.0 180.0'
+        BrainPath: ['brains/CARLA/brain_carla_slow_and_turn.py']
+        PilotTimeCycle: 20 # Turn up to reduce number of control decisions
+        AsyncMode: True # Set to False to control simulator time
+        Parameters:
+            Model: ["efficientnet_control_manual.onnx"]
+            ImageCropped: True
+            ImageSize: [ 200,66 ]
+            ImageNormalized: True
+            PredictionsNormalized: True
+            GPU: True
+            UseOptimized: False
+            ImageTranform: ''
+        Type: 'CARLA'
+    Simulation:
+        Task: "follow_lane"
+        RandomSpawnPoint: False
+        World: [configs/CARLA/test_python_api.yml]
+        Map: 'Town02'
+        RandomSpawnPoint: False
+        TestSuite: "Town02_two_turns"
+        RandomizeRoutes: False
+    Experiment:
+      Name: "Carla Town02 Test Suite"
+      Description: "Testing model in Town02 with each route consisting of two turns."
+      UseWorldTimeouts: False
+      Timeout: [700] # for each world!
+      Repetitions: 1
+    Dataset:
+        In: '/tmp/my_bag'
+        Out: ''
+    Stats:
+        Out: './'
+        PerfectLap: './perfect_bags/lap-simple-circuit/'
+    Layout:
+        Frame_0:
+            Name: frame_0
+            Geometry: [1, 1, 1, 1]
+            Data: rgbimage
+        Frame_1:
+            Name: frame_1
+            Geometry: [0, 1, 1, 1]
+            Data: rgbimage
+        Frame_2:
+            Name: frame_2
+            Geometry: [0, 2, 1, 1]
+            Data: rgbimage
+        Frame_3:
+            Name: frame_3
+            Geometry: [1, 2, 1, 1]
+            Data: rgbimage

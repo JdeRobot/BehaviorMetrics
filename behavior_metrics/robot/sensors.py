@@ -11,17 +11,27 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
-
+import os
 from utils.logger import logger
-from robot.interfaces.camera import ListenerCamera
-from robot.interfaces.laser import ListenerLaser
-from robot.interfaces.pose3d import ListenerPose3d
+
+# Import ROS only if needed
+ROS_VERSION = os.environ.get('ROS_VERSION')
+USE_ROS = ROS_VERSION in ('1', '2')
+
+if USE_ROS:
+    from robot.interfaces.camera import ListenerCamera
+    from robot.interfaces.laser import ListenerLaser
+    from robot.interfaces.pose3d import ListenerPose3d    
+    from robot.interfaces.speedometer import ListenerSpeedometer
+else:
+    # CARLA PYTHON API implementations of the sensors
+    from robot.interfaces.carla_api_sensors import (
+        CarlaApiCamera, CarlaApiLidar, CarlaApiPose3D, CarlaApiSpeedometer
+    )
 try:
     from robot.interfaces.birdeyeview import BirdEyeView
 except ModuleNotFoundError as ex:
-    logger.error('CARLA is not supported sensor') 
-    
-from robot.interfaces.speedometer import ListenerSpeedometer
+    logger.error('CARLA is not supported sensor')
 
 __author__ = 'fqez'
 __contributors__ = []
@@ -77,19 +87,41 @@ class Sensors:
     def __create_sensor(self, sensor_config, sensor_type):
         """Fill the sensor dictionary with instances of the sensor_type and sensor_config"""
         sensor_dict = {}
-        for elem in sensor_config:
-            name = sensor_config[elem]['Name']
-            topic = sensor_config[elem]['Topic']
-            if sensor_type == 'camera':
-                sensor_dict[name] = ListenerCamera(self.node, topic)
-            elif sensor_type == 'laser':
-                sensor_dict[name] = ListenerLaser(self.node, topic)
-            elif sensor_type == 'pose3d':
-                sensor_dict[name] = ListenerPose3d(self.node, topic)
-            elif sensor_type == 'bird_eye_view':
-                sensor_dict[name] = BirdEyeView()
-            elif sensor_type == 'speedometer':
-                sensor_dict[name] = ListenerSpeedometer(self.node, topic)
+        for elem, cfg in sensor_config.items():
+            name = cfg['Name']
+            backend = cfg.get('Backend', 'ros' if USE_ROS else 'python_api').lower()
+            
+            if backend not in ('ros', 'python_api', 'carla_api'):
+                raise ValueError(f"Unsupported backend '{backend}' for sensor '{name}'")
+            
+            if backend == 'ros':
+                if not USE_ROS:
+                    raise RuntimeError(f"ROS backend requested for sensor '{name}', but ROS is not available.")
+            
+                topic = cfg['Topic']
+                if sensor_type == 'camera':
+                    sensor_dict[name] = ListenerCamera(self.node, topic)
+                elif sensor_type == 'laser':
+                    sensor_dict[name] = ListenerLaser(self.node, topic)
+                elif sensor_type == 'pose3d':
+                    sensor_dict[name] = ListenerPose3d(self.node, topic)
+                elif sensor_type == 'bird_eye_view':
+                    sensor_dict[name] = BirdEyeView()
+                elif sensor_type == 'speedometer':
+                    sensor_dict[name] = ListenerSpeedometer(self.node, topic)
+                
+            else:
+                # Python api backends
+                if sensor_type == 'camera':
+                    sensor_dict[name] = CarlaApiCamera(cfg)
+                elif sensor_type == 'laser':
+                    sensor_dict[name] = CarlaApiLidar(cfg)
+                elif sensor_type == 'pose3d':
+                    sensor_dict[name] = CarlaApiPose3D(cfg)
+                # elif sensor_type == 'bird_eye_view':
+                #     sensor_dict[name] = BirdEyeView()
+                elif sensor_type == 'speedometer':
+                    sensor_dict[name] = CarlaApiSpeedometer(cfg)
 
         return sensor_dict
 

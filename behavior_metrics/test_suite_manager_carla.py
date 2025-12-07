@@ -19,12 +19,27 @@ from utils.constants import CARLA_TEST_SUITE_DIR, ROOT_PATH
 
 import carla
 
-ros_version = os.environ.get('ROS_VERSION', '2')
-if ros_version == '2':
-    import rclpy
-    from rclpy.node import Node
+# ros_version = os.environ.get('ROS_VERSION', '2')
+# if ros_version == '2':
+#     import rclpy
+#     from rclpy.node import Node
+# else:
+#     import rospy    
+
+ROS_VERSION = os.environ.get('ROS_VERSION  ', "None")
+USE_ROS = ROS_VERSION   in ('1', '2')
+
+
+if USE_ROS:
+    if ROS_VERSION == '2':
+        import rclpy
+        from rclpy.node import Node        
+    else:
+        import rospy
 else:
-    import rospy    
+    #Python API
+    pass
+
 
 TESTSUITES = ROOT_PATH + '/' + CARLA_TEST_SUITE_DIR
 
@@ -115,12 +130,16 @@ def check_args(argv):
 
 def main():
     # avoid double init rclpy
-    if ros_version == '2':
-        if not rclpy.ok():         
-            rclpy.init()
-        node = rclpy.create_node('driver_carla_runner')
+    if USE_ROS:
+        if ROS_VERSION == '2':
+            if not rclpy.ok():
+                rclpy.init()
+            node = rclpy.created_node('drive_carla_runner')      
+        else:
+            rospy.init_node('driver_carla_runner')
     else:
-        rospy.init_node('driver_carla_runner')
+        #Python API
+        node = None
         
  
     config_data = check_args(sys.argv)
@@ -194,10 +213,10 @@ def main():
     start_time = time.time()
     termination_code = 3     
     while (time.time() - start_time) < experiment_timeout:
-        if ros_version == '2':
+        if ROS_VERSION == '2':
             # time.sleep(0.1)
             rclpy.spin_once(node, timeout_sec=0.1)
-        elif ros_version == '1':
+        elif ROS_VERSION == '1':
             rospy.sleep(0.1)
         else:
             time.sleep(0.1) # fallback
@@ -221,7 +240,7 @@ def main():
     while not controller.pilot.execution_completed:
         time.sleep(1)
     # debug
-    if ros_version == '2' and rclpy.ok():
+    if ROS_VERSION== '2' and rclpy.ok():
         node.destroy_node()
         rclpy.shutdown()
     # debug end
