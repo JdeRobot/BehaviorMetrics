@@ -567,6 +567,7 @@ class Toolbar(QWidget):
         start_pause_simulation_label.setToolTip('Start/Pause the simulation')
         reset_simulation = ClickableLabel('reset', 40, QPixmap(self.gui_views_path + '/resources/assets/reload.png'), parent=self)
         reset_simulation.setToolTip('Reset the simulation')
+        reset_simulation.clicked.connect(self.reset_simulation)
         if type(self.controller) == controller_carla.ControllerCarla:
             carla_image = ClickableLabel('carlacli', 40, QPixmap(self.gui_views_path + '/resources/assets/carla_light.png'), parent=self)
             carla_image.setToolTip('Open/Close simulator window')
@@ -794,7 +795,8 @@ class Toolbar(QWidget):
             self.current_brain_label.setText('Current brain: ' + txt)
 
             # load brain from controller
-            self.controller.reload_brain(brains_path + self.configuration.robot_type + '/' + brain)
+            # FIX: Using restart_simulation instead of reload_brain to fully reset CARLA
+                  self.controller.restart_simulation()
 
             # save to configuration
             self.configuration.brain_path = brains_path + self.configuration.robot_type + '/' + brain
