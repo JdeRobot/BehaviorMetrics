@@ -30,32 +30,62 @@ gallery5:
 
 {% include gallery id="gallery" %}
 
-Behavior Metrics with ROS Noetic can be installed as usual in the machine or using Docker. 
-Since ROS Noetic needs Ubuntu 20 and the dependencies are quite new, that workflow is also provided.
+Behavior Metrics can be used with **ROS 1 (Noetic)**, **ROS 2 (Humble)**, or **directly with the CARLA Python API (no ROS required)**.  
+Additionally, Behavior Metrics can be deployed either **locally** or using **Docker containers**.
+
+To select the integration mode, set the `ROS_VERSION` environment variable:
+
+```bash
+# Python API (no ROS)
+export ROS_VERSION=None
+
+# ROS 1 (Noetic)
+export ROS_VERSION=ros1
+
+# ROS 2 (Humble)
+export ROS_VERSION=ros2
+
+```
 
 
 ## Table of Contents
 
-1. [Ordinary Installation](#installation)
-    1. [Requirements](#requisites)
-    2. [Installing ROS Noetic](#noetic)
-    3. [Installing Jderobot's dependencies](#dependencies)
-    4. [Installing Behavior Metrics](#behavior-metrics)
-    5. [Installing CARLA simulator and support](#carla-simulator)
-    6. [(Optional) Installing for Drone](#optional-installing-for-drone)
-2. [Installation using Docker](#docker-installation)
-    1. [Starting Docker Container](#starting-docker)
-        1. [VNC container viewer](#vnc)
-        2. [Terminal in container](#term)
-        3. [Stopping container](#stop)
-        4. [Resuming container](#resume)
-    2. [Building the container](#building)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+  - [Requirements ](#requirements-)
+  - [Installing ROS Noetic ](#installing-ros-noetic-)
+    - [Setup your sources](#setup-your-sources)
+    - [Set up your keys](#set-up-your-keys)
+    - [Installing ROS Noetic](#installing-ros-noetic)
+    - [Environment setup](#environment-setup)
+    - [Dependencies for building packages](#dependencies-for-building-packages)
+  - [Creating a virtualenv](#creating-a-virtualenv)
+  - [Install Catkin\_pkg](#install-catkin_pkg)
+  - [Installing dependencies ](#installing-dependencies-)
+    - [JdeRobot's CustomRobots](#jderobots-customrobots)
+    - [ROS additional package](#ros-additional-package)
+  - [Installing Behavior Metrics ](#installing-behavior-metrics-)
+  - [Installing CARLA simulator and support ](#installing-carla-simulator-and-support-)
+- [(Optional) Installing for Drone ](#optional-installing-for-drone-)
+- [Installation using Docker ](#installation-using-docker-)
+  - [Download Docker in Ubuntu](#download-docker-in-ubuntu)
+- [Running Behavior Metrics Containers ](#running-behavior-metrics-containers-)
+  - [For CPU only](#for-cpu-only)
+  - [For GPU support (CUDA 10.1 Cudnn 7)](#for-gpu-support-cuda-101-cudnn-7)
+  - [Using VNC to visualize container ](#using-vnc-to-visualize-container-)
+  - [Using terminal in container ](#using-terminal-in-container-)
+  - [Stopping container ](#stopping-container-)
+  - [Resuming container ](#resuming-container-)
+- [Building the latest container ](#building-the-latest-container-)
 
 ## Installation
 
 ### Requirements <a name="requisites"></a>
 
-- Ubuntu 20.04
+- Ubuntu 20.04 (ROS 1 Noetic)
+- Ubuntu 22.04 (ROS 2 Humble)
+- CARLA + Python API can be used without ROS (Linux recommended)
+
 
 ### Installing ROS Noetic <a name="noetic"></a>
 
@@ -195,6 +225,9 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
 ```
     source ~/carla-ros-bridge/catkin_ws/devel/setup.bash
 
+    # Select integration mode: ros1 | ros2 | None (Python API)
+    export ROS_VERSION=None
+
     # First option
     export CARLA_ROOT=<PATH-TO-CARLA>/carla/
     export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla
@@ -210,6 +243,7 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
 ```bash
   python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
 ```
+
 
 ## (Optional) Installing for Drone <a name="drone-simulation"></a>
 
