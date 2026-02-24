@@ -21,8 +21,8 @@ title_separator          : "-"
 subtitle                 : "Autonomous driving solutions comparison tool"
 name                     : "JdeRobot"
 description              : "Programming Robot Intelligence"
-url                      : https://github.com/JdeRobot/BehaviorMetrics
-baseurl                  : # the subpath of your site, e.g. "/blog"
+url                      : https://jderobot.github.io
+baseurl                  : "/BehaviorMetrics"
 repository               : JdeRobot/BehaviorMetrics
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : /assets/images/peloto.png

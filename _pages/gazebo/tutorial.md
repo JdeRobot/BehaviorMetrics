@@ -24,7 +24,7 @@ In this tutorial, you will train your first follow line brain for the F1 that ca
 
 ## Prerequisites
 
-First of all, make sure you have Behavior Metrics installed, following the [installation section](/install/). You can try running the *brain_f1_explicit* that is already included on Behavior Metrics brains folder. This brain is capable of finishing every circuit available for the project.
+First of all, make sure you have Behavior Metrics installed, following the [installation section]({{ site.baseurl }}/install/). You can try running the *brain_f1_explicit* that is already included on Behavior Metrics brains folder. This brain is capable of finishing every circuit available for the project.
 
 ## Brain Class
 
