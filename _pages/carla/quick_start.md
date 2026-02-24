@@ -93,11 +93,11 @@ gallery17:
 
 # Running an example
 
-First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section](/install/).
+First, you need to install Behavior Metrics. If you haven't completed that step, please go to the [installation section]({{ site.baseurl }}/install/).
 
-We additionally have some pretrained models that you can use in Behavior Metrics to illustrate how it works. Find them in the [model zoo](/carla/model_zoo/).
+We additionally have some pretrained models that you can use in Behavior Metrics to illustrate how it works. Find them in the [model zoo]({{ site.baseurl }}/carla/model_zoo/).
 
-If you'd like to train your own imitation learning based model, we provide you with a [dataset](/carla/datasets/).
+If you'd like to train your own imitation learning based model, we provide you with a [dataset]({{ site.baseurl }}/carla/datasets/).
 
 We provide examples for the follow-lane task using CARLA:
 

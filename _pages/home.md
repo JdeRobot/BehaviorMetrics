@@ -43,7 +43,7 @@ gallery1:
 
 {% include feature_row %}
 
-**We are always open for new contributions from outside developers. If you want to contribute to this project, please visit the [CONTRIBUTING guide](/BehaviorMetrics/documentation/contributing/)**
+**We are always open for new contributions from outside developers. If you want to contribute to this project, please visit the [CONTRIBUTING guide]({{ site.baseurl }}/documentation/contributing/)**
 
 This software tool provides evaluation capabilities for autonomous driving solutions using simulation. 
 We provide a series of quantitative metrics for the evaluation of autonomous driving solutions with support for two simulators, [CARLA](https://carla.org/) (main supported simulator) and [gazebo](https://gazebosim.org/home) (partial support).
@@ -64,12 +64,12 @@ The first one is intended for testing one brain+model at a time and debugging it
 
 ### Installation
 
-For more information about the installation, go to this [link](/install/). 
+For more information about the installation, go to this [link]({{ site.baseurl }}/install/). 
 
 ### Examples
 
-* [CARLA example](/BehaviorMetrics/carla/quick_start/)
-* [Gazebo example](/BehaviorMetrics/gazebo/quick_start/)
+* [CARLA example]({{ site.baseurl }}/carla/quick_start/)
+* [Gazebo example]({{ site.baseurl }}/gazebo/quick_start/)
 
 <img src="https://jderobot.github.io/assets/images/projects/neural_behavior/autonomous.jpeg" alt="config" />
 
