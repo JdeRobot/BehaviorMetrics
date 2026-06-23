@@ -26,7 +26,7 @@ vcstool==0.2.15
 scikit-image==0.21.0
 bagpy==0.4.10
 pycryptodomex==3.14.0
-torch==2.8.0
+torch==2.12.1
 torchvision==0.16.0
 tensorboard==2.14.1
 tensorflow==2.14.0
