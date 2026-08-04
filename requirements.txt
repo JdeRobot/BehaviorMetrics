@@ -2,7 +2,7 @@ PyQt5==5.15.3
 pyQt5-sip==12.11.0
 PyQt3D==5.15.3
 scipy==1.10.1
-jupyterlab==4.5.9
+jupyterlab==4.5.10
 npyscreen==4.10.5
 pynput==1.7.6
 environs==9.5.0
