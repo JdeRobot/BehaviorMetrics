@@ -221,7 +221,7 @@ class ClickableLabel(QLabel):
             self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/gazebo_dark.png'))
         elif self.id == 'carlacli':
             self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/carla_black.png'))
-        elif self.id == 'play_record_dataset' or self.id == 'sim':
+        elif self.id == 'play_record_dataset' or self.id == 'sim' or self.id == 'play_record_stats':
             if self.active:
                 self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/pause_dark.png'))
             else:
@@ -237,7 +237,7 @@ class ClickableLabel(QLabel):
             self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/gazebo_light.png'))
         elif self.id == 'carlacli':
             self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/carla_light.png'))
-        elif self.id == 'play_record_dataset' or self.id == 'sim':
+        elif self.id == 'play_record_dataset' or self.id == 'sim' or self.id == 'play_record_stats':
             if self.active:
                 self.setPixmap(QPixmap(self.gui_views_path + '/resources/assets/pause.png'))
             else:

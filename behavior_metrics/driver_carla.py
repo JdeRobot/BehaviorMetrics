@@ -432,6 +432,11 @@ def main():
             main_tui(app_configuration, controller)
         # main_win(app_configuration, controller)
         logger.info('closing all processes...')
+        if getattr(controller, 'csv_file', None) is not None or getattr(controller, 'proc', None) is not None:
+            try:
+                controller.stop_recording_metrics()
+            except Exception as e:
+                logger.warning(f"Error auto-stopping metrics on exit: {e}")
         # traffic_manager.destroy()
         pilot.kill_event.set()
         # environment.close_ros_and_simulators()

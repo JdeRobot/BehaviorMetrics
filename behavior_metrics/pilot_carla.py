@@ -84,6 +84,7 @@ class PilotCarla(threading.Thread):
         
         self.stop_event = threading.Event()
         self.kill_event = threading.Event()
+        self.control_lock = threading.Lock()
         threading.Thread.__init__(self, args=self.stop_event)
         
         node = kwargs.pop('node', None)
@@ -216,7 +217,9 @@ class PilotCarla(threading.Thread):
                 start_time_ros = self.ros_clock_time
                 self.execution_completed = False
                 try:
-                    self.brains.active_brain.execute()
+                    with self.control_lock:
+                        if not self.stop_event.is_set():
+                            self.brains.active_brain.execute()
                 except AttributeError as e:
                     logger.warning('No Brain selected')
                     logger.error(e)
@@ -237,7 +240,11 @@ class PilotCarla(threading.Thread):
                 self.brain_iterations_simulated_time.append(self.ros_clock_time - start_time_ros)
                 
                 if not USE_ROS and not self.async_mode:
-                    self.controller.world.tick()
+                    with self.control_lock:
+                        if not self.stop_event.is_set():
+                            self.controller.world.tick()
+            else:
+                time.sleep(0.05)
         self.execution_completed = True
         self.kill()
         logger.info('Pilot: pilot killed.')

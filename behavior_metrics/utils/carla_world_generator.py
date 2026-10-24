@@ -62,16 +62,11 @@ GAMMA_CORRECTION = 2.2
 
 def read_data_from_yaml(yaml_file_path):
     """
-    Reads the robot data, the type of vehicle and sensors, from a YAML file.
+    Reads the entire configuration from a YAML file.
     """
     try:
         with open(yaml_file_path, 'r') as file:
-            data = yaml.load(file, Loader=yaml.FullLoader)
-            if 'Behaviors' in data:
-                return data['Behaviors']
-            else:
-                print("Warning: 'Behaviors' key not found in the YAML file.")
-                return None
+            return yaml.load(file, Loader=yaml.FullLoader)
     except FileNotFoundError:
         print(f"Error: YAML file not found at {yaml_file_path}")
         return None
@@ -869,11 +864,44 @@ def game_loop(data):
         # Connect to CARLA
         client = carla.Client('localhost', 2000)
         client.set_timeout(20.0)
-        
-        print('Loaded map: ' + data['Simulation']['Map'])
+    # PARCHE: Inyectar llaves faltantes a la fuerza
+        if type(data) is list:
+            data = data[0]
+        if 'config' in data:
+            data = data['config'][0]
 
-        # Load world map
-        client.load_world_if_different(data['Simulation']['Map'])
+        if 'Simulation' not in data:
+            data['Simulation'] = {}
+        if 'Map' not in data['Simulation']:
+            data['Simulation']['Map'] = 'Town02'
+        if 'RandomSpawnPoint' not in data['Simulation']:
+            data['Simulation']['RandomSpawnPoint'] = False
+
+        # --- NUEVO PARCHE PARA EL VEHÍCULO ---
+        if 'Behaviors' in data:
+            if 'Simulation' in data['Behaviors']:
+                data['Simulation'] = data['Behaviors']['Simulation']
+            if 'Robot' in data['Behaviors']:
+                data['Robot'] = data['Behaviors']['Robot']
+
+        if 'Robot' not in data:
+            data['Robot'] = {}
+        if 'Name' not in data['Robot']:
+            data['Robot']['Name'] = 'ego_vehicle'
+
+        # LIMPIADOR: Evitar el error "vehicle.vehicle.tesla.model3"
+        model_name = data['Robot'].get('Model', 'tesla.model3')
+        if model_name.startswith('vehicle.'):
+            model_name = model_name.replace('vehicle.', '')
+        data['Robot']['Model'] = model_name
+
+        if 'AsyncMode' not in data:
+            data['AsyncMode'] = False
+        # -------------------------------------
+        print('Loaded mapiS: ' + data['Simulation']['Map'])
+
+        # Load the configured map even when CARLA is already running in another town.
+        client.load_world(data['Simulation']['Map'])
         
         # Get instance to the world
         sim_world = client.get_world()

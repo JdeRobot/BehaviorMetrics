@@ -626,6 +626,11 @@ def get_position_deviation_and_effective_completed_distance(
             if checkpoints
             else []
         )
+        speeds_kmh = (
+            [float(s.get("data", 0.0)) * 3.6 for s in speedometer]
+            if speedometer
+            else [0.0] * len(xs)
+        )
 
         experiment_metrics.setdefault(
             "effective_completed_distance",
@@ -651,6 +656,21 @@ def get_position_deviation_and_effective_completed_distance(
         ]:
             if k in experiment_metrics:
                 experiment_metrics[f"{k}_per_km"] = experiment_metrics[k] / km
+
+        if len(xs) > 1 and experiment_metrics_filename:
+            create_experiment_maps(
+                experiment_metrics,
+                experiment_metrics_filename,
+                xs,
+                ys,
+                xs,
+                ys,
+                xs,
+                ys,
+                speeds_kmh,
+                collision_points or [],
+                lane_invasion_checkpoints or [],
+            )
 
         return experiment_metrics
 
@@ -706,22 +726,35 @@ def get_position_deviation_and_effective_completed_distance(
     # --------------- Distancia a eje de vía (NN sobre mapa) ----------------
     min_dists, best_checkpoint_points_x, best_checkpoint_points_y = [], [], []
     covered_checkpoints = []
-    for cx, cy, _ in checkpoints_tuples:
-        best_d = float("inf")
-        bx, by = cx, cy
-        for mx, my in map_waypoints_tuples:
-            d = math.hypot(mx - cx, my - cy)
-            if d < best_d:
-                best_d = d
-                bx, by = mx, my
-        best_checkpoint_points_x.append(bx)
-        best_checkpoint_points_y.append(by)
-        if best_d < 100.0:
-            min_dists.append(best_d)
-            if (not covered_checkpoints or covered_checkpoints[-1] != (bx, by)) and (
-                best_d < 1.0
-            ):
-                covered_checkpoints.append((bx, by))
+    if checkpoints_tuples and map_waypoints_tuples:
+        pts_arr = np.asarray(aligned_xy, dtype=float)
+        map_arr = np.asarray(map_waypoints_tuples, dtype=float)
+        # Cálculo vectorizado por bloques para evitar congelar la GUI
+        chunk_size = 500
+        nearest_indices = []
+        nearest_dists = []
+        for i in range(0, len(pts_arr), chunk_size):
+            chunk = pts_arr[i : i + chunk_size]
+            diff = chunk[:, None, :] - map_arr[None, :, :]
+            dist_sq = np.einsum("ijk,ijk->ij", diff, diff)
+            idx = np.argmin(dist_sq, axis=1)
+            d = np.sqrt(dist_sq[np.arange(len(chunk)), idx])
+            nearest_indices.append(idx)
+            nearest_dists.append(d)
+        nearest_indices = np.concatenate(nearest_indices)
+        nearest_dists = np.concatenate(nearest_dists)
+
+        for idx, best_d in zip(nearest_indices, nearest_dists):
+            bx, by = float(map_arr[idx, 0]), float(map_arr[idx, 1])
+            best_checkpoint_points_x.append(bx)
+            best_checkpoint_points_y.append(by)
+            best_d = float(best_d)
+            if best_d < 100.0:
+                min_dists.append(best_d)
+                if (not covered_checkpoints or covered_checkpoints[-1] != (bx, by)) and (
+                    best_d < 1.0
+                ):
+                    covered_checkpoints.append((bx, by))
 
     # --------------- Métricas espaciales ----------------
     eff_dist = float(len(covered_checkpoints) * 0.5)  # ~0.5 m por waypoint cubierto
@@ -805,40 +838,6 @@ def get_position_deviation_and_effective_completed_distance(
         ],
     )
 
-    if experiment_metrics.get("collisions", 0) > 0 and aligned_collisions:
-        create_collisions_map(
-            experiment_metrics,
-            experiment_metrics_filename,
-            map_waypoints_tuples_x,
-            map_waypoints_tuples_y,
-            checkpoints_tuples_x,
-            checkpoints_tuples_y,
-            speeds_kmh,
-            starting_point_landmark,
-            finish_point_landmark,
-            [
-                {"pose.pose.position.x": x, "pose.pose.position.y": y}
-                for x, y in aligned_collisions
-            ],
-        )
-
-    if experiment_metrics.get("lane_invasions", 0) > 0 and aligned_lane_inv:
-        create_lane_invasions_map(
-            experiment_metrics,
-            experiment_metrics_filename,
-            map_waypoints_tuples_x,
-            map_waypoints_tuples_y,
-            checkpoints_tuples_x,
-            checkpoints_tuples_y,
-            speeds_kmh,
-            starting_point_landmark,
-            finish_point_landmark,
-            [
-                {"pose.pose.position.x": x, "pose.pose.position.y": y}
-                for x, y in aligned_lane_inv
-            ],
-        )
-
     return experiment_metrics
 
 
@@ -893,16 +892,18 @@ def create_experiment_maps(
     ax.scatter(
         map_waypoints_tuples_x,
         map_waypoints_tuples_y,
-        s=10,
-        c="b",
+        s=12,
+        c="#C0C7D0",
+        alpha=0.6,
         marker="s",
         label="Map waypoints",
     )
     ax.scatter(
         best_checkpoint_points_x,
         best_checkpoint_points_y,
-        s=10,
-        c="g",
+        s=12,
+        c="#66BB6A",
+        alpha=0.7,
         marker="o",
         label="Map waypoints for position deviation",
     )
@@ -955,9 +956,15 @@ def create_experiment_maps(
     plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left", prop={"size": 20})
 
     full_text = ""
+    skip_keys = {"experiment_configuration", "weather", "collision_actor_ids"}
     for key, value in experiment_metrics.items():
+        if key in skip_keys:
+            continue
         print(key, value)
         full_text += " * " + str(key) + " : " + str(value) + "\n"
+    if "collision_actor_ids" in experiment_metrics and experiment_metrics["collision_actor_ids"]:
+        unique_actors = sorted(set(str(x) for x in experiment_metrics["collision_actor_ids"] if str(x) and str(x) != "nan"))
+        full_text += " * collision_actor_ids (unique) : " + str(unique_actors) + "\n"
     plt.figtext(
         0.1, 0.01, full_text, wrap=True, horizontalalignment="left", fontsize=10
     )
@@ -966,6 +973,7 @@ def create_experiment_maps(
     plt.subplots_adjust(bottom=0.4)
     plt.title(experiment_metrics["experiment_model"], fontsize=16)
     fig.savefig(experiment_metrics_filename + ".png", dpi=fig.dpi)
+    plt.close(fig)
 
     if experiment_metrics["collisions"] > 0:
         create_collisions_map(
@@ -1010,42 +1018,9 @@ def create_collisions_map(
     collision_checkpoints_tuples_x = []
     collision_checkpoints_tuples_y = []
 
-    carla_map = experiment_metrics.get("carla_map", "")
-
     for point in collision_points:
-        current_checkpoint = np.array(
-            [point["pose.pose.position.x"], point["pose.pose.position.y"]]
-        )
-
-        if carla_map in ("Carla/Maps/Town02", "Carla/Maps/Town02_Opt"):
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = current_checkpoint[1]
-
-        elif carla_map in ("Carla/Maps/Town01", "Carla/Maps/Town01_Opt"):
-            checkpoint_x = (
-                max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x)
-            ) - current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        elif carla_map in (
-            "Carla/Maps/Town03",
-            "Carla/Maps/Town07",
-            "Carla/Maps/Town03_Opt",
-            "Carla/Maps/Town07_Opt",
-        ):
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        elif carla_map in ("Carla/Maps/Town04", "Carla/Maps/Town04_Opt"):
-            checkpoint_x = -current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        else:
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = current_checkpoint[1]
-
-        collision_checkpoints_tuples_x.append(checkpoint_x)
-        collision_checkpoints_tuples_y.append(checkpoint_y)
+        collision_checkpoints_tuples_x.append(float(point["pose.pose.position.x"]))
+        collision_checkpoints_tuples_y.append(float(point["pose.pose.position.y"]))
 
     fig = plt.figure(figsize=(30, 30))
     ax = fig.add_subplot()
@@ -1053,8 +1028,9 @@ def create_collisions_map(
     ax.scatter(
         map_waypoints_tuples_x,
         map_waypoints_tuples_y,
-        s=10,
-        c="b",
+        s=12,
+        c="#C0C7D0",
+        alpha=0.6,
         marker="s",
         label="Map waypoints",
     )
@@ -1117,6 +1093,7 @@ def create_collisions_map(
     plt.grid(True)
     plt.title(experiment_metrics["experiment_model"] + " Collisions", fontsize=16)
     fig.savefig(experiment_metrics_filename + "_collisions.png", dpi=fig.dpi)
+    plt.close(fig)
 
 
 def create_lane_invasions_map(
@@ -1134,43 +1111,9 @@ def create_lane_invasions_map(
     lane_invasion_checkpoints_tuples_x = []
     lane_invasion_checkpoints_tuples_y = []
 
-    carla_map = experiment_metrics.get("carla_map", "")
-
     for point in lane_invasion_checkpoints:
-        current_checkpoint = np.array(
-            [point["pose.pose.position.x"], point["pose.pose.position.y"]]
-        )
-
-        if carla_map in ("Carla/Maps/Town02", "Carla/Maps/Town02_Opt"):
-            # Town02: mismo sistema de coordenadas que los checkpoints
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = current_checkpoint[1]
-
-        elif carla_map in ("Carla/Maps/Town01", "Carla/Maps/Town01_Opt"):
-            checkpoint_x = (
-                max(map_waypoints_tuples_x) + min(map_waypoints_tuples_x)
-            ) - current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        elif carla_map in (
-            "Carla/Maps/Town03",
-            "Carla/Maps/Town07",
-            "Carla/Maps/Town03_Opt",
-            "Carla/Maps/Town07_Opt",
-        ):
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        elif carla_map in ("Carla/Maps/Town04", "Carla/Maps/Town04_Opt"):
-            checkpoint_x = -current_checkpoint[0]
-            checkpoint_y = -current_checkpoint[1]
-
-        else:
-            checkpoint_x = current_checkpoint[0]
-            checkpoint_y = current_checkpoint[1]
-
-        lane_invasion_checkpoints_tuples_x.append(checkpoint_x)
-        lane_invasion_checkpoints_tuples_y.append(checkpoint_y)
+        lane_invasion_checkpoints_tuples_x.append(float(point["pose.pose.position.x"]))
+        lane_invasion_checkpoints_tuples_y.append(float(point["pose.pose.position.y"]))
 
     fig = plt.figure(figsize=(30, 30))
     ax = fig.add_subplot()
@@ -1178,8 +1121,9 @@ def create_lane_invasions_map(
     ax.scatter(
         map_waypoints_tuples_x,
         map_waypoints_tuples_y,
-        s=10,
-        c="b",
+        s=12,
+        c="#C0C7D0",
+        alpha=0.6,
         marker="s",
         label="Map waypoints",
     )
@@ -1242,6 +1186,7 @@ def create_lane_invasions_map(
     plt.grid(True)
     plt.title(experiment_metrics["experiment_model"] + " Lane invasions", fontsize=16)
     fig.savefig(experiment_metrics_filename + "_lane_invasion.png", dpi=fig.dpi)
+    plt.close(fig)
 
 
 def get_aggregated_experiments_list(experiments_starting_time):
@@ -1688,16 +1633,26 @@ def get_metrics_python_api(
         )
     )
 
-    # Colisiones 
+    # Colisiones (detecta eventos nuevos cuando el impulso cambia para no contar frames pegados)
     col_thr = 0.1
-    collisions_idx = df.index[df["collision_impulse"].astype(float) > col_thr]
+    imp_series = df["collision_impulse"].fillna(0).astype(float)
+    is_col = (imp_series > col_thr) & (imp_series != imp_series.shift(1, fill_value=0.0))
+    collisions_idx = df.index[is_col].tolist()
     experiment_metrics["collisions"] = int(len(collisions_idx))
     experiment_metrics["collision_actor_ids"] = [
         str(x) for x in df.loc[collisions_idx, "collision_with"].tolist()
     ]
 
-    # Invasiones de carril (cadena no vacía)
-    lane_idx = df.index[df["lane_invasion"].astype(str).str.strip() != ""]
+    # Invasiones de carril (cadena no vacía y distinta de "nan"; detecta nuevos cruces si estaba pegado)
+    lane_str = df["lane_invasion"].fillna("").astype(str).str.strip()
+    lane_str = lane_str.replace("nan", "")
+    is_lane = (lane_str != "") & (
+        (lane_str != lane_str.shift(1, fill_value="")) | (imp_series == 0.0)
+    )
+    # Si todos los frames consecutivos tienen exactamente el mismo texto pegado desde el primer roce:
+    if (lane_str != "").sum() > 0 and (lane_str != lane_str.shift(1, fill_value="")).sum() <= 5:
+        is_lane = (lane_str != "") & (lane_str != lane_str.shift(1, fill_value=""))
+    lane_idx = df.index[is_lane].tolist()
     experiment_metrics["lane_invasions"] = int(len(lane_idx))
 
     # Per-km (evita división por cero)
@@ -1740,10 +1695,6 @@ def get_metrics_python_api(
             {"data": float(v)} for v in df["speed_mps"].astype(float).to_numpy()
         ]
 
-        col_thr = 0.1
-        collisions_idx = df.index[
-            df["collision_impulse"].astype(float) > col_thr
-        ].tolist()
         collisions_checkpoints = [
             {
                 "pose.pose.position.x": float(df.at[i, "x"]),
@@ -1752,7 +1703,6 @@ def get_metrics_python_api(
             for i in collisions_idx
         ]
 
-        lane_idx = df.index[df["lane_invasion"].astype(str).str.strip() != ""].tolist()
         lane_invasion_checkpoints = [
             {
                 "pose.pose.position.x": float(df.at[i, "x"]),

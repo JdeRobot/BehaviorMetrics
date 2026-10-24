@@ -170,7 +170,10 @@ def main():
     if USE_ROS:
         if ROS_VERSION == '2':
             rclpy.spin_once(node, timeout_sec=experiment_timeout)
-        else:rospy.sleep(experiment_timeout)
+        else:
+            rospy.sleep(experiment_timeout)
+    else:
+        time.sleep(experiment_timeout)
 
     controller.stop_recording_metrics()
     controller.pilot.stop()

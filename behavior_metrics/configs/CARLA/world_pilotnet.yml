@@ -1,0 +1,24 @@
+config:
+  - Behaviors:
+      Robot:
+        Name: ego_vehicle
+        Model: tesla.model3
+        Sensors:
+          Cameras:
+            Camera_0:
+              Name: camera_0
+              Type: rgb
+              Topic: Front
+              Position: '1.3 0 1.5 0 0 0'
+              SensorTick: 0.05
+      Actuators:
+        CARLA_Motors:
+          Motors_0:
+            Name: motors_0
+            Topic: ''
+            MaxV: 15
+            MaxW: 0.5
+      InitPosition: '189.8 125.40 0.50 0.00 90.00 0.00'
+    Simulation:
+      Map: Town02
+      RandomSpawnPoint: False

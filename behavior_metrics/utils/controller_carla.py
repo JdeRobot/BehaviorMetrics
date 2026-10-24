@@ -186,6 +186,7 @@ class ControllerCarla:
             if self.ego_vehicle is None:
                 logger.info("Waiting for vehicle with role_name 'ego_vehicle'")
                 time.sleep(1)  # sleep for 1 second before checking again
+        self.initial_ego_transform = self.ego_vehicle.get_transform()
         # TODO: agregar solo waypoints de la ruta deseada
         self.map_waypoints = self.carla_map.generate_waypoints(0.5)
         self.weather = self.world.get_weather()
@@ -287,13 +288,84 @@ class ControllerCarla:
     # Simulation and dataset
     def reset_carla_simulation(self):
         logger.info("Restarting simulation")
+        if self.ego_vehicle is None or not self.ego_vehicle.is_alive:
+            logger.warning("Cannot reset simulation: ego vehicle is not available")
+            return
+
+        pilot_was_running = (
+            self.pilot.is_alive() and not self.pilot.stop_event.is_set()
+        )
+        self.pilot.stop_event.set()
+
+        with self.pilot.control_lock:
+            self.ego_vehicle.apply_control(
+                carla.VehicleControl(
+                    throttle=0.0,
+                    steer=0.0,
+                    brake=1.0,
+                    hand_brake=True,
+                )
+            )
+            self.ego_vehicle.set_transform(self.initial_ego_transform)
+            self.ego_vehicle.set_target_velocity(carla.Vector3D(x=0.0, y=0.0, z=0.0))
+            self.ego_vehicle.set_target_angular_velocity(
+                carla.Vector3D(x=0.0, y=0.0, z=0.0)
+            )
+
+        if pilot_was_running:
+            self.pilot.stop_event.clear()
 
     def pause_carla_simulation(self):
         logger.info("Pausing simulation")
         self.pilot.stop_event.set()
+        with self.pilot.control_lock:
+            if self.ego_vehicle is not None and self.ego_vehicle.is_alive:
+                try:
+                    motor = self.pilot.actuators.get_motor("motors_0")
+                    if hasattr(motor, "_control"):
+                        motor._control.throttle = 0.0
+                        motor._control.steer = 0.0
+                        motor._control.brake = 1.0
+                        motor._control.hand_brake = True
+                except Exception:
+                    pass
+                self.ego_vehicle.apply_control(
+                    carla.VehicleControl(
+                        throttle=0.0,
+                        steer=0.0,
+                        brake=1.0,
+                        hand_brake=True,
+                    )
+                )
+                try:
+                    self.ego_vehicle.set_target_velocity(
+                        carla.Vector3D(x=0.0, y=0.0, z=0.0)
+                    )
+                    self.ego_vehicle.set_target_angular_velocity(
+                        carla.Vector3D(x=0.0, y=0.0, z=0.0)
+                    )
+                except Exception:
+                    pass
 
     def unpause_carla_simulation(self):
         logger.info("Resuming simulation")
+        with self.pilot.control_lock:
+            try:
+                motor = self.pilot.actuators.get_motor("motors_0")
+                if hasattr(motor, "_control"):
+                    motor._control.brake = 0.0
+                    motor._control.hand_brake = False
+            except Exception:
+                pass
+            if self.ego_vehicle is not None and self.ego_vehicle.is_alive:
+                self.ego_vehicle.apply_control(
+                    carla.VehicleControl(
+                        throttle=0.0,
+                        steer=0.0,
+                        brake=0.0,
+                        hand_brake=False,
+                    )
+                )
         self.pilot.stop_event.clear()
 
     def record_rosbag(self, topics, dataset_name):
@@ -470,7 +542,7 @@ class ControllerCarla:
 
         # selection backend recording metrics
         if not hasattr(self, "use_ros"):
-            ros_version_local = os.environ.get("ROS_VERSION", "2")
+            ros_version_local = os.environ.get("ROS_VERSION", "None")
             self.use_ros = ros_version_local in ("1", "2")
 
         if self.use_ros:
@@ -537,7 +609,7 @@ class ControllerCarla:
         end_time = time.time()
 
         if not hasattr(self, "use_ros"):
-            ros_version_local = os.environ.get("ROS_VERSION", "2")
+            ros_version_local = os.environ.get("ROS_VERSION", "None")
             self.use_ros = ros_version_local in ("1", "2")
 
         if self.use_ros:
@@ -738,6 +810,14 @@ class ControllerCarla:
 
         w = self.world.get_weather()
 
+        col_imp = self._last_collision_impulse
+        col_with = self._last_collision_with
+        lane_inv = self._last_lane_invasion
+        # Resetear eventos por tick para que no se queden pegados en frames siguientes
+        self._last_collision_impulse = 0.0
+        self._last_collision_with = ""
+        self._last_lane_invasion = ""
+
         return [
             ts,
             frame,
@@ -757,9 +837,9 @@ class ControllerCarla:
             getattr(ctrl, "brake", 0.0),
             bool(getattr(ctrl, "reverse", False)),
             getattr(ctrl, "gear", 0),
-            self._last_collision_impulse,
-            self._last_collision_with,
-            self._last_lane_invasion,
+            col_imp,
+            col_with,
+            lane_inv,
             w.cloudiness,
             w.precipitation,
             w.wetness,
