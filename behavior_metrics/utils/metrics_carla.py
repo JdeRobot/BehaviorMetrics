@@ -729,7 +729,7 @@ def get_position_deviation_and_effective_completed_distance(
     if checkpoints_tuples and map_waypoints_tuples:
         pts_arr = np.asarray(aligned_xy, dtype=float)
         map_arr = np.asarray(map_waypoints_tuples, dtype=float)
-        # Cálculo vectorizado por bloques para evitar congelar la GUI
+        # Vectorized chunked nearest-neighbor computation to keep the GUI responsive
         chunk_size = 500
         nearest_indices = []
         nearest_dists = []
@@ -1633,7 +1633,7 @@ def get_metrics_python_api(
         )
     )
 
-    # Colisiones (detecta eventos nuevos cuando el impulso cambia para no contar frames pegados)
+    # Collisions (detect new collision events when impulse changes to avoid counting sticky frames)
     col_thr = 0.1
     imp_series = df["collision_impulse"].fillna(0).astype(float)
     is_col = (imp_series > col_thr) & (imp_series != imp_series.shift(1, fill_value=0.0))
@@ -1643,13 +1643,12 @@ def get_metrics_python_api(
         str(x) for x in df.loc[collisions_idx, "collision_with"].tolist()
     ]
 
-    # Invasiones de carril (cadena no vacía y distinta de "nan"; detecta nuevos cruces si estaba pegado)
+    # Lane invasions (non-empty and not "nan"; deduplicate sticky consecutive values if present)
     lane_str = df["lane_invasion"].fillna("").astype(str).str.strip()
     lane_str = lane_str.replace("nan", "")
     is_lane = (lane_str != "") & (
         (lane_str != lane_str.shift(1, fill_value="")) | (imp_series == 0.0)
     )
-    # Si todos los frames consecutivos tienen exactamente el mismo texto pegado desde el primer roce:
     if (lane_str != "").sum() > 0 and (lane_str != lane_str.shift(1, fill_value="")).sum() <= 5:
         is_lane = (lane_str != "") & (lane_str != lane_str.shift(1, fill_value=""))
     lane_idx = df.index[is_lane].tolist()

@@ -1,34 +1,30 @@
-from pydash import now
-from brains.CARLA.utils.test_utils import (
-    traffic_light_to_int,
-    model_control,
-    calculate_delta_yaw,
-)
-from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
-from brains.CARLA.utils.high_level_command import HighLevelCommandLoader
+import math
+import os
+import time
 from os import path
-from utils.logger import logger
 from traceback import print_exc
 
-import numpy as np
-import torch
-import time
-import math
 import carla
-import torch.nn as nn
 import cv2
+import numpy as np
 import onnxruntime as ort
-import os
+import torch
+import torch.nn as nn
+from pydash import now
+
+from brains.CARLA.utils.high_level_command import HighLevelCommandLoader
+from brains.CARLA.utils.test_utils import (
+    calculate_delta_yaw,
+    model_control,
+    traffic_light_to_int,
+)
+from utils.constants import PRETRAINED_MODELS_DIR, ROOT_PATH
+from utils.logger import logger
 
 
-# =========================================================
-# MODELO LEGACY
-# =========================================================
 class PilotNetLegacy(nn.Module):
     def __init__(self, num_outputs=1):
         super().__init__()
-        
-        # Capas Convolucionales
         self.conv_layers = nn.Sequential(
             nn.Conv2d(3, 24, kernel_size=5, stride=2),
             nn.ELU(),
@@ -39,10 +35,8 @@ class PilotNetLegacy(nn.Module):
             nn.Conv2d(48, 64, kernel_size=3, stride=1),
             nn.ELU(),
             nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.ELU()
+            nn.ELU(),
         )
-        
-        # Capas Densas
         self.linear_layers = nn.Sequential(
             nn.Linear(64 * 1 * 18, 100),
             nn.ELU(),
@@ -50,24 +44,19 @@ class PilotNetLegacy(nn.Module):
             nn.ELU(),
             nn.Linear(50, 10),
             nn.ELU(),
-            nn.Linear(10, 1)
+            nn.Linear(10, 1),
         )
 
     def forward(self, x):
         x = self.conv_layers(x)
-        x = x.reshape(x.size(0), -1) # Aplanar        
-        x = self.linear_layers(x)
-        return x
+        x = x.reshape(x.size(0), -1)
+        return self.linear_layers(x)
 
 
 PRETRAINED_MODELS = ""
 
 
-# =========================================================
-# BRAIN
-# =========================================================
 class Brain:
-
     def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         self.motors = actuators.get_motor("motors_0")
         self.camera_rgb = sensors.get_camera("camera_0")
@@ -82,7 +71,6 @@ class Brain:
         self.device = torch.device(
             "cuda" if (torch.cuda.is_available() and self.gpu_inference) else "cpu"
         )
-
         torch.backends.cudnn.benchmark = True
 
         self.use_fp16 = bool(config.get("FP16", False)) if config is not None else False
@@ -94,9 +82,7 @@ class Brain:
         if self._vis_every < 1:
             self._vis_every = 1
 
-        # -------------------------------------------------
-        # Geometría de entrada
-        # -------------------------------------------------
+        # Input geometry
         if config is not None and "ImageSize" in config:
             img_w, img_h = config["ImageSize"]
             self.out_w = int(img_w)
@@ -110,38 +96,48 @@ class Brain:
             self.top_ratio = None
         else:
             self.crop_pixels = 200
-            self.top_ratio = float(config.get("TopRatio", 0.40)) if config is not None else None
+            self.top_ratio = (
+                float(config.get("TopRatio", 0.40)) if config is not None else None
+            )
 
         if config is not None and "RoadRGB" in config:
             self.road_rgb = np.array(config["RoadRGB"], dtype=np.uint8)
         else:
             self.road_rgb = np.array([128, 64, 128], dtype=np.uint8)
 
-        # -------------------------------------------------
-        # Control de throttle / steer
-        # -------------------------------------------------
-        # ThrottleMode:
-        #   FIXED -> siempre throttle fijo
-        #   CLIP  -> throttle del modelo limitado
-        #   MODEL -> throttle del modelo sin limitar
-        self.throttle_mode = str(config.get("ThrottleMode", "MODEL")).upper() if config is not None else "MODEL"
-        self.fixed_throttle = float(config.get("FixedThrottle", 0.35)) if config is not None else 0.35
-        self.throttle_min = float(config.get("ThrottleMin", 0.25)) if config is not None else 0.25
-        self.throttle_max = float(config.get("ThrottleMax", 0.45)) if config is not None else 0.45
+        # Throttle / steer control policy (FIXED, CLIP, or MODEL)
+        self.throttle_mode = (
+            str(config.get("ThrottleMode", "MODEL")).upper()
+            if config is not None
+            else "MODEL"
+        )
+        self.fixed_throttle = (
+            float(config.get("FixedThrottle", 0.35)) if config is not None else 0.35
+        )
+        self.throttle_min = (
+            float(config.get("ThrottleMin", 0.25)) if config is not None else 0.25
+        )
+        self.throttle_max = (
+            float(config.get("ThrottleMax", 0.45)) if config is not None else 0.45
+        )
 
-        # Clip opcional de steer
-        self.use_steer_clip = bool(config.get("UseSteerClip", True)) if config is not None else True
-        self.steer_clip_min = float(config.get("SteerClipMin", -0.35)) if config is not None else -0.25
-        self.steer_clip_max = float(config.get("SteerClipMax", 0.35)) if config is not None else 0.25
+        self.use_steer_clip = (
+            bool(config.get("UseSteerClip", True)) if config is not None else True
+        )
+        self.steer_clip_min = (
+            float(config.get("SteerClipMin", -0.35)) if config is not None else -0.25
+        )
+        self.steer_clip_max = (
+            float(config.get("SteerClipMax", 0.35)) if config is not None else 0.25
+        )
 
-        # -------------------------------------------------
-        # Frecuencia de política
-        # -------------------------------------------------
+        # Policy execution frequency
         self.sim_hz = float(config.get("SimHz", 20.0)) if config is not None else 20.0
-        self.policy_hz = float(config.get("PolicyHz", 5.0)) if config is not None else 5.0
-
+        self.policy_hz = (
+            float(config.get("PolicyHz", 5.0)) if config is not None else 5.0
+        )
         if self.policy_hz <= 0:
-            raise ValueError("PolicyHz debe ser > 0")
+            raise ValueError("PolicyHz must be > 0")
 
         self.control_period_ticks = max(1, int(round(self.sim_hz / self.policy_hz)))
 
@@ -157,25 +153,35 @@ class Brain:
             f"control_period_ticks={self.control_period_ticks}"
         )
 
-        # -------------------------------------------------
-        # Debug
-        # -------------------------------------------------
-        self.debug_enabled = bool(config.get("DebugPreprocess", False)) if config is not None else False
-        self.debug_every = int(config.get("DebugEvery", 30)) if config is not None else 30
-        self.debug_dir = str(config.get("DebugDir", "/tmp/carla_pilotnet_debug")) if config is not None else "/tmp/carla_pilotnet_debug"
-        self.debug_save_images = bool(config.get("DebugSaveImages", False)) if config is not None else False
-        self.debug_print_stats = bool(config.get("DebugPrintStats", False)) if config is not None else False
-
-        self.debug_extractor_mode = str(
-            config.get("RoadExtractorMode", "exact_rgb_from_bgr")
-        ) if config is not None else "exact_rgb_from_bgr"
-
-        self.debug_color_tol = int(config.get("RoadColorTolerance", 5)) if config is not None else 5
+        # Debug configuration
+        self.debug_enabled = (
+            bool(config.get("DebugPreprocess", False)) if config is not None else False
+        )
+        self.debug_every = (
+            int(config.get("DebugEvery", 30)) if config is not None else 30
+        )
+        self.debug_dir = (
+            str(config.get("DebugDir", "/tmp/carla_pilotnet_debug"))
+            if config is not None
+            else "/tmp/carla_pilotnet_debug"
+        )
+        self.debug_save_images = (
+            bool(config.get("DebugSaveImages", False)) if config is not None else False
+        )
+        self.debug_print_stats = (
+            bool(config.get("DebugPrintStats", False)) if config is not None else False
+        )
+        self.debug_extractor_mode = (
+            str(config.get("RoadExtractorMode", "exact_rgb_from_bgr"))
+            if config is not None
+            else "exact_rgb_from_bgr"
+        )
+        self.debug_color_tol = (
+            int(config.get("RoadColorTolerance", 5)) if config is not None else 5
+        )
         os.makedirs(self.debug_dir, exist_ok=True)
 
-        # -------------------------------------------------
-        # Mundo CARLA
-        # -------------------------------------------------
+        # CARLA world connection
         self.red_light_counter = 0
         self.running_light = False
 
@@ -197,9 +203,7 @@ class Brain:
                 print("Waiting for vehicle with role_name 'ego_vehicle'")
                 time.sleep(1)
 
-        # -------------------------------------------------
-        # Modelo
-        # -------------------------------------------------
+        # Model initialization
         self.use_onnx = False
         self.model_torch = None
         self.ort_session = None
@@ -223,22 +227,23 @@ class Brain:
                     self.model_type = "pilotnet_legacy_3ch"
                     self.model_input_channels = 3
                 else:
-                    raise ValueError(f"Modelo ONNX no soportado: {model_name_lower}")
+                    raise ValueError(f"Unsupported ONNX model: {model_name_lower}")
 
                 so = ort.SessionOptions()
                 so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
                 so.intra_op_num_threads = 1
                 so.inter_op_num_threads = 1
 
-                if self.gpu_inference and "CUDAExecutionProvider" in ort.get_available_providers():
+                if (
+                    self.gpu_inference
+                    and "CUDAExecutionProvider" in ort.get_available_providers()
+                ):
                     providers = [("CUDAExecutionProvider", {})]
                 else:
                     providers = ["CPUExecutionProvider"]
 
                 self.ort_session = ort.InferenceSession(
-                    str(monolithic_model_path),
-                    sess_options=so,
-                    providers=providers
+                    str(monolithic_model_path), sess_options=so, providers=providers
                 )
                 print(f"[INFO] ONNX providers: {self.ort_session.get_providers()}")
 
@@ -250,9 +255,11 @@ class Brain:
                 ).astype(np.float32)
 
                 for _ in range(20):
-                    _ = self.ort_session.run([self._out_name], {self._in_name: dummy_input})
+                    _ = self.ort_session.run(
+                        [self._out_name], {self._in_name: dummy_input}
+                    )
 
-                print(f"[INFO] ONNX warm-up completado ✔️ | model_type={self.model_type}")
+                print(f"[INFO] ONNX warm-up complete | model_type={self.model_type}")
 
             elif ext in [".pth", ".pt"]:
                 self.use_onnx = False
@@ -261,11 +268,11 @@ class Brain:
                     self.model_type = "pilotnet_legacy_3ch"
                     self.model_input_channels = 3
                     net = PilotNetLegacy(num_outputs=2)
-                    print("[INFO] Cargando modelo PilotNetLegacy (.pth)")
+                    print("[INFO] Loading PilotNetLegacy (.pth) model")
                 else:
                     raise ValueError(
-                        f"Modelo .pth no soportado en este script: {model_name_lower}. "
-                        "Este script está alineado con PilotNet legacy 3 canales."
+                        f"Unsupported .pth model: {model_name_lower}. "
+                        "Expected 3-channel PilotNet legacy model."
                     )
 
                 state = torch.load(monolithic_model_path, map_location=self.device)
@@ -279,7 +286,11 @@ class Brain:
                 self.model_torch = net
 
                 dummy = torch.randn(
-                    1, self.model_input_channels, self.out_h, self.out_w, device=self.device
+                    1,
+                    self.model_input_channels,
+                    self.out_h,
+                    self.out_w,
+                    device=self.device,
                 )
                 if self.device.type == "cuda":
                     dummy = dummy.contiguous(memory_format=torch.channels_last)
@@ -287,22 +298,22 @@ class Brain:
                 with torch.inference_mode():
                     for _ in range(10):
                         if self.use_fp16 and self.device.type == "cuda":
-                            with torch.autocast(device_type="cuda", dtype=torch.float16):
+                            with torch.autocast(
+                                device_type="cuda", dtype=torch.float16
+                            ):
                                 _ = self.model_torch(dummy)
                         else:
                             _ = self.model_torch(dummy)
 
-                print("[INFO] Modelo Torch warm-up completado ✔️")
+                print("[INFO] Torch model warm-up complete")
                 print("[INFO] Device:", next(self.model_torch.parameters()).device)
                 print("[INFO] FP16:", self.use_fp16)
                 print("[INFO] model_type:", self.model_type)
 
             else:
-                raise ValueError(f"Extensión de modelo no soportada: {ext}")
+                raise ValueError(f"Unsupported model extension: {ext}")
 
-        # -------------------------------------------------
-        # Ruta / navegación
-        # -------------------------------------------------
+        # Route & navigation setup
         if config is not None and "Route" in config:
             route = config["Route"]
             print("route:", route)
@@ -320,21 +331,28 @@ class Brain:
         self._prev_dist_to_target = None
         self._min_dist_to_target = float("inf")
         self._seen_target_zone = False
-        self.target_radius = float(config.get("TargetRadius", 5.5)) if config is not None else 5.5
+        self.target_radius = (
+            float(config.get("TargetRadius", 5.5)) if config is not None else 5.5
+        )
 
-        # -------------------------------------------------
-        # Arranque
-        # -------------------------------------------------
-        target_speed = 0.10 # km/h
-        self.start_speed_kmh = float(config.get("StartSpeedKmh", target_speed)) if config is not None else target_speed
-        self.start_throttle = float(config.get("StartThrottle", 1.0)) if config is not None else 1.0
-        self.start_steer = float(config.get("StartSteer", 0.0)) if config is not None else 0.0
-        self.speed_hysteresis_kmh = float(config.get("SpeedHysteresisKmh", 1.0)) if config is not None else 1.0
+        # Initial acceleration phase
+        target_speed = 0.10  # km/h
+        self.start_speed_kmh = (
+            float(config.get("StartSpeedKmh", target_speed))
+            if config is not None
+            else target_speed
+        )
+        self.start_throttle = (
+            float(config.get("StartThrottle", 1.0)) if config is not None else 1.0
+        )
+        self.start_steer = (
+            float(config.get("StartSteer", 0.0)) if config is not None else 0.0
+        )
+        self.speed_hysteresis_kmh = (
+            float(config.get("SpeedHysteresisKmh", 1.0)) if config is not None else 1.0
+        )
         self.control_mode = "ACCEL"
 
-    # =========================================================
-    # DEBUG HELPERS
-    # =========================================================
     def _should_debug(self):
         return self.debug_enabled and (self._tick % self.debug_every == 0)
 
@@ -355,9 +373,6 @@ class Brain:
             f"mean={arr_np.mean():.6f}, sum={arr_np.sum():.6f}"
         )
 
-    # =========================================================
-    # EXTRACCIÓN DE MÁSCARA
-    # =========================================================
     def _extract_road_mask_debug(self, image_seg: np.ndarray):
         mode = self.debug_extractor_mode
         tol = self.debug_color_tol
@@ -375,15 +390,19 @@ class Brain:
 
         if mode == "tolerance_rgb_no_convert":
             seg_rgb = image_seg.copy().astype(np.int16)
-            mask = np.all(np.abs(seg_rgb - road) <= tol, axis=-1).astype(np.uint8) * 255
+            mask = (
+                np.all(np.abs(seg_rgb - road) <= tol, axis=-1).astype(np.uint8) * 255
+            )
             return mask, seg_rgb.astype(np.uint8), mode
 
         if mode == "tolerance_rgb_from_bgr":
             seg_rgb = cv2.cvtColor(image_seg, cv2.COLOR_BGR2RGB).astype(np.int16)
-            mask = np.all(np.abs(seg_rgb - road) <= tol, axis=-1).astype(np.uint8) * 255
+            mask = (
+                np.all(np.abs(seg_rgb - road) <= tol, axis=-1).astype(np.uint8) * 255
+            )
             return mask, seg_rgb.astype(np.uint8), mode
 
-        raise ValueError(f"RoadExtractorMode no soportado: {mode}")
+        raise ValueError(f"Unsupported RoadExtractorMode: {mode}")
 
     def _crop_mask(self, mask: np.ndarray) -> np.ndarray:
         h, w = mask.shape[:2]
@@ -398,19 +417,10 @@ class Brain:
 
         return mask[y0:h, :]
 
-    # =========================================================
-    # PREPROCESADO LEGACY 3 CANALES
-    # =========================================================
-    def _preprocess_segmentation_pilotnet_legacy(self, image_seg: np.ndarray) -> np.ndarray:
-        """
-        Pipeline alineado con entrenamiento legacy:
-        - máscara binaria
-        - crop
-        - resize
-        - [0,1]
-        - replicar a 3 canales
-        - salida (1,3,H,W)
-        """
+    def _preprocess_segmentation_pilotnet_legacy(
+        self, image_seg: np.ndarray
+    ) -> np.ndarray:
+        """Preprocess semantic segmentation into a normalized 3-channel (1, 3, H, W) tensor."""
         if image_seg is None:
             raise ValueError("Segmented image is None (sensor may not be ready).")
 
@@ -418,9 +428,7 @@ class Brain:
         cropped = self._crop_mask(mask)
 
         resized = cv2.resize(
-            cropped,
-            (self.out_w, self.out_h),
-            interpolation=cv2.INTER_NEAREST
+            cropped, (self.out_w, self.out_h), interpolation=cv2.INTER_NEAREST
         )
 
         x = resized.astype(np.float32) / 255.0
@@ -431,7 +439,9 @@ class Brain:
             print("\n[DEBUG] =========================================")
             print(f"[DEBUG] tick={self._tick}")
             print(f"[DEBUG] extractor_mode={mode_used}")
-            print(f"[DEBUG] road_rgb={self.road_rgb.tolist()} | tol={self.debug_color_tol}")
+            print(
+                f"[DEBUG] road_rgb={self.road_rgb.tolist()} | tol={self.debug_color_tol}"
+            )
             self._print_array_stats("seg_image_raw", image_seg)
             self._print_array_stats("seg_dbg_rgb", seg_dbg_rgb)
             self._print_array_stats("mask_raw", mask)
@@ -445,7 +455,9 @@ class Brain:
             print(f"[DEBUG] mask nonzero={nonzero}/{total} ({100.0 * frac:.3f}%)")
 
             self._save_debug_image("seg_raw", image_seg)
-            self._save_debug_image("seg_dbg_rgb", cv2.cvtColor(seg_dbg_rgb, cv2.COLOR_RGB2BGR))
+            self._save_debug_image(
+                "seg_dbg_rgb", cv2.cvtColor(seg_dbg_rgb, cv2.COLOR_RGB2BGR)
+            )
             self._save_debug_image("mask_raw", mask)
             self._save_debug_image("mask_cropped", cropped)
             self._save_debug_image("mask_resized", resized)
@@ -456,11 +468,8 @@ class Brain:
         if self.model_type == "pilotnet_legacy_3ch":
             return self._preprocess_segmentation_pilotnet_legacy(image_seg)
 
-        raise ValueError(f"model_type no soportado para preprocesado: {self.model_type}")
+        raise ValueError(f"Unsupported model_type for preprocessing: {self.model_type}")
 
-    # =========================================================
-    # INFERENCIA
-    # =========================================================
     def predict_controls(self, image_seg: np.ndarray):
         t0 = time.perf_counter()
         input_np = self._preprocess_segmentation(image_seg)
@@ -495,8 +504,8 @@ class Brain:
         self.inference_times.append(inf_ms)
         self.total_times.append(tot_ms)
 
-        steer = float(pred[0][0]) # Extraemos el único valor (giro) que predice tu red
-        throttle = 0.35           # Acelerador fijo (pedal al 35% de potencia)
+        steer = float(pred[0][0])
+        throttle = 0.35
 
         if self._should_debug():
             print(
@@ -508,34 +517,32 @@ class Brain:
                 f"inf={inf_ms:.2f} ms, total={tot_ms:.2f} ms"
             )
 
-        steer = float(np.clip(steer, -1.0, 1.0)) 
+        steer = float(np.clip(steer, -1.0, 1.0))
         throttle = float(np.clip(throttle, 0.0, 1.0))
 
         return steer, throttle
 
-    # =========================================================
-    # POSTPROCESADO DE CONTROL
-    # =========================================================
     def _apply_control_policy(self, pred_steer: float, pred_throttle: float):
         steer_cmd = pred_steer
         if self.use_steer_clip:
-            steer_cmd = float(np.clip(steer_cmd, self.steer_clip_min, self.steer_clip_max))
+            steer_cmd = float(
+                np.clip(steer_cmd, self.steer_clip_min, self.steer_clip_max)
+            )
 
         mode = self.throttle_mode
         if mode == "FIXED":
             throttle_cmd = self.fixed_throttle
         elif mode == "CLIP":
-            throttle_cmd = float(np.clip(pred_throttle, self.throttle_min, self.throttle_max))
+            throttle_cmd = float(
+                np.clip(pred_throttle, self.throttle_min, self.throttle_max)
+            )
         elif mode == "MODEL":
             throttle_cmd = pred_throttle
         else:
-            raise ValueError(f"ThrottleMode no soportado: {mode}")
+            raise ValueError(f"Unsupported ThrottleMode: {mode}")
 
         return steer_cmd, throttle_cmd
 
-    # =========================================================
-    # GUI
-    # =========================================================
     def update_frame(self, frame_id, data):
         if data is None:
             return
@@ -559,9 +566,6 @@ class Brain:
 
         self.handler.update_frame(frame_id, data)
 
-    # =========================================================
-    # GEOMETRÍA
-    # =========================================================
     def dist_point_to_segment(self, px, py, ax, ay, bx, by):
         abx, aby = bx - ax, by - ay
         apx, apy = px - ax, py - ay
@@ -573,9 +577,6 @@ class Brain:
         cx, cy = ax + t * abx, ay + t * aby
         return math.hypot(px - cx, py - cy)
 
-    # =========================================================
-    # LOOP PRINCIPAL
-    # =========================================================
     def execute(self):
         rgb_image = self.camera_rgb.getImage()
         seg_image = self.camera_seg.getImage()
@@ -608,11 +609,9 @@ class Brain:
             time.sleep(0.2)
             return
 
-        # velocidad actual
         v = self.vehicle.get_velocity()
         speed_kmh = 3.6 * math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
 
-        # cambiar de aceleración inicial al modelo
         if self.control_mode == "ACCEL":
             if speed_kmh >= (self.start_speed_kmh + self.speed_hysteresis_kmh):
                 self.control_mode = "MODEL"
@@ -620,13 +619,16 @@ class Brain:
                 self.last_pred_steer = 0.0
                 self.last_pred_throttle = 0.0
                 self.last_steer_cmd = 0.0
-                self.last_throttle_cmd = self.fixed_throttle if self.throttle_mode == "FIXED" else 0.0
-                print(f"[INFO] StartSpeed alcanzada ({speed_kmh:.1f} km/h). Activando inferencia del modelo.")
+                self.last_throttle_cmd = (
+                    self.fixed_throttle if self.throttle_mode == "FIXED" else 0.0
+                )
+                print(
+                    f"[INFO] StartSpeed reached ({speed_kmh:.1f} km/h). Activating model inference."
+                )
 
         if self.control_mode == "ACCEL":
             throttle_cmd = self.start_throttle
             steer_cmd = self.start_steer
-
         else:
             run_inference = self.force_inference_next or (
                 self._tick % self.control_period_ticks == 0
@@ -634,40 +636,19 @@ class Brain:
 
             if run_inference:
                 pred_steer, pred_throttle = self.predict_controls(seg_image)
-                steer_cmd, throttle_cmd = self._apply_control_policy(pred_steer, pred_throttle)
+                steer_cmd, throttle_cmd = self._apply_control_policy(
+                    pred_steer, pred_throttle
+                )
 
                 self.last_pred_steer = pred_steer
                 self.last_pred_throttle = pred_throttle
                 self.last_steer_cmd = steer_cmd
                 self.last_throttle_cmd = throttle_cmd
                 self.force_inference_next = False
-
-                # print(
-                #     f"[INF] PredSteer: {pred_steer:+.3f} | PredThrottle: {pred_throttle:.3f} | "
-                #     f"CmdSteer: {steer_cmd:+.3f} | CmdThrottle: {throttle_cmd:.3f} | "
-                #     f"Speed: {speed_kmh:.1f} km/h | ThrottleMode: {self.throttle_mode}"
-                # )
             else:
-                pred_steer = self.last_pred_steer
-                pred_throttle = self.last_pred_throttle
                 steer_cmd = self.last_steer_cmd
                 throttle_cmd = self.last_throttle_cmd
-
-                # print(
-                #     f"[HOLD] PredSteer: {pred_steer:+.3f} | PredThrottle: {pred_throttle:.3f} | "
-                #     f"CmdSteer: {steer_cmd:+.3f} | CmdThrottle: {throttle_cmd:.3f} | "
-                #     f"Speed: {speed_kmh:.1f} km/h | hold_ticks={self.control_period_ticks}"
-                # )
 
         self.motors.sendThrottle(throttle_cmd)
         self.motors.sendSteer(steer_cmd)
         self.motors.sendBrake(0.0)
-
-        if (self._tick % 50 == 0) and len(self.total_times) > 0:
-            pre = float(np.mean(self.preprocess_times[-50:]))
-            inf = float(np.mean(self.inference_times[-50:]))
-            tot = float(np.mean(self.total_times[-50:]))
-            # print(
-            #     f"[PERF] pre={pre:.2f}ms inf={inf:.2f}ms total={tot:.2f}ms "
-            #     f"| mode={self.control_mode} | speed={speed_kmh:.1f}km/h"
-            # )

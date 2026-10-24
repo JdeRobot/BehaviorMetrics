@@ -41,7 +41,7 @@ class PilotNet(nn.Module):
 class Brain:
     def __init__(self, sensors, actuators, model=None, handler=None, config=None):
         if not model:
-            raise ValueError("Parameters.Model debe indicar el checkpoint PilotNet.")
+            raise ValueError("Parameters.Model must specify the PilotNet checkpoint path.")
 
         self.camera = sensors.get_camera("camera_0")
         self.motors = actuators.get_motor("motors_0")
@@ -56,7 +56,7 @@ class Brain:
 
         model_path = os.path.expanduser(str(model))
         if not os.path.isfile(model_path):
-            raise FileNotFoundError(f"No existe el checkpoint: {model_path}")
+            raise FileNotFoundError(f"Checkpoint not found: {model_path}")
 
         self.model = PilotNet().to(self.device)
         checkpoint = torch.load(model_path, map_location=self.device)
@@ -64,17 +64,17 @@ class Brain:
             checkpoint = checkpoint["state_dict"]
         self.model.load_state_dict(checkpoint)
         self.model.eval()
-        print(f"[INFO] PilotNet RGB cargado desde {model_path} en {self.device}")
+        print(f"[INFO] PilotNet RGB loaded from {model_path} on {self.device}")
 
     def _preprocess(self, image):
         if not isinstance(image, np.ndarray) and hasattr(image, "data"):
             image = image.data
         image = np.asarray(image)
         if image.ndim != 3 or image.shape[2] < 3:
-            raise ValueError(f"Se esperaba imagen RGB HxWx3; se recibió {image.shape}")
+            raise ValueError(f"Expected HxWx3 RGB image; received {image.shape}")
         if image.shape[0] < 600 or image.shape[1] < 800:
             raise ValueError(
-                f"La imagen debe medir al menos 800x600; se recibió {image.shape[1]}x{image.shape[0]}"
+                f"Image must be at least 800x600; received {image.shape[1]}x{image.shape[0]}"
             )
 
         image = image[300:600, 0:800, :3]

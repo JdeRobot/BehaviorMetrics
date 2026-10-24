@@ -864,7 +864,8 @@ def game_loop(data):
         # Connect to CARLA
         client = carla.Client('localhost', 2000)
         client.set_timeout(20.0)
-    # PARCHE: Inyectar llaves faltantes a la fuerza
+
+        # Normalize YAML configuration structure and apply defaults
         if type(data) is list:
             data = data[0]
         if 'config' in data:
@@ -877,7 +878,6 @@ def game_loop(data):
         if 'RandomSpawnPoint' not in data['Simulation']:
             data['Simulation']['RandomSpawnPoint'] = False
 
-        # --- NUEVO PARCHE PARA EL VEHÍCULO ---
         if 'Behaviors' in data:
             if 'Simulation' in data['Behaviors']:
                 data['Simulation'] = data['Behaviors']['Simulation']
@@ -889,7 +889,7 @@ def game_loop(data):
         if 'Name' not in data['Robot']:
             data['Robot']['Name'] = 'ego_vehicle'
 
-        # LIMPIADOR: Evitar el error "vehicle.vehicle.tesla.model3"
+        # Strip redundant 'vehicle.' prefix if present in the blueprint name
         model_name = data['Robot'].get('Model', 'tesla.model3')
         if model_name.startswith('vehicle.'):
             model_name = model_name.replace('vehicle.', '')
@@ -897,8 +897,8 @@ def game_loop(data):
 
         if 'AsyncMode' not in data:
             data['AsyncMode'] = False
-        # -------------------------------------
-        print('Loaded mapiS: ' + data['Simulation']['Map'])
+
+        print('Loaded map: ' + data['Simulation']['Map'])
 
         # Load the configured map even when CARLA is already running in another town.
         client.load_world(data['Simulation']['Map'])

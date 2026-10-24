@@ -1,0 +1,44 @@
+# Requirements for BehaviorMetrics with CARLA Python API (No ROS)
+# Based on the working bmetrics_env virtual environment (Python 3.10 + CUDA 12.1)
+#
+# To install with PyTorch CUDA 12.1 support:
+#   pip install --extra-index-url https://download.pytorch.org/whl/cu121 -r requirements_api_carla.txt
+
+# --- CARLA Simulator ---
+carla==0.9.15
+pygame==2.6.1
+
+# --- Deep Learning & Inference ---
+torch==2.5.1+cu121
+torchvision==0.20.1+cu121
+torchaudio==2.5.1+cu121
+onnxruntime==1.23.2
+
+# --- Computer Vision & Image Processing ---
+opencv-python==5.0.0.93
+pillow==12.2.0
+albumentations==1.3.1
+scikit-image==0.25.2
+ImageIO==2.37.3
+
+# --- Graphical User Interface (GUI) ---
+PyQt5==5.15.11
+PyQt5-Qt5==5.15.19
+PyQt5_sip==12.18.0
+
+# --- Data Science, Metrics & Plotting ---
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+matplotlib==3.10.9
+scikit-learn==1.7.2
+
+# --- Configuration & Utilities ---
+PyYAML==6.0.3
+coloredlogs==15.0.1
+humanfriendly==10.0
+pydantic==2.13.4
+pydash==8.0.6
+python-dateutil==2.9.0.post0
+pytz==2026.2
+six==1.17.0

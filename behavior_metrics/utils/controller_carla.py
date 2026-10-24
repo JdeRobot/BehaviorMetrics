@@ -813,7 +813,7 @@ class ControllerCarla:
         col_imp = self._last_collision_impulse
         col_with = self._last_collision_with
         lane_inv = self._last_lane_invasion
-        # Resetear eventos por tick para que no se queden pegados en frames siguientes
+        # Reset transient sensor events per tick so they do not persist across frames
         self._last_collision_impulse = 0.0
         self._last_collision_with = ""
         self._last_lane_invasion = ""
