@@ -211,6 +211,46 @@ python -m pip install -r /opt/carla-simulator/PythonAPI/examples/requirements.tx
   python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
 ```
 
+### Using an external CARLA server (Python API mode) <a name="external-carla"></a>
+
+In Python API mode (`ROS_VERSION=None`), Behavior Metrics can connect to a CARLA server that is already running and managed outside of it, for example in a Docker container. This avoids installing CARLA locally.
+
+1. Start CARLA 0.9.15 in Docker (requires the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)):
+```bash
+docker run -d --name carla-bm --privileged --gpus all --net=host \
+  --env="DISPLAY" --env="NVIDIA_VISIBLE_DEVICES=all" --env="NVIDIA_DRIVER_CAPABILITIES=all" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  carlasim/carla:0.9.15 ./CarlaUE4.sh -quality-level=Epic -nosound -world-port=2000
+```
+2. Tell Behavior Metrics to keep that server running:
+```bash
+export ROS_VERSION=None
+export BM_EXTERNAL_CARLA=1
+export OBJECT_PATH=<PATH-TO-BEHAVIOR-METRICS>/behavior_metrics/configs/CARLA/CARLA_launch_files/CARLA_object_files/parked_car_objects.json
+python3 driver_carla.py -c configs/CARLA/default_carla_api.yml -g
+```
+
+With `BM_EXTERNAL_CARLA=1`, Behavior Metrics does not kill the CARLA processes when it starts or closes, and `CARLA_ROOT` is not needed. `CARLA_ROOT` is only required when CARLA is not running and Behavior Metrics has to launch `CarlaUE4.sh` itself.
+
+**Notes**
+* The Python client and the server must have the same version: `pip install carla==0.9.15` for the `carlasim/carla:0.9.15` image.
+* Behavior Metrics connects to `localhost:2000`.
+* If the container exits right after starting (`Exited (135)`, `Signal 7` in `docker logs carla-bm`), check that `NVIDIA_DRIVER_CAPABILITIES=all` is set.
+
+**Tested configuration**
+
+This setup has been tested on a system newer than the ones listed in the [requirements](#requisites), without ROS:
+
+| Component | Version |
+| --- | --- |
+| OS | Kubuntu 26.04.1 LTS (Ubuntu base), kernel 7.0, X11 session |
+| GPU | NVIDIA GeForce RTX 5070 (12 GB), driver 580.178.04 |
+| CPU / RAM | Intel Core i9-12900K / 32 GB |
+| Docker | 29.1.3, image `carlasim/carla:0.9.15` |
+| Python | 3.10 virtualenv, `carla==0.9.15`, `torch==2.11.0+cu128` |
+
+RTX 50-series GPUs (Blackwell) need a PyTorch build with CUDA 12.8 or newer; older builds do not run on them.
+
 ## (Optional) Installing for Drone <a name="drone-simulation"></a>
 
 For installing and launching drone:
