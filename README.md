@@ -22,6 +22,120 @@ The first one is intended for testing one brain+model (controller) at a time and
 ![alt text](./assets/behavior_metrics_paper_behavior_metrics_full_architecture.png)
 
 
+### Tasks
+
+Below is a detailed description of each supported task, including how to launch them and the evaluation metrics they provide.
+
+#### 1. Follow Lane (`follow_lane`)
+
+The **follow lane** task is the default task in Behavior Metrics. The ego vehicle must autonomously follow a lane on a predefined circuit without any other traffic participants. This is the simplest task and serves as the baseline for evaluating autonomous driving controllers.
+
+**Simulator support:** CARLA and Gazebo
+
+**How to launch (CARLA, GUI mode):**
+
+```bash
+python3 driver_carla.py -c configs/CARLA/default_carla.yml -g
+```
+
+**How to launch (Gazebo, GUI mode):**
+
+```bash
+python3 driver_gazebo.py -c configs/gazebo/default.yml -g
+```
+
+The task is configured in the YAML configuration file. When no `Task` field is specified under the `Simulation` section, `follow_lane` is used by default. Several CARLA towns and circuit directions (clockwise/anticlockwise) are available through the launch files in `configs/CARLA/CARLA_launch_files/`.
+
+**Evaluation metrics:**
+- **Completed distance** -- total distance (in meters) traveled by the ego vehicle.
+- **Average speed** -- mean speed over the experiment duration.
+- **Percentage completed** -- percentage of the circuit completed relative to a reference perfect lap.
+- **Position deviation MAE** -- mean absolute error of the vehicle's position relative to the ideal trajectory.
+- **Lap time** -- time taken to complete a full lap (if the lap is completed).
+- **Brain iteration frequency** -- how often the controller produces commands (in both simulated and real time).
+- **Mean inference time** -- average time for the brain model to produce a control command.
+
+#### 2. Follow Lane with Traffic (`follow_lane_traffic`)
+
+The **follow lane with traffic** task extends the follow lane task by adding dynamic obstacles to the environment, including other vehicles and pedestrians. The ego vehicle must follow the lane while avoiding collisions with the surrounding traffic.
+
+**Simulator support:** CARLA
+
+**How to launch (GUI mode):**
+
+```bash
+python3 driver_carla.py -c configs/CARLA/default_carla_traffic.yml -g
+```
+
+To configure this task, set the `Task` field to `follow_lane_traffic` under the `Simulation` section of the YAML configuration file. The number of vehicles and pedestrians can be controlled through the following configuration parameters:
+
+```yaml
+Simulation:
+    Task: "follow_lane_traffic"
+    NumberOfVehicle: 50
+    NumberOfWalker: 50
+    PercentagePedestriansRunning: 0.5
+    PercentagePedestriansCrossing: 0.5
+```
+
+Several scenario variants are available through different configuration files:
+- `default_carla_traffic.yml` -- vehicles and pedestrians on Town01.
+- `default_carla_pedestrian.yml` -- pedestrians only.
+- `default_carla_parked_vehicle.yml` -- parked (static) vehicles as obstacles.
+- `default_carla_parked_bike.yml` -- parked bikes as obstacles.
+- `default_carla_parked_bike_car.yml` -- parked bikes and cars as obstacles.
+- `default_carla_pedestrian_parked_bike_car.yml` -- pedestrians combined with parked obstacles.
+
+**Evaluation metrics:**
+
+In addition to all the follow lane metrics listed above, this task also tracks:
+- **Number of collisions** -- total number of distinct collisions during the experiment.
+- **Collision actor IDs** -- identifiers of the actors involved in each collision.
+
+#### 3. Follow Route / Navigation (`follow_route`)
+
+The **follow route** task requires the ego vehicle to navigate through a sequence of predefined waypoints (a route) across the map, including making turns at intersections. This is the most complex task, as the vehicle must handle diverse road geometries and potentially traffic. Routes are organized into test suites.
+
+**Simulator support:** CARLA
+
+**How to launch (headless/script mode):**
+
+```bash
+python3 driver_carla.py -c configs/CARLA/default_carla_test_suite.yml -s
+```
+
+To configure this task, set the `Task` field to `follow_route` and specify a test suite:
+
+```yaml
+Simulation:
+    Task: "follow_route"
+    TestSuite: "Town02_two_turns"
+    NumRoutes: 2
+    RandomizeRoutes: False
+    NumberOfVehicle: 50
+    NumberOfWalker: 0
+```
+
+Test suites are defined in `configs/CARLA/test_suites/` and specify a collection of start/end waypoints that the vehicle must navigate between.
+
+**Evaluation metrics:**
+
+The follow route task uses the same metrics as the follow lane task (completed distance, average speed, percentage completed, position deviation, inference time, etc.), along with route-specific completion tracking across the defined waypoints.
+
+> **Note:** The `follow_route` task only supports the headless/script mode (`-s` flag). It does not support the GUI mode (`-g` flag).
+
+#### Gazebo-specific tasks
+
+In addition to the CARLA-based tasks, Behavior Metrics provides partial support for autonomous driving tasks in Gazebo, primarily targeting the **follow line** task with an F1 racing car on simulated circuits. The available configuration files include support for deep learning brains (TensorFlow and PyTorch), reinforcement learning algorithms (Q-learning, DQN, DDPG, PPO), and explicitly programmed controllers.
+
+**Example configurations:**
+- `configs/gazebo/default.yml` -- explicitly programmed follow-line brain.
+- `configs/gazebo/DL-torch.yml` -- PyTorch deep learning brain.
+- `configs/gazebo/DL-tensorflow.yml` -- TensorFlow deep learning brain.
+- `configs/gazebo/default-rl-qlearn.yml` -- Q-learning reinforcement learning brain.
+- `configs/gazebo/default-drone.yml` -- drone follow-line task.
+
+
 ### Installation
 
 For more information about the project and how to install it, you can consult the [website of Behavior Metrics](https://jderobot.github.io/BehaviorMetrics/). 
