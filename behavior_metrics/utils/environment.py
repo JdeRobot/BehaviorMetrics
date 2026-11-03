@@ -49,8 +49,9 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False,
         if USE_ROS or ROS_VERSION == 'None':
             logger.info("Launching environment in Python API mode (ROS_VERSION=None)")
             
-            carla_bin = os.path.join(os.environ["CARLA_ROOT"], "CarlaUE4.sh")
-            carla_root = os.environ.get("CARLA_ROOT")
+            # CARLA_ROOT is only needed when Behavior Metrics has to launch CARLA itself
+            carla_root = os.environ.get("CARLA_ROOT", "")
+            carla_bin = os.path.join(carla_root, "CarlaUE4.sh")
             
             # comprobar si CARLA ya corre
             ps_output = subprocess.check_output(["ps", "-Af"], encoding="utf-8")
@@ -60,7 +61,9 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False,
             # iniciar servidor CARLA si no está activo
             if not carla_running:
                 if not os.path.exists(carla_bin):
-                    raise FileNotFoundError(f"Carla not found {carla_bin}")
+                    raise FileNotFoundError(
+                        f"CARLA is not running and CarlaUE4.sh was not found at '{carla_bin}'. "
+                        "Start CARLA (e.g. in Docker) or set CARLA_ROOT.")
                 
                 # carla_bin = os.path.join(os.environ["CARLA_ROOT"], "CarlaUE4.sh")
                 with open("/tmp/.carla_stdout.log", "w") as out, open("/tmp/.carla_stderr.log", "w") as err:
@@ -182,7 +185,12 @@ def launch_env(launch_file, random_spawn_point=False, carla_simulator=False,
 
 
 def close_ros_and_simulators(close_ros_resources=True):
-    """Kill all the simulators and ROS processes."""
+    """Kill all the simulators and ROS processes.
+
+    Set BM_EXTERNAL_CARLA=1 to keep an externally managed CARLA server
+    (e.g. running in a Docker container) alive.
+    """
+    keep_external_carla = os.environ.get("BM_EXTERNAL_CARLA") == "1"
     try:
         ps_output = subprocess.check_output(["ps", "-Af"]).decode('utf-8').strip("\n")
     except subprocess.CalledProcessError as ce:
@@ -203,7 +211,7 @@ def close_ros_and_simulators(close_ros_resources=True):
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for gzserver {}".format(ce))
 
-    if ps_output.count('CarlaUE4.sh') > 0:
+    if not keep_external_carla and ps_output.count('CarlaUE4.sh') > 0:
         # kill zombies processes -> nohup ./CarlaUE4.sh > /dev/null 2>&1 &
         try:
             subprocess.check_call(["killall", "-9", "CarlaUE4.sh"])
@@ -211,7 +219,7 @@ def close_ros_and_simulators(close_ros_resources=True):
         except subprocess.CalledProcessError as ce:
             logger.error("SimulatorEnv: exception raised executing killall command for CARLA server {}".format(ce))
 
-    if ps_output.count('CarlaUE4-Linux-Shipping') > 0:
+    if not keep_external_carla and ps_output.count('CarlaUE4-Linux-Shipping') > 0:
         try:
             subprocess.check_call(["killall", "-9", "CarlaUE4-Linux-Shipping"])
             logger.debug("SimulatorEnv: CarlaUE4-Linux-Shipping killed.")
