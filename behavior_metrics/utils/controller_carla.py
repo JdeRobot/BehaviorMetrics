@@ -721,6 +721,11 @@ class ControllerCarla:
             "weather_rain",
             "weather_wetness",
             "weather_fog",
+            "lane_road_id",
+            "lane_id",
+            "lane_heading_diff",
+            "on_driving_lane",
+            "in_right_lane",
         ]
 
     def _sample_row(self):
@@ -764,8 +769,35 @@ class ControllerCarla:
             w.precipitation,
             w.wetness,
             w.fog_density,
+            *self._lane_info(t),
         ]
 
+
+    def _lane_info(self, t):
+        """Lane of the ego vehicle for the CSV row.
+
+        Returns [road_id, lane_id, lane_heading_diff, on_driving_lane, in_right_lane]:
+        - lane_heading_diff: vehicle yaw minus lane yaw, in degrees (-180, 180];
+          negative means the vehicle points to the left of the lane direction.
+        - on_driving_lane: 1 if the vehicle centre is on a Driving lane.
+        - in_right_lane: 1 if it is also driving in the lane direction
+          (|lane_heading_diff| < 90, right-hand traffic). With
+          BM_RIGHT_LANE_MODE=rightmost it must also be the rightmost Driving lane.
+        """
+        try:
+            wp = self.carla_map.get_waypoint(
+                t.location, project_to_road=False, lane_type=carla.LaneType.Driving
+            )
+            if wp is None:
+                return ["", "", "", 0, 0]
+            diff = (t.rotation.yaw - wp.transform.rotation.yaw + 180.0) % 360.0 - 180.0
+            in_right = abs(diff) < 90.0
+            if in_right and os.environ.get("BM_RIGHT_LANE_MODE", "direction") == "rightmost":
+                right = wp.get_right_lane()
+                in_right = right is None or right.lane_type != carla.LaneType.Driving
+            return [wp.road_id, wp.lane_id, round(diff, 2), 1, int(in_right)]
+        except Exception:
+            return ["", "", "", 0, 0]
 
     def _csv_open(self, out_dir_base):
         os.makedirs(os.path.join(out_dir_base, self.time_str), exist_ok=True)
