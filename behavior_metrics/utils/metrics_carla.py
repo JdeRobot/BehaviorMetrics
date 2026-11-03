@@ -1581,6 +1581,11 @@ def build_json_summary(experiment_metrics: dict, extras: dict = None) -> dict:
         "suddenness_distance_steer_per_km",
         "suddenness_distance_brake_command_per_km",
         "suddenness_distance_speed_per_km",
+        "right_lane_percentage",
+        "off_driving_lane_percentage",
+        "steering_zero_crossings",
+        "steering_zero_crossings_per_second",
+        "steering_zero_crossings_deadband",
         "experiment_model",
         "carla_map",
         "starting_point",
@@ -1607,6 +1612,46 @@ def save_json_summary(json_path: str, summary: dict):
 
 
 # --- BACKEND PYTHON API (CSV) ---
+
+
+def get_lane_and_steering_metrics(df, experiment_metrics):
+    """Lane keeping and steering stability metrics from the Python API CSV.
+
+    - right_lane_percentage: percentage of rows (ticks) with in_right_lane == 1.
+    - off_driving_lane_percentage: percentage of rows with on_driving_lane == 0.
+    - steering_zero_crossings: sign changes of the applied steering, ignoring
+      values with |steer| < deadband (BM_STEER_DEADBAND, default 0.02), so that
+      small noise around zero does not count as a crossing.
+    - steering_zero_crossings_per_second: crossings / experiment_total_simulated_time.
+    """
+    try:
+        deadband = float(os.environ.get("BM_STEER_DEADBAND", "0.02"))
+    except ValueError:
+        deadband = 0.02
+
+    if "in_right_lane" in df.columns and len(df) > 0:
+        in_right = pd.to_numeric(df["in_right_lane"], errors="coerce").fillna(0).to_numpy()
+        experiment_metrics["right_lane_percentage"] = float(100.0 * in_right.mean())
+        if "on_driving_lane" in df.columns:
+            on_lane = pd.to_numeric(df["on_driving_lane"], errors="coerce").fillna(0).to_numpy()
+            experiment_metrics["off_driving_lane_percentage"] = float(
+                100.0 * (1.0 - on_lane.mean())
+            )
+    else:
+        # CSV recorded before these columns existed
+        experiment_metrics["right_lane_percentage"] = None
+
+    steer = pd.to_numeric(df["steer"], errors="coerce").fillna(0.0).to_numpy()
+    signs = np.where(np.abs(steer) >= deadband, np.sign(steer), 0.0)
+    firm = signs[signs != 0]
+    crossings = int(np.count_nonzero(firm[1:] != firm[:-1])) if len(firm) > 1 else 0
+    duration = float(experiment_metrics.get("experiment_total_simulated_time", 0.0) or 0.0)
+    experiment_metrics["steering_zero_crossings"] = crossings
+    experiment_metrics["steering_zero_crossings_per_second"] = (
+        crossings / duration if duration > 0 else 0.0
+    )
+    experiment_metrics["steering_zero_crossings_deadband"] = deadband
+    return experiment_metrics
 
 
 def get_metrics_python_api(
@@ -1721,6 +1766,7 @@ def get_metrics_python_api(
 
 
     experiment_metrics.setdefault("percentage_completed", 0.0)
+    get_lane_and_steering_metrics(df, experiment_metrics)
     experiment_metrics.setdefault(
         "effective_completed_distance", experiment_metrics["completed_distance"]
     )
